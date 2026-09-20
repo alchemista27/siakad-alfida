@@ -4,10 +4,10 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   NEXTAUTH_SECRET: z.string().min(1, "NEXTAUTH_SECRET is required").default("super-secret-key-change-in-production"),
   NEXTAUTH_URL: z.string().url("NEXTAUTH_URL must be a valid URL").default("http://localhost:3000"),
-  S3_ENDPOINT: z.string().default("http://localhost:9000"),
+  S3_ENDPOINT: z.string().url("S3_ENDPOINT must be a valid URL"),
   S3_BUCKET: z.string().default("sim-alfida-uploads"),
-  S3_ACCESS_KEY: z.string().default("minio_admin"),
-  S3_SECRET_KEY: z.string().default("minio_password"),
+  S3_ACCESS_KEY: z.string().min(1, "S3_ACCESS_KEY is required"),
+  S3_SECRET_KEY: z.string().min(1, "S3_SECRET_KEY is required"),
 });
 
 export const env = envSchema.parse({

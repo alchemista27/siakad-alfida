@@ -5,10 +5,10 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const s3Client = new S3Client({
   region: "us-east-1",
-  endpoint: process.env.MINIO_ENDPOINT || "http://localhost:9000",
+  endpoint: process.env.MINIO_ENDPOINT,
   credentials: {
-    accessKeyId: process.env.MINIO_ACCESS_KEY || "minioadmin",
-    secretAccessKey: process.env.MINIO_SECRET_KEY || "minioadminpassword",
+    accessKeyId: process.env.MINIO_ACCESS_KEY!,
+    secretAccessKey: process.env.MINIO_SECRET_KEY!,
   },
   forcePathStyle: true, // Required for MinIO
 });
@@ -28,6 +28,6 @@ export async function uploadToCloudinary(fileBuffer: Buffer, folder: string, fil
   await s3Client.send(command);
 
   // Return the public URL for the file
-  const endpoint = process.env.MINIO_PUBLIC_URL || process.env.MINIO_ENDPOINT || "http://localhost:9000";
+  const endpoint = process.env.MINIO_PUBLIC_URL || process.env.MINIO_ENDPOINT;
   return `${endpoint}/${BUCKET_NAME}/${fullPath}`;
 }

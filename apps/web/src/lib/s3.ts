@@ -3,10 +3,10 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3Client = new S3Client({
   region: "auto", // Required for AWS, but ignored by MinIO
-  endpoint: process.env.S3_ENDPOINT || "http://localhost:9000",
+  endpoint: process.env.S3_ENDPOINT,
   credentials: {
-    accessKeyId: process.env.S3_ACCESS_KEY || "minio_admin",
-    secretAccessKey: process.env.S3_SECRET_KEY || "minio_password",
+    accessKeyId: process.env.S3_ACCESS_KEY!,
+    secretAccessKey: process.env.S3_SECRET_KEY!,
   },
   forcePathStyle: true, // Crucial for MinIO
 });
