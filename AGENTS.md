@@ -60,3 +60,14 @@ This file gives AI coding agents the context they need to work effectively in th
 - **Small, focused PRs** — One logical change per PR. Aim for < 400 lines of diff. Split larger work into stacked PRs.
 - **Tests with the change** — New behavior gets new tests in the same PR. Bug fixes include a regression test.
 - **Run checks before pushing** — Run pnpm lint && pnpm test && pnpm build locally. Don't push red PRs.
+
+<!-- antislop:start -->
+## antislop
+For UI, copy, people, mobile layout, or code comments work, load the antislop skill for the task:
+- Core filter, always on: `antislop`
+- UI / visual: `antislop-ui`
+- People: `antislop-human`
+- Mobile / responsive: `antislop-layoutmobile`
+- Code comments: `antislop-code`
+Before starting, ask the user when antislop applies: during the work, or after it is done.
+<!-- antislop:end -->

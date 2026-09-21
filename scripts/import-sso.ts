@@ -1,12 +1,6 @@
 import { PrismaClient, UnitLevel, UserRole } from "@/generated/client";
 import * as xlsx from "xlsx";
-import { createClient } from "@supabase/supabase-js";
-
 const prisma = new PrismaClient();
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 const roleMapping: Record<string, UserRole> = {
   superadmin: UserRole.super_admin,
@@ -69,28 +63,9 @@ async function main() {
     
     const fullName = `${row.first_name || ""} ${row.last_name || ""}`.trim() || row.username;
     
-    // Auth with Supabase
-    let accId = null;
-    let { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email: row.email,
-      password: row.password,
-    });
-
-    if (authError || !authData?.user) {
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: row.email,
-        password: row.password,
-      });
-      if (!signUpError && signUpData?.user) {
-        accId = signUpData.user.id;
-      } else {
-        console.warn(`Failed to auth/create user in Supabase for ${row.email}:`, signUpError?.message);
-      }
-    } else {
-      accId = authData.user.id;
-    }
-
-    if (!accId) continue;
+    let accId = require('crypto').randomUUID();
+    const bcrypt = require('bcryptjs');
+    const hashedUserPassword = await bcrypt.hash(row.password, 10);
 
     // Create or update User
     const userRecord = await prisma.user.upsert({
@@ -100,9 +75,16 @@ async function main() {
         id: accId,
         fullName,
         email: row.email,
-        passwordHash: "managed_by_supabase",
+        passwordHash: "managed_by_better_auth",
         phone: "08110000" + Math.floor(Math.random() * 9999),
         isActive: true,
+        accounts: {
+          create: {
+            accountId: accId,
+            providerId: "credential",
+            password: hashedUserPassword
+          }
+        }
       },
     });
 

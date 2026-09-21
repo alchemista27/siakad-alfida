@@ -181,3 +181,13 @@
 **commit message:** feat: complete sprint 5 PPDB flow, PDF generation, and multi-schema refactoring
 
 ---
+**tanggal:** 21 September 2026
+**progress:**
+- Menginvestigasi dan menyelesaikan pembersihan sisa arsitektur Supabase yang masih terbawa di skrip *seeding* dan *import* pasca-migrasi ke Better Auth.
+- Mengimplementasikan migrasi *environment* aplikasi ke infrastruktur mandiri berbasis VPS (Coolify).
+- Memisahkan dan mendefinisikan *connection string* S3 API (MinIO) dari dashboard *Console*, serta menyuntikkan kredensial MinIO murni sebagai ganti Cloudinary.
+- Mengotomatiskan konversi ekstensi *domain email* *seed data* di PostgreSQL dari `@alfida.com` menjadi `@alfida.or.id` (menyesuaikan nama domain organisasi) via *Prisma client update script*.
+- Menghapus ketergantungan pada `docker-compose.yml` lokal karena tata kelola *deployment* sekarang sepenuhnya didelegasikan melalui integrasi Git otomatis di dasbor Coolify (Nixpacks/Dockerfile).
+**commit message:** chore: migrate infrastructure to VPS Coolify, configure MinIO S3 bucket, and finalize Better Auth zero-dependency on Supabase
+
+---

@@ -61,46 +61,17 @@ async function main() {
   console.log(`✓ ${createdUnits.length} Units & Settings created.`);
 
   // 3. Super Admin User
-  const { createClient } = require("@supabase/supabase-js");
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
   let superAdminId = "00000000-0000-0000-0000-000000000002";
-
-  // Try to sign in first to get the existing user ID
-  let { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-    email: "admin@alfida.com",
-    password: "Password123!",
-  });
-
-  if (authError || !authData?.user) {
-    // If sign in fails, try to sign up
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email: "admin@alfida.com",
-      password: "Password123!",
-    });
-    
-    if (signUpError || !signUpData?.user) {
-      console.warn("Could not create/fetch Supabase user, using default ID. Error:", signUpError?.message);
-    } else {
-      superAdminId = signUpData.user.id;
-    }
-  } else {
-    superAdminId = authData.user.id;
-  }
-
   
   const hashedAdminPassword = await bcrypt.hash("4dmin4lfid4", 10);
   const superAdmin = await prisma.user.upsert({
-    where: { email: "admin@alfida.com" },
+    where: { email: "admin@alfida.or.id" },
     update: { id: superAdminId, name: "Super Admin" },
     create: {
       id: superAdminId,
       fullName: "Super Admin",
       name: "Super Admin",
-      email: "admin@alfida.com",
+      email: "admin@alfida.or.id",
       phone: "081234567890",
       passwordHash: "managed_by_better_auth",
       emailVerified: true,
@@ -161,41 +132,21 @@ async function main() {
 
   // 5. Create Other Admin Roles
   const adminAccounts = [
-    { email: "hr@alfida.com", name: "Admin Kepegawaian", role: UserRole.admin_bidang },
-    { email: "bpi@alfida.com", name: "Admin BPI", role: UserRole.admin_bidang },
-    { email: "unit@alfida.com", name: "Admin Unit", role: UserRole.admin_unit },
-    { email: "ppdb@alfida.com", name: "Tim PPDB", role: UserRole.tim_ppdb },
-    { email: "pendidikan@alfida.com", name: "Admin Bidang Pendidikan", role: UserRole.admin_bidang, deptName: "Bidang Pendidikan" },
-    { email: "keuangan@alfida.com", name: "Admin Bidang Keuangan", role: UserRole.admin_bidang, deptName: "Bidang Keuangan" },
-    { email: "sarpras@alfida.com", name: "Admin Bidang Sarpras", role: UserRole.admin_bidang, deptName: "Bidang Sarana & Prasarana" },
-    { email: "guru@alfida.com", name: "Guru Pengajar (Sekaligus Murobbi)", role: UserRole.guru },
-    { email: "karyawan@alfida.com", name: "Staf Karyawan", role: UserRole.karyawan }
+    { email: "hr@alfida.or.id", name: "Admin Kepegawaian", role: UserRole.admin_bidang },
+    { email: "bpi@alfida.or.id", name: "Admin BPI", role: UserRole.admin_bidang },
+    { email: "unit@alfida.or.id", name: "Admin Unit", role: UserRole.admin_unit },
+    { email: "ppdb@alfida.or.id", name: "Tim PPDB", role: UserRole.tim_ppdb },
+    { email: "pendidikan@alfida.or.id", name: "Admin Bidang Pendidikan", role: UserRole.admin_bidang, deptName: "Bidang Pendidikan" },
+    { email: "keuangan@alfida.or.id", name: "Admin Bidang Keuangan", role: UserRole.admin_bidang, deptName: "Bidang Keuangan" },
+    { email: "sarpras@alfida.or.id", name: "Admin Bidang Sarpras", role: UserRole.admin_bidang, deptName: "Bidang Sarana & Prasarana" },
+    { email: "guru@alfida.or.id", name: "Guru Pengajar (Sekaligus Murobbi)", role: UserRole.guru },
+    { email: "karyawan@alfida.or.id", name: "Staf Karyawan", role: UserRole.karyawan }
   ];
 
   for (const acc of adminAccounts) {
-    let accId = `uuid-placeholder-${acc.role}`;
-    
-    // Auth with Supabase
-    let { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email: acc.email,
-      password: "Password123!",
-    });
-
-    if (authError || !authData?.user) {
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: acc.email,
-        password: "Password123!",
-      });
-      if (!signUpError && signUpData?.user) {
-        accId = signUpData.user.id;
-      }
-    } else {
-      accId = authData.user.id;
-    }
-
-    if (!accId.startsWith("uuid-placeholder")) {
+    let accId = require('crypto').randomUUID();
       
-      const hashedUserPassword = await bcrypt.hash("Password123!", 10);
+    const hashedUserPassword = await bcrypt.hash("Password123!", 10);
       const userRecord = await prisma.user.upsert({
         where: { email: acc.email },
         update: { id: accId, name: acc.name },
@@ -274,11 +225,10 @@ async function main() {
       }
       
       console.log(`✓ ${acc.name} initialized:`, userRecord.email);
-    }
   }
 
   // Assign Murobbi role to Guru and create Liqo Group
-  const guruUser = await prisma.user.findUnique({ where: { email: "guru@alfida.com" } });
+  const guruUser = await prisma.user.findUnique({ where: { email: "guru@alfida.or.id" } });
   if (guruUser) {
     const existingMurobbiRole = await prisma.userRoleAssignment.findFirst({
       where: { userId: guruUser.id, role: UserRole.murobbi },
