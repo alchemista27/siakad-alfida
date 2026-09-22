@@ -27,16 +27,16 @@ export default async function AuthLayout({
             )}
           </div>
           <span className="font-heading font-bold text-2xl tracking-tight text-surface">
-            SIM-Alfida
+            SIAKAD Alfida
           </span>
         </div>
 
         <div className="my-auto space-y-4">
           <h1 className="font-heading text-3xl font-extrabold leading-tight text-surface">
-            Sistem Informasi Manajemen Terpadu
+            Sistem Informasi Akademik & PPDB
           </h1>
           <p className="text-base text-surface/90 font-normal max-w-md">
-            Layanan pengelolaan pendidikan, pendaftaran calon siswa baru (PPDB), dan administrasi di lingkungan {foundationName}.
+            Layanan pendaftaran calon siswa baru (PPDB) dan manajemen akademik terpadu di lingkungan {foundationName}.
           </p>
         </div>
 
@@ -59,7 +59,7 @@ export default async function AuthLayout({
               <Icon name="hub" className="text-3xl text-tertiary" />
             )}
             <span className="font-heading font-bold text-xl text-tertiary">
-              SIM-Alfida
+              SIAKAD Alfida
             </span>
           </div>
 

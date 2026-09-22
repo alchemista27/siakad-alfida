@@ -12,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   
   return {
-    title: settings?.foundationName ? `SIM-Alfida — ${settings.foundationName}` : "SIM-Alfida — Sistem Informasi Manajemen Yayasan Alfida",
-    description: "Sistem Informasi Manajemen Pegawai, Karyawan, dan PPDB Yayasan Alfida",
+    title: settings?.foundationName ? `SIAKAD Alfida — ${settings.foundationName}` : "SIAKAD Alfida — Sistem Informasi Akademik & PPDB",
+    description: "Sistem Informasi Akademik dan PPDB Yayasan Alfida",
     icons: {
       icon: settings?.logoUrl || "/favicon.ico",
     }
@@ -40,7 +40,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto:wght@400;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap"
           rel="stylesheet"
         />
         <link

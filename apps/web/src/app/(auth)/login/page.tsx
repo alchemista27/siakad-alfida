@@ -5,7 +5,7 @@ export default function LoginPage() {
   return (
     <div className="w-full flex flex-col items-center text-center">
       <h2 className="font-heading text-2xl font-bold text-primary mb-1">
-        Masuk ke SIM-Alfida
+        Masuk ke SIAKAD
       </h2>
       <p className="text-xs text-gray-500 mb-6">
         Masukkan email dan password akun Anda untuk melanjutkan.

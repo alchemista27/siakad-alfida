@@ -1,12 +1,12 @@
 # Technical Design Document (TDD)
 
-## SIM-Alfida — Sistem Informasi Manajemen Yayasan Alfida
+## SIAKAD Alfida — Sistem Informasi Akademik & PPDB Yayasan Alfida
 
 | Atribut         | Detail                                          |
 | --------------- | ----------------------------------------------- |
 | **Versi**       | 0.1.0-alpha                                     |
 | **Tanggal**     | 6 Agustus 2026                                  |
-| **Penulis**     | Tim Pengembangan SIM-Alfida                     |
+| **Penulis**     | Tim Pengembangan SIAKAD Alfida                     |
 | **Status**      | Fase 3 (Manajemen Karyawan) - Fase 1 & 2 Selesai|
 | **Referensi**   | [PRD.md](file:///home/alchemista/projects/sim-alfida/docs/PRD.md) · [AGENTS.md](file:///home/alchemista/projects/sim-alfida/AGENTS.md) · [DESIGN.md](file:///home/alchemista/projects/sim-alfida/DESIGN.md) |
 
@@ -16,7 +16,7 @@
 
 ### 1.1 Gambaran Umum
 
-SIM-Alfida menggunakan arsitektur **Turborepo Monorepo** yang memisahkan Frontend (Next.js) dan Backend (NestJS) ke dalam workspace independen. Seluruh modul (PPDB, Akademik, Karyawan) diorganisir sebagai NestJS modules di backend, sementara Next.js bertanggung jawab murni untuk rendering UI.
+SIAKAD Alfida menggunakan arsitektur **Turborepo Monorepo** yang memisahkan Frontend (Next.js) dan Backend (NestJS) ke dalam workspace independen. Seluruh modul (PPDB, Akademik, Karyawan) diorganisir sebagai NestJS modules di backend, sementara Next.js bertanggung jawab murni untuk rendering UI.
 
 ```mermaid
 graph TB
@@ -1083,7 +1083,7 @@ stateDiagram-v2
 
 | Path               | Halaman                     | Keterangan                           |
 | ------------------ | --------------------------- | ------------------------------------ |
-| `/`                | Landing page                | Informasi umum SIM-Alfida           |
+| `/`                | Landing page                | Informasi umum SIAKAD Alfida           |
 | `/login`           | Login                       | Email + password                     |
 | `/register`        | Registrasi orang tua        | Form pendaftaran akun                |
 | `/modules`         | Dashboard Pilihan Modul     | Menampilkan modul yang diizinkan (Role-based)|
@@ -1187,7 +1187,7 @@ stateDiagram-v2
 
 # ── App ──────────────────────────────────────
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_APP_NAME="SIM-Alfida"
+NEXT_PUBLIC_APP_NAME="SIAKAD Alfida"
 
 # ── Database ─────────────────────────────────
 DATABASE_URL=postgresql://user:password@localhost:5432/sim_alfida

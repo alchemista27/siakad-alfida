@@ -1,6 +1,6 @@
 # Panduan Deployment ke Production (Vercel + Supabase)
 
-Dokumen ini berisi langkah-langkah rilis proyek **SIM-Alfida** ke lingkungan produksi.
+Dokumen ini berisi langkah-langkah rilis proyek **SIAKAD Alfida** ke lingkungan produksi.
 
 ## 1. Persiapan Database (Supabase)
 1. Buat _project_ baru di [Supabase Dashboard](https://supabase.com).

@@ -5,14 +5,10 @@ const prisma = new PrismaClient();
 const roleMapping: Record<string, UserRole> = {
   superadmin: UserRole.super_admin,
   staf_tu: UserRole.karyawan,
-  wakasek_bidang_sarpras: UserRole.admin_bidang,
-  wakasek_bidang_kesiswaan: UserRole.admin_bidang,
   guru_mapel: UserRole.guru,
   kepala_sekolah: UserRole.admin_unit,
   satpam: UserRole.karyawan,
-  wakasek_bidang_humas: UserRole.admin_bidang,
   wali_kelas: UserRole.guru,
-  wakasek_bidang_kurikulum: UserRole.admin_bidang,
   cleaning_service: UserRole.karyawan,
 };
 

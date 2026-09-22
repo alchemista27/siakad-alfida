@@ -18,7 +18,7 @@ const config: Config = {
         border: "#E3E8E7",
       },
       fontFamily: {
-        heading: ["Roboto", "sans-serif"],
+        heading: ["Lora", "serif"],
         body: ["Inter", "sans-serif"],
       },
     },

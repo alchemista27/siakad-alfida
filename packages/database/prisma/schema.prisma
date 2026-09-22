@@ -257,10 +257,6 @@ model Unit {
   extracurriculars Extracurricular[]
 
   // Modul Karyawan (Fase 3)
-  departments         Department[]
-  holidays            Holiday[]
-  gpsAttendanceConfig GpsAttendanceConfig?
-  gpsAttendances      GpsAttendance[]
 
   @@index([isActive])
   @@map("units")
@@ -353,23 +349,23 @@ enum KPIUpdateFrequency {
 }
 
 model User {
-  name         String?   @db.VarChar(200)
+  name          String?   @db.VarChar(200)
   emailVerified Boolean   @default(false) @map("email_verified")
-  image        String?   @db.Text
-  accounts     Account[]
-  id           String    @id @default(uuid()) @db.Uuid
-  username     String?   @unique @db.VarChar(100)
-  fullName     String    @map("full_name") @db.VarChar(200)
-  firstName    String?   @map("first_name") @db.VarChar(100)
-  lastName     String?   @map("last_name") @db.VarChar(100)
-  email        String    @unique @db.VarChar(255)
-  phone        String?   @db.VarChar(30)
-  passwordHash String    @map("password_hash") @db.VarChar(255)
-  groups       String[] // Fitur PostgreSQL: Array of strings
-  isActive     Boolean   @default(true) @map("is_active")
-  leaveQuota   Int       @default(12) @map("leave_quota")
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+  image         String?   @db.Text
+  accounts      Account[]
+  id            String    @id @default(uuid()) @db.Uuid
+  username      String?   @unique @db.VarChar(100)
+  fullName      String    @map("full_name") @db.VarChar(200)
+  firstName     String?   @map("first_name") @db.VarChar(100)
+  lastName      String?   @map("last_name") @db.VarChar(100)
+  email         String    @unique @db.VarChar(255)
+  phone         String?   @db.VarChar(30)
+  passwordHash  String    @map("password_hash") @db.VarChar(255)
+  groups        String[] // Fitur PostgreSQL: Array of strings
+  isActive      Boolean   @default(true) @map("is_active")
+  leaveQuota    Int       @default(12) @map("leave_quota")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
   roles               UserRoleAssignment[]
   sessions            Session[]
@@ -387,27 +383,6 @@ model User {
   promotionDecisions  PromotionDecision[]      @relation("PromotionDecider")
 
   // Modul Karyawan (Fase 3)
-  departmentAdmins    DepartmentAdmin[]
-  gpsAttendances      GpsAttendance[]
-  liqoGroupsAsMurobbi LiqoGroup[]
-  liqoMemberships     LiqoMember[]
-  liqoAttendances     LiqoAttendance[]
-  mutabaahRecords     MutabaahRecord[]
-  leaveRequests       LeaveRequest[]    @relation("UserLeaveRequests")
-  approvedLeaves      LeaveRequest[]    @relation("ApprovedLeaves")
-  workProgramsAsPIC   WorkProgram[]     @relation("WorkProgramsPIC")
-  activityReports     ActivityReport[]  @relation("SubmittedActivityReports")
-  departmentsLed      Department[]      @relation("DepartmentLeader")
-  programsCoordinated WorkProgram[]     @relation("WorkProgramsCoordinator")
-  kpisOwned           ExecutionKPI[]    @relation("ExecutionKPIPIC")
-
-  milestonesOwned  ExecutionMilestone[]      @relation("MilestonePIC")
-  tasksAssigned    ExecutionTask[]           @relation("TaskAssignee")
-  tasksDelegated   ExecutionTask[]           @relation("TaskAssignor")
-  tasksVerified    ExecutionTask[]           @relation("TaskVerifier")
-  realizationLogs  ExecutionRealizationLog[] @relation("RealizationPIC")
-  evidenceOwned    ExecutionEvidence[]       @relation("EvidenceOwner")
-  evidenceVerified ExecutionEvidence[]       @relation("EvidenceVerifier")
 
   @@index([isActive])
   @@map("users")
@@ -430,15 +405,15 @@ model UserRoleAssignment {
 }
 
 model Session {
-  ipAddress    String?   @map("ip_address") @db.Text
-  userAgent    String?   @map("user_agent") @db.Text
-  token        String    @unique @db.VarChar(255)
+  ipAddress String? @map("ip_address") @db.Text
+  userAgent String? @map("user_agent") @db.Text
+  token     String  @unique @db.VarChar(255)
 
-  id           String   @id @default(uuid()) @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  expiresAt    DateTime @map("expires_at") @db.Timestamptz
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -469,7 +444,6 @@ model AcademicYear {
   extraCoaches         ExtracurricularCoach[]
   extraMemberships     ExtracurricularMember[]
   lhbsReports          LhbsReport[]
-  workPrograms         WorkProgram[]
 
   @@unique([unitId, name])
   @@map("academic_years")
@@ -1031,411 +1005,11 @@ model PromotionDecision {
 
 // ── Modul Manajemen Karyawan & Absensi (Fase 3) ──
 
-model Department {
-  id          String   @id @default(uuid()) @db.Uuid
-  unitId      String?  @map("unit_id") @db.Uuid
-  name        String   @db.VarChar(100)
-  description String?
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-  parentId    String?  @map("parent_id") @db.Uuid
-  leaderId    String?  @map("leader_id") @db.Uuid
-
-  unit            Unit?             @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  parent          Department?       @relation("DepartmentToDepartment", fields: [parentId], references: [id], onDelete: SetNull)
-  children        Department[]      @relation("DepartmentToDepartment")
-  leader          User?             @relation("DepartmentLeader", fields: [leaderId], references: [id], onDelete: SetNull)
-  admins          DepartmentAdmin[]
-  workPrograms    WorkProgram[]
-  activityReports ActivityReport[]
-
-  @@map("departments")
-  @@schema("sim")
-}
-
-model DepartmentAdmin {
-  id           String   @id @default(uuid()) @db.Uuid
-  departmentId String   @map("department_id") @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
-
-  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([departmentId, userId])
-  @@map("department_admins")
-  @@schema("sim")
-}
-
-model Holiday {
-  id          String   @id @default(uuid()) @db.Uuid
-  unitId      String?  @map("unit_id") @db.Uuid
-  date        DateTime @db.Date
-  name        String   @db.VarChar(100)
-  description String?
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-
-  unit Unit? @relation(fields: [unitId], references: [id], onDelete: Cascade)
-
-  @@unique([unitId, date])
-  @@map("holidays")
-  @@schema("sim")
-}
-
-model GpsAttendanceConfig {
-  id           String   @id @default(uuid()) @db.Uuid
-  unitId       String   @unique @map("unit_id") @db.Uuid
-  latitude     Float
-  longitude    Float
-  radiusMeters Int      @default(50) @map("radius_meters")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
-
-  unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-
-  @@map("gps_attendance_config")
-  @@schema("sim")
-}
-
-model GpsAttendance {
-  id           String              @id @default(uuid()) @db.Uuid
-  userId       String              @map("user_id") @db.Uuid
-  unitId       String              @map("unit_id") @db.Uuid
-  date         DateTime            @db.Date
-  checkInTime  DateTime?           @map("check_in_time") @db.Timestamptz
-  checkOutTime DateTime?           @map("check_out_time") @db.Timestamptz
-  latitude     Float?
-  longitude    Float?
-  status       GpsAttendanceStatus
-  notes        String?
-  createdAt    DateTime            @default(now()) @map("created_at") @db.Timestamptz
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, date])
-  @@index([date])
-  @@index([status])
-  @@map("gps_attendances")
-  @@schema("sim")
-}
-
-model LiqoGroup {
-  id               String     @id @default(uuid()) @db.Uuid
-  name             String     @db.VarChar(200)
-  murobbiId        String     @map("murobbi_id") @db.Uuid
-  description      String?
-  scheduleDay      DayOfWeek? @map("schedule_day")
-  scheduleTime     String?    @map("schedule_time") @db.VarChar(50)
-  scheduleLocation String?    @map("schedule_location") @db.VarChar(200)
-  whatsappLink     String?    @map("whatsapp_link") @db.VarChar(255)
-  createdAt        DateTime   @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt        DateTime?  @updatedAt @map("updated_at") @db.Timestamptz
-
-  murobbi  User          @relation(fields: [murobbiId], references: [id], onDelete: Restrict)
-  members  LiqoMember[]
-  meetings LiqoMeeting[]
-
-  @@map("liqo_groups")
-  @@schema("sim")
-}
-
-model LiqoMember {
-  id       String   @id @default(uuid()) @db.Uuid
-  groupId  String   @map("group_id") @db.Uuid
-  userId   String   @map("user_id") @db.Uuid
-  joinedAt DateTime @default(now()) @map("joined_at") @db.Timestamptz
-
-  group LiqoGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([groupId, userId])
-  @@map("liqo_members")
-  @@schema("sim")
-}
-
-model LiqoMeeting {
-  id            String    @id @default(uuid()) @db.Uuid
-  groupId       String    @map("group_id") @db.Uuid
-  date          DateTime  @db.Date
-  materialTitle String    @map("material_title") @db.VarChar(200)
-  summary       String?   @db.Text
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime? @updatedAt @map("updated_at") @db.Timestamptz
-
-  group       LiqoGroup        @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  attendances LiqoAttendance[]
-
-  @@map("liqo_meetings")
-  @@schema("sim")
-}
-
-model LiqoAttendance {
-  id        String           @id @default(uuid()) @db.Uuid
-  meetingId String           @map("meeting_id") @db.Uuid
-  userId    String           @map("user_id") @db.Uuid
-  status    AttendanceStatus
-  notes     String?          @db.VarChar(255)
-  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt DateTime?        @updatedAt @map("updated_at") @db.Timestamptz
-
-  meeting LiqoMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
-  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([meetingId, userId])
-  @@map("liqo_attendances")
-  @@schema("sim")
-}
-
-model MutabaahRecord {
-  id            String    @id @default(uuid()) @db.Uuid
-  userId        String    @map("user_id") @db.Uuid
-  date          DateTime  @db.Date
-  sholatJamaah  Int       @default(0) @map("sholat_jamaah")
-  sholatRawatib Int       @default(0) @map("sholat_rawatib")
-  sholatDhuha   Boolean   @default(false) @map("sholat_dhuha")
-  sholatTahajud Boolean   @default(false) @map("sholat_tahajud")
-  tilawahPages  Int       @default(0) @map("tilawah_pages")
-  puasaSunnah   Boolean   @default(false) @map("puasa_sunnah")
-  infaq         Boolean   @default(false)
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime? @updatedAt @map("updated_at") @db.Timestamptz
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, date])
-  @@index([date])
-  @@map("mutabaah_records")
-  @@schema("sim")
-}
-
-model LeaveRequest {
-  id            String      @id @default(uuid()) @db.Uuid
-  userId        String      @map("user_id") @db.Uuid
-  type          LeaveType
-  startDate     DateTime    @map("start_date") @db.Date
-  endDate       DateTime    @map("end_date") @db.Date
-  reason        String      @db.Text
-  attachmentUrl String?     @map("attachment_url") @db.Text
-  status        LeaveStatus @default(pending)
-  approvedById  String?     @map("approved_by_id") @db.Uuid
-  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime?   @updatedAt @map("updated_at") @db.Timestamptz
-
-  user       User  @relation("UserLeaveRequests", fields: [userId], references: [id], onDelete: Cascade)
-  approvedBy User? @relation("ApprovedLeaves", fields: [approvedById], references: [id], onDelete: SetNull)
-
-  @@map("leave_requests")
-  @@schema("sim")
-}
-
 enum WorkProgramStatus {
   planned
   ongoing
   completed
 
-  @@schema("sim")
-}
-
-model WorkProgram {
-  id              String            @id @default(uuid()) @db.Uuid
-  departmentId    String            @map("department_id") @db.Uuid
-  academicYearId  String?           @map("academic_year_id") @db.Uuid
-  userId          String?           @map("user_id") @db.Uuid
-  title           String            @db.VarChar(255)
-  description     String?           @db.Text
-  source          String?           @db.VarChar(100)
-  objective       String?           @db.Text
-  targetAudience  String?           @map("target_audience") @db.VarChar(255)
-  mainOutput      String?           @map("main_output") @db.Text
-  expectedOutcome String?           @map("expected_outcome") @db.Text
-  startDate       DateTime?         @map("start_date") @db.Date
-  endDateRencana  DateTime?         @map("end_date_rencana") @db.Date
-  coordinatorId   String?           @map("coordinator_id") @db.Uuid
-  priority        ExecutionPriority @default(medium)
-  budgetRef       String?           @map("budget_ref") @db.VarChar(255)
-  manualProgress  Int?              @map("manual_progress") @db.SmallInt
-  status          WorkProgramStatus @default(planned)
-  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime?         @updatedAt @map("updated_at") @db.Timestamptz
-
-  department   Department     @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  academicYear AcademicYear?  @relation(fields: [academicYearId], references: [id], onDelete: SetNull)
-  user         User?          @relation("WorkProgramsPIC", fields: [userId], references: [id], onDelete: SetNull)
-  coordinator  User?          @relation("WorkProgramsCoordinator", fields: [coordinatorId], references: [id], onDelete: SetNull)
-  kpis         ExecutionKPI[]
-
-  milestones      ExecutionMilestone[]
-  tasks           ExecutionTask[]
-  realizationLogs ExecutionRealizationLog[]
-  evidence        ExecutionEvidence[]
-
-  @@map("work_programs")
-  @@schema("sim")
-}
-
-model ActivityReport {
-  id            String     @id @default(uuid()) @db.Uuid
-  departmentId  String     @map("department_id") @db.Uuid
-  type          ReportType
-  periodStart   DateTime   @map("period_start") @db.Date
-  periodEnd     DateTime   @map("period_end") @db.Date
-  content       String     @db.Text
-  attachmentUrl String?    @map("attachment_url") @db.Text
-  submittedById String     @map("submitted_by_id") @db.Uuid
-  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime?  @updatedAt @map("updated_at") @db.Timestamptz
-
-  department  Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  submittedBy User       @relation("SubmittedActivityReports", fields: [submittedById], references: [id], onDelete: Cascade)
-
-  @@map("activity_reports")
-  @@schema("sim")
-}
-
-model ExecutionKPI {
-  id              String             @id @default(uuid()) @db.Uuid
-  programId       String             @map("program_id") @db.Uuid
-  name            String             @db.VarChar(255)
-  indicatorType   KPIIndicatorType   @map("indicator_type")
-  direction       KPIDirection       @default(higher_is_better)
-  baseline        Float              @default(0)
-  target          Float              @default(0)
-  realization     Float              @default(0)
-  unit            String             @db.VarChar(50)
-  weight          Float              @default(0)
-  dataSource      String?            @map("data_source") @db.VarChar(255)
-  updateFrequency KPIUpdateFrequency @default(monthly) @map("update_frequency")
-  picId           String?            @map("pic_id") @db.Uuid
-  notes           String?            @db.Text
-  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime?          @updatedAt @map("updated_at") @db.Timestamptz
-
-  program WorkProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
-  pic     User?       @relation("ExecutionKPIPIC", fields: [picId], references: [id], onDelete: SetNull)
-
-  @@map("execution_kpis")
-  @@schema("sim")
-}
-
-model ExecutionMilestone {
-  id               String          @id @default(uuid()) @db.Uuid
-  programId        String          @map("program_id") @db.Uuid
-  order            Int             @default(1)
-  name             String          @db.VarChar(255)
-  output           String?         @db.Text
-  weight           Float           @default(0)
-  startDate        DateTime?       @map("start_date") @db.Date
-  deadline         DateTime?       @db.Date
-  actualEndDate    DateTime?       @map("actual_end_date") @db.Date
-  picId            String?         @map("pic_id") @db.Uuid
-  status           ExecutionStatus @default(not_started)
-  progress         Float           @default(0)
-  requiredEvidence String?         @map("required_evidence") @db.Text
-  notes            String?         @db.Text
-  createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt        DateTime?       @updatedAt @map("updated_at") @db.Timestamptz
-
-  program  WorkProgram               @relation(fields: [programId], references: [id], onDelete: Cascade)
-  pic      User?                     @relation("MilestonePIC", fields: [picId], references: [id], onDelete: SetNull)
-  tasks    ExecutionTask[]
-  logs     ExecutionRealizationLog[]
-  evidence ExecutionEvidence[]
-
-  @@map("execution_milestones")
-  @@schema("sim")
-}
-
-model ExecutionTask {
-  id                 String             @id @default(uuid()) @db.Uuid
-  programId          String             @map("program_id") @db.Uuid
-  milestoneId        String?            @map("milestone_id") @db.Uuid
-  source             String?            @db.VarChar(100)
-  referenceId        String?            @map("reference_id") @db.Uuid
-  description        String             @db.Text
-  expectedOutput     String?            @map("expected_output") @db.Text
-  assignorId         String?            @map("assignor_id") @db.Uuid
-  assigneeId         String?            @map("assignee_id") @db.Uuid
-  delegationDate     DateTime           @default(now()) @map("delegation_date") @db.Date
-  deadline           DateTime?          @db.Date
-  priority           ExecutionPriority  @default(medium)
-  status             ExecutionStatus    @default(not_started)
-  progress           Float              @default(0)
-  actualEndDate      DateTime?          @map("actual_end_date") @db.Date
-  verifierId         String?            @map("verifier_id") @db.Uuid
-  verificationStatus VerificationStatus @default(unverified) @map("verification_status")
-  verificationNotes  String?            @map("verification_notes") @db.Text
-  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt          DateTime?          @updatedAt @map("updated_at") @db.Timestamptz
-
-  program   WorkProgram         @relation(fields: [programId], references: [id], onDelete: Cascade)
-  milestone ExecutionMilestone? @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
-  assignor  User?               @relation("TaskAssignor", fields: [assignorId], references: [id], onDelete: SetNull)
-  assignee  User?               @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  verifier  User?               @relation("TaskVerifier", fields: [verifierId], references: [id], onDelete: SetNull)
-  evidence  ExecutionEvidence[]
-
-  @@map("execution_tasks")
-  @@schema("sim")
-}
-
-model ExecutionRealizationLog {
-  id                String   @id @default(uuid()) @db.Uuid
-  programId         String   @map("program_id") @db.Uuid
-  milestoneId       String?  @map("milestone_id") @db.Uuid
-  activityDate      DateTime @map("activity_date") @db.Date
-  activityName      String   @map("activity_name") @db.VarChar(255)
-  location          String?  @db.VarChar(255)
-  picId             String?  @map("pic_id") @db.Uuid
-  participantCount  Int?     @default(0) @map("participant_count")
-  output            String?  @db.Text
-  budgetRef         String?  @map("budget_ref") @db.VarChar(255)
-  issuesFound       String?  @map("issues_found") @db.Text
-  recommendation    String?  @db.Text
-  documentationLink String?  @map("documentation_link") @db.Text
-  issueId           String?  @map("issue_id") @db.Uuid
-  notes             String?  @db.Text
-  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
-
-  program   WorkProgram         @relation(fields: [programId], references: [id], onDelete: Cascade)
-  milestone ExecutionMilestone? @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
-  pic       User?               @relation("RealizationPIC", fields: [picId], references: [id], onDelete: SetNull)
-
-  @@map("execution_realization_logs")
-  @@schema("sim")
-}
-
-model ExecutionEvidence {
-  id                 String             @id @default(uuid()) @db.Uuid
-  programId          String             @map("program_id") @db.Uuid
-  milestoneId        String?            @map("milestone_id") @db.Uuid
-  taskId             String?            @map("task_id") @db.Uuid
-  name               String             @db.VarChar(255)
-  type               EvidenceType       @default(document)
-  nature             EvidenceNature     @default(mandatory)
-  ownerId            String?            @map("owner_id") @db.Uuid
-  physicalLocation   String?            @map("physical_location") @db.VarChar(255)
-  digitalLink        String?            @map("digital_link") @db.Text
-  availabilityStatus String?            @map("availability_status") @db.VarChar(100)
-  documentDate       DateTime?          @map("document_date") @db.Date
-  version            String?            @db.VarChar(50)
-  quality            String?            @db.VarChar(100)
-  verifierId         String?            @map("verifier_id") @db.Uuid
-  verificationStatus VerificationStatus @default(unverified) @map("verification_status")
-  verificationDate   DateTime?          @map("verification_date") @db.Timestamptz
-  repairNeeded       String?            @map("repair_needed") @db.Text
-  notes              String?            @db.Text
-  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt          DateTime?          @updatedAt @map("updated_at") @db.Timestamptz
-
-  program   WorkProgram         @relation(fields: [programId], references: [id], onDelete: Cascade)
-  milestone ExecutionMilestone? @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
-  task      ExecutionTask?      @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  owner     User?               @relation("EvidenceOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  verifier  User?               @relation("EvidenceVerifier", fields: [verifierId], references: [id], onDelete: SetNull)
-
-  @@map("execution_evidences")
   @@schema("sim")
 }
 

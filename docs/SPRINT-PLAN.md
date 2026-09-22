@@ -1,4 +1,10 @@
-# Sprint Plan — SIM-Alfida (Phase 1 & 2: Modul PPDB & Akademik)
+# Sprint Plan & Roadmap
+
+> [!WARNING]
+> **PEMBERITAHUAN PEMISAHAN PROYEK**
+> Per September 2026, repositori ini murni difokuskan untuk **SIAKAD dan PPDB**. Seluruh sprint atau epics yang berkaitan dengan Manajemen Karyawan (HR) dan BPI telah dibatalkan dari repositori ini dan dipindahkan ke proyek `simanajemen`.
+
+# Sprint Plan — SIAKAD Alfida (Phase 1 & 2: Modul PPDB & Akademik)
 
 > **Dokumen ini disusun berdasarkan:**
 > [PRD.md](./PRD.md) · [TDD.md](./TDD.md) · [DB-SCHEMA.md](./DB-SCHEMA.md) · [DESIGN.md](../DESIGN.md) · [PROJECTS.md](../PROJECTS.md)
@@ -9,7 +15,7 @@
 
 | Item | Detail |
 |------|--------|
-| **Nama** | SIM-Alfida — Sistem Informasi Manajemen Yayasan Alfida |
+| **Nama** | SIAKAD Alfida — Sistem Informasi Akademik & PPDB Yayasan Alfida |
 | **Fokus Fase 1, 2, 3** | Modul PPDB, Modul Akademik & Modul Manajemen Karyawan |
 | **Target User** | 8 unit pendidikan (Admin Unit, Guru, Wali Kelas, Pembina Ekskul, Orang Tua) |
 | **Stack** | Turborepo · Next.js 15 (Frontend) · NestJS (Backend) · Prisma · PostgreSQL · Tailwind CSS · Supabase Auth |

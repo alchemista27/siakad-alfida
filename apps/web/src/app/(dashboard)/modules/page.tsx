@@ -79,34 +79,17 @@ export default async function ModulesPage() {
   
   if (roles.some((r: any) => r.role === "super_admin")) {
     dashboardHref = "/admin/dashboard";
-  } else if (roles.some((r: any) => r.role === "admin_bidang")) {
-    dashboardHref = "/admin/hr/dashboard";
   } else if (roles.some((r: any) => r.role === "admin_unit" || r.role === "tim_ppdb")) {
     dashboardHref = "/unit/dashboard";
   } else if (roles.some((r: any) => r.role === "guru")) {
     dashboardHref = "/teacher/dashboard";
-  } else if (roles.some((r: any) => r.role === "karyawan")) {
-    dashboardHref = "/staff/attendance";
-  } else if (roles.some((r: any) => r.role === "admin_bidang")) {
-    dashboardHref = "/admin/bpi/liqo";
-  } else if (roles.some((r: any) => r.role === "admin_bidang")) {
-    dashboardHref = "/admin/strategic";
-  }
-
-  let hrHref = "/staff/attendance";
-  if (roles.some((r: any) => r.role === "super_admin" || r.role === "admin_bidang")) {
-    hrHref = "/admin/hr/dashboard";
-  } else if (roles.some((r: any) => r.role === "admin_bidang")) {
-    hrHref = "/admin/bpi/liqo";
-  } else if (roles.some((r: any) => r.role === "admin_bidang")) {
-    hrHref = "/admin/strategic";
   }
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-heading font-bold text-2xl text-primary">
-          Pilih Modul SIM-Alfida
+          Pilih Modul SIAKAD Alfida
         </h1>
         <p className="text-sm text-gray-500 mt-1">
           Selamat datang, {user?.name || "Pengguna"}. Pilih modul yang ingin Anda akses sesuai dengan peranan Anda.
@@ -131,29 +114,10 @@ export default async function ModulesPage() {
         />
 
         <ModuleCard
-          title="Modul Surat Menyurat"
-          subtitle="Generasi surat resmi yayasan, template kop surat, dan tanda tangan digital."
-          icon="mail"
-        />
-
-        <ModuleCard
-          title="Manajemen Karyawan"
-          subtitle="Pengelolaan data guru & staf, presensi, homebase unit, dan dokumen kepegawaian."
+          title="Modul Manajemen Yayasan"
+          subtitle="Berpindah ke proyek SIM-Manajemen untuk fitur SDM, Presensi, dan Penggajian."
           icon="badge"
-          active={true}
-          href={hrHref}
-        />
-
-        <ModuleCard
-          title="Payroll & Penggajian"
-          subtitle="Penghitungan gaji terintegrasi presensi, tunjangan, dan slip gaji digital."
-          icon="payments"
-        />
-
-        <ModuleCard
-          title="Rekrutmen Tenaga Kerja"
-          subtitle="Penerimaan pegawai & guru baru yayasan Alfida."
-          icon="work"
+          active={false}
         />
       </div>
 

@@ -1,12 +1,19 @@
 # Product Requirements Document (PRD)
 
-## SIM-Alfida — Sistem Informasi Manajemen Yayasan Alfida
+
+> [!WARNING]
+> **PEMBERITAHUAN PEMISAHAN PROYEK**
+> Per September 2026, repositori ini murni difokuskan untuk **SIAKAD dan PPDB**. Seluruh fitur terkait Manajemen Karyawan (HR), BPI, Payroll, dan Surat Menyurat telah dipindahkan ke repositori/proyek terpisah (`simanajemen`).
+
+
+
+## SIAKAD-Alfida — Sistem Informasi Akademik & PPDB Yayasan Alfida
 
 | Atribut         | Detail                                      |
 | --------------- | ------------------------------------------- |
 | **Versi**       | 0.3.0-alpha                                 |
 | **Tanggal**     | 18 Agustus 2026                             |
-| **Penulis**     | Tim Pengembangan SIM-Alfida                 |
+| **Penulis**     | Tim Pengembangan SIAKAD Alfida                 |
 | **Status**      | Active Development                          |
 | **Referensi**   | AGENTS.md · DESIGN.md · PROJECTS.md         |
 
@@ -14,7 +21,7 @@
 
 ## 1. Ringkasan Eksekutif
 
-SIM-Alfida adalah platform Sistem Informasi Manajemen terpadu untuk Yayasan Alfida yang menaungi **2 TK, 3 SD, 1 SMP, 1 SMA, 1 Pesantren Alquran, dan 1 Kantor Yayasan (Bukan unit pendidikan)**. Sistem ini bertujuan meningkatkan efektivitas dan efisiensi pengelolaan yayasan melalui digitalisasi proses operasional mulai dari penerimaan siswa baru, akademik, surat-menyurat, manajemen karyawan, payroll, hingga rekrutmen.
+SIAKAD Alfida adalah platform Sistem Informasi Akademik & PPDB terpadu untuk Yayasan Alfida yang menaungi **2 TK, 3 SD, 1 SMP, 1 SMA, 1 Pesantren Alquran, dan **. Sistem ini bertujuan meningkatkan efektivitas dan efisiensi pengelolaan yayasan melalui digitalisasi proses operasional mulai dari penerimaan siswa baru (PPDB) dan manajemen akademik.
 
 Platform dibangun dengan arsitektur **multi-tenant** yang memungkinkan setiap unit pendidikan dan kantor yayasan dikelola secara independen di bawah satu sistem terpusat.
 
@@ -130,7 +137,7 @@ Yayasan Alfida (Root)
 
 ### 5.3 SSO (Single Sign-On)
 
-- Satu akun Supabase Auth untuk seluruh modul SIM-Alfida
+- Satu akun Supabase Auth untuk seluruh modul SIAKAD Alfida
 - Mendukung multi-role per pengguna (satu user bisa memiliki peran di lebih dari satu unit)
 - Token Supabase Auth dikirim ke NestJS API sebagai Bearer token untuk validasi server-side
 

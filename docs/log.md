@@ -46,7 +46,7 @@
 
 ---
 
-# Log Pekerjaan SIM-Alfida
+# Log Pekerjaan SIAKAD Alfida
 
 ---
 
@@ -191,3 +191,12 @@
 **commit message:** chore: migrate infrastructure to VPS Coolify, configure MinIO S3 bucket, and finalize Better Auth zero-dependency on Supabase
 
 ---
+
+**tanggal:** 22 September 2026
+**progress:**
+- Memecah (*spin-off*) repositori dengan menghapus seluruh entitas modul Manajemen Karyawan (SDM), BPI, dan Payroll dari *database* (Prisma), kode API (NestJS), dan UI (Next.js) untuk memfokuskan aplikasi murni sebagai SIAKAD & PPDB.
+- Memperbaiki *error* gagal unggah dokumen S3 (AWS SDK XML Parse) dengan menyelaraskan konfigurasi port Traefik/Coolify menggunakan jalur prokol HTTP lokal (`http://s3.alfida.or.id`).
+- Merapikan rute *redirect* (*middleware*) dan antarmuka pemilihan modul (`/modules`) dengan menghapus menu HRD yang *broken/404*.
+- Melakukan *rebranding* visual secara menyeluruh dengan memperbarui *copywriting* halaman otentikasi, *metadata title*, dan seluruh dokumen panduan (PRD, SPRINT, DB-SCHEMA).
+- Mengimplementasikan perpaduan estetika *font* Lora (Serif) untuk tajuk utama dan Inter (Sans) untuk isi teks melalui modifikasi *Tailwind Config* dan *Global CSS*.
+**commit message:** feat: strip HR modules, rebrand to SIAKAD Alfida, fix MinIO S3 routing, and update Lora typography

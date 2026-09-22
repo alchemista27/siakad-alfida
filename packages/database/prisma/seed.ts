@@ -132,14 +132,8 @@ async function main() {
 
   // 5. Create Other Admin Roles
   const adminAccounts = [
-    { email: "hr@alfida.or.id", name: "Admin Kepegawaian", role: UserRole.admin_bidang },
-    { email: "bpi@alfida.or.id", name: "Admin BPI", role: UserRole.admin_bidang },
     { email: "unit@alfida.or.id", name: "Admin Unit", role: UserRole.admin_unit },
     { email: "ppdb@alfida.or.id", name: "Tim PPDB", role: UserRole.tim_ppdb },
-    { email: "pendidikan@alfida.or.id", name: "Admin Bidang Pendidikan", role: UserRole.admin_bidang, deptName: "Bidang Pendidikan" },
-    { email: "keuangan@alfida.or.id", name: "Admin Bidang Keuangan", role: UserRole.admin_bidang, deptName: "Bidang Keuangan" },
-    { email: "sarpras@alfida.or.id", name: "Admin Bidang Sarpras", role: UserRole.admin_bidang, deptName: "Bidang Sarana & Prasarana" },
-    { email: "guru@alfida.or.id", name: "Guru Pengajar (Sekaligus Murobbi)", role: UserRole.guru },
     { email: "karyawan@alfida.or.id", name: "Staf Karyawan", role: UserRole.karyawan }
   ];
 
@@ -178,9 +172,6 @@ async function main() {
         let unitToAssign = acc.role === UserRole.admin_unit || acc.role === UserRole.tim_ppdb ? tk1?.id : null;
         
         const kantorYayasan = createdUnits.find(u => u.level === UnitLevel.kantor_yayasan);
-        if (acc.role === UserRole.admin_bidang && kantorYayasan) {
-          unitToAssign = kantorYayasan.id;
-        }
 
         await prisma.userRoleAssignment.create({
           data: {
@@ -192,11 +183,6 @@ async function main() {
       }
 
       // If it's an admin bidang, create the department and link
-      if (acc.role === UserRole.admin_bidang && acc.deptName) {
-        const kantorYayasan = createdUnits.find(u => u.level === UnitLevel.kantor_yayasan);
-        if (kantorYayasan) {
-          let dept = await prisma.department.findFirst({
-            where: { name: acc.deptName, unitId: kantorYayasan.id }
           });
 
           if (!dept) {
@@ -227,14 +213,8 @@ async function main() {
       console.log(`✓ ${acc.name} initialized:`, userRecord.email);
   }
 
-  // Assign Murobbi role to Guru and create Liqo Group
-  const guruUser = await prisma.user.findUnique({ where: { email: "guru@alfida.or.id" } });
-  if (guruUser) {
-    const existingMurobbiRole = await prisma.userRoleAssignment.findFirst({
-      where: { userId: guruUser.id, role: UserRole.murobbi },
     });
 
-    if (!existingMurobbiRole) {
       await prisma.userRoleAssignment.create({
         data: {
           userId: guruUser.id,
@@ -242,7 +222,6 @@ async function main() {
           unitId: null, // Global or unit-based depending on need
         },
       });
-      console.log(`✓ Role Murobbi ditambahkan ke ${guruUser.email}`);
     }
   }
 

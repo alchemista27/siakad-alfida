@@ -1,6 +1,12 @@
+# Skema Database (DB Schema)
+
+> [!WARNING]
+> **PEMBERITAHUAN PEMISAHAN PROYEK**
+> Per September 2026, repositori ini murni difokuskan untuk **SIAKAD dan PPDB**. Seluruh tabel dan skema yang berkaitan dengan SDM, BPI (Mutabaah, Liqo), Cuti (Leave), dan KPI telah **dihapus dari schema.prisma** dan dipindahkan ke proyek `simanajemen`. Penjelasan tabel-tabel tersebut di dalam dokumen ini sudah dianggap usang (deprecated).
+
 # Database Schema
 
-## SIM-Alfida — Sistem Informasi Manajemen Yayasan Alfida
+## SIAKAD Alfida — Sistem Informasi Akademik & PPDB Yayasan Alfida
 
 | Atribut         | Detail                                          |
 | --------------- | ----------------------------------------------- |
