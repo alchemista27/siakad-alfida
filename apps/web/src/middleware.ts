@@ -1,22 +1,18 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getSessionCookie } from "better-auth/cookies";
 
 const publicRoutes = ["/login", "/register"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const res = await fetch(new URL("/api/auth/get-session", request.url).toString(), {
-    headers: {
-      cookie: request.headers.get("cookie") || "",
-    },
-  });
+  // Cek session cookie secara langsung tanpa fetch HTTP
+  const sessionCookie = getSessionCookie(request);
 
-  const session = res.ok ? await res.json() : null;
-  const user = session?.user;
-
+  // Jika di halaman root (/)
   if (pathname === "/") {
-    if (user) {
+    if (sessionCookie) {
       return NextResponse.redirect(new URL("/modules", request.url));
     }
     return NextResponse.redirect(new URL("/login", request.url));
@@ -26,13 +22,15 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith(route)
   );
 
-  if (!user && !isPublicRoute) {
+  // Jika belum login dan mencoba akses halaman privat
+  if (!sessionCookie && !isPublicRoute) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (user && isPublicRoute) {
+  // Jika sudah login dan membuka halaman login/register
+  if (sessionCookie && isPublicRoute) {
     return NextResponse.redirect(new URL("/modules", request.url));
   }
 
