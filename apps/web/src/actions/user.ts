@@ -9,21 +9,16 @@ export async function getCurrentUser() {
   const user = session?.user;
   if (!user) return null;
 
+  // Fetch enriched user (with roles) from NestJS
   try {
-    const { prisma } = await import("@/lib/prisma");
-    const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
-      include: { roles: true }
-    });
-    
+    const dbUser = await apiFetch("/auth/me");
     return {
       ...user,
       name: dbUser?.fullName || user.name || user.email?.split("@")[0],
       fullName: dbUser?.fullName,
-      roles: dbUser?.roles && dbUser.roles.length > 0 ? dbUser.roles : [{ role: "orang_tua" }]
+      roles: dbUser?.roles || [{ role: "orang_tua" }]
     };
-  } catch (error) {
-    console.error("Failed to fetch user roles from database:", error);
+  } catch {
     return {
       ...user,
       name: user.name || user.email?.split("@")[0],
