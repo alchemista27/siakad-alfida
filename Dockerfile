@@ -15,7 +15,7 @@ COPY . .
 RUN corepack enable pnpm && pnpm run generate
 RUN corepack enable pnpm && pnpm build
 
-# Production image, copy all the files and run next
+# Production image
 FROM base AS runner
 WORKDIR /app
 
@@ -24,17 +24,27 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+RUN corepack enable pnpm
 
+# Copy entire builder output (Monorepo approach: run both NestJS and Next.js in 1 container)
+COPY --from=builder --chown=nextjs:nodejs /app ./
 
-# Automatically leverage output traces to reduce image size
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/packages/database/prisma ./packages/database/prisma
+# Create a start script to launch both API and Web
+COPY <<-'SCRIPT' /app/start.sh
+#!/bin/sh
+echo "Starting NestJS API on port 3001..."
+node apps/api/dist/main.js &
+
+echo "Starting Next.js on port 3000..."
+cd apps/web && pnpm start
+SCRIPT
+
+RUN chmod +x /app/start.sh
 
 USER nextjs
 
-EXPOSE 3000
+EXPOSE 3000 3001
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "apps/web/server.js"]
+CMD ["/app/start.sh"]
