@@ -29,6 +29,7 @@ RUN adduser --system --uid 1001 nextjs
 # Automatically leverage output traces to reduce image size
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/packages/database/prisma ./packages/database/prisma
 
 USER nextjs
 
