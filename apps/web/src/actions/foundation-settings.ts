@@ -28,20 +28,24 @@ export async function updateFoundationSettings(formData: FormData) {
   if (logoFile && logoFile.size > 0) {
     const arrayBuffer = await logoFile.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+    const ext = logoFile.name.split('.').pop() || 'png';
     logoUrl = await uploadToCloudinary(
       buffer,
       `sim-alfida/foundation`,
-      `logo-${Date.now()}`
+      `logo-${Date.now()}.${ext}`,
+      logoFile.type || "image/png"
     );
   }
 
   if (signatureFile && signatureFile.size > 0) {
     const arrayBuffer = await signatureFile.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+    const ext = signatureFile.name.split('.').pop() || 'png';
     chairmanSignatureUrl = await uploadToCloudinary(
       buffer,
       `sim-alfida/foundation`,
-      `signature-${Date.now()}`
+      `signature-${Date.now()}.${ext}`,
+      signatureFile.type || "image/png"
     );
   }
 

@@ -48,7 +48,7 @@ export async function uploadPaymentReceiptAction(formData: FormData) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const { uploadToCloudinary } = await import("@/lib/cloudinary");
-    uploadedUrl = await uploadToCloudinary(buffer, `sim-alfida/payments/${reg.academicYear.unit.slug}`, `pay-${reg.registrationNumber}-${Date.now()}`);
+    uploadedUrl = await uploadToCloudinary(buffer, `sim-alfida/payments/${reg.academicYear.unit.slug}`, `pay-${reg.registrationNumber}-${Date.now()}.${file.name.split(".").pop() || "png"}`, file.type || "image/png");
   } catch (err: any) {
     throw new Error("Gagal mengunggah file.");
   }

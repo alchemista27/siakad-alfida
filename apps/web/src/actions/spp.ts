@@ -37,8 +37,9 @@ export async function uploadSppProof(formData: FormData) {
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const filename = `spp_${invoiceId}_${Date.now()}`;
-    const proofUrl = await uploadToCloudinary(buffer, 'sim-alfida/spp', filename);
+    const ext = file.name.split(".").pop() || "png";
+    const filename = `spp_${invoiceId}_${Date.now()}.${ext}`;
+    const proofUrl = await uploadToCloudinary(buffer, 'sim-alfida/spp', filename, file.type || "image/png");
 
     await apiFetch("/spp/upload-proof", {
       method: "POST",

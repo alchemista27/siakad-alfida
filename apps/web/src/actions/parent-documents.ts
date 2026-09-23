@@ -29,7 +29,7 @@ export async function uploadRequiredDocumentsAction(formData: FormData) {
           const uploadedUrl = await uploadToCloudinary(
             buffer,
             `sim-alfida/documents/${reg.academicYear.unit.slug}/${reg.registrationNumber}`,
-            `${key}-${Date.now()}`
+            `${key}-${Date.now()}.${file.name.split(".").pop() || "png"}`, file.type || "application/octet-stream"
           );
           
           await apiFetch("/ppdb/documents/upsert", {
@@ -74,7 +74,7 @@ export async function uploadMedicalResultAction(formData: FormData) {
   const uploadedUrl = await uploadToCloudinary(
     buffer,
     `sim-alfida/documents/${reg.academicYear.unit.slug}/${reg.registrationNumber}`,
-    `medical_result-${Date.now()}`
+    `medical_result-${Date.now()}.${file.name.split(".").pop() || "png"}`, file.type || "application/octet-stream"
   );
 
   await apiFetch("/ppdb/documents/upsert", {
@@ -116,7 +116,7 @@ export async function uploadSingleDocumentAction(formData: FormData) {
   const uploadedUrl = await uploadToCloudinary(
     buffer,
     `sim-alfida/documents/${reg.academicYear.unit.slug}/${reg.registrationNumber}`,
-    `${key}-${Date.now()}`
+    `${key}-${Date.now()}.${file.name.split(".").pop() || "png"}`, file.type || "application/octet-stream"
   );
   
   await apiFetch("/ppdb/documents/upsert", {

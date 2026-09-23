@@ -15,14 +15,19 @@ const s3Client = new S3Client({
 
 const BUCKET_NAME = process.env.MINIO_BUCKET || "sim-alfida";
 
-export async function uploadToCloudinary(fileBuffer: Buffer, folder: string, filename: string): Promise<string> {
+export async function uploadToCloudinary(
+  fileBuffer: Buffer,
+  folder: string,
+  filename: string,
+  contentType: string = "image/png"
+): Promise<string> {
   const fullPath = `${folder}/${filename}`;
   
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
     Key: fullPath,
     Body: fileBuffer,
-    ContentType: "application/octet-stream", // Fallback, could be more specific
+    ContentType: contentType, // Menggunakan MIME type yang tepat
   });
 
   await s3Client.send(command);
