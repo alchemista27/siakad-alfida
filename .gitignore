@@ -34,3 +34,6 @@ sistem-data/
 # Generated Prisma Client
 src/generated/client/scratch/
 scratch/
+# Turborepo
+.turbo/
+*.tsbuildinfo
