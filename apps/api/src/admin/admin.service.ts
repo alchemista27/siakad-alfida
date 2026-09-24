@@ -3,21 +3,15 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UserRole } from '@sim/database';
 import * as crypto from 'crypto';
 
+import * as bcrypt from 'bcryptjs';
+
 @Injectable()
 export class AdminService {
   constructor(private prisma: PrismaService) {}
 
   // ================= USERS =================
   private async hashPassword(password: string): Promise<string> {
-    const config = { N: 16384, r: 16, p: 1, dkLen: 64 };
-    const salt = crypto.randomBytes(16).toString("hex");
-    return new Promise((resolve, reject) => {
-      crypto.scrypt(
-        password.normalize("NFKC"), salt, config.dkLen,
-        { N: config.N, r: config.r, p: config.p, maxmem: 128 * config.N * config.r * 2 },
-        (err, key) => err ? reject(err) : resolve(`${salt}:${key.toString("hex")}`)
-      );
-    });
+    return bcrypt.hash(password, 10);
   }
 
   private mapRole(roleStr: string): UserRole {
@@ -111,7 +105,7 @@ export class AdminService {
       this.prisma.user.create({
         data: {
           id: userId, email: data.email, fullName: data.fullName, username: data.username || undefined,
-          name: data.fullName, passwordHash: 'credential', isActive: true, groups: data.groups,
+          name: data.fullName, passwordHash: 'credential', isActive: true, groups: data.groups, emailVerified: true,
         }
       }),
       this.prisma.account.create({

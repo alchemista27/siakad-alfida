@@ -54,6 +54,25 @@ export const auth = betterAuth({
                 return await bcrypt.hash(password, 10);
             },
             verify: async (data: { hash: string; password: string }) => {
+                // Fallback jika hash berformat scrypt (salt:key)
+                if (data.hash && data.hash.includes(":")) {
+                    const [saltStr, storedKey] = data.hash.split(":");
+                    const config = { N: 16384, r: 16, p: 1, dkLen: 64 };
+                    const crypto = await import("crypto");
+                    return new Promise((resolve) => {
+                        crypto.scrypt(
+                            data.password.normalize("NFKC"),
+                            saltStr,
+                            config.dkLen,
+                            { N: config.N, r: config.r, p: config.p, maxmem: 128 * config.N * config.r * 2 },
+                            (err, key) => {
+                                if (err) return resolve(false);
+                                resolve(key.toString("hex") === storedKey);
+                            }
+                        );
+                    });
+                }
+                // Standar bcrypt
                 return await bcrypt.compare(data.password, data.hash);
             }
         }
