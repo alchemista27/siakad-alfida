@@ -96,6 +96,18 @@ export class AdminController {
     return this.adminService.togglePpdbActive(id, ayId, body.activate);
   }
 
+  @Put('units/:id/academic-years/:ayId')
+  @Roles(UserRole.super_admin, UserRole.admin_unit)
+  async updateAcademicYear(@Param('id') id: string, @Param('ayId') ayId: string, @Body() body: any) {
+    return this.adminService.updateAcademicYear(id, ayId, body);
+  }
+
+  @Delete('units/:id/academic-years/:ayId')
+  @Roles(UserRole.super_admin, UserRole.admin_unit)
+  async deleteAcademicYear(@Param('id') id: string, @Param('ayId') ayId: string) {
+    return this.adminService.deleteAcademicYear(id, ayId);
+  }
+
   // ================= FOUNDATION =================
   @Get('foundation-settings')
   @Roles(UserRole.super_admin)

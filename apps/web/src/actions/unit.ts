@@ -60,6 +60,23 @@ export async function createAcademicYearAction(unitId: string, data: unknown) {
   return ay;
 }
 
+export async function updateAcademicYearAction(unitId: string, ayId: string, data: unknown) {
+  const ay = await apiFetch(`/admin/units/${unitId}/academic-years/${ayId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+  revalidatePath("/unit/ppdb-overview");
+  return ay;
+}
+
+export async function deleteAcademicYearAction(unitId: string, ayId: string) {
+  await apiFetch(`/admin/units/${unitId}/academic-years/${ayId}`, {
+    method: "DELETE",
+  });
+  revalidatePath("/unit/ppdb-overview");
+  return { success: true };
+}
+
 export async function togglePpdbActiveAction(unitId: string, academicYearId: string, activate: boolean) {
   await apiFetch(`/admin/units/${unitId}/academic-years/${academicYearId}/toggle`, {
     method: "PUT",

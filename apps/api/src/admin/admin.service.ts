@@ -206,6 +206,25 @@ export class AdminService {
     return this.prisma.academicYear.update({ where: { id: academicYearId }, data: { ppdbActive: activate } });
   }
 
+  async updateAcademicYear(unitId: string, academicYearId: string, data: any) {
+    return this.prisma.academicYear.update({
+      where: { id: academicYearId, unitId },
+      data: {
+        name: data.name,
+        startDate: new Date(data.startDate),
+        endDate: new Date(data.endDate),
+        quota: data.quota
+      }
+    });
+  }
+
+  async deleteAcademicYear(unitId: string, academicYearId: string) {
+    // Check if there are any registrations linked to this academic year
+    const count = await this.prisma.registration.count({ where: { academicYearId } });
+    if (count > 0) throw new BadRequestException("Tahun ajaran ini sudah memiliki data pendaftaran dan tidak bisa dihapus.");
+    return this.prisma.academicYear.delete({ where: { id: academicYearId, unitId } });
+  }
+
   // ================= FOUNDATION =================
   async getFoundationSettings() {
     let settings = await this.prisma.foundationSettings.findFirst();
