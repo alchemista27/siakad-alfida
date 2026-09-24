@@ -8,6 +8,7 @@ import { createAcademicYearAction, togglePpdbActiveAction, updateAcademicYearAct
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
+import { Modal } from "@/components/ui/modal";
 import { useRouter } from "next/navigation";
 
 interface AcademicYear {
@@ -36,9 +37,13 @@ export function PpdbOverviewClient({
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  
   const [isToggling, setIsToggling] = useState(false);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [confirmToggleState, setConfirmToggleState] = useState<{ ayId: string, activate: boolean } | null>(null);
+  const [confirmDeleteState, setConfirmDeleteState] = useState<string | null>(null);
 
   const {
     register,
@@ -73,11 +78,12 @@ export function PpdbOverviewClient({
     }
   };
 
-  const handleToggle = async (ayId: string, activate: boolean) => {
-    if (activate && !confirm("Aktifkan PPDB untuk tahun ini? PPDB yang sedang aktif (jika ada) otomatis dinonaktifkan.")) return;
+  const executeToggle = async () => {
+    if (!confirmToggleState) return;
     setIsToggling(true);
     try {
-      await togglePpdbActiveAction(unitId, ayId, activate);
+      await togglePpdbActiveAction(unitId, confirmToggleState.ayId, confirmToggleState.activate);
+      setConfirmToggleState(null);
       router.refresh();
     } catch (error: any) {
       alert(error.message || "Gagal mengubah status.");
@@ -98,16 +104,17 @@ export function PpdbOverviewClient({
     setShowModal(true);
   };
 
-  const handleDelete = async (ayId: string) => {
-    if (!confirm("Yakin ingin menghapus tahun ajaran ini?")) return;
-    setIsDeleting(ayId);
+  const executeDelete = async () => {
+    if (!confirmDeleteState) return;
+    setIsDeleting(true);
     try {
-      await deleteAcademicYearAction(unitId, ayId);
+      await deleteAcademicYearAction(unitId, confirmDeleteState);
+      setConfirmDeleteState(null);
       router.refresh();
     } catch (error: any) {
       alert(error.message || "Gagal menghapus.");
     } finally {
-      setIsDeleting(null);
+      setIsDeleting(false);
     }
   };
 
@@ -118,6 +125,8 @@ export function PpdbOverviewClient({
       year: "numeric",
     });
   };
+
+  const activeCanEditDelete = activeYear && (new Date() <= new Date(activeYear.endDate)) && (activeYear.registered < activeYear.quota);
 
   return (
     <div className="space-y-6">
@@ -148,15 +157,27 @@ export function PpdbOverviewClient({
                   Periode: {fmt(activeYear.startDate)} - {fmt(activeYear.endDate)}
                 </p>
               </div>
-              <Button
-                variant="danger"
-                size="sm"
-                disabled={isToggling}
-                onClick={() => handleToggle(activeYear.id, false)}
-              >
-                <Icon name="pause_circle" className="mr-1" />
-                Nonaktifkan PPDB
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                {activeCanEditDelete && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEdit(activeYear)}
+                  >
+                    <Icon name="edit" className="mr-1" />
+                    Ubah
+                  </Button>
+                )}
+                <Button
+                  variant="danger"
+                  size="sm"
+                  disabled={isToggling}
+                  onClick={() => setConfirmToggleState({ ayId: activeYear.id, activate: false })}
+                >
+                  <Icon name="pause_circle" className="mr-1" />
+                  Nonaktifkan PPDB
+                </Button>
+              </div>
             </div>
             {/* Progress bar */}
             <div className="mt-4 w-full bg-white/60 rounded-full h-2.5">
@@ -231,7 +252,7 @@ export function PpdbOverviewClient({
                           variant="outline"
                           size="sm"
                           disabled={isToggling}
-                          onClick={() => handleToggle(ay.id, true)}
+                          onClick={() => setConfirmToggleState({ ayId: ay.id, activate: true })}
                         >
                           Aktifkan
                         </Button>
@@ -248,8 +269,7 @@ export function PpdbOverviewClient({
                           <Button
                             variant="danger"
                             size="sm"
-                            disabled={isDeleting === ay.id}
-                            onClick={() => handleDelete(ay.id)}
+                            onClick={() => setConfirmDeleteState(ay.id)}
                             title="Hapus Tahun Ajaran"
                           >
                             <Icon name="delete" className="text-sm" />
@@ -272,84 +292,124 @@ export function PpdbOverviewClient({
         </div>
       </div>
 
-      {/* Create Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-surface w-full max-w-md rounded-xl shadow-xl p-6">
-            <h3 className="text-lg font-bold text-primary mb-4">
-              {editingId ? "Ubah Tahun Ajaran" : "Tambah Tahun Ajaran Baru"}
-            </h3>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {serverError && (
-                <div className="p-3 bg-red-50 text-red-600 rounded text-sm">{serverError}</div>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nama Tahun Ajaran <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  {...register("name")}
-                  placeholder="Contoh: 2027/2028"
-                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:ring-1 focus:ring-tertiary focus:outline-none"
-                />
-                {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
-                  <input type="date" {...register("startDate")} className="w-full rounded-md border border-border px-3 py-2 text-sm focus:ring-1 focus:ring-tertiary focus:outline-none" />
-                  {errors.startDate && <p className="mt-1 text-xs text-red-500">{errors.startDate.message}</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai</label>
-                  <input type="date" {...register("endDate")} className="w-full rounded-md border border-border px-3 py-2 text-sm focus:ring-1 focus:ring-tertiary focus:outline-none" />
-                  {errors.endDate && <p className="mt-1 text-xs text-red-500">{errors.endDate.message}</p>}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Kuota Siswa
-                </label>
-                <input
-                  type="number"
-                  {...register("quota", { valueAsNumber: true })}
-                  min={1}
-                  max={500}
-                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:ring-1 focus:ring-tertiary focus:outline-none"
-                />
-                {errors.quota && <p className="mt-1 text-xs text-red-500">{errors.quota.message}</p>}
-              </div>
-              {!editingId && (
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="checkbox"
-                    id="ppdbActive"
-                    {...register("ppdbActive")}
-                    className="rounded border-gray-300 text-tertiary"
-                  />
-                  <label htmlFor="ppdbActive" className="text-sm font-medium text-gray-700">
-                    Langsung aktifkan PPDB
-                  </label>
-                </div>
-              )}
-              <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => { setShowModal(false); setEditingId(null); reset(); }}
-                  disabled={isSubmitting}
-                >
-                  Batal
-                </Button>
-                <Button type="submit" variant="primary" disabled={isSubmitting}>
-                  {isSubmitting ? "Menyimpan..." : "Simpan"}
-                </Button>
-              </div>
-            </form>
+      {/* Modals */}
+      <Modal 
+        isOpen={showModal} 
+        onClose={() => { setShowModal(false); setEditingId(null); reset(); }}
+        title={editingId ? "Ubah Tahun Ajaran" : "Tambah Tahun Ajaran Baru"}
+      >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {serverError && (
+            <div className="p-3 bg-red-50 text-red-600 rounded text-sm">{serverError}</div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nama Tahun Ajaran <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              {...register("name")}
+              placeholder="Contoh: 2027/2028"
+              className="w-full rounded-md border border-border px-3 py-2 text-sm focus:ring-1 focus:ring-tertiary focus:outline-none"
+            />
+            {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
+              <input type="date" {...register("startDate")} className="w-full rounded-md border border-border px-3 py-2 text-sm focus:ring-1 focus:ring-tertiary focus:outline-none" />
+              {errors.startDate && <p className="mt-1 text-xs text-red-500">{errors.startDate.message}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai</label>
+              <input type="date" {...register("endDate")} className="w-full rounded-md border border-border px-3 py-2 text-sm focus:ring-1 focus:ring-tertiary focus:outline-none" />
+              {errors.endDate && <p className="mt-1 text-xs text-red-500">{errors.endDate.message}</p>}
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Kuota Siswa
+            </label>
+            <input
+              type="number"
+              {...register("quota", { valueAsNumber: true })}
+              min={1}
+              max={500}
+              className="w-full rounded-md border border-border px-3 py-2 text-sm focus:ring-1 focus:ring-tertiary focus:outline-none"
+            />
+            {errors.quota && <p className="mt-1 text-xs text-red-500">{errors.quota.message}</p>}
+          </div>
+          {!editingId && (
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="checkbox"
+                id="ppdbActive"
+                {...register("ppdbActive")}
+                className="rounded border-gray-300 text-tertiary"
+              />
+              <label htmlFor="ppdbActive" className="text-sm font-medium text-gray-700">
+                Langsung aktifkan PPDB
+              </label>
+            </div>
+          )}
+          <div className="flex justify-end gap-3 pt-4 border-t border-border">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => { setShowModal(false); setEditingId(null); reset(); }}
+              disabled={isSubmitting}
+            >
+              Batal
+            </Button>
+            <Button type="submit" variant="primary" disabled={isSubmitting}>
+              {isSubmitting ? "Menyimpan..." : "Simpan"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        isOpen={!!confirmToggleState}
+        onClose={() => setConfirmToggleState(null)}
+        title={confirmToggleState?.activate ? "Aktifkan PPDB?" : "Nonaktifkan PPDB?"}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            {confirmToggleState?.activate
+              ? "Anda akan mengaktifkan PPDB untuk tahun ajaran ini. Jika ada PPDB lain yang sedang aktif, maka akan dinonaktifkan secara otomatis."
+              : "Anda akan menonaktifkan PPDB untuk tahun ajaran ini. Form pendaftaran tidak akan bisa diakses oleh calon siswa sampai Anda mengaktifkannya kembali."}
+          </p>
+          <div className="flex justify-end gap-3 pt-4 border-t border-border">
+            <Button variant="ghost" onClick={() => setConfirmToggleState(null)} disabled={isToggling}>
+              Batal
+            </Button>
+            <Button variant={confirmToggleState?.activate ? "primary" : "danger"} onClick={executeToggle} disabled={isToggling}>
+              {isToggling ? "Memproses..." : "Ya, Lanjutkan"}
+            </Button>
           </div>
         </div>
-      )}
+      </Modal>
+
+      <Modal
+        isOpen={!!confirmDeleteState}
+        onClose={() => setConfirmDeleteState(null)}
+        title="Hapus Tahun Ajaran"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            Apakah Anda yakin ingin menghapus tahun ajaran ini? Data yang dihapus tidak dapat dikembalikan.
+          </p>
+          <div className="flex justify-end gap-3 pt-4 border-t border-border">
+            <Button variant="ghost" onClick={() => setConfirmDeleteState(null)} disabled={isDeleting}>
+              Batal
+            </Button>
+            <Button variant="danger" onClick={executeDelete} disabled={isDeleting}>
+              {isDeleting ? "Menghapus..." : "Hapus"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
     </div>
   );
 }
