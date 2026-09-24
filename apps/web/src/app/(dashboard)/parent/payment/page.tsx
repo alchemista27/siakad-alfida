@@ -21,7 +21,18 @@ export default async function ParentPaymentPage(props: { searchParams: Promise<{
     redirect("/parent/dashboard");
   }
 
+  const unitSettings = await prisma.unitSettings.findUnique({
+    where: { unitId: reg.academicYear.unitId }
+  });
+
   const foundation = await prisma.foundationSettings.findFirst();
+
+  const nominal = unitSettings?.registrationFee ?? 250000;
+  const bankName = unitSettings?.bankName || foundation?.bankName || "BSI";
+  const bankAccountHolder = unitSettings?.bankAccountHolder || foundation?.bankAccountHolder || "Yayasan Alfida";
+  const bankAccountNumber = unitSettings?.bankAccountNumber || foundation?.bankAccountNumber || "7121234567";
+
+  const formattedNominal = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(nominal);
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
@@ -37,31 +48,31 @@ export default async function ParentPaymentPage(props: { searchParams: Promise<{
       <Card className="p-0 border-border overflow-hidden shadow-sm">
         <div className="bg-gradient-to-r from-tertiary to-secondary p-6 text-white text-center">
           <p className="text-sm opacity-90 mb-1">Nominal Pembayaran</p>
-          <p className="font-heading font-bold text-4xl">Rp 250.000</p>
+          <p className="font-heading font-bold text-4xl">{formattedNominal}</p>
         </div>
         <div className="p-8">
           <h3 className="text-sm font-bold text-primary mb-4 uppercase tracking-wider text-center">
-            Transfer ke Rekening Yayasan
+            Transfer ke Rekening Unit
           </h3>
           <div className="bg-neutral/50 rounded-xl p-6 mb-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-gray-500 mb-1">Nama Bank</p>
                 <p className="font-bold text-primary text-lg">
-                  {foundation?.bankName || "BSI"}
+                  {bankName}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 mb-1">Atas Nama</p>
                 <p className="font-bold text-primary text-lg">
-                  {foundation?.bankAccountHolder || "Yayasan Alfida"}
+                  {bankAccountHolder}
                 </p>
               </div>
               <div className="sm:col-span-2 mt-2 pt-4 border-t border-gray-200 flex justify-between items-center">
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Nomor Rekening</p>
                   <p className="font-mono font-bold text-2xl tracking-widest text-primary">
-                    {foundation?.bankAccountNumber || "7121234567"}
+                    {bankAccountNumber}
                   </p>
                 </div>
                 {/* Normally a copy button here */}

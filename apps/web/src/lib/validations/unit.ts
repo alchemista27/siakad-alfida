@@ -9,6 +9,10 @@ export const unitSettingsSchema = z.object({
       (val) => !val || val.length === 18 || val.length === 0,
       "NIP harus 18 digit"
     ),
+  registrationFee: z.coerce.number().min(0, "Biaya pendaftaran tidak boleh negatif").optional(),
+  bankName: z.string().optional(),
+  bankAccountNumber: z.string().optional(),
+  bankAccountHolder: z.string().optional(),
 });
 
 export const academicYearSchema = z.object({

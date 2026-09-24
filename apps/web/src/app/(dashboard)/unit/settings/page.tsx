@@ -9,13 +9,10 @@ export default async function UnitSettingsPage() {
   await requireRole([UserRole.admin_unit, UserRole.super_admin]);
   const unitId = await resolveUnitId();
 
-  const [unit, foundation] = await Promise.all([
-    prisma.unit.findUnique({
-      where: { id: unitId },
-      include: { unitSettings: true },
-    }),
-    prisma.foundationSettings.findFirst(),
-  ]);
+  const unit = await prisma.unit.findUnique({
+    where: { id: unitId },
+    include: { unitSettings: true },
+  });
 
   if (!unit) {
     return (
@@ -33,7 +30,7 @@ export default async function UnitSettingsPage() {
           Settings Unit
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Kelola profil kepala sekolah, logo, dan informasi unit pendidikan Anda.
+          Kelola profil kepala sekolah, logo, dan informasi pembayaran unit pendidikan Anda.
         </p>
       </div>
 
@@ -44,12 +41,13 @@ export default async function UnitSettingsPage() {
         defaultValues={{
           principalName: unit.unitSettings?.principalName ?? "",
           principalNip: unit.unitSettings?.principalNip ?? "",
+          registrationFee: unit.unitSettings?.registrationFee ?? 250000,
+          bankName: unit.unitSettings?.bankName ?? "",
+          bankAccountNumber: unit.unitSettings?.bankAccountNumber ?? "",
+          bankAccountHolder: unit.unitSettings?.bankAccountHolder ?? "",
         }}
         logoUrl={unit.unitSettings?.logoUrl ?? undefined}
         signatureUrl={unit.unitSettings?.principalSignatureUrl ?? undefined}
-        bankName={foundation?.bankName ?? undefined}
-        bankAccountNumber={foundation?.bankAccountNumber ?? undefined}
-        bankAccountHolder={foundation?.bankAccountHolder ?? undefined}
       />
     </div>
   );

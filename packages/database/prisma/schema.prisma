@@ -270,6 +270,13 @@ model UnitSettings {
   principalName         String?   @map("principal_name") @db.VarChar(200)
   principalNip          String?   @map("principal_nip") @db.VarChar(50)
   principalSignatureUrl String?   @map("principal_signature_url")
+  
+  // PPDB & Payment Settings
+  registrationFee       Int       @default(250000) @map("registration_fee")
+  bankName              String?   @map("bank_name") @db.VarChar(50)
+  bankAccountNumber     String?   @map("bank_account_number") @db.VarChar(50)
+  bankAccountHolder     String?   @map("bank_account_holder") @db.VarChar(200)
+
   createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt             DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 

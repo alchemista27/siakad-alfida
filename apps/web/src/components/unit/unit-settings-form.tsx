@@ -13,15 +13,9 @@ interface UnitSettingsFormProps {
   unitId: string;
   unitName: string;
   unitLevel: string;
-  defaultValues: {
-    principalName: string;
-    principalNip?: string;
-  };
+  defaultValues: UnitSettingsInput;
   logoUrl?: string;
   signatureUrl?: string;
-  bankName?: string;
-  bankAccountNumber?: string;
-  bankAccountHolder?: string;
 }
 
 export function UnitSettingsForm({
@@ -29,50 +23,24 @@ export function UnitSettingsForm({
   unitName,
   unitLevel,
   defaultValues,
-  logoUrl,
-  signatureUrl,
-  bankName,
-  bankAccountNumber,
-  bankAccountHolder,
+  logoUrl: initialLogoUrl,
+  signatureUrl: initialSignatureUrl,
 }: UnitSettingsFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const [logoUrl, setLogoUrl] = useState<string | null>(initialLogoUrl || null);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+
+  const [signatureUrl, setSignatureUrl] = useState<string | null>(initialSignatureUrl || null);
   const [isUploadingSignature, setIsUploadingSignature] = useState(false);
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "logo" | "signature") => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 2 * 1024 * 1024) {
-      setError("Ukuran file maksimal 2MB");
-      return;
-    }
-
-    if (type === "logo") setIsUploadingLogo(true);
-    else setIsUploadingSignature(true);
-    setError(null);
-
-    try {
-      const formData = new FormData();
-      formData.append("type", type);
-      formData.append("file", file);
-      await uploadUnitImageAction(unitId, formData);
-      setSuccess(true);
-    } catch (e: any) {
-      setError(e.message || `Gagal mengunggah ${type}.`);
-    } finally {
-      if (type === "logo") setIsUploadingLogo(false);
-      else setIsUploadingSignature(false);
-    }
-  };
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isDirty },
+    reset,
   } = useForm<UnitSettingsInput>({
     resolver: zodResolver(unitSettingsSchema),
     defaultValues,
@@ -84,9 +52,42 @@ export function UnitSettingsForm({
     try {
       await updateUnitSettingsAction(unitId, data);
       setSuccess(true);
+      reset(data);
       router.refresh();
-    } catch (e: any) {
-      setError(e.message || "Gagal menyimpan pengaturan unit.");
+      setTimeout(() => setSuccess(false), 5000);
+    } catch (err: any) {
+      setError(err.message || "Gagal menyimpan pengaturan.");
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "logo" | "signature") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Ukuran file maksimal 2MB");
+      return;
+    }
+
+    try {
+      if (type === "logo") setIsUploadingLogo(true);
+      else setIsUploadingSignature(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", type);
+      
+      const uploadedUrl = await uploadUnitImageAction(unitId, formData);
+      if (!uploadedUrl) throw new Error("Gagal upload gambar");
+      
+      if (type === "logo") setLogoUrl(uploadedUrl);
+      else setSignatureUrl(uploadedUrl);
+
+      router.refresh();
+    } catch (err: any) {
+      alert(err.message || "Terjadi kesalahan saat upload gambar.");
+    } finally {
+      if (type === "logo") setIsUploadingLogo(false);
+      else setIsUploadingSignature(false);
     }
   };
 
@@ -119,22 +120,22 @@ export function UnitSettingsForm({
         </div>
       </div>
 
-      {/* Card 2 - Kepala Sekolah (editable) */}
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {error && (
+          <div className="p-3 bg-red-50 text-red-600 rounded text-sm">{error}</div>
+        )}
+        {success && (
+          <div className="p-3 bg-green-50 text-green-700 rounded text-sm flex items-center gap-2">
+            <Icon name="check_circle" className="text-base" />
+            Pengaturan berhasil disimpan.
+          </div>
+        )}
+
+        {/* Card 2 - Kepala Sekolah (editable) */}
         <div className="bg-surface rounded-xl border border-border p-6">
           <h2 className="text-base font-bold text-primary mb-4 pb-2 border-b border-border">
             Kepala Sekolah
           </h2>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-600 rounded text-sm">{error}</div>
-          )}
-          {success && (
-            <div className="mb-4 p-3 bg-green-50 text-green-700 rounded text-sm flex items-center gap-2">
-              <Icon name="check_circle" className="text-base" />
-              Pengaturan berhasil disimpan.
-            </div>
-          )}
 
           <div className="space-y-4">
             <div>
@@ -201,60 +202,77 @@ export function UnitSettingsForm({
               </label>
             </div>
           </div>
+        </div>
 
-          <div className="flex justify-end mt-6 pt-4 border-t border-border">
-            <Button type="submit" variant="primary" disabled={isSubmitting || !isDirty}>
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <Icon name="sync" className="animate-spin text-sm" /> Menyimpan...
-                </span>
-              ) : (
-                "Simpan Pengaturan"
+        {/* Card 3 - Pengaturan PPDB & Pembayaran */}
+        <div className="bg-surface rounded-xl border border-border p-6">
+          <h2 className="text-base font-bold text-primary mb-4 pb-2 border-b border-border">
+            Pengaturan PPDB & Pembayaran
+          </h2>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Biaya Pendaftaran PPDB (Rp)
+              </label>
+              <input
+                type="number"
+                {...register("registrationFee", { valueAsNumber: true })}
+                className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-tertiary"
+                placeholder="Contoh: 250000"
+              />
+              {errors.registrationFee && (
+                <p className="mt-1 text-xs text-red-500">{errors.registrationFee.message}</p>
               )}
-            </Button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nama Bank</label>
+                <input
+                  type="text"
+                  {...register("bankName")}
+                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-tertiary"
+                  placeholder="BSI / Mandiri"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Rekening</label>
+                <input
+                  type="text"
+                  {...register("bankAccountNumber")}
+                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-tertiary"
+                  placeholder="7121234567"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Atas Nama</label>
+                <input
+                  type="text"
+                  {...register("bankAccountHolder")}
+                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-tertiary"
+                  placeholder="SDIT Alfida / Yayasan"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 italic mt-2">
+              * Biarkan kolom rekening kosong jika ingin menggunakan nomor rekening default dari Yayasan.
+            </p>
           </div>
+        </div>
+
+        <div className="flex justify-end pt-2">
+          <Button type="submit" variant="primary" disabled={isSubmitting || !isDirty}>
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <Icon name="sync" className="animate-spin text-sm" /> Menyimpan...
+              </span>
+            ) : (
+              "Simpan Pengaturan"
+            )}
+          </Button>
         </div>
       </form>
-
-      {/* Card 3 - Rekening Bank (readonly, from foundation) */}
-      <div className="bg-surface rounded-xl border border-border p-6">
-        <h2 className="text-base font-bold text-primary mb-4 pb-2 border-b border-border">
-          Rekening Bank Yayasan
-        </h2>
-        <p className="text-xs text-gray-500 mb-4 flex items-center gap-1">
-          <Icon name="info" className="text-sm" />
-          Rekening ini dikelola oleh Super Admin dan tidak dapat diubah di sini.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-500 mb-1">Bank</label>
-            <input
-              type="text"
-              readOnly
-              value={bankName || "Belum diatur"}
-              className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm bg-neutral text-gray-600"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500 mb-1">Nomor Rekening</label>
-            <input
-              type="text"
-              readOnly
-              value={bankAccountNumber || "Belum diatur"}
-              className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm bg-neutral text-gray-600"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-500 mb-1">Atas Nama</label>
-            <input
-              type="text"
-              readOnly
-              value={bankAccountHolder || "Belum diatur"}
-              className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm bg-neutral text-gray-600"
-            />
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
