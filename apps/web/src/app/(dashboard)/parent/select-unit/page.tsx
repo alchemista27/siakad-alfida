@@ -31,7 +31,7 @@ export default async function ParentSelectUnitPage() {
   });
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-6 w-full">
       <div>
         <p className="text-xs text-tertiary font-semibold uppercase tracking-wider mb-1">
           Pendaftaran PPDB
