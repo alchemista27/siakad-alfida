@@ -20,6 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchUser = async () => {
     try {
       const userData = await getCurrentUser();
+      console.log("[AuthProvider] userData received:", userData);
       if (userData) {
         setUser(userData);
         setStatus("authenticated");
@@ -28,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setStatus("unauthenticated");
       }
     } catch (error) {
-      console.error("Failed to fetch user roles:", error);
+      console.error("[AuthProvider] Failed to fetch user roles:", error);
       setUser(null);
       setStatus("unauthenticated");
     }

@@ -27,16 +27,16 @@ export default async function AuthLayout({
             )}
           </div>
           <span className="font-heading font-bold text-2xl tracking-tight text-surface">
-            SIAKAD Alfida
+            SIM Alfida
           </span>
         </div>
 
         <div className="my-auto space-y-4">
           <h1 className="font-heading text-3xl font-extrabold leading-tight text-surface">
-            Sistem Informasi Akademik & PPDB
+            Sistem Informasi Manajemen
           </h1>
           <p className="text-base text-surface/90 font-normal max-w-md">
-            Layanan pendaftaran calon siswa baru (PPDB) dan manajemen akademik terpadu di lingkungan {foundationName}.
+            Layanan administrasi, akademik, kepegawaian, dan operasional terpadu di lingkungan {foundationName}.
           </p>
         </div>
 
@@ -51,7 +51,6 @@ export default async function AuthLayout({
       {/* Right Panel - Form (60% Desktop) */}
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-surface">
         <div className="w-full max-w-md flex flex-col items-center">
-          {/* Mobile Logo Branding */}
           <div className="lg:hidden flex items-center gap-2 mb-6">
             {logoUrl ? (
               <img src={logoUrl} alt="Logo" className="h-8 object-contain" />
@@ -59,7 +58,7 @@ export default async function AuthLayout({
               <Icon name="hub" className="text-3xl text-tertiary" />
             )}
             <span className="font-heading font-bold text-xl text-tertiary">
-              SIAKAD Alfida
+              SIM Alfida
             </span>
           </div>
 

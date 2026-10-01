@@ -11,6 +11,12 @@ export class AdminController {
   constructor(private adminService: AdminService) {}
 
   // ================= USERS =================
+  @Get('users')
+  @Roles(UserRole.super_admin, UserRole.admin_unit)
+  async getAllUsers() {
+    return this.adminService.getAllUsers();
+  }
+
   @Post('users/batch-import')
   @Roles(UserRole.super_admin)
   async batchImportUsers(@Body() body: any) {

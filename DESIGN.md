@@ -73,11 +73,11 @@ The palette is rooted in semantic tokens. Use the role (e.g. `{colors.primary}`)
 
 ## Typography
 
-| Token | Font | Size | Weight |
-| --- | --- | --- | --- |
-| `h1` | Roboto | 3rem | 700 |
-| `body-md` | Inter | 1rem | 400 |
-| `label-caps` | Inter | 0.75rem | 600 |
+| Token        | Font   | Size    | Weight |
+| ------------ | ------ | ------- | ------ |
+| `h1`         | Roboto | 3rem    | 700    |
+| `body-md`    | Inter  | 1rem    | 400    |
+| `label-caps` | Inter  | 0.75rem | 600    |
 
 ## Layout
 
@@ -101,24 +101,28 @@ Corner radius scale:
 ## Components
 
 ### button-primary
+
 - backgroundColor: `{colors.tertiary}`
 - textColor: `{colors.on-tertiary}`
 - rounded: `{rounded.sm}`
 - padding: `12px 20px`
 
 ### button-secondary
+
 - backgroundColor: `transparent`
 - textColor: `{colors.tertiary}`
 - rounded: `{rounded.sm}`
 - padding: `12px 20px`
 
 ### card
+
 - backgroundColor: `{colors.surface}`
 - textColor: `{colors.primary}`
 - rounded: `{rounded.md}`
 - padding: `20px`
 
 ### input
+
 - backgroundColor: `{colors.surface}`
 - textColor: `{colors.primary}`
 - rounded: `{rounded.sm}`
@@ -126,11 +130,11 @@ Corner radius scale:
 
 ## Workspace & Component Architecture
 
-Seluruh aset UI (komponen, halaman, *design tokens*) berada di dalam workspace `apps/web/`. Backend (`apps/api/`) tidak memiliki kode UI sama sekali.
+Seluruh aset UI (komponen, halaman, _design tokens_) berada di dalam workspace `apps/web/`. Backend (`apps/api/`) tidak memiliki kode UI sama sekali.
 
 - Komponen reusable berada di `apps/web/src/components/ui/`
 - Komponen domain-specific berada di `apps/web/src/components/features/`
-- Jika ke depan diperlukan *shared UI library*, komponen dapat dipromosikan ke `packages/ui/`
+- Jika ke depan diperlukan _shared UI library_, komponen dapat dipromosikan ke `packages/ui/`
 
 ## Do's and Don'ts
 

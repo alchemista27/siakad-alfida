@@ -5,6 +5,7 @@ import { UserRole } from "@sim/database";
 import { updateUserRoles, deleteUser, resetUserPassword } from "@/actions/users";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Icon } from "@/components/ui/icon";
+import { Input } from "@/components/ui/input";
 
 const ALL_ROLES = [
   "super_admin", "admin_unit", "admin_unit_nondik", "guru", "karyawan", 
@@ -16,11 +17,14 @@ export function UserListClient({ users }: { users: any[] }) {
   const [deletingUser, setDeletingUser] = useState<any>(null);
   const [resettingUser, setResettingUser] = useState<any>(null);
   const [newPassword, setNewPassword] = useState("");
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [groupsInput, setGroupsInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const { user: currentUser } = useAuth();
 
   const confirmDelete = async () => {
@@ -28,9 +32,10 @@ export function UserListClient({ users }: { users: any[] }) {
     setDeleteLoading(true);
     const res = await deleteUser(deletingUser.id);
     if (res.success) {
+      setSuccessMessage(`Akun ${deletingUser.fullName} berhasil dihapus.`);
       setDeletingUser(null);
     } else {
-      alert("Gagal menghapus: " + res.error);
+      setErrorMessage("Gagal menghapus: " + res.error);
     }
     setDeleteLoading(false);
   };
@@ -47,9 +52,10 @@ export function UserListClient({ users }: { users: any[] }) {
     const groups = groupsInput.split(",").map(g => g.trim()).filter(g => g);
     const res = await updateUserRoles(editingUser.id, selectedRoles as UserRole[], groups);
     if (res.success) {
+      setSuccessMessage(`Data akses ${editingUser.fullName} berhasil diperbarui.`);
       setEditingUser(null);
     } else {
-      alert("Gagal update: " + res.error);
+      setErrorMessage("Gagal update: " + res.error);
     }
     setLoading(false);
   };
@@ -59,11 +65,12 @@ export function UserListClient({ users }: { users: any[] }) {
     setResetLoading(true);
     const res = await resetUserPassword(resettingUser.id, newPassword);
     if (res.success) {
+      setSuccessMessage(`Password untuk ${resettingUser.fullName} berhasil diubah.`);
       setResettingUser(null);
       setNewPassword("");
-      alert("Password berhasil diubah!");
+      setShowResetPassword(false);
     } else {
-      alert("Gagal mereset password: " + res.error);
+      setErrorMessage("Gagal mereset password: " + res.error);
     }
     setResetLoading(false);
   };
@@ -116,14 +123,12 @@ export function UserListClient({ users }: { users: any[] }) {
                   >
                     Edit
                   </button>
-                  {user.groups?.includes("created_by_admin") && (
-                    <button 
-                      onClick={() => { setResettingUser(user); setNewPassword(""); }}
-                      className="text-blue-600 hover:opacity-80 font-medium text-xs bg-transparent border border-blue-600 px-3 py-1 rounded"
-                    >
-                      Reset Pass
-                    </button>
-                  )}
+                  <button 
+                    onClick={() => { setResettingUser(user); setNewPassword(""); setShowResetPassword(false); }}
+                    className="text-primary hover:text-tertiary font-medium text-xs bg-transparent border border-border hover:border-tertiary px-3 py-1 rounded transition-colors"
+                  >
+                    Reset Pass
+                  </button>
                   {currentUser?.id !== user.id && (
                     <button 
                       onClick={() => setDeletingUser(user)}
@@ -239,40 +244,95 @@ export function UserListClient({ users }: { users: any[] }) {
 
       {resettingUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-surface rounded-md shadow-xl w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-border">
-              <h3 className="text-lg font-bold text-primary font-heading">Reset Password</h3>
+          <div className="bg-surface rounded-md shadow-xl w-full max-w-md overflow-hidden border border-border">
+            <div className="p-6 border-b border-border bg-neutral/30">
+              <h3 className="text-lg font-bold text-primary font-heading flex items-center gap-2">
+                <Icon name="key" /> Reset Password
+              </h3>
+              <p className="text-sm opacity-70 font-body mt-1">
+                Ganti password untuk akun <span className="font-bold">{resettingUser.fullName}</span>
+              </p>
             </div>
             
-            <div className="p-6 space-y-4">
-              <p className="text-sm font-body text-primary">
-                Ganti password untuk akun <span className="font-bold">{resettingUser.fullName}</span> ({resettingUser.username || resettingUser.email}).
-              </p>
-              <div>
-                <label className="block text-xs font-semibold text-primary mb-1 font-body">PASSWORD BARU</label>
-                <input 
-                  type="text" 
-                  value={newPassword} 
-                  onChange={e => setNewPassword(e.target.value)} 
-                  className="w-full border-border rounded px-3 py-2 text-sm bg-surface text-primary" 
-                  placeholder="Masukkan password baru" 
+            <div className="p-6">
+              <div className="relative w-full">
+                <Input
+                  label="Password Baru"
+                  type={showResetPassword ? "text" : "password"}
+                  placeholder="Masukkan password baru"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowResetPassword(!showResetPassword)}
+                  className="absolute right-3 top-8 text-gray-400 hover:text-gray-600 text-sm"
+                >
+                  <Icon name={showResetPassword ? "visibility_off" : "visibility"} className="text-lg" />
+                </button>
               </div>
             </div>
 
-            <div className="bg-neutral px-6 py-4 flex justify-end gap-3">
+            <div className="bg-neutral px-6 py-4 flex justify-end gap-3 border-t border-border">
               <button 
-                onClick={() => setResettingUser(null)}
-                className="px-[20px] py-[12px] text-sm font-medium text-tertiary bg-transparent rounded hover:bg-black/5"
+                onClick={() => { setResettingUser(null); setShowResetPassword(false); }}
+                className="px-[20px] py-[12px] text-sm font-medium text-primary hover:text-tertiary bg-transparent rounded hover:bg-black/5 transition-colors"
               >
                 Batal
               </button>
               <button 
                 onClick={handleResetPassword}
                 disabled={resetLoading || !newPassword}
-                className="px-[20px] py-[12px] text-sm font-medium text-white bg-blue-600 hover:opacity-90 rounded disabled:opacity-50"
+                className="px-[20px] py-[12px] text-sm font-medium text-on-tertiary bg-tertiary hover:opacity-90 rounded disabled:opacity-50 transition-all flex items-center gap-2"
               >
-                {resetLoading ? 'Menyimpan...' : 'Simpan Password'}
+                {resetLoading ? (
+                  <><Icon name="progress_activity" className="animate-spin text-sm" /> Menyimpan...</>
+                ) : (
+                  <><Icon name="save" className="text-sm" /> Simpan Password</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {successMessage && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface rounded-md shadow-xl w-full max-w-sm overflow-hidden border border-border animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <Icon name="check_circle" className="text-5xl text-teal-600 mb-4 mx-auto" />
+              <h3 className="text-lg font-bold text-primary font-heading mb-2">Berhasil!</h3>
+              <p className="text-sm font-body text-primary opacity-80">{successMessage}</p>
+            </div>
+            <div className="bg-neutral/50 px-6 py-4 flex justify-center border-t border-border">
+              <button 
+                onClick={() => setSuccessMessage("")}
+                className="w-full py-2.5 text-sm font-semibold text-on-tertiary bg-tertiary hover:opacity-90 rounded transition-all"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Modal */}
+      {errorMessage && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface rounded-md shadow-xl w-full max-w-sm overflow-hidden border border-border animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <Icon name="error" className="text-5xl text-red-600 mb-4 mx-auto" />
+              <h3 className="text-lg font-bold text-red-700 font-heading mb-2">Gagal!</h3>
+              <p className="text-sm font-body text-primary opacity-80">{errorMessage}</p>
+            </div>
+            <div className="bg-neutral/50 px-6 py-4 flex justify-center border-t border-border">
+              <button 
+                onClick={() => setErrorMessage("")}
+                className="w-full py-2.5 text-sm font-semibold text-white bg-red-600 hover:opacity-90 rounded transition-all"
+              >
+                Tutup
               </button>
             </div>
           </div>

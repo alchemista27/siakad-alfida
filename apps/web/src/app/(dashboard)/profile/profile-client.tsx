@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { updateEmail, updatePassword } from "@/actions/profile";
+import { updateEmail, updatePassword, activateParentFeature } from "@/actions/profile";
 
 export default function ProfileClient({ user }: { user: any }) {
   const [isPending, startTransition] = useTransition();
@@ -13,6 +13,9 @@ export default function ProfileClient({ user }: { user: any }) {
   
   const [emailMsg, setEmailMsg] = useState("");
   const [passMsg, setPassMsg] = useState("");
+  const [activating, setActivating] = useState(false);
+  
+  const isParent = user.roles?.some((r: any) => r.role === "orang_tua");
 
   const handleUpdateEmail = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,6 +44,19 @@ export default function ProfileClient({ user }: { user: any }) {
         setPassMsg("Kata sandi berhasil diperbarui.");
       } catch (err: any) {
         setPassMsg("Gagal: " + err.message);
+      }
+    });
+  };
+
+  const handleActivateParent = () => {
+    startTransition(async () => {
+      setActivating(true);
+      try {
+        await activateParentFeature();
+        window.location.reload(); 
+      } catch (err) {
+        alert("Gagal mengaktifkan fitur orang tua.");
+        setActivating(false);
       }
     });
   };
@@ -100,6 +116,24 @@ export default function ProfileClient({ user }: { user: any }) {
                 <p className="text-sm text-gray-500">Tidak ada peran yang ditugaskan.</p>
               )}
             </div>
+
+            {!isParent && (
+              <div className="mt-6 p-4 bg-tertiary/10 rounded-lg border border-tertiary/30">
+                <h3 className="text-sm font-bold text-tertiary mb-1">Mendaftarkan Anak ke Sekolah?</h3>
+                <p className="text-xs text-gray-600 mb-3">
+                  Sebagai pegawai/guru, Anda dapat mengaktifkan fitur Orang Tua untuk mendaftarkan anak Anda ke PPDB tanpa harus membuat akun baru.
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleActivateParent} 
+                  disabled={activating}
+                  className="border-tertiary text-tertiary hover:bg-tertiary hover:text-white"
+                >
+                  {activating ? "Memproses..." : "Aktifkan Fitur Orang Tua"}
+                </Button>
+              </div>
+            )}
           </div>
         </Card>
       )}

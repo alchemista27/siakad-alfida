@@ -22,7 +22,7 @@ export function LoginForm() {
 
     try {
       const { data, error: authError } = await authClient.signIn.email({
-        email,
+        email: email.trim().toLowerCase(),
         password,
       });
 
@@ -72,6 +72,16 @@ export function LoginForm() {
           className="absolute right-3 top-8 text-gray-400 hover:text-gray-600 text-sm"
         >
           <Icon name={showPassword ? "visibility_off" : "visibility"} className="text-lg" />
+        </button>
+      </div>
+
+      <div className="flex justify-end w-full">
+        <button 
+          type="button" 
+          onClick={() => alert("Lupa kata sandi?\n\nSilakan hubungi administrator (Super Admin / Admin Unit) untuk mereset kata sandi Anda.")}
+          className="text-xs text-tertiary hover:underline font-medium"
+        >
+          Lupa kata sandi?
         </button>
       </div>
 

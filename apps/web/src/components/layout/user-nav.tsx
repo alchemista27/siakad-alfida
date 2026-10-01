@@ -1,13 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { authClient } from "@/lib/auth-client";
+import { forceClearCookies } from "@/actions/user";
 import { Icon } from "@/components/ui/icon";
 
 export function UserNav() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
+
+  const [loggingOut, setLoggingOut] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const userName = (user?.name as string) || "Pengguna";
   const userInitials = userName
@@ -18,7 +32,7 @@ export function UserNav() {
     .toUpperCase();
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2.5 p-1 rounded-full hover:bg-neutral transition-colors cursor-pointer"
@@ -47,14 +61,31 @@ export function UserNav() {
             <span>Profil Saya</span>
           </a>
           <button
+            disabled={loggingOut}
             onClick={async () => {
-              await authClient.signOut();
-              window.location.href = "/login";
+              if (loggingOut) return;
+              setLoggingOut(true);
+              try {
+                await authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      window.location.href = "/login";
+                    },
+                    onError: () => {
+                      // Fallback just in case
+                      window.location.href = "/login";
+                    }
+                  }
+                });
+              } catch (e) {
+                console.error("Signout error:", e);
+                window.location.href = "/login";
+              }
             }}
-            className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer"
+            className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            <Icon name="logout" className="text-sm" />
-            <span>Keluar (Logout)</span>
+            <Icon name={loggingOut ? "progress_activity" : "logout"} className={loggingOut ? "animate-spin text-sm" : "text-sm"} />
+            <span>{loggingOut ? "Sedang Keluar..." : "Keluar (Logout)"}</span>
           </button>
         </div>
       )}

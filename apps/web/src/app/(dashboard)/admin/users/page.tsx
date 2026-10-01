@@ -15,8 +15,8 @@ export default async function UserManagementPage() {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-[3rem] font-bold font-heading text-primary">Manajemen Pengguna</h1>
-          <p className="text-base font-body text-primary opacity-70 mt-1">Kelola data SSO pegawai dan hak akses sistem.</p>
+          <h1 className="text-2xl font-bold font-heading text-primary">Manajemen Pengguna</h1>
+          <p className="text-sm font-body text-primary opacity-70 mt-1">Kelola data SSO pegawai dan hak akses sistem.</p>
         </div>
         <div className="flex items-center">
           <UserUploadClient />

@@ -10,6 +10,13 @@ export class AdminService {
   constructor(private prisma: PrismaService) {}
 
   // ================= USERS =================
+  async getAllUsers() {
+    return this.prisma.user.findMany({
+      select: { id: true, fullName: true, email: true },
+      orderBy: { fullName: 'asc' }
+    });
+  }
+
   private async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
   }

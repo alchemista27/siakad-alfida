@@ -1,14 +1,14 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.string().email("Format email tidak valid"),
+  email: z.string().email("Format email tidak valid").trim().toLowerCase(),
   password: z.string().min(6, "Password minimal 6 karakter"),
 });
 
 export const registerSchema = z
   .object({
     fullName: z.string().min(3, "Nama lengkap minimal 3 karakter"),
-    email: z.string().email("Format email tidak valid"),
+    email: z.string().email("Format email tidak valid").trim().toLowerCase(),
     phone: z
       .string()
       .min(10, "Nomor WA/HP minimal 10 digit")
@@ -28,3 +28,13 @@ export const registerSchema = z
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+
+export const registerStaffSchema = registerSchema.and(
+  z.object({
+    role: z.enum(["karyawan", "guru"], {
+      errorMap: () => ({ message: "Peran tidak valid" }),
+    }),
+    unitId: z.string().min(1, "Unit kerja wajib dipilih"),
+  })
+);
+export type RegisterStaffInput = z.infer<typeof registerStaffSchema>;

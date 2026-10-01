@@ -75,21 +75,31 @@ export default async function ModulesPage() {
   const user = await getCurrentUser();
   const roles = user?.roles || [];
   
-  let dashboardHref = "/parent/dashboard"; // Default to parent
+  // Default routing
+  const isSuperAdmin = roles.some((r: any) => r.role === "super_admin");
+  const isAdminUnit = roles.some((r: any) => r.role === "admin_unit" || r.role === "admin_unit_nondik" || r.role === "tim_ppdb");
+  const isKaryawan = roles.some((r: any) => r.role === "karyawan");
+  const isGuru = roles.some((r: any) => r.role === "guru");
+  const isAdminKepegawaian = roles.some((r: any) => r.role === "admin_bidang");
+  const isMurobbi = roles.some((r: any) => r.role === "murobbi");
+
+  const ppdbHref = isSuperAdmin ? "/admin/units" : (isAdminUnit ? "/unit/dashboard" : "/parent/dashboard");
+  const akademikHref = isSuperAdmin ? "/admin/academic" : (isGuru ? "/teacher/schedules" : "/parent/dashboard");
+  const hrHref = isSuperAdmin || isAdminKepegawaian ? "/admin/hr/dashboard" : (isKaryawan || isGuru ? "/staff/attendance" : "/modules");
+  const bpiHref = isSuperAdmin ? "/admin/bpi/liqo" : (isMurobbi ? "/murobbi/liqo" : "/staff/liqo");
+  const strategicHref = isSuperAdmin ? "/admin/strategic" : "/execution/action-items";
+  const isParent = roles.some((r: any) => r.role === "orang_tua");
+  const isOnlyParent = isParent && !isSuperAdmin && !isAdminUnit && !isKaryawan && !isGuru && !isAdminKepegawaian && !isMurobbi;
   
-  if (roles.some((r: any) => r.role === "super_admin")) {
-    dashboardHref = "/admin/dashboard";
-  } else if (roles.some((r: any) => r.role === "admin_unit" || r.role === "tim_ppdb")) {
-    dashboardHref = "/unit/dashboard";
-  } else if (roles.some((r: any) => r.role === "guru")) {
-    dashboardHref = "/teacher/dashboard";
-  }
+  const isObserver = roles.some((r: any) => r.role === "observer");
+  const isTimPpdb = roles.some((r: any) => r.role === "tim_ppdb");
+  const showPpdb = isSuperAdmin || isAdminUnit || isTimPpdb || isObserver || isParent;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-heading font-bold text-2xl text-primary">
-          Pilih Modul SIAKAD Alfida
+          Pilih Modul Sistem Informasi
         </h1>
         <p className="text-sm text-gray-500 mt-1">
           Selamat datang, {user?.name || "Pengguna"}. Pilih modul yang ingin Anda akses sesuai dengan peranan Anda.
@@ -97,28 +107,55 @@ export default async function ModulesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <ModuleCard
-          title="PPDB (Penerimaan Siswa Baru)"
-          subtitle="Modul pendaftaran calon siswa baru, verifikasi berkas, observasi, dan seleksi."
-          icon="school"
-          active={true}
-          href={dashboardHref}
-        />
+        {showPpdb && (
+          <ModuleCard
+            title="PPDB (Penerimaan Siswa Baru)"
+            subtitle="Pendaftaran calon siswa baru, verifikasi berkas, observasi, dan seleksi."
+            icon="school"
+            active={true}
+            href={ppdbHref}
+          />
+        )}
 
         <ModuleCard
           title="Modul Akademik"
-          subtitle="Pengelolaan data siswa, kelas, jadwal pelajaran, nilai, rapor dan penyesuaian kurikulum."
+          subtitle="Pengelolaan data siswa, kelas, jadwal pelajaran, nilai, dan rapor."
           icon="menu_book"
           active={true}
-          href={dashboardHref}
+          href={akademikHref}
         />
 
-        <ModuleCard
-          title="Modul Manajemen Yayasan"
-          subtitle="Berpindah ke proyek SIM-Manajemen untuk fitur SDM, Presensi, dan Penggajian."
-          icon="badge"
-          active={false}
-        />
+        {!isOnlyParent && (
+          <>
+            <ModuleCard
+              title="Manajemen Kepegawaian (HR)"
+              subtitle="Fitur SDM, presensi, pengajuan cuti, mutabaah, dan distribusi pegawai."
+              icon="badge"
+              active={true}
+              href={hrHref}
+            />
+            
+            {(isSuperAdmin || isAdminKepegawaian || isMurobbi) && (
+              <ModuleCard
+                title="Bina Pribadi Islami (BPI)"
+                subtitle="Manajemen kelompok mentoring (Liqo), Murobbi, dan rekap amal yaumi."
+                icon="groups"
+                active={true}
+                href={bpiHref}
+              />
+            )}
+            
+            {(isSuperAdmin || isAdminKepegawaian) && (
+              <ModuleCard
+                title="Strategic & Eksekusi"
+                subtitle="Monitoring program kerja, indikator kinerja (KPI), isu, dan meeting."
+                icon="monitoring"
+                active={true}
+                href={strategicHref}
+              />
+            )}
+          </>
+        )}
       </div>
 
       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800 flex items-center gap-2">

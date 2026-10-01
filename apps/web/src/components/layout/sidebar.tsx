@@ -40,9 +40,12 @@ const navGroups: NavGroup[] = [
   {
     title: "Manajemen Karyawan",
     items: [
+      { title: "Dasbor Kepegawaian", href: "/admin/hr/dashboard", icon: "analytics" },
+      { title: "GPS & Hari Libur", href: "/admin/attendance-settings", icon: "settings_suggest" },
       { title: "Rekap Absensi", href: "/admin/hr/attendance", icon: "summarize" },
       { title: "Departemen / Bidang", href: "/admin/departments", icon: "domain" },
       { title: "Distribusi Pegawai", href: "/admin/staff", icon: "badge" },
+      { title: "Kelola Cuti/Izin", href: "/admin/hr/leaves", icon: "event_available" },
       { title: "Program Kerja", href: "/admin/strategic", icon: "assignment" },
       { title: "Laporan Aktivitas", href: "/admin/activity-reports", icon: "article" },
     ],
@@ -50,6 +53,21 @@ const navGroups: NavGroup[] = [
   {
     title: "Bina Pribadi Islami",
     items: [
+      { title: "Kelompok Liqo", href: "/admin/bpi/liqo", icon: "groups" },
+    ],
+  },
+  {
+    title: "Eksekusi Strategis",
+    items: [
+      { title: "Action Items", href: "/execution/action-items", icon: "checklist" },
+      { title: "Issues", href: "/execution/issues", icon: "bug_report" },
+      { title: "Meetings", href: "/execution/meetings", icon: "meeting_room" },
+    ],
+  },
+  {
+    title: "BPH (Board)",
+    items: [
+      { title: "BPH Dashboard", href: "/bph-dashboard", icon: "monitoring" },
     ],
   },
   {
@@ -70,7 +88,9 @@ const navGroups: NavGroup[] = [
     title: "Admin Unit (SDM & Absensi)",
     items: [
       { title: "Distribusi Pegawai", href: "/admin/staff", icon: "badge" },
+      { title: "Pengaturan GPS & Libur", href: "/admin/attendance-settings", icon: "settings_suggest" },
       { title: "Rekap Absensi", href: "/admin/hr/attendance", icon: "summarize" },
+      { title: "Kelola Cuti/Izin", href: "/admin/hr/leaves", icon: "event_available" },
     ],
   },
   {
@@ -117,11 +137,14 @@ const navGroups: NavGroup[] = [
       { title: "Absensi Harian", href: "/staff/attendance", icon: "fingerprint" },
       { title: "Riwayat Absensi", href: "/staff/attendance/history", icon: "history" },
       { title: "Mutabaah (Amal Yaumi)", href: "/staff/mutabaah", icon: "task_alt" },
+      { title: "Jadwal Liqo (Karyawan)", href: "/staff/liqo", icon: "event_note" },
+      { title: "Pengajuan Izin/Cuti", href: "/staff/leaves", icon: "event_busy" },
     ],
   },
   {
     title: "Grup Mentoring",
     items: [
+      { title: "Dasbor Murobbi", href: "/murobbi/liqo", icon: "co_present" },
     ],
   },
   {
@@ -153,6 +176,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const isKaryawan = userRoles.some((r: any) => r.role === "karyawan");
   const isAdminKepegawaian = userRoles.some((r: any) => r.role === "admin_bidang");
   const isAdminBpi = userRoles.some((r: any) => r.role === "admin_bidang");
+  const isMurobbi = userRoles.some((r: any) => r.role === "murobbi");
   const isParent = userRoles.some((r: any) => r.role === "orang_tua");
 
   const filteredGroups = navGroups.map(group => {
@@ -176,10 +200,15 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     // Return group unmodified, items filter comes next
     return group;
   }).filter(group => {
-    // If user is super admin, they should ONLY see Super Admin specific menus to avoid clutter,
-    // even if they have other roles in the database.
+    // Jika user adalah super admin, tampilkan menu admin level saja, sembunyikan menu personal (Guru/Ortu/Pegawai)
     if (isSuperAdmin) {
-      const allowedForSuperAdmin = ["Auth & Utama", "Super Admin", "Manajemen Karyawan", "Bina Pribadi Islami"];
+      const allowedForSuperAdmin = [
+        "Auth & Utama", 
+        "Super Admin", 
+        "Manajemen Karyawan", 
+        "Eksekusi Strategis",
+        "Bina Pribadi Islami"
+      ];
       return allowedForSuperAdmin.includes(group.title);
     }
 
@@ -187,6 +216,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     if (group.title === "Super Admin" && !isSuperAdmin) return false;
     if (group.title === "Manajemen Karyawan" && !isAdminKepegawaian) return false;
     if (group.title === "Bina Pribadi Islami" && !isAdminBpi) return false;
+    if (group.title === "Grup Mentoring" && !isMurobbi) return false;
     if (group.title === "Admin Unit (PPDB)" && !isAdminUnit) return false;
     if (group.title === "Admin Unit (Akademik)" && !isAdminUnit) return false;
     if (group.title === "Admin Unit (SDM & Absensi)" && !isAdminUnit && !isAdminUnitNondik) return false;
@@ -195,6 +225,8 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     if (group.title === "Guru (Akademik)" && !isTeacher) return false;
     if (group.title === "Layanan Pegawai" && !isTeacher && !isKaryawan) return false;
     if (group.title === "Observer" && !isObserver) return false;
+    if (group.title === "Eksekusi Strategis" && !isAdminKepegawaian) return false;
+    if (group.title === "BPH (Board)") return false; // Hide BPH for now as per user request
     
     return true;
   });

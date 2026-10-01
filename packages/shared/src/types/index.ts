@@ -1,11 +1,14 @@
 export type Role =
   | "super_admin"
   | "admin_unit"
+  | "admin_unit_nondik"
   | "guru"
   | "karyawan"
   | "orang_tua"
   | "observer"
-  | "tim_ppdb";
+  | "tim_ppdb"
+  | "admin_bidang"
+  | "murobbi";
 
 export type UnitLevel = "tk" | "sd" | "smp" | "sma" | "pesantren" | "kantor_yayasan" | "non_pendidikan";
 

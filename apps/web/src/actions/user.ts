@@ -1,28 +1,29 @@
 "use server";
 
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { cache } from "react";
+import { cookies } from "next/headers";
 import { apiFetch } from "@/lib/api";
 
-export async function getCurrentUser() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  const user = session?.user;
-  if (!user) return null;
-
-  // Fetch enriched user (with roles) from NestJS
+export const getCurrentUser = cache(async () => {
   try {
     const dbUser = await apiFetch("/auth/me");
+    if (!dbUser) return null;
+
     return {
-      ...user,
-      name: dbUser?.fullName || user.name || user.email?.split("@")[0],
-      fullName: dbUser?.fullName,
-      roles: dbUser?.roles || [{ role: "orang_tua" }]
+      id: dbUser.id,
+      email: dbUser.email,
+      name: dbUser.fullName || dbUser.email?.split("@")[0],
+      fullName: dbUser.fullName,
+      roles: dbUser.roles || [{ role: "orang_tua" }]
     };
-  } catch {
-    return {
-      ...user,
-      name: user.name || user.email?.split("@")[0],
-      roles: [{ role: "orang_tua" }]
-    };
+  } catch (error) {
+    // Abaikan log error agar terminal bersih saat token kedaluwarsa/belum login
+    return null;
   }
+});
+
+export async function forceClearCookies() {
+  const cookieStore = await cookies();
+  cookieStore.delete("better-auth.session_token");
+  cookieStore.delete("__Secure-better-auth.session_token");
 }

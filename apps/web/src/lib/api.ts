@@ -2,16 +2,18 @@ import { cookies } from "next/headers";
 
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const cookieStore = await cookies();
-  const sessionToken = cookieStore.get("better-auth.session_token")?.value;
+  const sessionToken = cookieStore.get("better-auth.session_token")?.value 
+    || cookieStore.get("__Secure-better-auth.session_token")?.value;
   
   const headers = new Headers(options.headers);
   headers.set('Content-Type', 'application/json');
   
   if (sessionToken) {
+    console.log("apiFetch: sending sessionToken:", sessionToken);
     headers.set('Authorization', `Bearer ${sessionToken}`);
   }
 
-  const baseUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  const baseUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001';
   
   const url = `${baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
   
