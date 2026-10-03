@@ -250,3 +250,16 @@
 - Mengurai logika visibilitas *Role-based Access Control* (RBAC) pada Dasbor Modul Utama (`modules/page.tsx`): mengoreksi *bug* akses yang membocorkan modul Akademik dan HR ke semua Admin Bidang. Kini akses modul HR benar-benar dikunci khusus untuk Admin berlabel "SDM/Kepegawaian", sementara modul Strategis berhasil dipulihkan untuk memayungi seluruh tipe Admin Bidang.
 - Mengatasi kegagalan _build_ deployment produksi (Coolify) akibat restriksi ESLint dari Next.js (`react/no-unescaped-entities`) dengan melakukan validasi dan _escaping_ pada karakter tanda kutip di komponen UI Dasbor Supervisor dan BPI Siswa.
   **commit message:** fix: resolve unescaped entities eslint error failing coolify build
+
+---
+
+**tanggal:** 04 Oktober 2026
+**progress:**
+
+- Merancang *Dual-Storage Architecture* (MinIO + Cloudinary): Mengkonfigurasi ulang *provider* gambar sehingga berkas rutin dengan lalu-lintas tinggi seperti dokumen PPDB, Bukti Pembayaran SPP, dan Laporan Kinerja (*Evidences*) dilimpahkan ke layanan CDN *Cloudinary*. Sedangkan berkas statis & privasi (Logo Unit, Tanda Tangan Yayasan) dipertahankan pada penyimpanan server mandiri (*MinIO*). Pemisahan ini ditujukan untuk memangkas lonjakan beban pada VPS saat pendaftaran PPDB massal (Sprint 44).
+- Menyusun dan mengeksekusi otomatisasi *seeder* (`scripts/seed-departments.ts`) untuk melahirkan 4 entitas Biro/Bidang Yayasan baru (Kepegawaian, Pendidikan, Sarana Prasarana, dan Keuangan) lengkap dengan akun Admin Bidang masing-masing.
+- Mengunci modul "Layanan Kesekretariatan" agar bersifat tertutup (*exclusive*) dan hanya dirender untuk profil *Admin Kesekretariatan* (tidak lagi merembes ke Super Admin).
+- Meretas *bug* API `404 Not Found` pada aksi *fetch* Dasbor Eksekusi Strategis (Milestones, Tasks, Logs, Evidences) di *frontend* dengan memetakan ulang seluruh URL *fetcher* ke rute *Controller backend* NestJS yang semestinya (`/strategic/execution-[nama]`).
+- Melengkapi absennya fungsionalitas *input* untuk modul Manajemen Risiko (Isu) dan Notulensi Rapat melalui perancangan komponen UI *Modal Form* pelaporan interaktif.
+- Menyikat bersih sisa-sisa elemen UI *legacy* di halaman Program dan KPI agar tunduk mutlak pada aturan tata-letak `DESIGN.md` (menghapus *shadow*, menggunakan warna utama `bg-tertiary` pada aksi, serta mengadopsi struktur `bg-surface` bergaris *hairline*).
+  **commit message:** feat: implement dual-storage (Cloudinary/MinIO) architecture, seed foundation departments, fix execution API paths, and build risk & meeting input modals

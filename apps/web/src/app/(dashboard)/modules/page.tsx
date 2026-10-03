@@ -183,7 +183,7 @@ export default async function ModulesPage() {
               />
             )}
             
-            {(isSuperAdmin || isKesekretariatan) && (
+            {isKesekretariatan && (
               <ModuleCard
                 title="Layanan Kesekretariatan"
                 subtitle="Buku tamu online, manajemen persuratan, dan peminjaman fasilitas ruang rapat."

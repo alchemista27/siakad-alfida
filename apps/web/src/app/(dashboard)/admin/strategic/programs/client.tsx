@@ -84,10 +84,10 @@ export default function ProgramsClient({ initialData, departments, users }: { in
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
+    <div className="bg-surface rounded-lg border border-hairline p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold text-gray-800">Daftar Program Kerja</h2>
-        <button onClick={() => handleOpenModal()} className="btn btn-primary text-sm px-4 py-2">
+        <button onClick={() => handleOpenModal()} className="bg-tertiary text-on-tertiary hover:bg-tertiary/90 px-4 py-2 rounded text-sm font-semibold transition-colors">
           Tambah Program
         </button>
       </div>

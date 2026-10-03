@@ -60,70 +60,70 @@ export async function getStrategicUsers() {
 
 // Milestones
 export async function getMilestones() {
-  return apiFetch("/strategic/milestones", { method: "GET", cache: "no-store" });
+  return apiFetch("/strategic/execution-milestones", { method: "GET", cache: "no-store" });
 }
 
 export async function createMilestone(data: any) {
-  return apiFetch("/strategic/milestones", { method: "POST", body: JSON.stringify(data) });
+  return apiFetch("/strategic/execution-milestones", { method: "POST", body: JSON.stringify(data) });
 }
 
 export async function updateMilestone(id: string, data: any) {
-  return apiFetch(`/strategic/milestones/${id}`, { method: "PUT", body: JSON.stringify(data) });
+  return apiFetch(`/strategic/execution-milestones/${id}`, { method: "PUT", body: JSON.stringify(data) });
 }
 
 export async function deleteMilestone(id: string) {
-  return apiFetch(`/strategic/milestones/${id}`, { method: "DELETE" });
+  return apiFetch(`/strategic/execution-milestones/${id}`, { method: "DELETE" });
 }
 
 // Tasks
 export async function getTasks() {
-  return apiFetch("/strategic/tasks", { method: "GET", cache: "no-store" });
+  return apiFetch("/strategic/execution-tasks", { method: "GET", cache: "no-store" });
 }
 
 export async function createTask(data: any) {
-  return apiFetch("/strategic/tasks", { method: "POST", body: JSON.stringify(data) });
+  return apiFetch("/strategic/execution-tasks", { method: "POST", body: JSON.stringify(data) });
 }
 
 export async function updateTask(id: string, data: any) {
-  return apiFetch(`/strategic/tasks/${id}`, { method: "PUT", body: JSON.stringify(data) });
+  return apiFetch(`/strategic/execution-tasks/${id}`, { method: "PUT", body: JSON.stringify(data) });
 }
 
 export async function deleteTask(id: string) {
-  return apiFetch(`/strategic/tasks/${id}`, { method: "DELETE" });
+  return apiFetch(`/strategic/execution-tasks/${id}`, { method: "DELETE" });
 }
 
 // Logs
 export async function getLogs() {
-  return apiFetch("/strategic/logs", { method: "GET", cache: "no-store" });
+  return apiFetch("/strategic/execution-logs", { method: "GET", cache: "no-store" });
 }
 
 export async function createLog(data: any) {
-  return apiFetch("/strategic/logs", { method: "POST", body: JSON.stringify(data) });
+  return apiFetch("/strategic/execution-logs", { method: "POST", body: JSON.stringify(data) });
 }
 
 export async function updateLog(id: string, data: any) {
-  return apiFetch(`/strategic/logs/${id}`, { method: "PUT", body: JSON.stringify(data) });
+  return apiFetch(`/strategic/execution-logs/${id}`, { method: "PUT", body: JSON.stringify(data) });
 }
 
 export async function deleteLog(id: string) {
-  return apiFetch(`/strategic/logs/${id}`, { method: "DELETE" });
+  return apiFetch(`/strategic/execution-logs/${id}`, { method: "DELETE" });
 }
 
 // Evidences
 export async function getEvidences() {
-  return apiFetch("/strategic/evidences", { method: "GET", cache: "no-store" });
+  return apiFetch("/strategic/execution-evidences", { method: "GET", cache: "no-store" });
 }
 
 export async function createEvidence(data: any) {
-  return apiFetch("/strategic/evidences", { method: "POST", body: JSON.stringify(data) });
+  return apiFetch("/strategic/execution-evidences", { method: "POST", body: JSON.stringify(data) });
 }
 
 export async function updateEvidence(id: string, data: any) {
-  return apiFetch(`/strategic/evidences/${id}`, { method: "PUT", body: JSON.stringify(data) });
+  return apiFetch(`/strategic/execution-evidences/${id}`, { method: "PUT", body: JSON.stringify(data) });
 }
 
 export async function deleteEvidence(id: string) {
-  return apiFetch(`/strategic/evidences/${id}`, { method: "DELETE" });
+  return apiFetch(`/strategic/execution-evidences/${id}`, { method: "DELETE" });
 }
 
 // --- SPRINT 42: RISK & MEETING MANAGEMENT ---

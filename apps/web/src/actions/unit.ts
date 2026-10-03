@@ -33,9 +33,9 @@ export async function uploadUnitImageAction(unitId: string, formData: FormData) 
   try {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const { uploadToCloudinary } = await import("@/lib/cloudinary");
+    const { uploadToMinio } = await import("@/lib/cloudinary");
     // Just use unitId as folder name to avoid fetching slug from Prisma
-    uploadedUrl = await uploadToCloudinary(buffer, `sim-alfida/units/${unitId}`, `${type}-${Date.now()}.${file.name.split(".").pop() || "png"}`, file.type || "image/png");
+    uploadedUrl = await uploadToMinio(buffer, `sim-alfida/units/${unitId}`, `${type}-${Date.now()}.${file.name.split(".").pop() || "png"}`, file.type || "image/png");
   } catch (err) {
     throw new Error(`Gagal mengunggah ${type}.`);
   }

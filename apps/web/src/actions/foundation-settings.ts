@@ -20,7 +20,7 @@ export async function updateFoundationSettings(formData: FormData) {
   const logoFile = formData.get("logoFile") as File | null;
   const signatureFile = formData.get("signatureFile") as File | null;
   
-  const { uploadToCloudinary } = await import("@/lib/cloudinary");
+  const { uploadToMinio } = await import("@/lib/cloudinary");
 
   let logoUrl = formData.get("logoUrl") as string;
   let chairmanSignatureUrl = formData.get("chairmanSignatureUrl") as string;
@@ -29,7 +29,7 @@ export async function updateFoundationSettings(formData: FormData) {
     const arrayBuffer = await logoFile.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const ext = logoFile.name.split('.').pop() || 'png';
-    logoUrl = await uploadToCloudinary(
+    logoUrl = await uploadToMinio(
       buffer,
       `sim-alfida/foundation`,
       `logo-${Date.now()}.${ext}`,
@@ -41,7 +41,7 @@ export async function updateFoundationSettings(formData: FormData) {
     const arrayBuffer = await signatureFile.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const ext = signatureFile.name.split('.').pop() || 'png';
-    chairmanSignatureUrl = await uploadToCloudinary(
+    chairmanSignatureUrl = await uploadToMinio(
       buffer,
       `sim-alfida/foundation`,
       `signature-${Date.now()}.${ext}`,

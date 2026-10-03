@@ -15,6 +15,23 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '15mb',
     },
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**', // Allow MinIO URLs dynamically
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
+      }
+    ],
+  },
   async headers() {
     return [
       {
