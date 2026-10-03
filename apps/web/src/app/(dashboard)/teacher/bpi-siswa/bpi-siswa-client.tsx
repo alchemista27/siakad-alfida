@@ -119,7 +119,7 @@ export function BpiSiswaClient({ homerooms, students, recentReports }: any) {
                     </div>
                     <p className="text-xs text-gray-500 mb-2">{r.className}</p>
                     <p className="text-sm font-medium text-gray-700">{r.activity}</p>
-                    {r.notes && <p className="text-sm text-gray-600 italic mt-1">"{r.notes}"</p>}
+                    {r.notes && <p className="text-sm text-gray-600 italic mt-1">&quot;{r.notes}&quot;</p>}
                   </div>
                 </div>
               ))

@@ -107,7 +107,7 @@ export function SupervisorClient({ units }: { units: { id: string; name: string 
                         <h4 className="font-semibold text-sm text-gray-800">{report.studentName}</h4>
                         <p className="text-xs text-tertiary font-medium mb-1">{report.className} • {new Date(report.date).toLocaleDateString("id-ID")}</p>
                         <p className="text-sm text-gray-600"><strong>Aktivitas:</strong> {report.activity}</p>
-                        {report.notes && <p className="text-sm text-gray-500 mt-1 italic">"{report.notes}"</p>}
+                        {report.notes && <p className="text-sm text-gray-500 mt-1 italic">&quot;{report.notes}&quot;</p>}
                       </div>
                     </div>
                   ))}
