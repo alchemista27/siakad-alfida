@@ -7,8 +7,19 @@ import { CreateExecutionKPIDto, UpdateExecutionKPIDto } from '../dto/kpi.dto';
 export class ExecutionKpiService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(user?: any) {
+    let whereClause = {};
+    if (user && !user.roles?.some((r: any) => r.role === 'super_admin')) {
+      const myDepts = await this.prisma.departmentAdmin.findMany({
+        where: { userId: user.id },
+        select: { departmentId: true }
+      });
+      const deptIds = myDepts.map(d => d.departmentId);
+      whereClause = { program: { departmentId: { in: deptIds } } };
+    }
+
     return this.prisma.executionKPI.findMany({
+      where: whereClause,
       include: { program: true, pic: true },
     });
   }

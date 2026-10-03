@@ -4,6 +4,7 @@ import { Icon } from "@/components/ui/icon";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getCurrentUser } from "@/actions/user";
+import { prisma } from "@/lib/prisma";
 
 interface ModuleCardProps {
   title: string;
@@ -80,20 +81,33 @@ export default async function ModulesPage() {
   const isAdminUnit = roles.some((r: any) => r.role === "admin_unit" || r.role === "admin_unit_nondik" || r.role === "tim_ppdb");
   const isKaryawan = roles.some((r: any) => r.role === "karyawan");
   const isGuru = roles.some((r: any) => r.role === "guru");
-  const isAdminKepegawaian = roles.some((r: any) => r.role === "admin_bidang");
   const isMurobbi = roles.some((r: any) => r.role === "murobbi");
+  const isSupervisorKesiswaan = roles.some((r: any) => r.role === "supervisor_kesiswaan");
 
   const ppdbHref = isSuperAdmin ? "/admin/units" : (isAdminUnit ? "/unit/dashboard" : "/parent/dashboard");
   const akademikHref = isSuperAdmin ? "/admin/academic" : (isGuru ? "/teacher/schedules" : "/parent/dashboard");
-  const hrHref = isSuperAdmin || isAdminKepegawaian ? "/admin/hr/dashboard" : (isKaryawan || isGuru ? "/staff/attendance" : "/modules");
   const bpiHref = isSuperAdmin ? "/admin/bpi/liqo" : (isMurobbi ? "/murobbi/liqo" : "/staff/liqo");
-  const strategicHref = isSuperAdmin ? "/admin/strategic" : "/execution/action-items";
+  const strategicHref = (isSuperAdmin || roles.some((r: any) => r.role === "admin_bidang")) ? "/admin/strategic" : "/execution/action-items";
+  const supervisorHref = "/supervisor";
+  // Cek apakah user adalah admin kesekretariatan atau SDM
+  const userDepts = user ? await prisma.departmentAdmin.findMany({ 
+    where: { userId: user.id }, 
+    include: { department: true } 
+  }) : [];
+  const isKesekretariatan = userDepts.some((d: any) => d.department.name.toLowerCase().includes("kesekretariatan"));
+  const isAdminKepegawaian = userDepts.some((d: any) => d.department.name.toLowerCase().includes("sdm") || d.department.name.toLowerCase().includes("kepegawaian"));
+  const isDepartmentAdmin = roles.some((r: any) => r.role === "admin_bidang");
+
   const isParent = roles.some((r: any) => r.role === "orang_tua");
-  const isOnlyParent = isParent && !isSuperAdmin && !isAdminUnit && !isKaryawan && !isGuru && !isAdminKepegawaian && !isMurobbi;
+  const isOnlyParent = isParent && !isSuperAdmin && !isAdminUnit && !isKaryawan && !isGuru && !isAdminKepegawaian && !isMurobbi && !isSupervisorKesiswaan;
   
   const isObserver = roles.some((r: any) => r.role === "observer");
   const isTimPpdb = roles.some((r: any) => r.role === "tim_ppdb");
   const showPpdb = isSuperAdmin || isAdminUnit || isTimPpdb || isObserver || isParent;
+
+
+
+  const hrHref = isSuperAdmin || isAdminKepegawaian ? "/admin/hr/dashboard" : (isKaryawan || isGuru ? "/staff/attendance" : "/modules");
 
   return (
     <div className="space-y-6">
@@ -109,7 +123,7 @@ export default async function ModulesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {showPpdb && (
           <ModuleCard
-            title="PPDB (Penerimaan Siswa Baru)"
+            title="SPMB (Seleksi Penerimaan Murid Baru)"
             subtitle="Pendaftaran calon siswa baru, verifikasi berkas, observasi, dan seleksi."
             icon="school"
             active={true}
@@ -117,25 +131,39 @@ export default async function ModulesPage() {
           />
         )}
 
-        <ModuleCard
-          title="Modul Akademik"
-          subtitle="Pengelolaan data siswa, kelas, jadwal pelajaran, nilai, dan rapor."
-          icon="menu_book"
-          active={true}
-          href={akademikHref}
-        />
+        {(isSuperAdmin || isAdminUnit || isGuru || isParent) && (
+          <ModuleCard
+            title="Modul Akademik"
+            subtitle="Pengelolaan data siswa, kelas, jadwal pelajaran, nilai, dan rapor."
+            icon="menu_book"
+            active={true}
+            href={akademikHref}
+          />
+        )}
+
+        {(isSuperAdmin || isSupervisorKesiswaan) && (
+          <ModuleCard
+            title="Monitoring Kesiswaan"
+            subtitle="Dasbor rekapan akademik, kehadiran, pelanggaran, dan karakter BPI siswa tingkat Yayasan."
+            icon="admin_panel_settings"
+            active={true}
+            href={supervisorHref}
+          />
+        )}
 
         {!isOnlyParent && (
           <>
-            <ModuleCard
-              title="Manajemen Kepegawaian (HR)"
-              subtitle="Fitur SDM, presensi, pengajuan cuti, mutabaah, dan distribusi pegawai."
-              icon="badge"
-              active={true}
-              href={hrHref}
-            />
+            {(isSuperAdmin || isAdminKepegawaian || isKaryawan || isGuru) && (
+              <ModuleCard
+                title="Manajemen Kepegawaian (HR)"
+                subtitle="Fitur SDM, presensi, pengajuan cuti, mutabaah, dan distribusi pegawai."
+                icon="badge"
+                active={true}
+                href={hrHref}
+              />
+            )}
             
-            {(isSuperAdmin || isAdminKepegawaian || isMurobbi) && (
+            {(!isKesekretariatan && (isSuperAdmin || isDepartmentAdmin || isMurobbi)) && (
               <ModuleCard
                 title="Bina Pribadi Islami (BPI)"
                 subtitle="Manajemen kelompok mentoring (Liqo), Murobbi, dan rekap amal yaumi."
@@ -145,13 +173,23 @@ export default async function ModulesPage() {
               />
             )}
             
-            {(isSuperAdmin || isAdminKepegawaian) && (
+            {(isSuperAdmin || isDepartmentAdmin) && (
               <ModuleCard
                 title="Strategic & Eksekusi"
                 subtitle="Monitoring program kerja, indikator kinerja (KPI), isu, dan meeting."
                 icon="monitoring"
                 active={true}
                 href={strategicHref}
+              />
+            )}
+            
+            {(isSuperAdmin || isKesekretariatan) && (
+              <ModuleCard
+                title="Layanan Kesekretariatan"
+                subtitle="Buku tamu online, manajemen persuratan, dan peminjaman fasilitas ruang rapat."
+                icon="home_repair_service"
+                active={true}
+                href="/admin/secretariat/dashboard"
               />
             )}
           </>

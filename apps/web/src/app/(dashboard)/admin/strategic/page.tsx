@@ -1,62 +1,110 @@
-export default function StrategicDashboard() {
+import { Icon } from "@/components/ui/icon";
+import Link from "next/link";
+import { requireRole } from "@/lib/auth-guard";
+import { UserRole } from "@sim/database";
+
+export default async function StrategicDashboard() {
+  const user = await requireRole([UserRole.super_admin, UserRole.admin_bidang]);
+  const isSuperAdmin = user.roles?.some((r) => r.role === UserRole.super_admin);
+
+  const masterData = [];
+
+  if (isSuperAdmin) {
+    masterData.push({ title: "Struktur Bidang & PIC", desc: "Kelola hierarki organisasi yayasan, biro, dan unit.", href: "/admin/strategic/departments", icon: "account_tree" });
+  } else {
+    masterData.push({ title: "Anggota Bidang", desc: "Kelola daftar staf/guru yang tergabung di bidang Anda.", href: "/admin/strategic/members", icon: "group_add" });
+  }
+
+  masterData.push(
+    { title: "Program Kerja Bidang/Departemen", desc: "Pantau dan kelola program kerja strategis.", href: "/admin/strategic/programs", icon: "assignment" },
+    { title: "KPI & Target Kinerja", desc: "Kelola Indikator Kinerja Utama (KPI) setiap program.", href: "/admin/strategic/kpis", icon: "track_changes" }
+  );
+
+  const execution = [
+    { title: "Milestones", desc: "Pembagian fase program.", href: "/admin/strategic/milestones", icon: "flag" },
+    { title: "Delegasi Tugas", desc: "Pendelegasian & pemantauan tugas.", href: "/admin/strategic/tasks", icon: "task" },
+    { title: "Log Realisasi", desc: "Catatan harian/mingguan.", href: "/admin/strategic/logs", icon: "menu_book" },
+    { title: "Evidence Register", desc: "Unggah bukti dokumen & Cloudinary.", href: "/admin/strategic/evidence", icon: "cloud_upload" },
+  ];
+
+  const evaluation = [
+    { title: "Manajemen Risiko", desc: "Pelaporan kendala, masalah operasional, dan eskalasi risiko.", href: "/admin/strategic/issues", icon: "warning" },
+    { title: "Notulensi & Rapat", desc: "Pencatatan notulensi rapat dan instruksi tindak lanjut.", href: "/admin/strategic/meetings", icon: "groups" },
+  ];
+
   return (
     <div className="p-6 max-w-7xl mx-auto animate-in fade-in duration-500">
-      <div className="mb-8">
-        <h1 className="text-2xl font-heading font-bold text-primary mb-2">SMART Execution Control Center</h1>
-        <p className="text-primary font-body text-base">Pusat kendali kinerja strategis BPH Yayasan Alfida.</p>
+      <div className="mb-10 pb-6 border-b border-border">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-teal-50 text-tertiary mb-4">
+          <Icon name="monitoring" className="text-2xl" />
+        </div>
+        <h1 className="text-2xl font-heading font-bold text-primary mb-2">Pusat Kendali Eksekusi Strategis Alfida</h1>
+        <p className="text-gray-500 font-body text-sm max-w-2xl">Pusat kendali kinerja strategis BPH Yayasan Alfida. Pantau pelaksanaan program kerja, realisasi KPI, hingga manajemen rapat secara terintegrasi.</p>
       </div>
       
       <div className="mt-8">
-        <h2 className="text-xl font-bold font-heading mb-4 border-b pb-2">Master Data</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <a href="/admin/strategic/departments" className="block p-6 bg-surface border border-border rounded-md shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold font-heading">Struktur Bidang & PIC</h3>
-            <p className="mt-2 text-sm text-gray-500">Kelola hierarki organisasi yayasan, biro, dan unit.</p>
-          </a>
-          <a href="/admin/strategic/programs" className="block p-6 bg-surface border border-border rounded-md shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold font-heading">Program Sekolah (RKT/RKJM)</h3>
-            <p className="mt-2 text-sm text-gray-500">Pantau dan kelola program kerja strategis.</p>
-          </a>
-          <a href="/admin/strategic/kpis" className="block p-6 bg-surface border border-border rounded-md shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold font-heading">KPI & Target Kinerja</h3>
-            <p className="mt-2 text-sm text-gray-500">Kelola Indikator Kinerja Utama (KPI) setiap program.</p>
-          </a>
+        <h2 className="text-lg font-bold font-heading mb-4 text-primary flex items-center gap-2">
+          <Icon name="database" className="text-gray-400 text-lg" />
+          Master Data
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {masterData.map((item, i) => (
+            <Link key={i} href={item.href} className="group block p-5 bg-surface border border-border rounded-lg hover:border-tertiary transition-all duration-300">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-neutral flex items-center justify-center text-gray-500 group-hover:bg-tertiary group-hover:text-white transition-colors">
+                  <Icon name={item.icon} className="text-xl" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold font-heading text-primary group-hover:text-tertiary transition-colors">{item.title}</h3>
+                  <p className="mt-1 text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-xl font-bold font-heading mb-4 border-b pb-2">Eksekusi & Operasional</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <a href="/admin/strategic/milestones" className="block p-6 bg-surface border border-border rounded-md shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold font-heading">Milestones</h3>
-            <p className="mt-2 text-sm text-gray-500">Pembagian fase program.</p>
-          </a>
-          <a href="/admin/strategic/tasks" className="block p-6 bg-surface border border-border rounded-md shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold font-heading">Delegasi Tugas</h3>
-            <p className="mt-2 text-sm text-gray-500">Pendelegasian & pemantauan tugas.</p>
-          </a>
-          <a href="/admin/strategic/logs" className="block p-6 bg-surface border border-border rounded-md shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold font-heading">Log Realisasi</h3>
-            <p className="mt-2 text-sm text-gray-500">Catatan harian/mingguan.</p>
-          </a>
-          <a href="/admin/strategic/evidence" className="block p-6 bg-surface border border-border rounded-md shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold font-heading">Evidence Register</h3>
-            <p className="mt-2 text-sm text-gray-500">Unggah bukti dokumen & Cloudinary.</p>
-          </a>
+      <div className="mt-10">
+        <h2 className="text-lg font-bold font-heading mb-4 text-primary flex items-center gap-2">
+          <Icon name="rocket_launch" className="text-gray-400 text-lg" />
+          Eksekusi & Operasional
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {execution.map((item, i) => (
+            <Link key={i} href={item.href} className="group block p-5 bg-surface border border-border rounded-lg hover:border-tertiary transition-all duration-300">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-neutral flex items-center justify-center text-gray-500 group-hover:bg-tertiary group-hover:text-white transition-colors">
+                  <Icon name={item.icon} className="text-xl" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold font-heading text-primary group-hover:text-tertiary transition-colors">{item.title}</h3>
+                  <p className="mt-1 text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-xl font-bold font-heading mb-4 border-b pb-2">Evaluasi & Risiko</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <a href="/admin/strategic/issues" className="block p-6 bg-surface border border-border rounded-md shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold font-heading">Manajemen Risiko (Risk/Issue)</h3>
-            <p className="mt-2 text-sm text-gray-500">Pelaporan kendala, masalah operasional, dan eskalasi risiko secara sistematis.</p>
-          </a>
-          <a href="/admin/strategic/meetings" className="block p-6 bg-surface border border-border rounded-md shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold font-heading">Notulensi & Rapat Pimpinan</h3>
-            <p className="mt-2 text-sm text-gray-500">Pencatatan notulensi rapat, hasil keputusan, dan instruksi tindak lanjut.</p>
-          </a>
+      <div className="mt-10">
+        <h2 className="text-lg font-bold font-heading mb-4 text-primary flex items-center gap-2">
+          <Icon name="gavel" className="text-gray-400 text-lg" />
+          Evaluasi & Risiko
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {evaluation.map((item, i) => (
+            <Link key={i} href={item.href} className="group block p-5 bg-surface border border-border rounded-lg hover:border-tertiary transition-all duration-300">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-neutral flex items-center justify-center text-gray-500 group-hover:bg-tertiary group-hover:text-white transition-colors">
+                  <Icon name={item.icon} className="text-xl" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold font-heading text-primary group-hover:text-tertiary transition-colors">{item.title}</h3>
+                  <p className="mt-1 text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

@@ -47,4 +47,24 @@ export class StrategicDepartmentService {
     const totalReports = await this.prisma.activityReport.count();
     return { planned, ongoing, completed, totalReports };
   }
+
+  async getMyMembers(user: any) {
+    // Cari semua departemen dimana user ini menjadi admin
+    const myDepts = await this.prisma.departmentAdmin.findMany({
+      where: { userId: user.id },
+      select: { departmentId: true }
+    });
+    const deptIds = myDepts.map(d => d.departmentId);
+
+    if (deptIds.length === 0) return [];
+
+    // Ambil anggota dari departemen-departemen tersebut
+    return this.prisma.departmentMember.findMany({
+      where: { departmentId: { in: deptIds } },
+      include: {
+        user: { select: { id: true, fullName: true, email: true, username: true } },
+        department: { select: { id: true, name: true } }
+      }
+    });
+  }
 }

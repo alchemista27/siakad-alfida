@@ -7,8 +7,19 @@ import { CreateExecutionProgramDto, UpdateExecutionProgramDto } from '../dto/pro
 export class ExecutionProgramService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(user?: any) {
+    let whereClause = {};
+    if (user && !user.roles?.some((r: any) => r.role === 'super_admin')) {
+      const myDepts = await this.prisma.departmentAdmin.findMany({
+        where: { userId: user.id },
+        select: { departmentId: true }
+      });
+      const deptIds = myDepts.map(d => d.departmentId);
+      whereClause = { departmentId: { in: deptIds } };
+    }
+
     return this.prisma.workProgram.findMany({
+      where: whereClause,
       include: { department: true, user: true, coordinator: true, kpis: true },
       orderBy: { createdAt: 'desc' }
     });

@@ -12,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   
   return {
-    title: settings?.foundationName ? `SIAKAD Alfida — ${settings.foundationName}` : "SIAKAD Alfida — Sistem Informasi Akademik & PPDB",
-    description: "Sistem Informasi Akademik dan PPDB Yayasan Alfida",
+    title: settings?.foundationName ? `SIM Alfida — ${settings.foundationName}` : "SIM Alfida — Sistem Informasi dan Manajemen & SPMB",
+    description: "Sistem Informasi dan Manajemen & SPMB Yayasan Alfida",
     icons: {
       icon: settings?.logoUrl || "/favicon.ico",
     }

@@ -101,7 +101,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-heading font-bold text-2xl text-primary">
+        <h1 className="font-heading font-bold text-xl text-primary">
           Dashboard Super Admin
         </h1>
         <p className="text-sm text-gray-500 mt-1">
@@ -145,7 +145,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div>
-        <h2 className="font-heading font-semibold text-xl text-primary mb-4">Akses Cepat</h2>
+        <h2 className="font-heading font-semibold text-lg text-primary mb-4">Akses Cepat</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link href="/admin/academic" className="block">
             <div className="bg-white p-5 border border-border rounded-xl hover:shadow-md transition-all cursor-pointer flex items-center gap-4">
@@ -174,7 +174,7 @@ export default async function AdminDashboardPage() {
 
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-heading font-bold text-xl text-primary">
+          <h2 className="font-heading font-bold text-lg text-primary">
             Daftar Unit Pendidikan
           </h2>
         </div>

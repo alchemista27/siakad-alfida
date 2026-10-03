@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Icon } from '@/components/ui/icon';
 
 export default function MeetingsPage() {
   const [meetings] = useState([
@@ -10,45 +11,54 @@ export default function MeetingsPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>
-          <h1 className="text-2xl font-heading font-bold text-primary">Rapat & Notulen</h1>
-          <p className="text-primary mt-2 font-body text-base">Catat keputusan strategis dan daftar hadir dari setiap pertemuan.</p>
+          <h1 className="text-2xl font-heading font-bold text-primary mb-2">Rapat & Notulen</h1>
+          <p className="text-gray-500 font-body text-sm max-w-2xl">Catat keputusan strategis dan daftar hadir dari setiap pertemuan operasional.</p>
         </div>
-        <button className="px-5 py-3 bg-tertiary text-on-tertiary rounded-sm transition-all font-medium whitespace-nowrap">
-          + Jadwalkan Rapat
+        <button className="px-5 py-3 bg-tertiary text-on-tertiary rounded-sm hover:bg-tertiary/90 transition-all font-medium whitespace-nowrap flex items-center gap-2">
+          <Icon name="add" className="text-xl" />
+          Jadwalkan Rapat
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {meetings.map((meeting) => (
-          <div key={meeting.id} className="bg-surface border border-border rounded-md p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <svg className="w-16 h-16 text-secondary" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" /></svg>
+          <div key={meeting.id} className="bg-surface border border-border rounded-lg p-6 hover:border-gray-300 transition-colors relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-all">
+              <Icon name="groups" className="text-6xl text-primary" />
             </div>
             
             <div className="relative z-10">
-              <div className="text-xs font-semibold text-secondary mb-2 tracking-wider uppercase">
+              <div className="text-xs font-semibold text-gray-500 mb-3 tracking-wider uppercase flex items-center gap-1.5">
+                <Icon name="event" className="text-sm" />
                 {new Date(meeting.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}
               </div>
-              <h3 className="text-xl font-heading font-semibold text-primary mb-4">{meeting.title}</h3>
+              <h3 className="text-xl font-heading font-semibold text-primary mb-5">{meeting.title}</h3>
               
               <div className="space-y-3 mb-6 font-body text-sm text-gray-500">
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  {new Date(meeting.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-md bg-neutral flex items-center justify-center">
+                    <Icon name="schedule" className="text-gray-400 text-lg" />
+                  </div>
+                  <span>{new Date(meeting.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                  {meeting.location}
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-md bg-neutral flex items-center justify-center">
+                    <Icon name="location_on" className="text-gray-400 text-lg" />
+                  </div>
+                  <span>{meeting.location}</span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                <span className="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-lg">
-                  {meeting.actionItemsCount} Action Items
+              <div className="flex items-center justify-between pt-5 border-t border-border">
+                <span className="text-xs font-semibold text-gray-600 bg-neutral px-3 py-1.5 rounded-md inline-flex items-center gap-1.5 border border-border">
+                  <Icon name="checklist" className="text-sm" />
+                  {meeting.actionItemsCount} Tindak Lanjut
                 </span>
-                <button className="text-sm font-medium text-secondary hover:text-tertiary transition-colors">Buka Notulen &rarr;</button>
+                <button className="text-sm font-semibold text-tertiary hover:opacity-80 transition-opacity inline-flex items-center gap-1">
+                  Buka Notulen <Icon name="arrow_forward" className="text-sm" />
+                </button>
               </div>
             </div>
           </div>

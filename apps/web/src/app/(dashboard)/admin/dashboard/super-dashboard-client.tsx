@@ -32,7 +32,7 @@ export function SuperDashboardClient({
     <div className="space-y-8">
       {/* Section A: Bina Pribadi Islami */}
       <div>
-        <h2 className="font-heading font-semibold text-xl text-primary mb-4">Bina Pribadi Islami</h2>
+        <h2 className="font-heading font-semibold text-lg text-primary mb-4">Bina Pribadi Islami</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <StatCard
             title="Indeks Kehadiran Liqo"
@@ -54,7 +54,7 @@ export function SuperDashboardClient({
 
       {/* Section B: Kinerja Bidang */}
       <div>
-        <h2 className="font-heading font-semibold text-xl text-primary mb-4">Kinerja Bidang</h2>
+        <h2 className="font-heading font-semibold text-lg text-primary mb-4">Kinerja Bidang</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <StatCard
             title="Proker Selesai"
@@ -76,7 +76,7 @@ export function SuperDashboardClient({
 
       {/* Section C: Kedisiplinan Hari Ini */}
       <div>
-        <h2 className="font-heading font-semibold text-xl text-primary mb-4">Kedisiplinan Hari Ini</h2>
+        <h2 className="font-heading font-semibold text-lg text-primary mb-4">Kedisiplinan Hari Ini</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <StatCard
             title="Hadir Tepat Waktu"

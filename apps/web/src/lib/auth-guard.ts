@@ -9,7 +9,9 @@ export interface UserRoleInfo {
   unitId: string | null;
 }
 
-export async function requireAuth() {
+import { cache } from 'react';
+
+export const requireAuth = cache(async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -32,7 +34,7 @@ export async function requireAuth() {
   }
 
   return prismaUser;
-}
+});
 
 export async function requireRole(allowedRoles: UserRole[]) {
   const user = await requireAuth();

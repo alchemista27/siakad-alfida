@@ -46,8 +46,6 @@ const navGroups: NavGroup[] = [
       { title: "Departemen / Bidang", href: "/admin/departments", icon: "domain" },
       { title: "Distribusi Pegawai", href: "/admin/staff", icon: "badge" },
       { title: "Kelola Cuti/Izin", href: "/admin/hr/leaves", icon: "event_available" },
-      { title: "Program Kerja", href: "/admin/strategic", icon: "assignment" },
-      { title: "Laporan Aktivitas", href: "/admin/activity-reports", icon: "article" },
     ],
   },
   {
@@ -59,9 +57,19 @@ const navGroups: NavGroup[] = [
   {
     title: "Eksekusi Strategis",
     items: [
+      { title: "Program Kerja", href: "/admin/strategic", icon: "assignment" },
+      { title: "Laporan Aktivitas", href: "/admin/activity-reports", icon: "article" },
       { title: "Action Items", href: "/execution/action-items", icon: "checklist" },
       { title: "Issues", href: "/execution/issues", icon: "bug_report" },
       { title: "Meetings", href: "/execution/meetings", icon: "meeting_room" },
+    ],
+  },
+  {
+    title: "Layanan Kesekretariatan",
+    items: [
+      { title: "Buku Tamu", href: "/execution/guestbook", icon: "contact_page" },
+      { title: "Surat Menyurat", href: "/execution/correspondence", icon: "mail" },
+      { title: "Jadwal & Ruangan", href: "/execution/rooms", icon: "meeting_room" },
     ],
   },
   {
@@ -71,11 +79,11 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    title: "Admin Unit (PPDB)",
+    title: "Admin Unit (SPMB)",
     items: [
       { title: "Dashboard Unit", href: "/unit/dashboard", icon: "speed" },
       { title: "Settings Unit", href: "/unit/settings", icon: "tune" },
-      { title: "Overview PPDB", href: "/unit/ppdb-overview", icon: "calendar_month" },
+      { title: "Overview SPMB", href: "/unit/ppdb-overview", icon: "calendar_month" },
       { title: "Daftar Pendaftaran", href: "/unit/ppdb-registrations", icon: "list_alt" },
       { title: "Verifikasi Bayar", href: "/unit/ppdb-payments", icon: "receipt_long" },
       { title: "Verifikasi Berkas", href: "/unit/ppdb-verification", icon: "folder_open" },
@@ -115,6 +123,7 @@ const navGroups: NavGroup[] = [
       { title: "Jadwal Pelajaran", href: "/unit/schedules", icon: "calendar_month" },
       { title: "Ekstrakurikuler", href: "/unit/extracurriculars", icon: "sports_soccer" },
       { title: "Penugasan Guru", href: "/unit/academic-teachers", icon: "group" },
+      { title: "Indikator Karakter", href: "/unit/character-indicators", icon: "assignment_turned_in" },
       { title: "Tagihan SPP", href: "/unit/spp", icon: "payments" },
       { title: "Kenaikan Kelas", href: "/unit/promotions", icon: "school" },
     ],
@@ -129,7 +138,16 @@ const navGroups: NavGroup[] = [
       { title: "Input Nilai Harian", href: "/teacher/grades", icon: "grading" },
       { title: "Penilaian Ekskul", href: "/teacher/extracurricular", icon: "sports_score" },
       { title: "Rapor (LHBS)", href: "/teacher/lhbs", icon: "contact_page" },
+      { title: "Pelanggaran Siswa", href: "/teacher/infractions", icon: "gavel" },
+      { title: "Penilaian Karakter", href: "/teacher/character-assessments", icon: "assignment_turned_in" },
+      { title: "Laporan BPI Siswa", href: "/teacher/bpi-siswa", icon: "menu_book" },
     ],
+  },
+  {
+    title: "Supervisor Kesiswaan",
+    items: [
+      { title: "Dasbor Kesiswaan", href: "/supervisor", icon: "admin_panel_settings" }
+    ]
   },
   {
     title: "Layanan Pegawai",
@@ -174,10 +192,12 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const isObserver = userRoles.some((r: any) => r.role === "observer");
   const isTeacher = userRoles.some((r: any) => r.role === "guru");
   const isKaryawan = userRoles.some((r: any) => r.role === "karyawan");
-  const isAdminKepegawaian = userRoles.some((r: any) => r.role === "admin_bidang");
-  const isAdminBpi = userRoles.some((r: any) => r.role === "admin_bidang");
+  const isKesekretariatan = user?.email?.toLowerCase().includes("sekretariat") || false;
+  const isAdminKepegawaian = userRoles.some((r: any) => r.role === "admin_bidang") && !isKesekretariatan;
+  const isAdminBpi = userRoles.some((r: any) => r.role === "admin_bidang") && !isKesekretariatan;
   const isMurobbi = userRoles.some((r: any) => r.role === "murobbi");
   const isParent = userRoles.some((r: any) => r.role === "orang_tua");
+  const isSupervisorKesiswaan = userRoles.some((r: any) => r.role === "supervisor_kesiswaan");
 
   const filteredGroups = navGroups.map(group => {
     // Hide auth links if logged in
@@ -197,7 +217,6 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         })
       };
     }
-    // Return group unmodified, items filter comes next
     return group;
   }).filter(group => {
     // Jika user adalah super admin, tampilkan menu admin level saja, sembunyikan menu personal (Guru/Ortu/Pegawai)
@@ -207,7 +226,9 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         "Super Admin", 
         "Manajemen Karyawan", 
         "Eksekusi Strategis",
-        "Bina Pribadi Islami"
+        "Layanan Kesekretariatan",
+        "Bina Pribadi Islami",
+        "Supervisor Kesiswaan"
       ];
       return allowedForSuperAdmin.includes(group.title);
     }
@@ -217,7 +238,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     if (group.title === "Manajemen Karyawan" && !isAdminKepegawaian) return false;
     if (group.title === "Bina Pribadi Islami" && !isAdminBpi) return false;
     if (group.title === "Grup Mentoring" && !isMurobbi) return false;
-    if (group.title === "Admin Unit (PPDB)" && !isAdminUnit) return false;
+    if (group.title === "Admin Unit (SPMB)" && !isAdminUnit) return false;
     if (group.title === "Admin Unit (Akademik)" && !isAdminUnit) return false;
     if (group.title === "Admin Unit (SDM & Absensi)" && !isAdminUnit && !isAdminUnitNondik) return false;
     if (group.title === "Portal Orang Tua" && !isParent) return false;
@@ -225,8 +246,15 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     if (group.title === "Guru (Akademik)" && !isTeacher) return false;
     if (group.title === "Layanan Pegawai" && !isTeacher && !isKaryawan) return false;
     if (group.title === "Observer" && !isObserver) return false;
-    if (group.title === "Eksekusi Strategis" && !isAdminKepegawaian) return false;
+    
+    // admin_bidang can access Eksekusi Strategis
+    if (group.title === "Eksekusi Strategis" && !userRoles.some((r: any) => r.role === "admin_bidang")) return false;
+    
+    // Only superadmin and secretariat can access Layanan Kesekretariatan
+    if (group.title === "Layanan Kesekretariatan" && !isKesekretariatan && !isSuperAdmin) return false;
+
     if (group.title === "BPH (Board)") return false; // Hide BPH for now as per user request
+    if (group.title === "Supervisor Kesiswaan" && !isSupervisorKesiswaan) return false;
     
     return true;
   });

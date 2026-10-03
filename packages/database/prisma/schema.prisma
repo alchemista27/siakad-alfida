@@ -35,6 +35,7 @@ enum UserRole {
   tim_ppdb
   admin_bidang
   murobbi
+  supervisor_kesiswaan
 
   @@schema("sim")
 }
@@ -263,6 +264,7 @@ model Unit {
   holidays            Holiday[]
   gpsAttendanceConfig GpsAttendanceConfig?
   gpsAttendances      GpsAttendance[]
+  characterIndicators CharacterIndicator[]
 
   @@index([isActive])
   @@map("units")
@@ -359,23 +361,23 @@ enum KPIUpdateFrequency {
 }
 
 model User {
-  name         String?   @db.VarChar(200)
+  name          String?   @db.VarChar(200)
   emailVerified Boolean   @default(false) @map("email_verified")
-  image        String?   @db.Text
-  accounts     Account[]
-  id           String    @id @default(uuid()) @db.Uuid
-  username     String?   @unique @db.VarChar(100)
-  fullName     String    @map("full_name") @db.VarChar(200)
-  firstName    String?   @map("first_name") @db.VarChar(100)
-  lastName     String?   @map("last_name") @db.VarChar(100)
-  email        String    @unique @db.VarChar(255)
-  phone        String?   @db.VarChar(30)
-  passwordHash String    @map("password_hash") @db.VarChar(255)
-  groups       String[] // Fitur PostgreSQL: Array of strings
-  isActive     Boolean   @default(true) @map("is_active")
-  leaveQuota   Int       @default(12) @map("leave_quota")
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+  image         String?   @db.Text
+  accounts      Account[]
+  id            String    @id @default(uuid()) @db.Uuid
+  username      String?   @unique @db.VarChar(100)
+  fullName      String    @map("full_name") @db.VarChar(200)
+  firstName     String?   @map("first_name") @db.VarChar(100)
+  lastName      String?   @map("last_name") @db.VarChar(100)
+  email         String    @unique @db.VarChar(255)
+  phone         String?   @db.VarChar(30)
+  passwordHash  String    @map("password_hash") @db.VarChar(255)
+  groups        String[] // Fitur PostgreSQL: Array of strings
+  isActive      Boolean   @default(true) @map("is_active")
+  leaveQuota    Int       @default(12) @map("leave_quota")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
   roles               UserRoleAssignment[]
   sessions            Session[]
@@ -394,6 +396,7 @@ model User {
 
   // Modul Karyawan (Fase 3)
   departmentAdmins    DepartmentAdmin[]
+  departmentMembers   DepartmentMember[]
   gpsAttendances      GpsAttendance[]
   liqoGroupsAsMurobbi LiqoGroup[]
   liqoMemberships     LiqoMember[]
@@ -407,17 +410,21 @@ model User {
   programsCoordinated WorkProgram[]     @relation("WorkProgramsCoordinator")
   kpisOwned           ExecutionKPI[]    @relation("ExecutionKPIPIC")
 
-  milestonesOwned  ExecutionMilestone[]      @relation("MilestonePIC")
-  tasksAssigned    ExecutionTask[]           @relation("TaskAssignee")
-  tasksDelegated   ExecutionTask[]           @relation("TaskAssignor")
-  tasksVerified    ExecutionTask[]           @relation("TaskVerifier")
-  realizationLogs  ExecutionRealizationLog[] @relation("RealizationPIC")
-  evidenceOwned    ExecutionEvidence[]       @relation("EvidenceOwner")
-  evidenceVerified ExecutionEvidence[]       @relation("EvidenceVerifier")
-  reportedIssues   ExecutionIssue[]          @relation("IssueReporter")
-  assignedIssues   ExecutionIssue[]          @relation("IssueAssignee")
-  meetingAttendances MeetingAttendance[]
-  actionItems      ExecutionActionItem[]     @relation("ActionItemPIC")
+  milestonesOwned             ExecutionMilestone[]         @relation("MilestonePIC")
+  tasksAssigned               ExecutionTask[]              @relation("TaskAssignee")
+  tasksDelegated              ExecutionTask[]              @relation("TaskAssignor")
+  tasksVerified               ExecutionTask[]              @relation("TaskVerifier")
+  realizationLogs             ExecutionRealizationLog[]    @relation("RealizationPIC")
+  evidenceOwned               ExecutionEvidence[]          @relation("EvidenceOwner")
+  evidenceVerified            ExecutionEvidence[]          @relation("EvidenceVerifier")
+  reportedIssues              ExecutionIssue[]             @relation("IssueReporter")
+  assignedIssues              ExecutionIssue[]             @relation("IssueAssignee")
+  meetingAttendances          MeetingAttendance[]
+  actionItems                 ExecutionActionItem[]        @relation("ActionItemPIC")
+  studentInfractions          StudentInfraction[]
+  studentCharacterAssessments StudentCharacterAssessment[]
+  studentBpiReports           StudentBpiReport[]
+  roomBookings                RoomBooking[]
 
   @@index([isActive])
   @@map("users")
@@ -440,15 +447,15 @@ model UserRoleAssignment {
 }
 
 model Session {
-  ipAddress    String?   @map("ip_address") @db.Text
-  userAgent    String?   @map("user_agent") @db.Text
-  token        String    @unique @db.VarChar(255)
+  ipAddress String? @map("ip_address") @db.Text
+  userAgent String? @map("user_agent") @db.Text
+  token     String  @unique @db.VarChar(255)
 
-  id           String   @id @default(uuid()) @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  expiresAt    DateTime @map("expires_at") @db.Timestamptz
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -710,13 +717,16 @@ model StudentEnrollment {
   studentData  StudentData   @relation(fields: [studentDataId], references: [id], onDelete: Cascade)
   parent       User          @relation("EnrollmentParent", fields: [parentId], references: [id], onDelete: Restrict)
 
-  grades            Grade[]
-  attendances       Attendance[]
-  extraMemberships  ExtracurricularMember[]
-  extraGrades       ExtracurricularGrade[]
-  sppInvoices       SppInvoice[]
-  lhbsReports       LhbsReport[]
-  promotionDecision PromotionDecision?
+  grades                      Grade[]
+  attendances                 Attendance[]
+  extraMemberships            ExtracurricularMember[]
+  extraGrades                 ExtracurricularGrade[]
+  sppInvoices                 SppInvoice[]
+  lhbsReports                 LhbsReport[]
+  promotionDecision           PromotionDecision?
+  studentInfractions          StudentInfraction[]
+  studentCharacterAssessments StudentCharacterAssessment[]
+  studentBpiReports           StudentBpiReport[]
 
   @@unique([studentDataId, academicYearId])
   @@index([status])
@@ -1056,6 +1066,7 @@ model Department {
   children        Department[]      @relation("DepartmentToDepartment")
   leader          User?             @relation("DepartmentLeader", fields: [leaderId], references: [id], onDelete: SetNull)
   admins          DepartmentAdmin[]
+  members         DepartmentMember[]
   workPrograms    WorkProgram[]
   activityReports ActivityReport[]
   biroUnits       Unit[]            @relation("BiroToUnit")
@@ -1069,13 +1080,29 @@ model DepartmentAdmin {
   departmentId String   @map("department_id") @db.Uuid
   userId       String   @map("user_id") @db.Uuid
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([departmentId, userId])
   @@map("department_admins")
+  @@schema("sim")
+}
+
+model DepartmentMember {
+  id           String   @id @default(uuid()) @db.Uuid
+  departmentId String   @map("department_id") @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  role         String?  @db.VarChar(50)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([departmentId, userId])
+  @@map("department_members")
   @@schema("sim")
 }
 
@@ -1101,7 +1128,7 @@ model GpsAttendanceConfig {
   longitude    Float
   radiusMeters Int      @default(50) @map("radius_meters")
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
@@ -1484,61 +1511,61 @@ model Verification {
 }
 
 model ExecutionIssue {
-  id              String            @id @default(uuid()) @db.Uuid
-  programId       String            @map("program_id") @db.Uuid
-  milestoneId     String?           @map("milestone_id") @db.Uuid
-  title           String            @db.VarChar(255)
-  description     String            @db.Text
-  impactScore     Int?              @map("impact_score") @db.SmallInt // 1-5
-  probabilityScore Int?             @map("probability_score") @db.SmallInt // 1-5
-  mitigationPlan  String?           @map("mitigation_plan") @db.Text
-  status          ExecutionStatus   @default(not_started)
-  priority        ExecutionPriority @default(medium)
-  identifiedDate  DateTime          @default(now()) @map("identified_date") @db.Date
-  resolvedDate    DateTime?         @map("resolved_date") @db.Date
-  reporterId      String?           @map("reporter_id") @db.Uuid
-  assigneeId      String?           @map("assignee_id") @db.Uuid
-  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime?         @updatedAt @map("updated_at") @db.Timestamptz
+  id               String            @id @default(uuid()) @db.Uuid
+  programId        String            @map("program_id") @db.Uuid
+  milestoneId      String?           @map("milestone_id") @db.Uuid
+  title            String            @db.VarChar(255)
+  description      String            @db.Text
+  impactScore      Int?              @map("impact_score") @db.SmallInt // 1-5
+  probabilityScore Int?              @map("probability_score") @db.SmallInt // 1-5
+  mitigationPlan   String?           @map("mitigation_plan") @db.Text
+  status           ExecutionStatus   @default(not_started)
+  priority         ExecutionPriority @default(medium)
+  identifiedDate   DateTime          @default(now()) @map("identified_date") @db.Date
+  resolvedDate     DateTime?         @map("resolved_date") @db.Date
+  reporterId       String?           @map("reporter_id") @db.Uuid
+  assigneeId       String?           @map("assignee_id") @db.Uuid
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime?         @updatedAt @map("updated_at") @db.Timestamptz
 
-  reporter        User?             @relation("IssueReporter", fields: [reporterId], references: [id], onDelete: SetNull)
-  assignee        User?             @relation("IssueAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  actionItems     ExecutionActionItem[]
+  reporter    User?                 @relation("IssueReporter", fields: [reporterId], references: [id], onDelete: SetNull)
+  assignee    User?                 @relation("IssueAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  actionItems ExecutionActionItem[]
 
   @@map("execution_issues")
   @@schema("sim")
 }
 
 model ExecutionMeeting {
-  id             String            @id @default(uuid()) @db.Uuid
-  programId      String?           @map("program_id") @db.Uuid
-  title          String            @db.VarChar(255)
-  agenda         String            @db.Text
-  meetingDate    DateTime          @map("meeting_date") @db.Timestamptz
-  location       String?           @db.VarChar(255)
-  organizerId    String?           @map("organizer_id") @db.Uuid
-  notes          String?           @db.Text
-  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt      DateTime?         @updatedAt @map("updated_at") @db.Timestamptz
+  id          String    @id @default(uuid()) @db.Uuid
+  programId   String?   @map("program_id") @db.Uuid
+  title       String    @db.VarChar(255)
+  agenda      String    @db.Text
+  meetingDate DateTime  @map("meeting_date") @db.Timestamptz
+  location    String?   @db.VarChar(255)
+  organizerId String?   @map("organizer_id") @db.Uuid
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
-  attendances    MeetingAttendance[]
-  actionItems    ExecutionActionItem[]
+  attendances MeetingAttendance[]
+  actionItems ExecutionActionItem[]
 
   @@map("execution_meetings")
   @@schema("sim")
 }
 
 model MeetingAttendance {
-  id           String           @id @default(uuid()) @db.Uuid
-  meetingId    String           @map("meeting_id") @db.Uuid
-  userId       String           @map("user_id") @db.Uuid
-  status       AttendanceStatus
-  notes        String?          @db.VarChar(255)
-  createdAt    DateTime         @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime?        @updatedAt @map("updated_at") @db.Timestamptz
+  id        String           @id @default(uuid()) @db.Uuid
+  meetingId String           @map("meeting_id") @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  status    AttendanceStatus
+  notes     String?          @db.VarChar(255)
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime?        @updatedAt @map("updated_at") @db.Timestamptz
 
-  meeting      ExecutionMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meeting ExecutionMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([meetingId, userId])
   @@map("meeting_attendances")
@@ -1546,20 +1573,151 @@ model MeetingAttendance {
 }
 
 model ExecutionActionItem {
-  id             String            @id @default(uuid()) @db.Uuid
-  meetingId      String?           @map("meeting_id") @db.Uuid
-  issueId        String?           @map("issue_id") @db.Uuid
-  description    String            @db.Text
-  picId          String?           @map("pic_id") @db.Uuid
-  deadline       DateTime?         @db.Date
-  status         ExecutionStatus   @default(not_started)
-  createdAt      DateTime          @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt      DateTime?         @updatedAt @map("updated_at") @db.Timestamptz
+  id          String          @id @default(uuid()) @db.Uuid
+  meetingId   String?         @map("meeting_id") @db.Uuid
+  issueId     String?         @map("issue_id") @db.Uuid
+  description String          @db.Text
+  picId       String?         @map("pic_id") @db.Uuid
+  deadline    DateTime?       @db.Date
+  status      ExecutionStatus @default(not_started)
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime?       @updatedAt @map("updated_at") @db.Timestamptz
 
-  meeting        ExecutionMeeting? @relation(fields: [meetingId], references: [id], onDelete: Cascade)
-  issue          ExecutionIssue?   @relation(fields: [issueId], references: [id], onDelete: Cascade)
-  pic            User?             @relation("ActionItemPIC", fields: [picId], references: [id], onDelete: SetNull)
+  meeting ExecutionMeeting? @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  issue   ExecutionIssue?   @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  pic     User?             @relation("ActionItemPIC", fields: [picId], references: [id], onDelete: SetNull)
 
   @@map("execution_action_items")
   @@schema("sim")
 }
+
+// ==========================================
+// MONITORING PEMBELAJARAN
+// ==========================================
+
+model StudentInfraction {
+  id           String   @id @default(uuid()) @db.Uuid
+  enrollmentId String   @map("enrollment_id") @db.Uuid
+  teacherId    String   @map("teacher_id") @db.Uuid
+  date         DateTime @db.Date
+  description  String   @db.Text
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  enrollment StudentEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  teacher    User              @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@map("student_infractions")
+  @@schema("sim")
+}
+
+model CharacterIndicator {
+  id          String  @id @default(uuid()) @db.Uuid
+  unitId      String  @map("unit_id") @db.Uuid
+  name        String  @db.VarChar(100)
+  description String? @db.Text
+
+  assessments StudentCharacterAssessment[]
+
+  unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@map("character_indicators")
+  @@schema("sim")
+}
+
+model StudentCharacterAssessment {
+  id           String   @id @default(uuid()) @db.Uuid
+  enrollmentId String   @map("enrollment_id") @db.Uuid
+  indicatorId  String   @map("indicator_id") @db.Uuid
+  teacherId    String   @map("teacher_id") @db.Uuid
+  date         DateTime @db.Date
+  score        Int // Skala Likert 1-5
+  notes        String?  @db.Text
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  enrollment StudentEnrollment  @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  indicator  CharacterIndicator @relation(fields: [indicatorId], references: [id], onDelete: Cascade)
+  teacher    User               @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@map("student_character_assessments")
+  @@schema("sim")
+}
+
+model StudentBpiReport {
+  id           String   @id @default(uuid()) @db.Uuid
+  enrollmentId String   @map("enrollment_id") @db.Uuid
+  teacherId    String   @map("teacher_id") @db.Uuid
+  date         DateTime @db.Date
+  activity     String   @db.Text
+  notes        String?  @db.Text
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  enrollment StudentEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  teacher    User              @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@map("student_bpi_reports")
+  @@schema("sim")
+}
+
+// ==========================================
+// KESEKRETARIATAN & FASILITAS
+// ==========================================
+
+model GuestBookEntry {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(100)
+  institution String?  @db.VarChar(150)
+  visitDate   DateTime @db.Date
+  purpose     String
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("guest_book_entries")
+  @@schema("sim")
+}
+
+model Correspondence {
+  id              String   @id @default(uuid()) @db.Uuid
+  type            String   @db.VarChar(20) // INCOMING atau OUTGOING
+  referenceNumber String   @map("reference_number") @db.VarChar(100)
+  date            DateTime @db.Date
+  sender          String   @db.VarChar(150)
+  recipient       String   @db.VarChar(150)
+  subject         String
+  attachmentUrl   String?  @map("attachment_url")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("correspondences")
+  @@schema("sim")
+}
+
+model FacilityRoom {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(100)
+  capacity  Int
+  location  String?
+  isActive  Boolean  @default(true) @map("is_active")
+
+  bookings  RoomBooking[]
+
+  @@map("facility_rooms")
+  @@schema("sim")
+}
+
+model RoomBooking {
+  id        String   @id @default(uuid()) @db.Uuid
+  roomId    String   @map("room_id") @db.Uuid
+  title     String   @db.VarChar(150)
+  date      DateTime @db.Date
+  startTime String   @map("start_time") @db.VarChar(10) // HH:mm
+  endTime   String   @map("end_time") @db.VarChar(10)   // HH:mm
+  purpose   String?
+  bookerId  String   @map("booker_id") @db.Uuid
+  status    String   @default("approved") @db.VarChar(20) // pending, approved, rejected
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  room      FacilityRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  booker    User         @relation(fields: [bookerId], references: [id], onDelete: Cascade)
+
+  @@map("room_bookings")
+  @@schema("sim")
+}
+

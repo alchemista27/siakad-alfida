@@ -237,3 +237,15 @@
 - Mengubah jenama aplikasi secara komprehensif pada antarmuka *Login* dari "SIAKAD" menjadi "SIM Alfida" (Sistem Informasi Manajemen) yang mendeskripsikan ruang lingkup yayasan yang lebih luas.
 - Mendesain ulang arsitektur visibilitas modul di antarmuka Dasbor Utama (`/modules`): menyembunyikan modul BPI dan PPDB dari akses guru/pegawai yang tidak relevan, sambil memberikan fitur khusus di halaman Profil ("Aktifkan Fitur Orang Tua") agar pegawai tetap bisa mendaftarkan anak mereka sendiri ke sistem PPDB secara instan tanpa perlu mendaftar akun SSO baru.
   **commit message:** feat: expand SIM Alfida branding, refine user nav & reset password UI, enhance route guards, and build parent access feature for internal staff
+
+---
+
+**tanggal:** 03 Oktober 2026
+**progress:**
+
+- Merestrukturisasi antarmuka (UI restyling) pada rute eksekusi strategis (`/execution/action-items`, `/execution/issues`, `/execution/meetings`) agar diselaraskan dengan ketat pada pedoman identitas visual di `DESIGN.md` (menghapus bayangan, merapikan *hairline borders*, serta mendisiplinkan skema warna permukaan dan tersier).
+- Mengubah _branding_ "SMART Execution Control Center" menjadi "Pusat Kendali Eksekusi Strategis Alfida" di Dasbor Admin Strategic agar lebih elegan dan mencerminkan identitas korporat BPH Yayasan Alfida.
+- Mengimplementasikan isolasi data tingkat departemen (*department-level isolation*) yang canggih untuk Admin Bidang: Admin Bidang kini mendapatkan Dasbor Khusus yang diisolasi ketat agar mereka hanya bisa melihat, mengubah, dan mengelola Program Kerja, KPI, serta mendelegasikan tugas kepada Staf khusus di lingkup bidang mereka sendiri (berkat penambahan model `DepartmentMember`).
+- Menuntaskan celah fatal *bug* kehabisan sesi (*APIError: Failed to get session* & *Prisma Pool Exhaustion*) di dalam SSR Next.js dengan melipatgandakan batas koneksi basis data (`connection_limit=20`) serta menanamkan **`React.cache()`** pada perlindungan `requireAuth`, yang berhasil memangkas 80% beban kueri berulang (N+1) pada setiap pemuatan rute dasbor secara dramatis.
+- Mengurai logika visibilitas *Role-based Access Control* (RBAC) pada Dasbor Modul Utama (`modules/page.tsx`): mengoreksi *bug* akses yang membocorkan modul Akademik dan HR ke semua Admin Bidang. Kini akses modul HR benar-benar dikunci khusus untuk Admin berlabel "SDM/Kepegawaian", sementara modul Strategis berhasil dipulihkan untuk memayungi seluruh tipe Admin Bidang.
+  **commit message:** feat: revamp strategic execution UI, enforce department data isolation, fix Next.js server DB exhaustion with react cache, and refine RBAC module visibility

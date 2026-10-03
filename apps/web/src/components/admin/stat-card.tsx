@@ -20,7 +20,7 @@ export function StatCard({ title, value, icon, trend, trendUp }: StatCardProps) 
         </div>
       </div>
       <div className="flex items-baseline gap-2">
-        <h2 className="text-3xl font-heading font-bold text-primary">
+        <h2 className="text-2xl font-heading font-bold text-primary">
           {value}
         </h2>
         {trend && (

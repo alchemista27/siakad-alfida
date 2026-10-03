@@ -7,7 +7,7 @@ import { Table, Thead, Tbody, Tr, Th, Td } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
 import { Input } from "@/components/ui/input";
-import { upsertDepartment, assignDepartmentAdmin } from "@/actions/departments";
+import { upsertDepartment, assignDepartmentAdmin, deleteDepartment } from "@/actions/departments";
 
 type Department = any;
 type Unit = any;
@@ -22,7 +22,9 @@ interface DepartmentClientProps {
 export function DepartmentClient({ departments, units, users }: DepartmentClientProps) {
   const [isDeptModalOpen, setIsDeptModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedDeptId, setSelectedDeptId] = useState<string | null>(null);
+  const [deptToDelete, setDeptToDelete] = useState<{id: string, name: string} | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const handleDeptSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -52,6 +54,20 @@ export function DepartmentClient({ departments, units, users }: DepartmentClient
       await assignDepartmentAdmin({ departmentId: selectedDeptId, userId });
       setIsAdminModalOpen(false);
       setSelectedDeptId(null);
+    });
+  };
+
+  const handleDeleteClick = (id: string, name: string) => {
+    setDeptToDelete({ id, name });
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (!deptToDelete) return;
+    startTransition(async () => {
+      await deleteDepartment(deptToDelete.id);
+      setIsDeleteModalOpen(false);
+      setDeptToDelete(null);
     });
   };
 
@@ -110,16 +126,27 @@ export function DepartmentClient({ departments, units, users }: DepartmentClient
                   )}
                 </Td>
                 <Td className="text-right">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedDeptId(dept.id);
-                      setIsAdminModalOpen(true);
-                    }}
-                  >
-                    <Icon name="person_add" className="mr-1" /> Assign Admin
-                  </Button>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedDeptId(dept.id);
+                        setIsAdminModalOpen(true);
+                      }}
+                    >
+                      <Icon name="person_add" className="mr-1" /> Assign
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleDeleteClick(dept.id, dept.name)}
+                      disabled={isPending}
+                    >
+                      <Icon name="delete" />
+                    </Button>
+                  </div>
                 </Td>
               </Tr>
             ))}
@@ -221,6 +248,36 @@ export function DepartmentClient({ departments, units, users }: DepartmentClient
             </Button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Konfirmasi Hapus"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-700">
+            Apakah Anda yakin ingin menghapus bidang <strong>{deptToDelete?.name}</strong>? Tindakan ini tidak dapat dibatalkan.
+          </p>
+          <div className="pt-4 flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setIsDeleteModalOpen(false)}
+              disabled={isPending}
+            >
+              Batal
+            </Button>
+            <Button
+              type="button"
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={confirmDelete}
+              disabled={isPending}
+            >
+              {isPending ? "Menghapus..." : "Ya, Hapus"}
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

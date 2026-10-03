@@ -12,7 +12,7 @@ export class AdminController {
 
   // ================= USERS =================
   @Get('users')
-  @Roles(UserRole.super_admin, UserRole.admin_unit)
+  @Roles(UserRole.super_admin, UserRole.admin_unit, UserRole.admin_bidang)
   async getAllUsers() {
     return this.adminService.getAllUsers();
   }

@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Req } from '@nestjs/common';
 import { StrategicDepartmentService } from './strategic-department.service';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { CreateDepartmentSchema, UpdateDepartmentSchema, CreateDepartmentDto, UpdateDepartmentDto } from '../dto/department.dto';
@@ -12,6 +12,14 @@ export class StrategicDepartmentController {
 
   @Get()
   findAll() { return this.service.findAll(); }
+
+  @Get('my-members')
+  getMyMembers(@Req() req: any) {
+    return this.service.getMyMembers(req.user);
+  }
+
+  @Get('overview')
+  getDepartmentOverview() { return this.service.getDepartmentOverview(); }
 
   @Get(':id')
   findOne(@Param('id') id: string) { return this.service.findOne(id); }
@@ -28,7 +36,4 @@ export class StrategicDepartmentController {
 
   @Delete(':id')
   remove(@Param('id') id: string) { return this.service.remove(id); }
-
-  @Get('overview')
-  getDepartmentOverview() { return this.service.getDepartmentOverview(); }
 }

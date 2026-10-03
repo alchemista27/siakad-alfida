@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LoginForm } from "@/components/auth/login-form";
+import { Icon } from "@/components/ui/icon";
 
 export default function LoginPage() {
   return (
@@ -8,10 +9,20 @@ export default function LoginPage() {
         Masuk ke SIM Alfida
       </h2>
       <p className="text-xs text-gray-500 mb-6">
-        Sistem Informasi Manajemen Terpadu Yayasan Alfida
+        Sistem Informasi dan Manajemen Yayasan Alfida
       </p>
 
       <LoginForm />
+
+      <div className="w-full max-w-sm mt-4">
+        <Link 
+          href="/guestbook" 
+          className="w-full flex items-center justify-center p-2 rounded-md border border-border bg-white text-sm font-medium text-primary hover:bg-gray-50 transition-colors"
+        >
+          <Icon name="menu_book" className="text-lg mr-2" />
+          Isi Buku Tamu Online
+        </Link>
+      </div>
 
       <div className="mt-6 pt-4 border-t border-border w-full max-w-sm text-xs text-gray-600 flex flex-col gap-2">
         <div>

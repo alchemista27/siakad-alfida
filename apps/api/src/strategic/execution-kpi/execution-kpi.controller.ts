@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Query, Req } from '@nestjs/common';
 import { ExecutionKpiService } from './execution-kpi.service';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { CreateExecutionKPISchema, UpdateExecutionKPISchema, CreateExecutionKPIDto, UpdateExecutionKPIDto } from '../dto/kpi.dto';
@@ -11,9 +11,9 @@ export class ExecutionKpiController {
   constructor(private readonly service: ExecutionKpiService) {}
 
   @Get()
-  findAll(@Query('programId') programId?: string) { 
-    if (programId) return this.service.findByProgram(programId);
-    return this.service.findAll(); 
+  findAll(@Req() req: any, @Query('programId') programId?: string) { 
+    if (programId) return this.service.findByProgram(programId); // Might need filtering here too, but normally program is filtered earlier
+    return this.service.findAll(req.user); 
   }
 
   @Get(':id')
