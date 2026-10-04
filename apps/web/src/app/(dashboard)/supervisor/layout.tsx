@@ -7,6 +7,6 @@ export default async function SupervisorLayout({
 }: {
   children: ReactNode;
 }) {
-  await requireRole([UserRole.supervisor_kesiswaan, UserRole.super_admin]);
+  await requireRole([UserRole.admin_bidang, UserRole.super_admin]);
   return <>{children}</>;
 }

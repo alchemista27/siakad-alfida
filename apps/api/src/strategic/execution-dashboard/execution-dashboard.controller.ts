@@ -21,4 +21,9 @@ export class ExecutionDashboardController {
   getProgressPerDepartment(@Query('academicYearId') academicYearId?: string) {
     return this.service.getProgressPerDepartment(academicYearId);
   }
+
+  @Get('traffic-light')
+  getTrafficLightDashboard(@Query('academicYearId') academicYearId?: string) {
+    return this.service.getTrafficLightDashboard(academicYearId);
+  }
 }

@@ -55,7 +55,7 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    title: "Eksekusi Strategis",
+    title: "Perencanaan & Monitoring",
     items: [
       { title: "Program Kerja", href: "/admin/strategic", icon: "assignment" },
       { title: "Laporan Aktivitas", href: "/admin/activity-reports", icon: "article" },
@@ -75,7 +75,8 @@ const navGroups: NavGroup[] = [
   {
     title: "BPH (Board)",
     items: [
-      { title: "BPH Dashboard", href: "/bph-dashboard", icon: "monitoring" },
+      { title: "Dashboard Eksekutif", href: "/bph-dashboard", icon: "monitoring" },
+      { title: "Laporan Per Bidang", href: "/pengawas/departments", icon: "domain" },
     ],
   },
   {
@@ -144,7 +145,7 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    title: "Supervisor Kesiswaan",
+    title: "Monitoring Pendidikan",
     items: [
       { title: "Dasbor Kesiswaan", href: "/supervisor", icon: "admin_panel_settings" }
     ]
@@ -193,11 +194,12 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const isTeacher = userRoles.some((r: any) => r.role === "guru");
   const isKaryawan = userRoles.some((r: any) => r.role === "karyawan");
   const isKesekretariatan = user?.email?.toLowerCase().includes("sekretariat") || false;
-  const isAdminKepegawaian = userRoles.some((r: any) => r.role === "admin_bidang") && !isKesekretariatan;
-  const isAdminBpi = userRoles.some((r: any) => r.role === "admin_bidang") && !isKesekretariatan;
+  const isAdminKepegawaian = userRoles.some((r: any) => r.role === "admin_bidang") && (user?.email?.toLowerCase().includes("sdm") || user?.email?.toLowerCase().includes("hr"));
+  const isAdminBpi = userRoles.some((r: any) => r.role === "admin_bidang") && user?.email?.toLowerCase().includes("bpi");
   const isMurobbi = userRoles.some((r: any) => r.role === "murobbi");
   const isParent = userRoles.some((r: any) => r.role === "orang_tua");
-  const isSupervisorKesiswaan = userRoles.some((r: any) => r.role === "supervisor_kesiswaan");
+  const isAdminPendidikan = userRoles.some((r: any) => r.role === "admin_bidang") && user?.email?.toLowerCase().includes("pendidikan");
+  const isPengawas = userRoles.some((r: any) => r.role === "pengawas_yayasan");
 
   const filteredGroups = navGroups.map(group => {
     // Hide auth links if logged in
@@ -225,16 +227,22 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         "Auth & Utama", 
         "Super Admin", 
         "Manajemen Karyawan", 
-        "Eksekusi Strategis",
+        "Perencanaan & Monitoring",
         "Layanan Kesekretariatan",
         "Bina Pribadi Islami",
-        "Supervisor Kesiswaan"
+        "Monitoring Pendidikan",
+        "BPH (Board)"
       ];
       return allowedForSuperAdmin.includes(group.title);
     }
 
-    // Filter groups based on role strictly for non-super-admins
-    if (group.title === "Super Admin" && !isSuperAdmin) return false;
+    // Pengecualian MUTLAK untuk Pengawas Yayasan
+    if (isPengawas) {
+      return group.title === "Auth & Utama" || group.title === "BPH (Board)";
+    }
+
+    // Filter groups based on role strictly for non-super-admins and non-pengawas
+    if (group.title === "Super Admin") return false;
     if (group.title === "Manajemen Karyawan" && !isAdminKepegawaian) return false;
     if (group.title === "Bina Pribadi Islami" && !isAdminBpi) return false;
     if (group.title === "Grup Mentoring" && !isMurobbi) return false;
@@ -247,17 +255,17 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     if (group.title === "Layanan Pegawai" && !isTeacher && !isKaryawan) return false;
     if (group.title === "Observer" && !isObserver) return false;
     
-    // admin_bidang can access Eksekusi Strategis
-    if (group.title === "Eksekusi Strategis" && !userRoles.some((r: any) => r.role === "admin_bidang")) return false;
+    // admin_bidang can access Perencanaan & Monitoring
+    if (group.title === "Perencanaan & Monitoring" && !userRoles.some((r: any) => r.role === "admin_bidang")) return false;
     
     // Only superadmin and secretariat can access Layanan Kesekretariatan
-    if (group.title === "Layanan Kesekretariatan" && !isKesekretariatan && !isSuperAdmin) return false;
+    if (group.title === "Layanan Kesekretariatan" && !isKesekretariatan) return false;
 
-    if (group.title === "BPH (Board)") return false; // Hide BPH for now as per user request
-    if (group.title === "Supervisor Kesiswaan" && !isSupervisorKesiswaan) return false;
+    if (group.title === "BPH (Board)") return false;
+    if (group.title === "Monitoring Pendidikan" && !isAdminPendidikan) return false;
     
     return true;
-  });
+  }).filter(group => group.items.length > 0);
 
   return (
     <>

@@ -54,23 +54,29 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create role assignment in Prisma
-    await prisma.userRoleAssignment.create({
-      data: {
-        userId: authData.user.id,
-        role: role as UserRole,
-        unitId: unitId,
-      },
-    });
+    // Create role assignment and set user to inactive in Prisma
+    await prisma.$transaction([
+      prisma.userRoleAssignment.create({
+        data: {
+          userId: authData.user.id,
+          role: role as UserRole,
+          unitId: unitId,
+        },
+      }),
+      prisma.user.update({
+        where: { id: authData.user.id },
+        data: { isActive: false }
+      })
+    ]);
 
     return NextResponse.json(
-      { message: "Registrasi berhasil.", userId: authData.user.id },
+      { message: "Registrasi berhasil. Akun Anda sedang menunggu persetujuan admin.", userId: authData.user.id },
       { status: 201 }
     );
   } catch (error: any) {
     console.error("Registration error:", error);
     return NextResponse.json(
-      { error: error.message || "Terjadi kesalahan pada server." },
+      { error: "Terjadi kesalahan pada server saat memproses registrasi." },
       { status: 500 }
     );
   }

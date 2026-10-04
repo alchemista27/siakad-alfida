@@ -9,7 +9,6 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   headers.set('Content-Type', 'application/json');
   
   if (sessionToken) {
-    console.log("apiFetch: sending sessionToken:", sessionToken);
     headers.set('Authorization', `Bearer ${sessionToken}`);
   }
 

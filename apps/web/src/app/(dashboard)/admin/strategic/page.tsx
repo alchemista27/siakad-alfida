@@ -4,7 +4,7 @@ import { requireRole } from "@/lib/auth-guard";
 import { UserRole } from "@sim/database";
 
 export default async function StrategicDashboard() {
-  const user = await requireRole([UserRole.super_admin, UserRole.admin_bidang]);
+  const user = await requireRole([UserRole.super_admin, UserRole.admin_bidang, UserRole.pengawas_yayasan]);
   const isSuperAdmin = user.roles?.some((r) => r.role === UserRole.super_admin);
 
   const masterData = [];
@@ -24,7 +24,7 @@ export default async function StrategicDashboard() {
     { title: "Milestones", desc: "Pembagian fase program.", href: "/admin/strategic/milestones", icon: "flag" },
     { title: "Delegasi Tugas", desc: "Pendelegasian & pemantauan tugas.", href: "/admin/strategic/tasks", icon: "task" },
     { title: "Log Realisasi", desc: "Catatan harian/mingguan.", href: "/admin/strategic/logs", icon: "menu_book" },
-    { title: "Evidence Register", desc: "Unggah bukti dokumen & Cloudinary.", href: "/admin/strategic/evidence", icon: "cloud_upload" },
+    { title: "Bukti Kinerja", desc: "Unggah bukti dokumen pencapaian kinerja.", href: "/admin/strategic/evidence", icon: "cloud_upload" },
   ];
 
   const evaluation = [
@@ -38,8 +38,8 @@ export default async function StrategicDashboard() {
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-teal-50 text-tertiary mb-4">
           <Icon name="monitoring" className="text-2xl" />
         </div>
-        <h1 className="text-2xl font-heading font-bold text-primary mb-2">Pusat Kendali Eksekusi Strategis Alfida</h1>
-        <p className="text-gray-500 font-body text-sm max-w-2xl">Pusat kendali kinerja strategis BPH Yayasan Alfida. Pantau pelaksanaan program kerja, realisasi KPI, hingga manajemen rapat secara terintegrasi.</p>
+        <h1 className="text-2xl font-heading font-bold text-primary mb-2">Pusat Kendali Perencanaan & Monitoring Alfida</h1>
+        <p className="text-gray-500 font-body text-sm max-w-2xl">Pusat kendali perencanaan dan monitoring BPH Yayasan Alfida. Pantau pelaksanaan program kerja, realisasi KPI, hingga manajemen rapat secara terintegrasi.</p>
       </div>
       
       <div className="mt-8">
@@ -67,7 +67,7 @@ export default async function StrategicDashboard() {
       <div className="mt-10">
         <h2 className="text-lg font-bold font-heading mb-4 text-primary flex items-center gap-2">
           <Icon name="rocket_launch" className="text-gray-400 text-lg" />
-          Eksekusi & Operasional
+          Perencanaan & Monitoring
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {execution.map((item, i) => (

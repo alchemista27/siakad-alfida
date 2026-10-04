@@ -8,7 +8,8 @@ import { Icon } from "@/components/ui/icon";
 import Link from "next/link";
 
 export default async function AdminUnitsPage() {
-  await requireRole([UserRole.super_admin]);
+  const user = await requireRole([UserRole.super_admin]);
+  const isPengawas = user.roles.some((r: any) => r.role === UserRole.pengawas_yayasan);
 
   const unitsRaw = await prisma.unit.findMany({
     where: {
@@ -57,11 +58,13 @@ export default async function AdminUnitsPage() {
             Daftar unit pendidikan yang berada di bawah naungan Yayasan Alfida.
           </p>
         </div>
-        <Link href="/admin/units/new" passHref>
-          <Button variant="primary">
-            <Icon name="add" className="mr-2" /> Tambah Unit
-          </Button>
-        </Link>
+        {!isPengawas && (
+          <Link href="/admin/units/new" passHref>
+            <Button variant="primary">
+              <Icon name="add" className="mr-2" /> Tambah Unit
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="flex gap-4 mb-4">
@@ -86,7 +89,7 @@ export default async function AdminUnitsPage() {
         </select>
       </div>
 
-      <UnitTable data={unitsData} />
+      <UnitTable data={unitsData} hideActions={isPengawas} />
     </div>
   );
 }

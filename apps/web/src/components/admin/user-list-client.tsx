@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 import { UserRole } from "@sim/database";
-import { updateUserRoles, deleteUser, resetUserPassword } from "@/actions/users";
+import { updateUserRoles, deleteUser, resetUserPassword, updateUserStatus } from "@/actions/users";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const ALL_ROLES = [
   "super_admin", "admin_unit", "admin_unit_nondik", "guru", "karyawan", 
-  "orang_tua", "observer", "tim_ppdb", "admin_bidang"
+  "orang_tua", "observer", "tim_ppdb", "admin_bidang", "pengawas_yayasan"
 ];
 
 export function UserListClient({ users }: { users: any[] }) {
@@ -23,6 +24,7 @@ export function UserListClient({ users }: { users: any[] }) {
   const [groupsInput, setGroupsInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const { user: currentUser } = useAuth();
@@ -75,31 +77,44 @@ export function UserListClient({ users }: { users: any[] }) {
     setResetLoading(false);
   };
 
+  const handleToggleStatus = async (user: any) => {
+    setStatusLoading(user.id);
+    const newStatus = !user.isActive;
+    const res = await updateUserStatus(user.id, newStatus);
+    if (res.success) {
+      setSuccessMessage(`Status ${user.fullName} berhasil diubah menjadi ${newStatus ? 'Aktif' : 'Nonaktif'}.`);
+    } else {
+      setErrorMessage("Gagal merubah status: " + res.error);
+    }
+    setStatusLoading(null);
+  };
+
   return (
     <>
-      <div className="bg-surface rounded-md border border-border overflow-hidden shadow-sm">
-        <table className="w-full text-left text-sm text-primary">
-          <thead className="bg-neutral border-b border-border text-primary">
+      <div className="bg-surface rounded-md border border-border overflow-x-auto shadow-sm w-full">
+        <table className="w-full text-xs text-left text-primary">
+          <thead className="text-[10px] text-gray-500 uppercase bg-neutral/50 border-b border-border whitespace-nowrap">
             <tr>
-              <th className="p-4 font-semibold">Username</th>
-              <th className="p-4 font-semibold">Nama Lengkap</th>
-              <th className="p-4 font-semibold">Email</th>
-              <th className="p-4 font-semibold">Groups / Jabatan</th>
-              <th className="p-4 font-semibold">Akses Sistem</th>
-              <th className="p-4 font-semibold">Aksi</th>
+              <th className="px-3 py-2 font-semibold">Username</th>
+              <th className="px-3 py-2 font-semibold">Nama Lengkap</th>
+              <th className="px-3 py-2 font-semibold">Email</th>
+              <th className="px-3 py-2 font-semibold">Groups / Jabatan</th>
+              <th className="px-3 py-2 font-semibold">Akses Sistem</th>
+              <th className="px-3 py-2 font-semibold">Status</th>
+              <th className="px-3 py-2 font-semibold text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {users.map((user) => (
               <tr key={user.id} className="hover:bg-neutral/50">
-                <td className="p-4 font-medium">{user.username || '-'}</td>
-                <td className="p-4">
+                <td className="px-3 py-2 whitespace-nowrap font-medium">{user.username || '-'}</td>
+                <td className="px-3 py-2 whitespace-nowrap">
                   <div className="font-medium">{user.fullName}</div>
-                  <div className="text-xs opacity-70">{user.firstName} {user.lastName}</div>
+                  <div className="text-[10px] opacity-70">{user.firstName} {user.lastName}</div>
                 </td>
-                <td className="p-4">{user.email}</td>
-                <td className="p-4">
-                  <div className="flex flex-wrap gap-1">
+                <td className="px-3 py-2 whitespace-nowrap">{user.email}</td>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  <div className="flex gap-1">
                     {user.groups?.map((g: string, i: number) => (
                       <span key={i} className="px-2 py-0.5 bg-neutral text-primary text-xs rounded border border-border">
                         {g}
@@ -108,35 +123,63 @@ export function UserListClient({ users }: { users: any[] }) {
                     {(!user.groups || user.groups.length === 0) && <span className="opacity-50">-</span>}
                   </div>
                 </td>
-                <td className="p-4">
-                  {Array.from(new Set(user.roles?.map((r: any) => r.role) || [])).map((role: any, i: number) => (
-                    <span key={i} className="px-2 py-0.5 bg-secondary/10 text-secondary text-xs rounded border border-secondary/20 mr-1">
-                      {role}
-                    </span>
-                  ))}
-                  {(!user.roles || user.roles.length === 0) && <span className="opacity-50">Default (Orang Tua)</span>}
+                <td className="px-3 py-2 whitespace-nowrap">
+                  <div className="flex gap-1">
+                    {Array.from(new Set(user.roles?.map((r: any) => r.role) || [])).map((role: any, i: number) => (
+                      <span key={i} className="px-2 py-0.5 bg-secondary/10 text-secondary text-[10px] rounded border border-secondary/20">
+                        {role}
+                      </span>
+                    ))}
+                    {(!user.roles || user.roles.length === 0) && <span className="opacity-50">Default (Orang Tua)</span>}
+                  </div>
                 </td>
-                <td className="p-4 flex gap-2 flex-wrap">
-                  <button 
-                    onClick={() => openEdit(user)}
-                    className="text-tertiary hover:opacity-80 font-medium text-xs bg-transparent border border-tertiary px-3 py-1 rounded"
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    onClick={() => { setResettingUser(user); setNewPassword(""); setShowResetPassword(false); }}
-                    className="text-primary hover:text-tertiary font-medium text-xs bg-transparent border border-border hover:border-tertiary px-3 py-1 rounded transition-colors"
-                  >
-                    Reset Pass
-                  </button>
-                  {currentUser?.id !== user.id && (
-                    <button 
-                      onClick={() => setDeletingUser(user)}
-                      className="text-white hover:opacity-80 font-medium text-xs bg-red-600 border border-red-600 px-3 py-1 rounded"
-                    >
-                      Hapus
-                    </button>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  {user.isActive ? (
+                    <span className="px-2 py-1 bg-emerald-100 text-emerald-800 text-[10px] rounded-full font-medium border border-emerald-200">
+                      Aktif
+                    </span>
+                  ) : (
+                    <span className="px-2 py-1 bg-amber-100 text-amber-800 text-[10px] rounded-full font-medium border border-amber-200 flex items-center gap-1 w-max">
+                      <Icon name="pending_actions" className="text-xs" /> Menunggu
+                    </span>
                   )}
+                </td>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  <div className="flex gap-2 justify-end">
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleToggleStatus(user)}
+                      disabled={statusLoading === user.id}
+                      className={user.isActive ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200" : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200"}
+                    >
+                      {statusLoading === user.id ? '...' : user.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openEdit(user)}
+                    >
+                      Edit
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={() => { setResettingUser(user); setNewPassword(""); setShowResetPassword(false); }}
+                    >
+                      Reset Pass
+                    </Button>
+                    {currentUser?.id !== user.id && (
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                        onClick={() => setDeletingUser(user)}
+                      >
+                        Hapus
+                      </Button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

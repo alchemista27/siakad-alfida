@@ -108,4 +108,45 @@ export class ExecutionDashboardService {
       };
     });
   }
+
+  async getTrafficLightDashboard(academicYearId?: string) {
+    const kpis = await this.prisma.executionKPI.findMany({
+      where: academicYearId ? { program: { academicYearId } } : undefined,
+      include: {
+        program: { include: { department: true } }
+      }
+    });
+    
+    let green = 0, yellow = 0, red = 0;
+    const details = kpis.map(kpi => {
+      let percent = 0;
+      if (kpi.direction === 'higher_is_better') {
+        percent = kpi.target > 0 ? (kpi.realization / kpi.target) * 100 : 0;
+      } else {
+        // For lower_is_better (e.g. issues, complaints), realization above target is bad.
+        // If realization <= target, it's 100% good.
+        if (kpi.target === 0) {
+           percent = kpi.realization === 0 ? 100 : 0;
+        } else {
+           percent = kpi.realization <= kpi.target ? 100 : Math.max(0, 100 - ((kpi.realization - kpi.target) / kpi.target * 100));
+        }
+      }
+      
+      let color = 'red';
+      if (percent >= 95) { color = 'green'; green++; }
+      else if (percent >= 75) { color = 'yellow'; yellow++; }
+      else { red++; }
+
+      return {
+        ...kpi,
+        achievementPercent: Math.round(percent),
+        color
+      };
+    });
+
+    return {
+      summary: { total: kpis.length, green, yellow, red },
+      details
+    };
+  }
 }

@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { batchImportUsers } from "@/actions/users";
 import * as XLSX from "xlsx";
+import { Button } from "@/components/ui/button";
 
 export function UserUploadClient() {
   const [loading, setLoading] = useState(false);
@@ -57,14 +58,14 @@ export function UserUploadClient() {
         onChange={handleFileChange}
         className="hidden"
       />
-      <button
+      <Button
         onClick={() => fileInputRef.current?.click()}
         disabled={loading}
-        className="bg-tertiary hover:opacity-90 text-on-tertiary px-[20px] py-[12px] rounded text-sm font-medium transition disabled:opacity-50 flex items-center shadow-sm"
+        variant="outline"
       >
         <span className="material-symbols-rounded mr-2 text-[20px]">upload_file</span>
         {loading ? "Memproses..." : "Upload Pegawai"}
-      </button>
+      </Button>
     </div>
   );
 }

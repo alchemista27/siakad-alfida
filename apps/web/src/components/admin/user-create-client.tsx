@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { UserRole } from "@sim/database";
 import { createUserManual } from "@/actions/users";
+import { Button } from "@/components/ui/button";
 
 const ALL_ROLES = [
   "super_admin", "admin_unit", "admin_unit_nondik", "guru", "karyawan", 
@@ -44,13 +45,13 @@ export function UserCreateClient() {
 
   return (
     <>
-      <button 
+      <Button 
         onClick={() => setOpen(true)}
-        className="bg-tertiary hover:opacity-90 text-on-tertiary px-[20px] py-[12px] ml-3 rounded text-sm font-medium transition disabled:opacity-50 flex items-center shadow-sm"
+        variant="primary"
       >
         <span className="material-symbols-rounded mr-2 text-[20px]">person_add</span>
         Tambah Pengguna
-      </button>
+      </Button>
 
       {open && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

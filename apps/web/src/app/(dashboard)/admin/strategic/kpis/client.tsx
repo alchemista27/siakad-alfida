@@ -20,7 +20,7 @@ type KPI = {
   pic?: User;
 };
 
-export default function KPIsClient({ initialData, programs, users }: { initialData: KPI[], programs: Program[], users: User[] }) {
+export default function KPIsClient({ initialData, programs, users, isPengawas }: { initialData: KPI[], programs: Program[], users: User[], isPengawas?: boolean }) {
   const router = useRouter();
   const [kpis, setKpis] = useState<KPI[]>(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,6 +31,7 @@ export default function KPIsClient({ initialData, programs, users }: { initialDa
   const [loading, setLoading] = useState(false);
 
   const handleOpenModal = (kpi?: KPI) => {
+    if (isPengawas) return;
     if (kpi) {
       setEditingId(kpi.id);
       setFormData({ 
@@ -52,6 +53,7 @@ export default function KPIsClient({ initialData, programs, users }: { initialDa
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isPengawas) return;
     setLoading(true);
     try {
       const payload = {
@@ -81,6 +83,7 @@ export default function KPIsClient({ initialData, programs, users }: { initialDa
   };
 
   const handleDelete = async (id: string) => {
+    if (isPengawas) return;
     if (!confirm('Yakin ingin menghapus KPI ini?')) return;
     try {
       await deleteKPI(id);
@@ -95,9 +98,11 @@ export default function KPIsClient({ initialData, programs, users }: { initialDa
     <div className="bg-surface rounded-lg border border-hairline p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold text-gray-800">Daftar KPI</h2>
-        <button onClick={() => handleOpenModal()} className="bg-tertiary text-on-tertiary hover:bg-tertiary/90 px-4 py-2 rounded text-sm font-semibold transition-colors">
-          Tambah KPI
-        </button>
+        {!isPengawas && (
+          <button onClick={() => handleOpenModal()} className="bg-tertiary text-on-tertiary hover:bg-tertiary/90 px-4 py-2 rounded text-sm font-semibold transition-colors">
+            Tambah KPI
+          </button>
+        )}
       </div>
 
       <div className="overflow-x-auto">
@@ -108,13 +113,13 @@ export default function KPIsClient({ initialData, programs, users }: { initialDa
               <th className="px-6 py-3">Program Induk</th>
               <th className="px-6 py-3">Target</th>
               <th className="px-6 py-3">Bobot</th>
-              <th className="px-6 py-3 text-right">Aksi</th>
+              {!isPengawas && <th className="px-6 py-3 text-right">Aksi</th>}
             </tr>
           </thead>
           <tbody>
             {kpis.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-gray-500 italic">Belum ada data KPI</td>
+                <td colSpan={isPengawas ? 4 : 5} className="px-6 py-8 text-center text-gray-500 italic">Belum ada data KPI</td>
               </tr>
             ) : (
               kpis.map(kpi => (
@@ -131,10 +136,12 @@ export default function KPIsClient({ initialData, programs, users }: { initialDa
                     </div>
                   </td>
                   <td className="px-6 py-4">{kpi.weight}%</td>
-                  <td className="px-6 py-4 text-right space-x-3">
-                    <button onClick={() => handleOpenModal(kpi)} className="text-blue-600 hover:underline">Edit</button>
-                    <button onClick={() => handleDelete(kpi.id)} className="text-red-600 hover:underline">Hapus</button>
-                  </td>
+                  {!isPengawas && (
+                    <td className="px-6 py-4 text-right space-x-3">
+                      <button onClick={() => handleOpenModal(kpi)} className="text-blue-600 hover:underline">Edit</button>
+                      <button onClick={() => handleDelete(kpi.id)} className="text-red-600 hover:underline">Hapus</button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

@@ -29,7 +29,7 @@ export default function DashboardClient({
             mobileOpen={mobileOpen}
             onCloseMobile={() => setMobileOpen(false)}
           />
-          <main className="flex-1 lg:ml-60 p-6 md:p-8 max-w-7xl mx-auto w-full">
+          <main className="flex-1 min-w-0 lg:ml-60 p-6 md:p-8 max-w-7xl mx-auto w-full">
             {children}
           </main>
         </div>

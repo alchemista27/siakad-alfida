@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcryptjs';
-import { PrismaClient, UnitLevel, UserRole } from "@prisma/client";
+import { PrismaClient, UnitLevel, UserRole } from "@sim/database";
 
 const prisma = new PrismaClient();
 
@@ -21,7 +21,11 @@ async function main() {
     { name: "Departemen Keuangan", email: "keuangan@alfida.or.id" },
   ];
 
-  const hashedAdminPassword = await bcrypt.hash("4dmin4lfid4", 10);
+  const defaultPassword = process.env.SEED_DEFAULT_PASSWORD;
+  if (!defaultPassword) {
+    throw new Error("SEED_DEFAULT_PASSWORD is not set in environment variables!");
+  }
+  const hashedAdminPassword = await bcrypt.hash(defaultPassword, 10);
 
   for (const deptData of departments) {
     let dept = await prisma.department.findFirst({

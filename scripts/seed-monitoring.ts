@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@sim/database";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
@@ -16,37 +16,6 @@ async function main() {
   });
   if (!academicYear) throw new Error("Academic Year not found");
 
-  // Create Supervisor User
-  const supervisorEmail = "supervisor.kesiswaan@alfida.or.id";
-  const hashedPassword = await bcrypt.hash("4dmin4lfid4", 10);
-  
-  let supervisor = await prisma.user.findUnique({ where: { email: supervisorEmail } });
-  if (!supervisor) {
-    const supervisorId = crypto.randomUUID();
-    supervisor = await prisma.user.create({
-      data: {
-        id: supervisorId,
-        fullName: "Supervisor Kesiswaan",
-        email: supervisorEmail,
-        passwordHash: "managed_by_better_auth",
-        phone: "081199990000",
-        isActive: true,
-        accounts: {
-          create: {
-            accountId: supervisorId,
-            providerId: "credential",
-            password: hashedPassword
-          }
-        },
-        roles: {
-          create: {
-            role: "supervisor_kesiswaan"
-          }
-        }
-      }
-    });
-    console.log("Supervisor created.");
-  }
 
   // Create Teacher
   const teacherEmail = "guru.testing@alfida.or.id";
@@ -65,7 +34,7 @@ async function main() {
           create: {
             accountId: teacherId,
             providerId: "credential",
-            password: hashedPassword
+            password: await bcrypt.hash(process.env.SEED_DEFAULT_PASSWORD || "default_pw", 10)
           }
         },
         roles: {
@@ -136,7 +105,7 @@ async function main() {
     
     if (!studentData) {
       const regId = crypto.randomUUID();
-      const parentId = supervisor.id; // Just use supervisor as parent for mock
+      const parentId = teacher.id; // Just use teacher as parent for mock
       const regNumber = `REG-${nisn}`;
 
       let registration = await prisma.registration.findFirst({ where: { registrationNumber: regNumber } });

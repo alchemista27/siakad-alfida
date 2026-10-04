@@ -10,8 +10,9 @@ export default async function StrategicLayout({
   const roles = user?.roles || [];
   const isSuperAdmin = roles.some((r: any) => r.role === "super_admin");
   const isAdminKepegawaian = roles.some((r: any) => r.role === "admin_bidang");
+  const isPengawas = roles.some((r: any) => r.role === "pengawas_yayasan");
 
-  if (!isSuperAdmin && !isAdminKepegawaian) {
+  if (!isSuperAdmin && !isAdminKepegawaian && !isPengawas) {
     redirect("/modules");
   }
 

@@ -263,3 +263,15 @@
 - Melengkapi absennya fungsionalitas *input* untuk modul Manajemen Risiko (Isu) dan Notulensi Rapat melalui perancangan komponen UI *Modal Form* pelaporan interaktif.
 - Menyikat bersih sisa-sisa elemen UI *legacy* di halaman Program dan KPI agar tunduk mutlak pada aturan tata-letak `DESIGN.md` (menghapus *shadow*, menggunakan warna utama `bg-tertiary` pada aksi, serta mengadopsi struktur `bg-surface` bergaris *hairline*).
   **commit message:** feat: implement dual-storage (Cloudinary/MinIO) architecture, seed foundation departments, fix execution API paths, and build risk & meeting input modals
+
+---
+
+**tanggal:** 04 Oktober 2026 (Sesi 2)
+**progress:**
+
+- Merombak arsitektur antarmuka dan perutean _Role-based Access Control_ khusus untuk Pengawas Yayasan (BPH/Board).
+- Mengembalikan Dashboard Eksekutif (`/bph-dashboard`) ke desain profesional sesuai `DESIGN.md` (mengganti gradien tebal dengan pewarnaan netral), serta mengonversinya menjadi _Server Component_ asinkron yang menarik agregat progres program kerja, tingkat keberhasilan sasaran, serta pemeringkatan Isu Kritis Langsung secara _real-time_ dari basis data.
+- Menangani galat _Prisma include_ relasi antara `ExecutionIssue` dan `WorkProgram` dengan mengeksekusi _in-memory array mapping_ lokal di _server-side_.
+- Menciptakan _routing_ mandiri (`/pengawas/departments` & `/pengawas/department/[id]`) untuk memisahkan menu laporan kinerja khusus BPH agar tidak bercampur-aduk dengan tautan aplikasi operasional yang tersentralisasi di `/modules`.
+- Melakukan refaktor visual pada halaman Laporan Matriks KPI BPH: beralih dari tabel kolom-lebar yang membentur _horizontal scroll_, menuju susunan tata letak _Bento Grid / Data Cards_ yang luas, modern, dan sangat tangguh untuk memuat untaian teks deskriptif (sasaran dan indikator) birokrasi pemerintahan/yayasan.
+  **commit message:** feat: redesign BPH executive dashboard, separate pengawas report routes, and refactor KPI matrix into responsive bento cards

@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Persentase Kelulusan Siswa dengan Nilai Rata-rata di Atas 8.5",
+    "indicatorType": "outcome",
+    "direction": "higher_is_better",
+    "unit": "%",
+    "weight": 15,
+    "updateFrequency": "semester",
+    "dataSource": "SIAKAD Akademik"
+  },
+  {
+    "name": "Rata-rata Skor BPI Siswa (Karakter Islami)",
+    "indicatorType": "outcome",
+    "direction": "higher_is_better",
+    "unit": "Poin (1-5)",
+    "weight": 20,
+    "updateFrequency": "monthly",
+    "dataSource": "Laporan Wali Kelas / Murobbi"
+  },
+  {
+    "name": "Tingkat Kehadiran Pegawai Tepat Waktu",
+    "indicatorType": "outcome",
+    "direction": "higher_is_better",
+    "unit": "%",
+    "weight": 10,
+    "updateFrequency": "monthly",
+    "dataSource": "Sistem Presensi GPS"
+  },
+  {
+    "name": "Persentase Temuan Audit Eksternal yang Tidak Diselesaikan",
+    "indicatorType": "outcome",
+    "direction": "lower_is_better",
+    "unit": "%",
+    "weight": 15,
+    "updateFrequency": "yearly",
+    "dataSource": "Laporan Audit Yayasan"
+  },
+  {
+    "name": "Pelaksanaan Kegiatan Ekstrakurikuler Wajib Pramuka",
+    "indicatorType": "process",
+    "direction": "higher_is_better",
+    "unit": "Status",
+    "weight": 10,
+    "updateFrequency": "monthly",
+    "dataSource": "Laporan Pembina"
+  }
+]

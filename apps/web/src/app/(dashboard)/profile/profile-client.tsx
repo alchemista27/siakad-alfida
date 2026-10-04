@@ -20,9 +20,10 @@ export default function ProfileClient({ user }: { user: any }) {
   const handleUpdateEmail = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const email = new FormData(e.currentTarget).get("email") as string;
+    const currentPassword = new FormData(e.currentTarget).get("currentPassword") as string;
     startTransition(async () => {
       try {
-        await updateEmail(email);
+        await updateEmail(email, currentPassword);
         setEmailMsg("Email berhasil diperbarui.");
       } catch (err: any) {
         setEmailMsg("Gagal: " + err.message);
@@ -151,6 +152,12 @@ export default function ProfileClient({ user }: { user: any }) {
                   name="email"
                   type="email"
                   defaultValue={user.email}
+                  required
+                />
+                <Input
+                  label="Kata Sandi Saat Ini"
+                  name="currentPassword"
+                  type="password"
                   required
                 />
                 {emailMsg && <p className="text-xs font-medium text-tertiary">{emailMsg}</p>}

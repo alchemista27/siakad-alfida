@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@sim/database";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
@@ -31,7 +31,11 @@ async function main() {
   });
 
   if (!admin) {
-    const passwordHash = await bcrypt.hash("4dmin4lfid4", 10);
+    const defaultPassword = process.env.SEED_DEFAULT_PASSWORD;
+    if (!defaultPassword) {
+      throw new Error("SEED_DEFAULT_PASSWORD is not set in environment variables!");
+    }
+    const passwordHash = await bcrypt.hash(defaultPassword, 10);
     admin = await prisma.user.create({
       data: {
         name: "Admin Sekretariat",

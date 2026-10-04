@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { UserNav } from "./user-nav";
+import { NotificationBell } from "./notification-bell";
 
 interface TopbarProps {
   onToggleMobileSidebar?: () => void;
@@ -31,7 +32,10 @@ export function Topbar({ onToggleMobileSidebar, logoUrl, foundationName = "SIM-A
         </Link>
       </div>
 
-      <UserNav />
+      <div className="flex items-center gap-2">
+        <NotificationBell />
+        <UserNav />
+      </div>
     </header>
   );
 }

@@ -20,21 +20,21 @@ export class ExecutionKpiService {
 
     return this.prisma.executionKPI.findMany({
       where: whereClause,
-      include: { program: true, pic: true },
+      include: { program: true, pic: true, realizationLogs: true, evidences: true },
     });
   }
 
   async findByProgram(programId: string) {
     return this.prisma.executionKPI.findMany({
       where: { programId },
-      include: { pic: true },
+      include: { pic: true, realizationLogs: true, evidences: true },
     });
   }
 
   async findOne(id: string) {
     return this.prisma.executionKPI.findUnique({
       where: { id },
-      include: { program: true, pic: true }
+      include: { program: true, pic: true, realizationLogs: true, evidences: true }
     });
   }
 
@@ -44,6 +44,27 @@ export class ExecutionKpiService {
 
   async update(id: string, data: UpdateExecutionKPIDto) {
     return this.prisma.executionKPI.update({ where: { id }, data: data as any });
+  }
+
+  async submitBaseline(id: string, evidenceId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const kpi = await tx.executionKPI.update({
+        where: { id },
+        data: { baselineStatus: 'submitted' }
+      });
+      await tx.executionEvidence.update({
+        where: { id: evidenceId },
+        data: { kpiId: id, availabilityStatus: 'submitted' }
+      });
+      return kpi;
+    });
+  }
+
+  async verifyBaseline(id: string, verifierId: string, status: any, notes: string | null = null) {
+    return this.prisma.executionKPI.update({
+      where: { id },
+      data: { baselineStatus: status, notes: notes || undefined }
+    });
   }
 
   async remove(id: string) {

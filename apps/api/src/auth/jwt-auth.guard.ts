@@ -26,8 +26,7 @@ export class JwtAuthGuard implements CanActivate {
       token = token.substring(0, signatureStartPos);
     }
 
-    console.log('[JwtAuthGuard] received token:', token);
-    
+
     // Verify token online with Prisma Session table (Better Auth)
     const session = await this.prisma.session.findUnique({
       where: { token },
@@ -39,13 +38,11 @@ export class JwtAuthGuard implements CanActivate {
     });
 
     if (!session || session.expiresAt < new Date()) {
-      console.log('[JwtAuthGuard] session not found or expired for token:', token, 'Session:', session);
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    if (!session.user) {
-      console.log('[JwtAuthGuard] session has no user');
-      throw new UnauthorizedException('User not found in database');
+    if (!session.user || !session.user.isActive) {
+      throw new UnauthorizedException('User not found or inactive');
     }
 
     // Attach user to request

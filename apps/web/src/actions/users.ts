@@ -73,3 +73,16 @@ export async function resetUserPassword(userId: string, newPassword: string) {
     return { success: false, error: error.message };
   }
 }
+
+export async function updateUserStatus(userId: string, isActive: boolean) {
+  try {
+    const res = await apiFetch(`/admin/users/${userId}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ isActive }),
+    });
+    revalidatePath("/admin/users");
+    return res;
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

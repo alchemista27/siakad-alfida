@@ -12,8 +12,8 @@ export default async function StrategicEvidencePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold font-heading text-primary">Evidence Register</h1>
-        <p className="text-gray-600">Unggah dan verifikasi dokumen/berkas bukti pengerjaan (Evidence) untuk pelaporan.</p>
+        <h1 className="text-2xl font-bold font-heading text-primary">Bukti Kinerja</h1>
+        <p className="text-gray-600">Unggah dan verifikasi dokumen/berkas bukti pencapaian kinerja untuk pelaporan.</p>
       </div>
       <EvidenceClient initialData={evidences} tasks={tasks} users={users} />
     </div>

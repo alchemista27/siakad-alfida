@@ -41,6 +41,12 @@ export class AdminController {
     return this.adminService.resetUserPassword(id, body.newPassword);
   }
 
+  @Put('users/:id/status')
+  @Roles(UserRole.super_admin, UserRole.admin_unit)
+  async updateUserStatus(@Param('id') id: string, @Body() body: { isActive: boolean }) {
+    return this.adminService.updateUserStatus(id, body.isActive);
+  }
+
   @Delete('users/:id')
   @Roles(UserRole.super_admin)
   async deleteUser(@Param('id') id: string) {

@@ -9,6 +9,8 @@ import { HrModule } from './hr/hr.module';
 import { BpiModule } from './bpi/bpi.module';
 import { StrategicModule } from './strategic/strategic.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { SecretariatModule } from './secretariat/secretariat.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -22,8 +24,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     HrModule,
     BpiModule,
     StrategicModule,
+    SecretariatModule,
+    CommonModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

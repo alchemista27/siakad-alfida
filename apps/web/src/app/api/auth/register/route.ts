@@ -69,7 +69,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Registration error:", error);
     return NextResponse.json(
-      { error: error.message || "Terjadi kesalahan pada server." },
+      { error: "Terjadi kesalahan pada server saat memproses registrasi." },
       { status: 500 }
     );
   }

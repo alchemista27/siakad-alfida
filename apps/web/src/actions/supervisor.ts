@@ -8,9 +8,9 @@ export async function getUnitStats(unitId: string) {
   if (!user) throw new Error("Unauthorized");
   
   const isSuperAdmin = user.roles.some((r: any) => r.role === "super_admin");
-  const isSupervisor = user.roles.some((r: any) => r.role === "supervisor_kesiswaan");
+  const isAdminBidang = user.roles.some((r: any) => r.role === "admin_bidang");
 
-  if (!isSuperAdmin && !isSupervisor) {
+  if (!isSuperAdmin && !isAdminBidang) {
     throw new Error("Forbidden");
   }
 

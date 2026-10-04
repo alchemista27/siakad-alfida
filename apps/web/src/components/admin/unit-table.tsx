@@ -24,9 +24,10 @@ export interface UnitTableRow {
 
 interface UnitTableProps {
   data: UnitTableRow[];
+  hideActions?: boolean;
 }
 
-export function UnitTable({ data }: UnitTableProps) {
+export function UnitTable({ data, hideActions }: UnitTableProps) {
   const [deletingUnit, setDeletingUnit] = useState<UnitTableRow | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -70,7 +71,7 @@ export function UnitTable({ data }: UnitTableProps) {
             <th className="px-6 py-4 font-semibold">Pendaftar PPDB</th>
             <th className="px-6 py-4 font-semibold">Siswa Aktif</th>
             <th className="px-6 py-4 font-semibold">Kehadiran</th>
-            <th className="px-6 py-4 font-semibold text-right">Aksi</th>
+            {!hideActions && <th className="px-6 py-4 font-semibold text-right">Aksi</th>}
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
@@ -91,23 +92,25 @@ export function UnitTable({ data }: UnitTableProps) {
                   {unit.attendanceRate}%
                 </Badge>
               </td>
-              <td className="px-6 py-4 text-right">
-                <div className="flex justify-end gap-2">
-                  <Link href={`/admin/units/${unit.id}`} passHref>
-                    <Button variant="outline" size="sm">
-                      <Icon name="settings" className="mr-1" />
-                      Kelola
-                    </Button>
-                  </Link>
-                  <button
-                    onClick={() => setDeletingUnit(unit)}
-                    className="text-red-600 hover:opacity-80 font-medium text-xs bg-transparent border border-red-300 px-3 py-1 rounded flex items-center"
-                  >
-                    <span className="material-symbols-rounded mr-1 text-[16px]">delete</span>
-                    Hapus
-                  </button>
-                </div>
-              </td>
+              {!hideActions && (
+                <td className="px-6 py-4 text-right">
+                  <div className="flex justify-end gap-2">
+                    <Link href={`/admin/units/${unit.id}`} passHref>
+                      <Button variant="outline" size="sm">
+                        <Icon name="settings" className="mr-1" />
+                        Kelola
+                      </Button>
+                    </Link>
+                    <button
+                      onClick={() => setDeletingUnit(unit)}
+                      className="text-red-600 hover:opacity-80 font-medium text-xs bg-transparent border border-red-300 px-3 py-1 rounded flex items-center"
+                    >
+                      <span className="material-symbols-rounded mr-1 text-[16px]">delete</span>
+                      Hapus
+                    </button>
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
           {data.length === 0 && (

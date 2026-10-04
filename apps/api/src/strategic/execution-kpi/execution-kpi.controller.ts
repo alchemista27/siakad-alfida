@@ -2,7 +2,7 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Query, Req } from '@nestjs/common';
 import { ExecutionKpiService } from './execution-kpi.service';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
-import { CreateExecutionKPISchema, UpdateExecutionKPISchema, CreateExecutionKPIDto, UpdateExecutionKPIDto } from '../dto/kpi.dto';
+import { CreateExecutionKPISchema, UpdateExecutionKPISchema, CreateExecutionKPIDto, UpdateExecutionKPIDto, SubmitBaselineSchema, SubmitBaselineDto, VerifyBaselineSchema, VerifyBaselineDto } from '../dto/kpi.dto';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -27,6 +27,16 @@ export class ExecutionKpiController {
   @Put(':id')
   update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateExecutionKPISchema)) dto: UpdateExecutionKPIDto) {
     return this.service.update(id, dto);
+  }
+
+  @Post(':id/submit-baseline')
+  submitBaseline(@Param('id') id: string, @Body(new ZodValidationPipe(SubmitBaselineSchema)) dto: SubmitBaselineDto) {
+    return this.service.submitBaseline(id, dto.evidenceId);
+  }
+
+  @Post(':id/verify-baseline')
+  verifyBaseline(@Param('id') id: string, @Req() req: any, @Body(new ZodValidationPipe(VerifyBaselineSchema)) dto: VerifyBaselineDto) {
+    return this.service.verifyBaseline(id, req.user?.id || 'system', dto.status, dto.notes as string | null);
   }
 
   @Delete(':id')

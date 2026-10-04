@@ -26,10 +26,9 @@ export const requireAuth = cache(async () => {
     include: { roles: true },
   });
 
-  if (!prismaUser) {
-    // Session is valid in Supabase but user profile is missing in DB
+  if (!prismaUser || !prismaUser.isActive) {
+    // Session is valid in Better Auth but user profile is missing or inactive
     // Clear session cookies and redirect
-    // No supabase to sign out
     redirect("/login");
   }
 

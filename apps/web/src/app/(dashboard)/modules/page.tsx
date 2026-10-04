@@ -82,7 +82,7 @@ export default async function ModulesPage() {
   const isKaryawan = roles.some((r: any) => r.role === "karyawan");
   const isGuru = roles.some((r: any) => r.role === "guru");
   const isMurobbi = roles.some((r: any) => r.role === "murobbi");
-  const isSupervisorKesiswaan = roles.some((r: any) => r.role === "supervisor_kesiswaan");
+  const isPengawas = roles.some((r: any) => r.role === "pengawas_yayasan");
 
   const ppdbHref = isSuperAdmin ? "/admin/units" : (isAdminUnit ? "/unit/dashboard" : "/parent/dashboard");
   const akademikHref = isSuperAdmin ? "/admin/academic" : (isGuru ? "/teacher/schedules" : "/parent/dashboard");
@@ -97,9 +97,11 @@ export default async function ModulesPage() {
   const isKesekretariatan = userDepts.some((d: any) => d.department.name.toLowerCase().includes("kesekretariatan"));
   const isAdminKepegawaian = userDepts.some((d: any) => d.department.name.toLowerCase().includes("sdm") || d.department.name.toLowerCase().includes("kepegawaian"));
   const isDepartmentAdmin = roles.some((r: any) => r.role === "admin_bidang");
+  const isAdminPendidikan = userDepts.some((d: any) => d.department.name.toLowerCase().includes("pendidikan"));
+  const isAdminBpi = userDepts.some((d: any) => d.department.name.toLowerCase().includes("bpi"));
 
   const isParent = roles.some((r: any) => r.role === "orang_tua");
-  const isOnlyParent = isParent && !isSuperAdmin && !isAdminUnit && !isKaryawan && !isGuru && !isAdminKepegawaian && !isMurobbi && !isSupervisorKesiswaan;
+  const isOnlyParent = isParent && !isSuperAdmin && !isAdminUnit && !isKaryawan && !isGuru && !isAdminKepegawaian && !isMurobbi && !isAdminPendidikan;
   
   const isObserver = roles.some((r: any) => r.role === "observer");
   const isTimPpdb = roles.some((r: any) => r.role === "tim_ppdb");
@@ -141,7 +143,7 @@ export default async function ModulesPage() {
           />
         )}
 
-        {(isSuperAdmin || isSupervisorKesiswaan) && (
+        {(isSuperAdmin || isAdminPendidikan) && (
           <ModuleCard
             title="Monitoring Kesiswaan"
             subtitle="Dasbor rekapan akademik, kehadiran, pelanggaran, dan karakter BPI siswa tingkat Yayasan."
@@ -163,7 +165,7 @@ export default async function ModulesPage() {
               />
             )}
             
-            {(!isKesekretariatan && (isSuperAdmin || isDepartmentAdmin || isMurobbi)) && (
+            {(!isKesekretariatan && (isSuperAdmin || isAdminBpi || isMurobbi)) && (
               <ModuleCard
                 title="Bina Pribadi Islami (BPI)"
                 subtitle="Manajemen kelompok mentoring (Liqo), Murobbi, dan rekap amal yaumi."
@@ -175,14 +177,14 @@ export default async function ModulesPage() {
             
             {(isSuperAdmin || isDepartmentAdmin) && (
               <ModuleCard
-                title="Strategic & Eksekusi"
+                title="Perencanaan & Monitoring"
                 subtitle="Monitoring program kerja, indikator kinerja (KPI), isu, dan meeting."
                 icon="monitoring"
                 active={true}
                 href={strategicHref}
               />
             )}
-            
+
             {isKesekretariatan && (
               <ModuleCard
                 title="Layanan Kesekretariatan"
@@ -191,6 +193,25 @@ export default async function ModulesPage() {
                 active={true}
                 href="/admin/secretariat/dashboard"
               />
+            )}
+
+            {isPengawas && !isSuperAdmin && (
+              <>
+                <ModuleCard
+                  title="Dashboard Eksekutif"
+                  subtitle="Ringkasan kesehatan strategis dan pencapaian kinerja Yayasan Alfida."
+                  icon="monitoring"
+                  active={true}
+                  href="/bph-dashboard"
+                />
+                <ModuleCard
+                  title="Laporan KPI per Bidang"
+                  subtitle="Akses matriks sasaran, indikator, dan capaian program kerja per departemen."
+                  icon="domain"
+                  active={true}
+                  href="/pengawas/departments"
+                />
+              </>
             )}
           </>
         )}

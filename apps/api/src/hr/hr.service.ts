@@ -123,9 +123,9 @@ export class HrService {
   // ================= HR DASHBOARD =================
   async getStaffDemographics() {
     const [totalUsers, rolesCount, unitBreakdown, units] = await Promise.all([
-      this.prisma.user.count({ where: { isActive: true, roles: { some: { role: { not: "orang_tua" } } } } }),
-      this.prisma.userRoleAssignment.groupBy({ by: ['role'], _count: { userId: true }, where: { role: { not: "orang_tua" } } }),
-      this.prisma.userRoleAssignment.groupBy({ by: ['unitId'], _count: { userId: true }, where: { unitId: { not: null }, role: { not: "orang_tua" } } }),
+      this.prisma.user.count({ where: { isActive: true, roles: { some: { role: { in: ["guru", "karyawan"] } } } } }),
+      this.prisma.userRoleAssignment.groupBy({ by: ['role'], _count: { userId: true }, where: { role: { in: ["guru", "karyawan"] } } }),
+      this.prisma.userRoleAssignment.groupBy({ by: ['unitId'], _count: { userId: true }, where: { unitId: { not: null }, role: { in: ["guru", "karyawan"] } } }),
       this.prisma.unit.findMany({ select: { id: true, name: true } })
     ]);
     const formattedUnitBreakdown = unitBreakdown.map(u => ({ unitName: units.find(un => un.id === u.unitId)?.name || 'Unknown Unit', count: u._count.userId }));
@@ -135,13 +135,13 @@ export class HrService {
   async getAttendanceRecap(startDate: string, endDate: string, unitId: string | undefined, currentUser: any) {
     const isGlobalAdmin = currentUser.roles.some((r: any) => r.role === "super_admin" || r.role === "admin_kepegawaian");
     const adminUnitIds = currentUser.roles.filter((r: any) => (r.role === "admin_unit" || r.role === "admin_unit_nondik") && r.unitId).map((r: any) => r.unitId);
-    let userWhere: any = { roles: { some: { role: { not: "orang_tua" } } } };
+    let userWhere: any = { roles: { some: { role: { in: ["guru", "karyawan"] } } } };
     
     if (!isGlobalAdmin) {
       if (adminUnitIds.length === 0) return [];
-      userWhere = { roles: { some: { unitId: { in: adminUnitIds }, role: { not: "orang_tua" } } } };
+      userWhere = { roles: { some: { unitId: { in: adminUnitIds }, role: { in: ["guru", "karyawan"] } } } };
     } else if (unitId) {
-      userWhere = { roles: { some: { unitId, role: { not: "orang_tua" } } } };
+      userWhere = { roles: { some: { unitId, role: { in: ["guru", "karyawan"] } } } };
     }
     const users = await this.prisma.user.findMany({ where: { isActive: true, ...userWhere }, select: { id: true } });
     if (users.length === 0) return [];

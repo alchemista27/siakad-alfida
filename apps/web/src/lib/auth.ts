@@ -25,6 +25,8 @@ export const auth = betterAuth({
         session: {
             create: {
                 before: async (data) => {
+                    const user = await prisma.user.findUnique({ where: { id: data.userId }, select: { isActive: true } });
+                    if (!user?.isActive) throw new Error("Akun dinonaktifkan.");
                     data.id = crypto.randomUUID();
                     return { data };
                 }
@@ -81,7 +83,7 @@ export const auth = betterAuth({
         additionalFields: {
             fullName: { type: "string" },
             isActive: { type: "boolean" },
-            passwordHash: { type: "string" },
+            passwordHash: { type: "string", returned: false },
             firstName: { type: "string", required: false },
             lastName: { type: "string", required: false },
             phone: { type: "string", required: false },

@@ -53,6 +53,20 @@ export async function deleteKPI(id: string) {
   return apiFetch(`/strategic/kpis/${id}`, { method: "DELETE" });
 }
 
+export async function submitKPIBaseline(id: string, evidenceId: string) {
+  return apiFetch(`/strategic/kpis/${id}/submit-baseline`, { 
+    method: "POST", 
+    body: JSON.stringify({ evidenceId }) 
+  });
+}
+
+export async function verifyKPIBaseline(id: string, status: string, notes?: string) {
+  return apiFetch(`/strategic/kpis/${id}/verify-baseline`, { 
+    method: "POST", 
+    body: JSON.stringify({ status, notes }) 
+  });
+}
+
 // Users for PIC dropdown
 export async function getStrategicUsers() {
   return apiFetch("/admin/users", { method: "GET", cache: "no-store" });
@@ -124,6 +138,11 @@ export async function updateEvidence(id: string, data: any) {
 
 export async function deleteEvidence(id: string) {
   return apiFetch(`/strategic/execution-evidences/${id}`, { method: "DELETE" });
+}
+
+// Dashboards
+export async function getTrafficLightDashboard() {
+  return apiFetch("/strategic/dashboard/traffic-light", { method: "GET", cache: "no-store" });
 }
 
 // --- SPRINT 42: RISK & MEETING MANAGEMENT ---

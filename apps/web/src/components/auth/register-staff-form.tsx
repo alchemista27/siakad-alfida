@@ -62,8 +62,9 @@ export function RegisterStaffForm({ units }: { units: { id: string; name: string
         <Icon name="check_circle" className="text-4xl text-emerald-600 mb-2" />
         <h4 className="font-bold text-lg mb-1 font-heading">Pendaftaran Berhasil!</h4>
         <p className="text-xs text-emerald-700">
-          Akun Anda telah dibuat. Mengalihkan ke halaman login...
+          Akun Anda telah dibuat namun sedang <strong>menunggu persetujuan admin</strong>. Anda baru bisa login setelah diaktifkan.
         </p>
+        <p className="text-xs text-emerald-700 mt-2">Mengalihkan ke halaman login...</p>
       </div>
     );
   }

@@ -12,6 +12,13 @@ export class AdminService {
   // ================= USERS =================
   async getAllUsers() {
     return this.prisma.user.findMany({
+      where: {
+        roles: {
+          some: {
+            role: { not: "orang_tua" }
+          }
+        }
+      },
       select: { id: true, fullName: true, email: true },
       orderBy: { fullName: 'asc' }
     });
@@ -38,7 +45,7 @@ export class AdminService {
     const payload = usersData.filter(row => row.email).map(row => ({
       id: row.id || undefined,
       email: row.email,
-      password: row.password || 'password123',
+      password: row.password || crypto.randomUUID().slice(0, 8),
       username: row.username,
       fullName: row.first_name || row.last_name 
         ? `${row.first_name || ''} ${row.last_name || ''}`.trim() 
@@ -106,7 +113,8 @@ export class AdminService {
     if (existing) throw new BadRequestException("Email sudah terdaftar.");
 
     const userId = crypto.randomUUID();
-    const hashedPassword = await this.hashPassword(data.password || 'password123');
+    const p = data.password || crypto.randomUUID().slice(0, 8);
+    const hashedPassword = await this.hashPassword(p);
 
     await this.prisma.$transaction([
       this.prisma.user.create({
@@ -134,27 +142,50 @@ export class AdminService {
   }
 
   async resetUserPassword(userId: string, newPassword: string) {
+    if (!newPassword || newPassword.trim() === '') {
+      throw new BadRequestException("Password baru tidak boleh kosong.");
+    }
     const hashedPassword = await this.hashPassword(newPassword);
     
-    // Update password in both User table and Account table for credential provider
+    // Update password in Account table for credential provider and delete all active sessions
     await this.prisma.$transaction([
-      this.prisma.user.update({
-        where: { id: userId },
-        data: { passwordHash: hashedPassword }
-      }),
       this.prisma.account.updateMany({
         where: { userId, providerId: 'credential' },
         data: { password: hashedPassword }
+      }),
+      this.prisma.session.deleteMany({
+        where: { userId }
       })
     ]);
     
     return { success: true };
   }
 
+  async updateUserStatus(userId: string, isActive: boolean) {
+    const tx: any[] = [
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { isActive }
+      })
+    ];
+
+    if (!isActive) {
+      tx.push(this.prisma.session.deleteMany({
+        where: { userId }
+      }));
+    }
+
+    await this.prisma.$transaction(tx);
+    return { success: true };
+  }
+
   async searchUsers(query: string) {
     if (!query || query.length < 1) return [];
     return this.prisma.user.findMany({
-      where: { OR: [ { fullName: { contains: query, mode: "insensitive" } }, { email: { contains: query, mode: "insensitive" } } ] },
+      where: { 
+        OR: [ { fullName: { contains: query, mode: "insensitive" } }, { email: { contains: query, mode: "insensitive" } } ],
+        roles: { some: { role: { not: "orang_tua" } } }
+      },
       take: 10, select: { id: true, fullName: true, email: true }
     });
   }

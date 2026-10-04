@@ -10,13 +10,13 @@ export async function updatePassword(password: string) {
   throw new Error("Pembaruan password lewat Better Auth harus menggunakan old password, belum diimplementasikan di UI");
 }
 
-export async function updateEmail(email: string) {
+export async function updateEmail(email: string, currentPassword?: string) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error("Not authenticated");
   
   await apiFetch("/auth/update-email", {
     method: "POST",
-    body: JSON.stringify({ email: email.toLowerCase() })
+    body: JSON.stringify({ email: email.toLowerCase(), password: currentPassword })
   });
   
   return { success: true };
