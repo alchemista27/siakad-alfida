@@ -220,7 +220,7 @@ export function CorrespondenceClient({ correspondences, myDispositions }: { corr
               ) : correspondences.map(surat => (
                 <tr key={surat.id} className="hover:bg-gray-50">
                   <td className="py-3 px-4">
-                    <Badge variant={surat.type === 'INCOMING' ? 'default' : 'outline'}>{surat.type}</Badge>
+                    <Badge variant={surat.type === 'INCOMING' ? 'blue' : 'gray'}>{surat.type}</Badge>
                   </td>
                   <td className="py-3 px-4">
                     {format(new Date(surat.date), 'dd MMM yyyy', { locale: localeId })}<br/>
