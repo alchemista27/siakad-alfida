@@ -126,14 +126,14 @@ export function NotificationBell() {
 
                   if (notif.linkUrl) {
                     return (
-                      <Link href={notif.linkUrl} {...commonProps}>
+                      <Link key={notif.id} href={notif.linkUrl} {...commonProps}>
                         {innerContent}
                       </Link>
                     );
                   }
 
                   return (
-                    <div {...commonProps}>
+                    <div key={notif.id} {...commonProps}>
                       {innerContent}
                     </div>
                   );
