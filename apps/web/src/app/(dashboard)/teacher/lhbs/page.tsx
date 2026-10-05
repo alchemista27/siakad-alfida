@@ -45,7 +45,7 @@ export default async function TeacherLhbsPage() {
   const enrollments = await prisma.studentEnrollment.findMany({
     where: {
       classId: { in: homeroomClasses.map(c => c.id) },
-      academicYearId: activeYear.id,
+      academicYearId: { in: activeYearIds },
       status: 'active'
     },
     include: {
@@ -53,7 +53,7 @@ export default async function TeacherLhbsPage() {
       class: { select: { name: true } },
       lhbsReports: {
         where: {
-          academicYearId: activeYear.id
+          academicYearId: { in: activeYearIds }
         }
       }
     },

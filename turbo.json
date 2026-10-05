@@ -5,6 +5,14 @@
       "dependsOn": [
         "^build"
       ],
+      "env": [
+        "DATABASE_URL",
+        "DIRECT_URL",
+        "BETTER_AUTH_*",
+        "CLOUDINARY_*",
+        "MINIO_*",
+        "S3_*"
+      ],
       "outputs": [
         ".next/**",
         "!.next/cache/**",

@@ -15,23 +15,33 @@ export default async function TeacherSchedulesPage() {
   const user = session?.user;
   if (!user) return <div>Unauthorized</div>;
   
-  const activeYear = await prisma.academicYear.findFirst({
+  // Get latest academic year for each unit
+  const allYears = await prisma.academicYear.findMany({
     orderBy: { startDate: 'desc' }
   });
+  const activeYearIds = new Set<string>();
+  const seenUnits = new Set<string>();
+  for (const year of allYears) {
+    if (!seenUnits.has(year.unitId)) {
+      seenUnits.add(year.unitId);
+      activeYearIds.add(year.id);
+    }
+  }
 
-  if (!activeYear) {
+  if (activeYearIds.size === 0) {
     return (
       <div className="p-6">
         <div className="p-6 bg-yellow-50 text-yellow-800 rounded-lg">Tidak ada Tahun Ajaran aktif.</div>
       </div>
     );
   }
+  const activeYearIdsArray = Array.from(activeYearIds);
 
   // Fetch classes where this teacher is a homeroom teacher
   const homeroomAssignments = await prisma.homeroomAssignment.findMany({
     where: {
       teacherId: user.id,
-      academicYearId: activeYear.id
+      academicYearId: { in: activeYearIdsArray }
     },
     include: {
       class: {
@@ -62,7 +72,7 @@ export default async function TeacherSchedulesPage() {
   // Fetch teachers assigned to any subjects in these units for this academic year
   const teacherAssignments = await prisma.teacherAssignment.findMany({
     where: {
-      academicYearId: activeYear.id,
+      academicYearId: { in: activeYearIdsArray },
       subject: { unitId: { in: unitIds } }
     },
     include: { teacher: true }

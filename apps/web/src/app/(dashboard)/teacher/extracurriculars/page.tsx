@@ -14,24 +14,27 @@ export default async function TeacherExtracurricularsPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   const user = session?.user;
   if (!user) return <div>Unauthorized</div>;
-  
-  const activeYear = await prisma.academicYear.findFirst({
-    orderBy: { startDate: 'desc' }
-  });
+  const { getActiveAcademicYears } = await import("@/lib/academic-year");
+  const activeYears = await getActiveAcademicYears();
 
-  if (!activeYear) {
+  if (activeYears.length === 0) {
     return (
-      <div className="p-6">
-        <div className="p-6 bg-yellow-50 text-yellow-800 rounded-lg">Tidak ada Tahun Ajaran aktif.</div>
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="p-6 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg">
+          Tidak ada Tahun Ajaran aktif.
+        </div>
       </div>
     );
   }
+  const activeYearIds = activeYears.map(y => y.id);
+  const activeYearNames = Array.from(new Set(activeYears.map(y => y.name))).join(', ');
+
 
   // Find extracurriculars where this teacher is a coach
   const coachAssignments = await prisma.extracurricularCoach.findMany({
     where: {
       coachId: user.id,
-      academicYearId: activeYear.id
+      academicYearId: { in: activeYearIds }
     },
     include: {
       extracurricular: {
@@ -41,7 +44,7 @@ export default async function TeacherExtracurricularsPage() {
             orderBy: { date: 'desc' }
           },
           members: {
-            where: { academicYearId: activeYear.id },
+            where: { academicYearId: { in: activeYearIds } },
             include: {
               enrollment: {
                 include: { studentData: { select: { fullName: true } } }
@@ -50,7 +53,7 @@ export default async function TeacherExtracurricularsPage() {
             }
           },
           _count: {
-            select: { members: { where: { academicYearId: activeYear.id } } }
+            select: { members: { where: { academicYearId: { in: activeYearIds } } } }
           }
         }
       }

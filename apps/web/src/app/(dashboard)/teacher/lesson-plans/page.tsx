@@ -15,12 +15,10 @@ export default async function TeacherLessonPlansPage() {
   const user = session?.user;
   
   if (!user) return <div>Unauthorized</div>;
+  const { getActiveAcademicYears } = await import("@/lib/academic-year");
+  const activeYears = await getActiveAcademicYears();
 
-  const activeYear = await prisma.academicYear.findFirst({
-    orderBy: { startDate: 'desc' }
-  });
-
-  if (!activeYear) {
+  if (activeYears.length === 0) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
         <div className="p-6 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg">
@@ -29,12 +27,15 @@ export default async function TeacherLessonPlansPage() {
       </div>
     );
   }
+  const activeYearIds = activeYears.map(y => y.id);
+  const activeYearNames = Array.from(new Set(activeYears.map(y => y.name))).join(', ');
+
 
   // Find unique subjects assigned to this teacher for the active year
   const assignments = await prisma.teacherAssignment.findMany({
     where: { 
       teacherId: user.id,
-      academicYearId: activeYear.id,
+      academicYearId: { in: activeYearIds },
     },
     include: {
       subject: true,

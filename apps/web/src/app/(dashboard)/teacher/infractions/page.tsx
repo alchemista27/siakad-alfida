@@ -15,12 +15,10 @@ export default async function TeacherInfractionsPage() {
   const user = session?.user;
   
   if (!user) return <div>Unauthorized</div>;
+  const { getActiveAcademicYears } = await import("@/lib/academic-year");
+  const activeYears = await getActiveAcademicYears();
 
-  const activeYear = await prisma.academicYear.findFirst({
-    orderBy: { startDate: 'desc' }
-  });
-
-  if (!activeYear) {
+  if (activeYears.length === 0) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
         <div className="p-6 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg">
@@ -29,12 +27,15 @@ export default async function TeacherInfractionsPage() {
       </div>
     );
   }
+  const activeYearIds = activeYears.map(y => y.id);
+  const activeYearNames = Array.from(new Set(activeYears.map(y => y.name))).join(', ');
+
 
   // Get homeroom assignments
   const homerooms = await prisma.homeroomAssignment.findMany({
     where: { 
       teacherId: user.id,
-      academicYearId: activeYear.id,
+      academicYearId: { in: activeYearIds },
     },
     include: {
       class: true,
@@ -44,7 +45,7 @@ export default async function TeacherInfractionsPage() {
   const classIds = homerooms.map(h => h.classId);
   const students = await prisma.studentEnrollment.findMany({
     where: {
-      academicYearId: activeYear.id,
+      academicYearId: { in: activeYearIds },
       classId: { in: classIds },
       status: 'active',
     },
@@ -63,7 +64,7 @@ export default async function TeacherInfractionsPage() {
   const recentInfractions = await prisma.studentInfraction.findMany({
     where: {
       enrollment: {
-        academicYearId: activeYear.id,
+        academicYearId: { in: activeYearIds },
         classId: { in: classIds }
       }
     },

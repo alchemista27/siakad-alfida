@@ -1,0 +1,33 @@
+# Dependencies & build output (rebuilt inside the image)
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/*.tsbuildinfo
+
+# Secrets: production values come from Coolify env vars
+.env
+**/.env
+**/.env.*
+!.env.example
+
+# VCS, tooling, local data
+.git
+.github
+.claude
+.gemini
+.agents
+.vscode
+.idea
+.pgdata
+sistem-data
+scratch
+**/.DS_Store
+**/*.log
+
+# Not needed to build or run the app
+docs
+assets
+apps/web/tests
+approve.exp
+*.md
