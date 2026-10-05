@@ -18,6 +18,16 @@ export class StrategicDepartmentController {
     return this.service.getMyMembers(req.user);
   }
 
+  @Post(':id/members')
+  addMember(@Param('id') id: string, @Body() data: { userId: string; role?: string }, @Req() req: any) {
+    return this.service.addMember(id, data.userId, data.role, req.user);
+  }
+
+  @Delete(':id/members/:userId')
+  removeMember(@Param('id') id: string, @Param('userId') userId: string, @Req() req: any) {
+    return this.service.removeMember(id, userId, req.user);
+  }
+
   @Get('overview')
   getDepartmentOverview() { return this.service.getDepartmentOverview(); }
 

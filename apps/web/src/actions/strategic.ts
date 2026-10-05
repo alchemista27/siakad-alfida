@@ -19,6 +19,21 @@ export async function deleteDepartment(id: string) {
   return apiFetch(`/strategic/departments/${id}`, { method: "DELETE" });
 }
 
+export async function getMyMembers() {
+  return apiFetch("/strategic/departments/my-members", { method: "GET", cache: "no-store" });
+}
+
+export async function addDepartmentMember(departmentId: string, data: { userId: string; role?: string }) {
+  return apiFetch(`/strategic/departments/${departmentId}/members`, { 
+    method: "POST", 
+    body: JSON.stringify(data) 
+  });
+}
+
+export async function removeDepartmentMember(departmentId: string, userId: string) {
+  return apiFetch(`/strategic/departments/${departmentId}/members/${userId}`, { method: "DELETE" });
+}
+
 // Programs
 export async function getPrograms() {
   return apiFetch("/strategic/programs", { method: "GET", cache: "no-store" });

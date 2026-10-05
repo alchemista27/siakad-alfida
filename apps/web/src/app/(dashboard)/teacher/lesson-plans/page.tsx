@@ -59,7 +59,7 @@ export default async function TeacherLessonPlansPage() {
       </div>
 
       <PlanClient 
-        academicYearId={activeYear.id} 
+        academicYearId={activeYearIds[0]} 
         subjects={subjects} 
       />
     </div>

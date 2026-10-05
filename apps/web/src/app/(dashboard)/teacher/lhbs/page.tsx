@@ -15,13 +15,13 @@ export default async function TeacherLhbsPage() {
   const user = session?.user;
   if (!user) return <div>Unauthorized</div>;
   
-  const activeYear = await prisma.academicYear.findFirst({
-    orderBy: { startDate: 'desc' }
-  });
+  const { getActiveAcademicYears } = await import("@/lib/academic-year");
+  const activeYears = await getActiveAcademicYears();
 
-  if (!activeYear) {
+  if (activeYears.length === 0) {
     return <div className="p-6">Tidak ada Tahun Ajaran aktif.</div>;
   }
+  const activeYearIds = activeYears.map((y: any) => y.id);
 
   const homeroomClasses = await prisma.class.findMany({
     where: {

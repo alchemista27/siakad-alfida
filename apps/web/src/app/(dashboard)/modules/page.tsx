@@ -109,7 +109,8 @@ export default async function ModulesPage() {
 
 
 
-  const hrHref = isSuperAdmin || isAdminKepegawaian ? "/admin/hr/dashboard" : (isKaryawan || isGuru ? "/staff/attendance" : "/modules");
+  const hrAdminHref = "/admin/hr/dashboard";
+  const staffHref = "/staff/attendance";
 
   return (
     <div className="space-y-6">
@@ -155,13 +156,23 @@ export default async function ModulesPage() {
 
         {!isOnlyParent && (
           <>
-            {(isSuperAdmin || isAdminKepegawaian || isKaryawan || isGuru) && (
+            {(isSuperAdmin || isAdminKepegawaian) && (
               <ModuleCard
                 title="Manajemen Kepegawaian (HR)"
-                subtitle="Fitur SDM, presensi, pengajuan cuti, mutabaah, dan distribusi pegawai."
+                subtitle="Dasbor SDM, rekap presensi, approval cuti, dan distribusi pegawai."
+                icon="admin_panel_settings"
+                active={true}
+                href={hrAdminHref}
+              />
+            )}
+
+            {(isKaryawan || isGuru || isSuperAdmin || isAdminKepegawaian) && (
+              <ModuleCard
+                title="Layanan Pegawai"
+                subtitle="Presensi harian, pengajuan cuti, mutabaah, dan profil pegawai."
                 icon="badge"
                 active={true}
-                href={hrHref}
+                href={staffHref}
               />
             )}
             

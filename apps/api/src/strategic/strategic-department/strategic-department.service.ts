@@ -67,4 +67,32 @@ export class StrategicDepartmentService {
       }
     });
   }
+
+  private async checkAdminAccess(departmentId: string, user: any) {
+    const isSuperAdmin = user.roles?.some((r: any) => r.role === 'super_admin');
+    if (isSuperAdmin) return true;
+    const admin = await this.prisma.departmentAdmin.findUnique({
+      where: { departmentId_userId: { departmentId, userId: user.id } }
+    });
+    if (!admin) {
+      throw new Error('Unauthorized to manage members for this department');
+    }
+    return true;
+  }
+
+  async addMember(departmentId: string, userId: string, role: string | undefined, currentUser: any) {
+    await this.checkAdminAccess(departmentId, currentUser);
+    return this.prisma.departmentMember.upsert({
+      where: { departmentId_userId: { departmentId, userId } },
+      update: { role },
+      create: { departmentId, userId, role }
+    });
+  }
+
+  async removeMember(departmentId: string, userId: string, currentUser: any) {
+    await this.checkAdminAccess(departmentId, currentUser);
+    return this.prisma.departmentMember.delete({
+      where: { departmentId_userId: { departmentId, userId } }
+    });
+  }
 }

@@ -93,7 +93,7 @@ export default async function TeacherBpiSiswaPage() {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Laporan BPI Siswa</h1>
-        <p className="text-sm text-gray-500 mt-1">Sebagai Wali Kelas (Tahun Ajaran: {activeYear.name})</p>
+        <p className="text-sm text-gray-500 mt-1">Sebagai Wali Kelas (Tahun Ajaran: {activeYearNames})</p>
       </div>
 
       <BpiSiswaClient 
