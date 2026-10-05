@@ -90,23 +90,8 @@ export function NotificationBell() {
             ) : (
               <div className="flex flex-col">
                 {notifications.map((notif) => {
-                  const isRead = notif.isRead;
-                  const Wrapper = notif.linkUrl ? Link : 'div';
-                  const wrapperProps = notif.linkUrl ? { href: notif.linkUrl } : {};
-
-                  return (
-                    <Wrapper
-                      key={notif.id}
-                      {...wrapperProps}
-                      onClick={() => {
-                        if (!isRead) markAsRead(notif.id);
-                        if (notif.linkUrl) setIsOpen(false);
-                      }}
-                      className={cn(
-                        "group relative flex gap-3 p-4 hover:bg-neutral/50 transition-colors border-b border-border/50 last:border-0 cursor-pointer",
-                        isRead ? "opacity-70" : "bg-primary/5"
-                      )}
-                    >
+                  const innerContent = (
+                    <>
                       {!isRead && (
                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-tertiary rounded-r" />
                       )}
@@ -124,7 +109,33 @@ export function NotificationBell() {
                           {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true, locale: id })}
                         </span>
                       </div>
-                    </Wrapper>
+                    </>
+                  );
+
+                  const commonProps = {
+                    key: notif.id,
+                    onClick: () => {
+                      if (!isRead) markAsRead(notif.id);
+                      if (notif.linkUrl) setIsOpen(false);
+                    },
+                    className: cn(
+                      "group relative flex gap-3 p-4 hover:bg-neutral/50 transition-colors border-b border-border/50 last:border-0 cursor-pointer",
+                      isRead ? "opacity-70" : "bg-primary/5"
+                    )
+                  };
+
+                  if (notif.linkUrl) {
+                    return (
+                      <Link href={notif.linkUrl} {...commonProps}>
+                        {innerContent}
+                      </Link>
+                    );
+                  }
+
+                  return (
+                    <div {...commonProps}>
+                      {innerContent}
+                    </div>
                   );
                 })}
               </div>
