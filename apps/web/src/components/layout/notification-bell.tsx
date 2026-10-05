@@ -90,6 +90,7 @@ export function NotificationBell() {
             ) : (
               <div className="flex flex-col">
                 {notifications.map((notif) => {
+                  const isRead: boolean = notif.isRead;
                   const innerContent = (
                     <>
                       {!isRead && (
@@ -113,7 +114,6 @@ export function NotificationBell() {
                   );
 
                   const commonProps = {
-                    key: notif.id,
                     onClick: () => {
                       if (!isRead) markAsRead(notif.id);
                       if (notif.linkUrl) setIsOpen(false);
