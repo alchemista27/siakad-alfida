@@ -37,3 +37,6 @@ scratch/
 # Turborepo
 .turbo/
 *.tsbuildinfo
+
+# Hermes Agent
+.hermes/

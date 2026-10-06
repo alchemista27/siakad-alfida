@@ -119,7 +119,7 @@ export class ExecutionDashboardService {
     
     let green = 0, yellow = 0, red = 0;
     const details = kpis.map(kpi => {
-      let percent = 0;
+      let percent: number;
       if (kpi.direction === 'higher_is_better') {
         percent = kpi.target > 0 ? (kpi.realization / kpi.target) * 100 : 0;
       } else {

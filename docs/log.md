@@ -275,3 +275,17 @@
 - Menciptakan _routing_ mandiri (`/pengawas/departments` & `/pengawas/department/[id]`) untuk memisahkan menu laporan kinerja khusus BPH agar tidak bercampur-aduk dengan tautan aplikasi operasional yang tersentralisasi di `/modules`.
 - Melakukan refaktor visual pada halaman Laporan Matriks KPI BPH: beralih dari tabel kolom-lebar yang membentur _horizontal scroll_, menuju susunan tata letak _Bento Grid / Data Cards_ yang luas, modern, dan sangat tangguh untuk memuat untaian teks deskriptif (sasaran dan indikator) birokrasi pemerintahan/yayasan.
   **commit message:** feat: redesign BPH executive dashboard, separate pengawas report routes, and refactor KPI matrix into responsive bento cards
+
+---
+
+**tanggal:** 06 Oktober 2026
+**progress:**
+
+- Merombak arsitektur basis data dan validasi input terkait Manajemen "Biro". Biro yang sebelumnya berstatus setara (*peer*) dengan Bidang di tingkat Super Admin, kini diubah hierarkinya menjadi entitas turunan (berada di bawah naungan Bidang langsung).
+- Menerapkan fitur pembuatan dan pengelolaan Biro beserta penugasan _Person In Charge_ (PIC / Admin Biro) langsung dari halaman Perencanaan dan Monitoring milik Admin Bidang (Strategic Members Page).
+- Memecahkan galat 500 (Server Error) pada _routing_ autentikasi di antarmuka modul. Menambahkan definisi _Role-based Access Control_ untuk variabel `isDepartmentAdmin` dan `isBiroAdmin` di dalam alur logika (`/modules/page.tsx`) dan _rewrites_ API untuk NestJS backend.
+- Mensinkronisasi _Client Component_ manajemen Bukti Kinerja (Evidence) agar secara dinamis melakukan re-hidrasi _state_ (melalui _React useEffect_) sesaat setelah rute disegarkan, menyelesaikan masalah di mana unggahan baru tidak langsung muncul di antarmuka tabel.
+- Mengimplementasikan pengunggahan Bukti Kinerja (*document evidence*) menggunakan layanan berbasis awan Cloudinary dengan format penandatanganan _unsigned_ (via _upload preset_), menukar input tautan primitif dengan antarmuka unggah _file picker_ yang tangguh.
+- Menambahkan _Notification Modal_ seragam yang mematuhi pedoman desain antarmuka `DESIGN.md` untuk menggantikan cetakan _console.log_ dan peringatan natif saat transaksi API (unggah KPI/dokumen) menemui hambatan (*error handling*).
+- Mengeksekusi pengetesan statis komprehensif pra-deployment (_Smoke Testing_, _Linting_, _Typechecking_ dengan Eslint 9 + TypeScript Strict, serta kompilasi _Next.js Production Build_) untuk menjamin stabilitas koding dan skema Prisma (_Prisma Validate_) sebelum ditarik ke Coolify.
+  **commit message:** feat: refactor biro hierarchy under department, implement cloudinary evidence uploads, fix UI auth state & hydration bugs, and ensure strict TS/lint compliance

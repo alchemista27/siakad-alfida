@@ -2,13 +2,15 @@ import { cookies } from "next/headers";
 
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const cookieStore = await cookies();
-  const sessionToken = cookieStore.get("better-auth.session_token")?.value 
+  let sessionToken = cookieStore.get("better-auth.session_token")?.value 
     || cookieStore.get("__Secure-better-auth.session_token")?.value;
   
   const headers = new Headers(options.headers);
   headers.set('Content-Type', 'application/json');
   
   if (sessionToken) {
+    // Decode in case it's URI encoded by the browser/Next.js cookies API
+    sessionToken = decodeURIComponent(sessionToken);
     headers.set('Authorization', `Bearer ${sessionToken}`);
   }
 

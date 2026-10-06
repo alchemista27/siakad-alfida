@@ -26,13 +26,14 @@ export class JwtAuthGuard implements CanActivate {
       token = token.substring(0, signatureStartPos);
     }
 
-
     // Verify token online with Prisma Session table (Better Auth)
     const session = await this.prisma.session.findUnique({
       where: { token },
       include: {
         user: {
-          include: { roles: true }
+          include: { 
+            roles: { include: { unit: true } } 
+          }
         }
       }
     });

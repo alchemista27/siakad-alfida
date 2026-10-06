@@ -163,7 +163,7 @@ export class HrService {
 
   // ================= LEAVE =================
   async getLeaveRequests(status?: LeaveStatus, year?: number) {
-    let whereClause: any = {};
+    const whereClause: any = {};
     if (status) whereClause.status = status;
     if (year) {
       const startOfYear = new Date(year, 0, 1);

@@ -18,6 +18,16 @@ export class StrategicDepartmentController {
     return this.service.getMyMembers(req.user);
   }
 
+  @Get('my-subdepartments')
+  getMySubdepartments(@Req() req: any) {
+    return this.service.getMySubdepartments(req.user);
+  }
+
+  @Post('subdepartment')
+  createSubdepartment(@Body() data: any, @Req() req: any) {
+    return this.service.createSubdepartment(data, req.user);
+  }
+
   @Post(':id/members')
   addMember(@Param('id') id: string, @Body() data: { userId: string; role?: string }, @Req() req: any) {
     return this.service.addMember(id, data.userId, data.role, req.user);

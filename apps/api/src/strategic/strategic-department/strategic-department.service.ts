@@ -68,6 +68,53 @@ export class StrategicDepartmentService {
     });
   }
 
+  async getMySubdepartments(user: any) {
+    const myDepts = await this.prisma.departmentAdmin.findMany({
+      where: { userId: user.id },
+      select: { departmentId: true }
+    });
+    const deptIds = myDepts.map(d => d.departmentId);
+    if (deptIds.length === 0) return [];
+
+    return this.prisma.department.findMany({
+      where: { parentId: { in: deptIds } },
+      include: { 
+        admins: { include: { user: { select: { id: true, fullName: true, email: true } } } },
+        members: { include: { user: { select: { id: true, fullName: true } } } }
+      }
+    });
+  }
+
+  async createSubdepartment(data: { name: string; description?: string; parentId: string; adminUserId?: string }, user: any) {
+    // Validate authorization (must be admin of the parentId)
+    const isAdmin = await this.prisma.departmentAdmin.findUnique({
+      where: { departmentId_userId: { departmentId: data.parentId, userId: user.id } }
+    });
+    if (!isAdmin) throw new Error("Unauthorized to create subdepartment for this department");
+
+    const dept = await this.prisma.department.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        parentId: data.parentId,
+      }
+    });
+
+    if (data.adminUserId) {
+      await this.prisma.departmentAdmin.create({
+        data: { departmentId: dept.id, userId: data.adminUserId }
+      });
+      await this.prisma.userRoleAssignment.create({
+        data: {
+          userId: data.adminUserId,
+          role: 'admin_biro',
+        }
+      }).catch(e => { /* Ignore if role already exists */ });
+    }
+
+    return dept;
+  }
+
   private async checkAdminAccess(departmentId: string, user: any) {
     const isSuperAdmin = user.roles?.some((r: any) => r.role === 'super_admin');
     if (isSuperAdmin) return true;

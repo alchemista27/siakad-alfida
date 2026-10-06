@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createKPI, updateKPI, deleteKPI } from '@/actions/strategic';
+
+import { NotificationModal } from '@/components/ui/notification-modal';
 
 type User = { id: string; fullName: string; email: string };
 type Program = { id: string; title: string; };
@@ -26,9 +28,15 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
-  const initialForm = { programId: programs[0]?.id || '', name: '', indicatorType: 'percentage', direction: 'higher_is_better', target: 100, unit: '%', weight: 10, picId: '' };
+  const initialForm = { programId: programs[0]?.id || '', name: '', indicatorType: 'output', direction: 'higher_is_better', target: 100, unit: '%', weight: 10, picId: '' };
   const [formData, setFormData] = useState(initialForm);
   const [loading, setLoading] = useState(false);
+  const [notif, setNotif] = useState({ isOpen: false, title: '', message: '', type: 'info' as 'success' | 'error' | 'info' });
+
+  // Sinkronisasi data dari server ke client state setiap kali props initialData berubah (akibat router.refresh())
+  useEffect(() => {
+    setKpis(initialData);
+  }, [initialData]);
 
   const handleOpenModal = (kpi?: KPI) => {
     if (isPengawas) return;
@@ -69,14 +77,16 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
 
       if (editingId) {
         await updateKPI(editingId, payload);
+        setNotif({ isOpen: true, title: 'Berhasil', message: 'KPI berhasil diperbarui.', type: 'success' });
       } else {
         await createKPI(payload);
+        setNotif({ isOpen: true, title: 'Berhasil', message: 'KPI baru berhasil ditambahkan.', type: 'success' });
       }
       setIsModalOpen(false);
       router.refresh();
-      window.location.reload(); 
-    } catch (err) {
-      alert('Terjadi kesalahan saat menyimpan KPI');
+      // window.location.reload(); // Biarkan Next.js router.refresh() yang menangani hydration 
+    } catch (err: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: err?.message || 'Terjadi kesalahan saat menyimpan KPI', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -88,9 +98,9 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
     try {
       await deleteKPI(id);
       router.refresh();
-      window.location.reload();
-    } catch (err) {
-      alert('Gagal menghapus KPI');
+      setNotif({ isOpen: true, title: 'Berhasil', message: 'KPI berhasil dihapus.', type: 'success' });
+    } catch (err: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: err?.message || 'Gagal menghapus KPI', type: 'error' });
     }
   };
 
@@ -172,10 +182,10 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Tipe Indikator</label>
                   <select value={formData.indicatorType} onChange={e => setFormData({...formData, indicatorType: e.target.value})} className="w-full border rounded p-2 focus:ring focus:ring-primary/20">
-                    <option value="percentage">Persentase (%)</option>
-                    <option value="number">Angka Nominal</option>
-                    <option value="boolean">Tercapai / Tidak</option>
-                    <option value="currency">Mata Uang</option>
+                    <option value="input">Input (Masukan)</option>
+                    <option value="process">Process (Proses)</option>
+                    <option value="output">Output (Keluaran)</option>
+                    <option value="outcome">Outcome (Dampak/Hasil)</option>
                   </select>
                 </div>
                 <div>
@@ -218,6 +228,15 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
           </div>
         </div>
       )}
+
+      {/* Komponen Notifikasi Modal yang Menggantikan Alert Biasa */}
+      <NotificationModal 
+        isOpen={notif.isOpen} 
+        onClose={() => setNotif({ ...notif, isOpen: false })} 
+        title={notif.title} 
+        message={notif.message} 
+        type={notif.type} 
+      />
     </div>
   );
 }

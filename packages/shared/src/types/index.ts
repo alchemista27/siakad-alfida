@@ -8,6 +8,7 @@ export type Role =
   | "observer"
   | "tim_ppdb"
   | "admin_bidang"
+  | "admin_biro"
   | "murobbi";
 
 export type UnitLevel = "tk" | "sd" | "smp" | "sma" | "pesantren" | "kantor_yayasan" | "non_pendidikan";

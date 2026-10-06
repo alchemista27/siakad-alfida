@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createEvidence, updateEvidence, deleteEvidence } from '@/actions/strategic';
+import { NotificationModal } from '@/components/ui/notification-modal';
+import { CloudinaryUpload } from '@/components/ui/cloudinary-upload';
 
 type User = { id: string; fullName: string; };
 type Program = { title: string; };
@@ -28,9 +30,15 @@ export default function EvidenceClient({ initialData, tasks, users }: { initialD
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
-  const initialForm = { taskId: tasks[0]?.id || '', name: '', digitalLink: '', type: 'document', ownerId: '', verificationStatus: 'unverified', verifierId: '' };
+  const initialForm = { taskId: '', name: '', digitalLink: '', type: 'document', ownerId: '', verificationStatus: 'unverified', verifierId: '' };
   const [formData, setFormData] = useState(initialForm);
   const [loading, setLoading] = useState(false);
+  const [notif, setNotif] = useState({ isOpen: false, title: '', message: '', type: 'info' as 'success' | 'error' | 'info' });
+
+  // Sinkronisasi data ke client state setiap router.refresh() ditarik
+  React.useEffect(() => {
+    setEvidences(initialData);
+  }, [initialData]);
 
   const handleOpenModal = (e?: Evidence) => {
     if (e) {
@@ -67,27 +75,28 @@ export default function EvidenceClient({ initialData, tasks, users }: { initialD
 
       if (editingId) {
         await updateEvidence(editingId, payload);
+        setNotif({ isOpen: true, title: 'Berhasil', message: 'Bukti kinerja berhasil diperbarui.', type: 'success' });
       } else {
         await createEvidence(payload);
+        setNotif({ isOpen: true, title: 'Berhasil', message: 'Bukti kinerja berhasil ditambahkan.', type: 'success' });
       }
       setIsModalOpen(false);
       router.refresh();
-      window.location.reload(); 
-    } catch (err) {
-      alert('Terjadi kesalahan saat menyimpan evidence');
+    } catch (err: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: err?.message || 'Terjadi kesalahan saat menyimpan data.', type: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Yakin ingin menghapus evidence ini?')) return;
+    if (!confirm('Yakin ingin menghapus dokumen ini?')) return;
     try {
       await deleteEvidence(id);
       router.refresh();
-      window.location.reload();
-    } catch (err) {
-      alert('Gagal menghapus evidence');
+      setNotif({ isOpen: true, title: 'Berhasil', message: 'Dokumen berhasil dihapus.', type: 'success' });
+    } catch (err: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: err?.message || 'Gagal menghapus dokumen', type: 'error' });
     }
   };
 
@@ -176,11 +185,20 @@ export default function EvidenceClient({ initialData, tasks, users }: { initialD
                   </select>
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">URL Berkas (MinIO / Cloud)</label>
-                  <input type="url" value={formData.digitalLink} onChange={e => setFormData({...formData, digitalLink: e.target.value})} className="w-full border rounded p-2 focus:ring focus:ring-primary/20" placeholder="https://..." />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Upload Dokumen/File (Cloudinary)</label>
+                  <CloudinaryUpload 
+                    onUploadSuccess={(url) => setFormData({...formData, digitalLink: url})} 
+                    buttonText={formData.digitalLink ? "Ganti Dokumen" : "Pilih Dokumen"} 
+                  />
+                  {formData.digitalLink && (
+                    <div className="mt-2 text-sm">
+                      Tautan tersimpan: <a href={formData.digitalLink} target="_blank" className="text-blue-600 underline truncate">{formData.digitalLink}</a>
+                    </div>
+                  )}
+                  <input type="hidden" value={formData.digitalLink} name="digitalLink" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tipe Berkas</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tipe Bukti</label>
                   <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full border rounded p-2 focus:ring focus:ring-primary/20">
                     <option value="document">Dokumen / PDF</option>
                     <option value="photo">Foto / Gambar</option>
@@ -223,6 +241,15 @@ export default function EvidenceClient({ initialData, tasks, users }: { initialD
           </div>
         </div>
       )}
+
+      {/* Komponen Notifikasi Modal yang Menggantikan Alert Biasa */}
+      <NotificationModal 
+        isOpen={notif.isOpen} 
+        onClose={() => setNotif({ ...notif, isOpen: false })} 
+        title={notif.title} 
+        message={notif.message} 
+        type={notif.type} 
+      />
     </div>
   );
 }

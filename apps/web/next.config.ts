@@ -32,6 +32,14 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path((?!auth/).*)',
+        destination: 'http://localhost:3001/:path*', // Forward ke NestJS API (kecuali /api/auth)
+      },
+    ];
+  },
   async headers() {
     return [
       {

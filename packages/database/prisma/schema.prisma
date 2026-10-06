@@ -34,6 +34,7 @@ enum UserRole {
   observer
   tim_ppdb
   admin_bidang
+  admin_biro
   murobbi
   supervisor_kesiswaan
   pengawas_yayasan

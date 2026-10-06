@@ -218,3 +218,15 @@ export async function updateExecutionMeetingDecision(token: string, decisionId: 
   if (!res.ok) throw new Error("Failed to update execution meeting decision");
   return res.json();
 }
+
+// --- Sub-Department (Biro) Actions ---
+export async function getMyBiros() {
+  return apiFetch("/strategic/departments/my-subdepartments", { method: "GET", cache: "no-store" });
+}
+
+export async function createSubDepartment(data: { name: string; description?: string; parentId: string; adminUserId?: string }) {
+  return apiFetch("/strategic/departments/subdepartment", { 
+    method: "POST", 
+    body: JSON.stringify(data) 
+  });
+}

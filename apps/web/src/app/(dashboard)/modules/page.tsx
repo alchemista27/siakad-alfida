@@ -84,10 +84,13 @@ export default async function ModulesPage() {
   const isMurobbi = roles.some((r: any) => r.role === "murobbi");
   const isPengawas = roles.some((r: any) => r.role === "pengawas_yayasan");
 
+  const isDepartmentAdmin = roles.some((r: any) => r.role === "admin_bidang");
+  const isBiroAdmin = roles.some((r: any) => r.role === "admin_biro");
+
   const ppdbHref = isSuperAdmin ? "/admin/units" : (isAdminUnit ? "/unit/dashboard" : "/parent/dashboard");
   const akademikHref = isSuperAdmin ? "/admin/academic" : (isGuru ? "/teacher/schedules" : "/parent/dashboard");
   const bpiHref = isSuperAdmin ? "/admin/bpi/liqo" : (isMurobbi ? "/murobbi/liqo" : "/staff/liqo");
-  const strategicHref = (isSuperAdmin || roles.some((r: any) => r.role === "admin_bidang")) ? "/admin/strategic" : "/execution/action-items";
+  const strategicHref = (isSuperAdmin || isDepartmentAdmin || isBiroAdmin) ? "/admin/strategic" : "/execution/action-items";
   const supervisorHref = "/supervisor";
   // Cek apakah user adalah admin kesekretariatan atau SDM
   const userDepts = user ? await prisma.departmentAdmin.findMany({ 
@@ -96,7 +99,6 @@ export default async function ModulesPage() {
   }) : [];
   const isKesekretariatan = userDepts.some((d: any) => d.department.name.toLowerCase().includes("kesekretariatan"));
   const isAdminKepegawaian = userDepts.some((d: any) => d.department.name.toLowerCase().includes("sdm") || d.department.name.toLowerCase().includes("kepegawaian"));
-  const isDepartmentAdmin = roles.some((r: any) => r.role === "admin_bidang");
   const isAdminPendidikan = userDepts.some((d: any) => d.department.name.toLowerCase().includes("pendidikan"));
   const isAdminBpi = userDepts.some((d: any) => d.department.name.toLowerCase().includes("bpi"));
 
