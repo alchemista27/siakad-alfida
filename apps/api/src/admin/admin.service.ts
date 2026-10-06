@@ -29,13 +29,20 @@ export class AdminService {
   }
 
   private mapRole(roleStr: string): UserRole {
-    const r = roleStr.toLowerCase();
+    const r = roleStr.toLowerCase().trim();
+    if (r.includes('orang_tua') || r.includes('orangtua') || r.includes('wali') || r.includes('ortu')) return UserRole.orang_tua;
+    if (r.includes('supervisor') || r.includes('kesiswaan')) return UserRole.supervisor_kesiswaan;
     if (r.includes('super')) return UserRole.super_admin;
-    if (r.includes('admin') || r.includes('tu') || r.includes('staf')) return UserRole.admin_unit;
-    if (r.includes('guru') || r.includes('pengajar')) return UserRole.guru;
-    if (r.includes('karyawan')) return UserRole.karyawan;
+    if (r.includes('biro')) return UserRole.admin_biro;
+    if (r.includes('nondik') || r.includes('non_pendidikan') || r.includes('non-pendidikan')) return UserRole.admin_unit_nondik;
+    if (r.includes('bidang')) return UserRole.admin_bidang;
+    if (r.includes('pengawas')) return UserRole.pengawas_yayasan;
+    if (r.includes('murobbi')) return UserRole.murobbi;
     if (r.includes('ppdb')) return UserRole.tim_ppdb;
+    if (r.includes('guru') || r.includes('pengajar') || r.includes('ustadz')) return UserRole.guru;
+    if (r.includes('karyawan') || r.includes('staff') || r.includes('staf')) return UserRole.karyawan;
     if (r.includes('observer')) return UserRole.observer;
+    if (r.includes('admin') || r.includes('tata usaha') || r.includes('tata_usaha') || r === 'tu') return UserRole.admin_unit;
     return UserRole.orang_tua;
   }
 

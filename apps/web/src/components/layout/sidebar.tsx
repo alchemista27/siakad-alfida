@@ -255,8 +255,8 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     if (group.title === "Layanan Pegawai" && !isTeacher && !isKaryawan) return false;
     if (group.title === "Observer" && !isObserver) return false;
     
-    // admin_bidang can access Perencanaan & Monitoring
-    if (group.title === "Perencanaan & Monitoring" && !userRoles.some((r: any) => r.role === "admin_bidang")) return false;
+    // admin_bidang and admin_biro can access Perencanaan & Monitoring
+    if (group.title === "Perencanaan & Monitoring" && !userRoles.some((r: any) => r.role === "admin_bidang" || r.role === "admin_biro")) return false;
     
     // Only superadmin and secretariat can access Layanan Kesekretariatan
     if (group.title === "Layanan Kesekretariatan" && !isKesekretariatan) return false;

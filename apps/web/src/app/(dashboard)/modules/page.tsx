@@ -188,7 +188,7 @@ export default async function ModulesPage() {
               />
             )}
             
-            {(isSuperAdmin || isDepartmentAdmin) && (
+            {(isSuperAdmin || isDepartmentAdmin || isBiroAdmin) && (
               <ModuleCard
                 title="Perencanaan & Monitoring"
                 subtitle="Monitoring program kerja, indikator kinerja (KPI), isu, dan meeting."

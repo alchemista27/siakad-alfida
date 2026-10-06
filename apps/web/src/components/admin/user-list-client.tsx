@@ -2,16 +2,12 @@
 
 import { useState } from "react";
 import { UserRole } from "@sim/database";
+import { ROLE_CATEGORY_GROUPS, ROLE_LABELS, Role } from "@sim/shared";
 import { updateUserRoles, deleteUser, resetUserPassword, updateUserStatus } from "@/actions/users";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-const ALL_ROLES = [
-  "super_admin", "admin_unit", "admin_unit_nondik", "guru", "karyawan", 
-  "orang_tua", "observer", "tim_ppdb", "admin_bidang", "pengawas_yayasan"
-];
 
 export function UserListClient({ users }: { users: any[] }) {
   const [editingUser, setEditingUser] = useState<any>(null);
@@ -124,12 +120,16 @@ export function UserListClient({ users }: { users: any[] }) {
                   </div>
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap">
-                  <div className="flex gap-1">
-                    {Array.from(new Set(user.roles?.map((r: any) => r.role) || [])).map((role: any, i: number) => (
-                      <span key={i} className="px-2 py-0.5 bg-secondary/10 text-secondary text-[10px] rounded border border-secondary/20">
-                        {role}
-                      </span>
-                    ))}
+                  <div className="flex flex-wrap gap-1 max-w-[260px]">
+                    {Array.from(new Set(user.roles?.map((r: any) => r.role) || [])).map((role: any, i: number) => {
+                      const roleKey = role as Role;
+                      const label = ROLE_LABELS[roleKey] || role.replace(/_/g, ' ');
+                      return (
+                        <span key={i} className="px-2 py-0.5 bg-secondary/10 text-secondary text-[10px] font-medium rounded border border-secondary/20">
+                          {label}
+                        </span>
+                      );
+                    })}
                     {(!user.roles || user.roles.length === 0) && <span className="opacity-50">Default (Orang Tua)</span>}
                   </div>
                 </td>
@@ -189,36 +189,46 @@ export function UserListClient({ users }: { users: any[] }) {
 
       {editingUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-surface rounded-md shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-surface rounded-md shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-border">
               <h3 className="text-lg font-bold text-primary font-heading">Edit Peran & Jabatan</h3>
               <p className="text-sm opacity-70 font-body">{editingUser.fullName} ({editingUser.email})</p>
             </div>
             
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-5 overflow-y-auto flex-1">
               <div>
                 <label className="block text-xs font-semibold text-primary mb-2 font-body tracking-wide">PERAN (AKSES SISTEM)</label>
-                <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-3 border border-border rounded bg-neutral/50">
-                  {ALL_ROLES.map(role => {
-                    const isSelected = selectedRoles.includes(role);
-                    return (
-                      <button
-                        key={role}
-                        type="button"
-                        onClick={() => {
-                          if (isSelected) setSelectedRoles(selectedRoles.filter(r => r !== role));
-                          else setSelectedRoles([...selectedRoles, role]);
-                        }}
-                        className={`px-3 py-1.5 text-xs font-medium rounded border transition-colors ${
-                          isSelected 
-                            ? 'bg-tertiary text-on-tertiary border-tertiary shadow-sm' 
-                            : 'bg-surface text-primary border-border hover:bg-neutral'
-                        }`}
-                      >
-                        {role.replace(/_/g, ' ')}
-                      </button>
-                    );
-                  })}
+                <div className="space-y-4 p-3 border border-border rounded bg-neutral/30">
+                  {ROLE_CATEGORY_GROUPS.map(group => (
+                    <div key={group.category} className="space-y-1.5">
+                      <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                        {group.category}
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {group.roles.map(({ role, label }) => {
+                          const isSelected = selectedRoles.includes(role);
+                          return (
+                            <button
+                              key={role}
+                              type="button"
+                              onClick={() => {
+                                if (isSelected) setSelectedRoles(selectedRoles.filter(r => r !== role));
+                                else setSelectedRoles([...selectedRoles, role]);
+                              }}
+                              className={`px-3 py-2 text-xs font-medium rounded border text-left flex items-center justify-between transition-colors ${
+                                isSelected 
+                                  ? 'bg-tertiary text-on-tertiary border-tertiary shadow-sm' 
+                                  : 'bg-surface text-primary border-border hover:bg-neutral'
+                              }`}
+                            >
+                              <span>{label}</span>
+                              {isSelected && <Icon name="check" className="text-xs" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
