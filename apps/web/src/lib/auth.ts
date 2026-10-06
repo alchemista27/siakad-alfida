@@ -4,11 +4,14 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export const auth = betterAuth({
-    baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "https://siakad.alfida.or.id",
+    baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "https://sim.alfida.or.id",
     trustedOrigins: [
+        "https://sim.alfida.or.id",
+        "http://sim.alfida.or.id",
         "https://siakad.alfida.or.id",
         "http://siakad.alfida.or.id",
         "http://localhost:3000",
+        "http://187.127.113.61:3000",
     ],
     database: prismaAdapter(prisma, {
         provider: "postgresql",
