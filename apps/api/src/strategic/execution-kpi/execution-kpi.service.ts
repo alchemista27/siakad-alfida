@@ -1,5 +1,5 @@
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateExecutionKPIDto, UpdateExecutionKPIDto } from '../dto/kpi.dto';
 
@@ -72,6 +72,71 @@ export class ExecutionKpiService {
 
   async remove(id: string) {
     return this.prisma.executionKPI.delete({ where: { id } });
+  }
+
+  async batchImport(items: any[], user: any) {
+    if (!items || items.length === 0) throw new BadRequestException("Data KPI kosong.");
+
+    const programs = await this.prisma.workProgram.findMany({ select: { id: true, title: true } });
+    const programMap = new Map(programs.map(p => [p.title.toLowerCase().trim(), p.id]));
+
+    const users = await this.prisma.user.findMany({ select: { id: true, email: true } });
+    const userEmailMap = new Map(users.map(u => [u.email.toLowerCase().trim(), u.id]));
+
+    let successCount = 0;
+    
+    // Type mapping helpers
+    const freqMap: Record<string, any> = { "mingguan": "weekly", "bulanan": "monthly", "kuartalan": "quarterly", "semester": "semester", "tahunan": "yearly" };
+    const dirMap: Record<string, any> = { "lebih tinggi lebih baik": "higher_is_better", "lebih rendah lebih baik": "lower_is_better", "tepat": "exact_match" };
+    const typeMap: Record<string, any> = { "input": "input", "proses": "process", "output": "output", "outcome": "outcome" };
+
+    for (const row of items) {
+      const programTitle = row.programTitle || row.program || row['Program Induk'];
+      if (!programTitle) continue;
+      
+      const programId = programMap.get(String(programTitle).toLowerCase().trim());
+      if (!programId) continue;
+
+      const name = row.name || row.indicator || row['Nama Indikator'] || row['Indikator KPI'];
+      if (!name) continue;
+
+      const picEmail = row.picEmail || row['Email Koordinator / PIC'] || row['Email PIC'];
+      let picId = null;
+      if (picEmail) {
+        picId = userEmailMap.get(String(picEmail).toLowerCase().trim()) || null;
+      }
+
+      const freqKey = String(row.updateFrequency || row['Frekuensi Update'] || 'Bulanan').toLowerCase().trim();
+      const dirKey = String(row.direction || row['Arah Target'] || 'Lebih Tinggi Lebih Baik').toLowerCase().trim();
+      const typeKey = String(row.indicatorType || row['Tipe Indikator'] || 'Output').toLowerCase().trim();
+
+      const updateFrequency = freqMap[freqKey] || 'monthly';
+      const direction = dirMap[dirKey] || 'higher_is_better';
+      const indicatorType = typeMap[typeKey] || 'output';
+
+      const target = parseFloat(row.target || row['Target Angka'] || 0) || 0;
+      const weight = parseFloat(row.weight || row['Bobot'] || 0) || 0;
+      const unit = String(row.unit || row['Satuan'] || '');
+
+      await this.prisma.executionKPI.create({
+        data: {
+          programId,
+          name,
+          indicatorType,
+          direction,
+          target,
+          unit,
+          weight,
+          updateFrequency,
+          picId,
+          baseline: 0
+        }
+      });
+      
+      successCount++;
+    }
+
+    return { success: true, count: successCount };
   }
 
   async exportExcelByDepartment(departmentId: string, res: Response) {

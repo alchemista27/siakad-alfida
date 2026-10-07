@@ -25,6 +25,11 @@ export class ExecutionKpiController {
   @Get(':id')
   findOne(@Param('id') id: string) { return this.service.findOne(id); }
 
+  @Post('batch-import')
+  batchImport(@Body() body: { kpis: any[] }, @Req() req: any) {
+    return this.service.batchImport(body.kpis, req.user);
+  }
+
   @Post()
   create(@Body(new ZodValidationPipe(CreateExecutionKPISchema)) dto: CreateExecutionKPIDto) {
     return this.service.create(dto);

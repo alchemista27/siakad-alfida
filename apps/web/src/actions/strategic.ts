@@ -59,6 +59,13 @@ export async function batchImportProgramsAction(programs: any[]) {
 }
 
 // KPIs
+export async function batchImportKpisAction(kpis: any[]) {
+  return apiFetch("/strategic/kpis/batch-import", { 
+    method: "POST", 
+    body: JSON.stringify({ kpis }) 
+  });
+}
+
 export async function getKPIs() {
   return apiFetch("/strategic/kpis", { method: "GET", cache: "no-store" });
 }
