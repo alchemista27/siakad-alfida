@@ -73,6 +73,7 @@ function ModuleCard({
 
 export default async function PengawasDepartmentsPage() {
   const departments = await prisma.department.findMany({
+    where: { parentId: null },
     orderBy: { name: "asc" }
   });
 

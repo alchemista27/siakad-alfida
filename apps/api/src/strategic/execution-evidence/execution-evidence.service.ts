@@ -20,8 +20,8 @@ export class ExecutionEvidenceService {
     });
   }
 
-  async create(data: any) {
-    return this.prisma.executionEvidence.create({ data });
+  async create(data: any, user: any) {
+    return this.prisma.executionEvidence.create({ data: { ...data, ownerId: user.id } });
   }
 
   async update(id: string, data: any) {

@@ -303,3 +303,12 @@
 - Menambahkan tautan *Download Laporan Excel* pada antarmuka *Dashboard* Pengawas Yayasan dan panel operasional Admin Bidang.
 - Menginjeksi entitas baru untuk *Pimpinan Yayasan* melalui seeder (`seed-pimpinan.ts`) yang diberikan *role* setara dengan *Pengawas Yayasan* agar Pimpinan dapat memonitor laporan metrik secara holistik. Menghapus hardcode credential pada skrip seeder untuk mencegah kebocoran informasi melalui git.
   **commit message:** feat: implement KPI excel export for supervisors, add pimpinan foundation seeder, and secure seed credentials
+
+- **Pemecahan Isu Pengujian Manual:**
+  1. *Laporan Excel KPI:* Merelokasi tautan unduhan `exceljs` dari tabel KPI ke _Card Section_ navigasi utama di Dasbor Admin Bidang, serta memberikan warna kontras (_emerald_) pada tautan templat _batch upload_ agar lebih mencolok.
+  2. *Operasi CRUD Biro:* Mengintegrasikan fungsionalitas **Edit** dan **Hapus** Biro dengan antarmuka modal interaktif dan merombak _Browser Alert_ konfirmasi penghapusan anggota menggunakan komponen `NotificationModal` standar `DESIGN.md`.
+  3. *Manajemen Risiko & Notulensi Asli:* Menyingkirkan *dummy data* (array statis) pada rute Eksekusi Isu dan Eksekusi Jadwal Rapat, lantas menghubungkan formulir Tambah Laporan dan antarmuka tabel ke _endpoint_ basis data Prisma yang asli (via *Server Actions* Next.js).
+  4. *Otomatisasi Kredensial Bukti:* Menghapus elemen input _dropdown_ Pengunggah (Owner). Backend NestJS dikalibrasi agar secara mutlak menempelkan ID _Owner_ dari pengguna yang menembak API berdasarkan Token JWT (`req.user`).
+  5. *Filter Laporan BPH:* Menyempurnakan _query_ Dasbor Pengawas Yayasan agar hanya memetakan departemen tingkat Induk (Klausa `where: { parentId: null }`) tanpa mengekspos rincian biro secara langsung.
+  6. *Edit Departemen:* Membekali Dasbor Super Admin dengan hak istimewa untuk mengedit nama dan deskripsi Departemen / Bidang di antarmuka web.
+  **commit message:** fix: address 7 manual test issues including UI refactors, real database endpoints for issues/meetings, biro CRUD operations, evidence ownership automation, and BPH dashboard filtering

@@ -2,11 +2,18 @@ import { Icon } from "@/components/ui/icon";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth-guard";
 import { UserRole } from "@sim/database";
+import { prisma } from "@/lib/prisma";
 
 export default async function StrategicDashboard() {
   const user = await requireRole([UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro, UserRole.pengawas_yayasan]);
   const isSuperAdmin = user.roles?.some((r) => r.role === UserRole.super_admin);
   const isAdminBiro = user.roles?.some((r) => r.role === UserRole.admin_biro);
+
+  let userDeptId = "";
+  if (!isSuperAdmin) {
+    const deptAdmin = await prisma.departmentAdmin.findFirst({ where: { userId: user.id } });
+    if (deptAdmin) userDeptId = deptAdmin.departmentId;
+  }
 
   const masterData = [];
 
@@ -106,6 +113,26 @@ export default async function StrategicDashboard() {
               </div>
             </Link>
           ))}
+        </div>
+      </div>
+
+      <div className="mt-10">
+        <h2 className="text-lg font-bold font-heading mb-4 text-primary flex items-center gap-2">
+          <Icon name="download" className="text-gray-400 text-lg" />
+          Pelaporan & Ekspor
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <a href={`http://187.127.113.61:3001/strategic/kpis/export/excel?departmentId=${userDeptId}`} target="_blank" rel="noopener noreferrer" className="group block p-5 bg-surface border border-border rounded-lg hover:border-green-600 transition-all duration-300">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                <Icon name="table_view" className="text-xl" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold font-heading text-primary group-hover:text-green-700 transition-colors">Laporan Excel KPI</h3>
+                <p className="mt-1 text-xs text-gray-500 leading-relaxed">Ekspor capaian indikator, sasaran, dan matriks ke format spreadsheet (XLSX).</p>
+              </div>
+            </div>
+          </a>
         </div>
       </div>
     </div>

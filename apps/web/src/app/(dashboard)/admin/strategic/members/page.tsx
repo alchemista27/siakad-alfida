@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Icon } from '@/components/ui/icon';
-import { getMyMembers, addDepartmentMember, removeDepartmentMember, getStrategicUsers, getDepartments, getMyBiros, createSubDepartment } from '@/actions/strategic';
+import { getMyMembers, addDepartmentMember, removeDepartmentMember, getStrategicUsers, getDepartments, getMyBiros, createSubDepartment, updateDepartment, deleteDepartment } from '@/actions/strategic';
 import { useAuth } from '@/components/providers/auth-provider';
 import { Modal } from '@/components/ui/modal';
 import { NotificationModal } from '@/components/ui/notification-modal';
@@ -31,6 +31,8 @@ export default function DepartmentMembersPage() {
   const [newBiro, setNewBiro] = useState({ name: '', description: '', parentId: '', adminUserId: '' });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [deleteModalState, setDeleteModalState] = useState({ isOpen: false, departmentId: '', userId: '', mode: 'member' as 'member'|'biro' });
 
   // Initial load
   useEffect(() => {
@@ -81,6 +83,9 @@ export default function DepartmentMembersPage() {
       setNotif({ isOpen: true, title: 'Gagal', message: 'Gagal memuat data pengguna', type: 'error' });
     }
   };
+
+  const [isEditBiroModalOpen, setIsEditBiroModalOpen] = useState(false);
+  const [editingBiroId, setEditingBiroId] = useState<string | null>(null);
 
   const handleOpenAddBiroModal = async () => {
     setIsAddBiroModalOpen(true);
@@ -140,15 +145,66 @@ export default function DepartmentMembersPage() {
     setIsSubmitting(false);
   };
 
-  const handleRemoveMember = async (departmentId: string, userId: string) => {
-    if (!confirm('Yakin ingin menghapus anggota ini?')) return;
+  const handleRemoveMember = async () => {
+    const { departmentId, userId } = deleteModalState;
+    if (!departmentId || !userId) return;
+    setIsSubmitting(true);
     try {
       await removeDepartmentMember(departmentId, userId);
       fetchData();
       setNotif({ isOpen: true, title: 'Sukses', message: 'Anggota berhasil dihapus', type: 'success' });
+      setDeleteModalState({ isOpen: false, departmentId: '', userId: '', mode: 'member' });
     } catch (e: any) {
       setNotif({ isOpen: true, title: 'Gagal', message: e?.message || 'Gagal menghapus anggota', type: 'error' });
     }
+    setIsSubmitting(false);
+  };
+
+  const handleOpenEditBiroModal = async (biro: any) => {
+    setIsEditBiroModalOpen(true);
+    setEditingBiroId(biro.id);
+    setNewBiro({
+      name: biro.name,
+      description: biro.description || '',
+      parentId: biro.parentId || '',
+      adminUserId: biro.admins?.[0]?.userId || ''
+    });
+    try {
+      if (users.length === 0) setUsers(await getStrategicUsers());
+      if (departments.length === 0) setDepartments(await getDepartments());
+    } catch (e) {}
+  };
+
+  const handleEditBiro = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingBiroId || !newBiro.name) return;
+    setIsSubmitting(true);
+    try {
+      await updateDepartment(editingBiroId, newBiro);
+      setIsEditBiroModalOpen(false);
+      setEditingBiroId(null);
+      setNewBiro({ name: '', description: '', parentId: '', adminUserId: '' });
+      fetchData();
+      setNotif({ isOpen: true, title: 'Sukses', message: 'Biro berhasil diperbarui', type: 'success' });
+    } catch (e: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: e?.message || 'Gagal memperbarui biro', type: 'error' });
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleRemoveBiro = async () => {
+    const { departmentId } = deleteModalState;
+    if (!departmentId) return;
+    setIsSubmitting(true);
+    try {
+      await deleteDepartment(departmentId);
+      fetchData();
+      setNotif({ isOpen: true, title: 'Sukses', message: 'Biro berhasil dihapus', type: 'success' });
+      setDeleteModalState({ isOpen: false, departmentId: '', userId: '', mode: 'member' });
+    } catch (e: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: e?.message || 'Gagal menghapus biro', type: 'error' });
+    }
+    setIsSubmitting(false);
   };
 
   return (
@@ -209,7 +265,7 @@ export default function DepartmentMembersPage() {
                         {m.role ? <span className="inline-block px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs">{m.role}</span> : '-'}
                       </td>
                       <td className="p-3 text-right">
-                        <button onClick={() => handleRemoveMember(m.departmentId, m.userId)} className="text-red-500 hover:text-red-700 transition-colors" title="Hapus dari bidang">
+                        <button onClick={() => setDeleteModalState({ isOpen: true, departmentId: m.departmentId, userId: m.userId, mode: 'member' })} className="text-red-500 hover:text-red-700 transition-colors" title="Hapus dari bidang">
                           <Icon name="delete" />
                         </button>
                       </td>
@@ -238,6 +294,7 @@ export default function DepartmentMembersPage() {
                     <th className="p-3 text-sm font-semibold text-gray-700">Nama Biro</th>
                     <th className="p-3 text-sm font-semibold text-gray-700">Deskripsi</th>
                     <th className="p-3 text-sm font-semibold text-gray-700">PIC / Admin Biro</th>
+                    <th className="p-3 text-sm font-semibold text-gray-700 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -252,11 +309,21 @@ export default function DepartmentMembersPage() {
                           <span className="text-gray-400 italic">Belum ada PIC</span>
                         )}
                       </td>
+                      <td className="p-3 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => handleOpenEditBiroModal(b)} className="text-blue-600 hover:text-blue-800 transition-colors" title="Edit Biro">
+                            <Icon name="edit" className="text-[18px]" />
+                          </button>
+                          <button onClick={() => setDeleteModalState({ isOpen: true, departmentId: b.id, userId: 'biro', mode: 'biro' })} className="text-red-500 hover:text-red-700 transition-colors" title="Hapus Biro">
+                            <Icon name="delete" className="text-[18px]" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                   {biros.length === 0 && (
                     <tr>
-                      <td colSpan={3} className="p-8 text-center text-gray-500 text-sm italic">Belum ada biro di bawah bidang ini.</td>
+                      <td colSpan={4} className="p-8 text-center text-gray-500 text-sm italic">Belum ada biro di bawah bidang ini.</td>
                     </tr>
                   )}
                 </tbody>
@@ -343,6 +410,23 @@ export default function DepartmentMembersPage() {
         </form>
       </Modal>
 
+      <Modal isOpen={isEditBiroModalOpen} onClose={() => setIsEditBiroModalOpen(false)} title="Edit Biro">
+        <form onSubmit={handleEditBiro} className="p-5 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nama Biro</label>
+            <input type="text" className="w-full p-2 border border-border rounded focus:ring-1 focus:ring-tertiary" value={newBiro.name} onChange={e => setNewBiro({...newBiro, name: e.target.value})} required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi (Opsional)</label>
+            <textarea className="w-full p-2 border border-border rounded focus:ring-1 focus:ring-tertiary" value={newBiro.description} onChange={e => setNewBiro({...newBiro, description: e.target.value})} />
+          </div>
+          <div className="pt-4 flex justify-end gap-2">
+            <Button type="button" variant="secondary" onClick={() => setIsEditBiroModalOpen(false)}>Batal</Button>
+            <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'}</Button>
+          </div>
+        </form>
+      </Modal>
+
       <NotificationModal 
         isOpen={notif.isOpen} 
         onClose={() => setNotif({ ...notif, isOpen: false })} 
@@ -350,6 +434,29 @@ export default function DepartmentMembersPage() {
         message={notif.message} 
         type={notif.type} 
       />
+
+      <Modal isOpen={deleteModalState.isOpen} onClose={() => setDeleteModalState({ ...deleteModalState, isOpen: false })} title={deleteModalState.mode === 'member' ? "Konfirmasi Hapus Anggota" : "Konfirmasi Hapus Biro"}>
+        <div className="p-6">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+              <Icon name="warning" className="text-2xl" />
+            </div>
+            <p className="text-sm text-gray-600">
+              {deleteModalState.mode === 'member' 
+                ? "Apakah Anda yakin ingin menghapus anggota ini dari bidang? Semua akses khusus staf ini pada bidang akan ditarik." 
+                : "Apakah Anda yakin ingin menghapus biro ini? Tindakan ini tidak dapat dibatalkan dan semua data di dalamnya mungkin akan hilang."}
+            </p>
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button type="button" variant="secondary" onClick={() => setDeleteModalState({ ...deleteModalState, isOpen: false })}>
+              Batal
+            </Button>
+            <Button type="button" variant="danger" disabled={isSubmitting} onClick={deleteModalState.mode === 'member' ? handleRemoveMember : handleRemoveBiro}>
+              {isSubmitting ? 'Menghapus...' : 'Ya, Hapus'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

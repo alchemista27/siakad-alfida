@@ -4,20 +4,37 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
+import { createExecutionMeeting } from "@/actions/strategic";
+import { useRouter } from "next/navigation";
+import { NotificationModal } from "@/components/ui/notification-modal";
 
 export default function MeetingsClient({ meetings, users }: any) {
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ title: '', meetingDate: '', agenda: '', attendees: [] as string[] });
   const [loading, setLoading] = useState(false);
+  const [notif, setNotif] = useState({ isOpen: false, title: '', message: '', type: 'info' as 'success' | 'error' | 'info' });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: Connect to actions/strategic createExecutionMeeting
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await createExecutionMeeting({
+        title: formData.title,
+        meetingDate: formData.meetingDate ? new Date(formData.meetingDate).toISOString() : new Date().toISOString(),
+        agenda: formData.agenda,
+        attendees: formData.attendees,
+        programId: '00000000-0000-0000-0000-000000000000' // requires a valid programId based on schema, needs refactoring to dropdown
+      }, 'dummy-token-unused');
       setIsModalOpen(false);
-    }, 500);
+      setFormData({ title: '', meetingDate: '', agenda: '', attendees: [] });
+      router.refresh();
+      setNotif({ isOpen: true, title: 'Sukses', message: 'Jadwal meeting berhasil ditambahkan.', type: 'success' });
+    } catch (error: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: error.message || 'Gagal menambahkan meeting.', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className="space-y-6">
@@ -112,6 +129,13 @@ export default function MeetingsClient({ meetings, users }: any) {
           </div>
         </div>
       )}
+      <NotificationModal 
+        isOpen={notif.isOpen} 
+        onClose={() => setNotif({ ...notif, isOpen: false })} 
+        title={notif.title} 
+        message={notif.message} 
+        type={notif.type} 
+      />
     </div>
   );
 }

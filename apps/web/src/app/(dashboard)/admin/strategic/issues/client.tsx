@@ -4,20 +4,31 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
+import { createExecutionIssue } from "@/actions/strategic";
+import { useRouter } from "next/navigation";
+import { NotificationModal } from "@/components/ui/notification-modal";
 
 export default function IssuesClient({ issues, tasks, users }: any) {
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ title: '', description: '', severity: 'Medium', deadline: '', assignedToId: '' });
+  const [formData, setFormData] = useState({ title: '', description: '', severity: 'medium', deadline: '', assignedToId: '' });
   const [loading, setLoading] = useState(false);
+  const [notif, setNotif] = useState({ isOpen: false, title: '', message: '', type: 'info' as 'success' | 'error' | 'info' });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: Connect to actions/strategic createExecutionIssue
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await createExecutionIssue(formData, 'dummy-token-unused-anymore');
       setIsModalOpen(false);
-    }, 500);
+      setFormData({ title: '', description: '', severity: 'medium', deadline: '', assignedToId: '' });
+      router.refresh();
+      setNotif({ isOpen: true, title: 'Sukses', message: 'Laporan kendala berhasil ditambahkan.', type: 'success' });
+    } catch (error: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: error.message || 'Gagal menambahkan laporan.', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className="space-y-6">
@@ -100,6 +111,13 @@ export default function IssuesClient({ issues, tasks, users }: any) {
           </div>
         </div>
       )}
+      <NotificationModal 
+        isOpen={notif.isOpen} 
+        onClose={() => setNotif({ ...notif, isOpen: false })} 
+        title={notif.title} 
+        message={notif.message} 
+        type={notif.type} 
+      />
     </div>
   );
 }

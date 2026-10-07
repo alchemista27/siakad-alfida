@@ -68,7 +68,6 @@ export default function EvidenceClient({ initialData, tasks, users }: { initialD
         name: formData.name,
         digitalLink: formData.digitalLink || null,
         type: formData.type,
-        ownerId: formData.ownerId || null,
         verificationStatus: formData.verificationStatus,
         verifierId: formData.verificationStatus !== 'unverified' ? (formData.verifierId || null) : null
       };
@@ -206,7 +205,7 @@ export default function EvidenceClient({ initialData, tasks, users }: { initialD
                     <option value="link">Tautan / Link</option>
                   </select>
                 </div>
-                <div>
+                <div className="hidden">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Pengunggah (Owner)</label>
                   <select value={formData.ownerId} onChange={e => setFormData({...formData, ownerId: e.target.value})} className="w-full border rounded p-2 focus:ring focus:ring-primary/20">
                     <option value="">Pilih Staf</option>

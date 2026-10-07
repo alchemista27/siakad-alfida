@@ -21,6 +21,33 @@ export default function DepartmentsClient({ initialData, users }: { initialData:
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: '', description: '', leaderId: '' });
   const [loading, setLoading] = useState(false);
+  const [notif, setNotif] = useState({ isOpen: false, title: '', message: '', type: 'info' as 'success' | 'error' | 'info' });
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingDeptId, setEditingDeptId] = useState<string | null>(null);
+
+  const handleEditOpen = (dep: Department) => {
+    setEditingDeptId(dep.id);
+    setFormData({ name: dep.name, description: dep.description || '', leaderId: dep.leaderId || '' });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingDeptId) return;
+    setLoading(true);
+    try {
+      await updateDepartment(editingDeptId, formData);
+      setIsEditModalOpen(false);
+      setEditingDeptId(null);
+      setFormData({ name: '', description: '', leaderId: '' });
+      router.refresh();
+      setNotif({ isOpen: true, title: 'Sukses', message: 'Bidang berhasil diperbarui', type: 'success' });
+    } catch (e: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: e?.message || 'Gagal memperbarui bidang', type: 'error' });
+    }
+    setLoading(false);
+  };
 
   const handleOpenModal = (dep: Department) => {
     setEditingId(dep.id);
@@ -79,8 +106,9 @@ export default function DepartmentsClient({ initialData, users }: { initialData:
                       <span className="text-gray-400 italic">Belum di-assign</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-right flex gap-3 justify-end">
                     <button onClick={() => handleOpenModal(dep)} className="text-blue-600 hover:underline font-medium">Assign PIC</button>
+                    <button onClick={() => handleEditOpen(dep)} className="text-emerald-600 hover:underline font-medium">Edit Bidang</button>
                   </td>
                 </tr>
               ))
@@ -123,6 +151,32 @@ export default function DepartmentsClient({ initialData, users }: { initialData:
           </div>
         </div>
       )}
+      <NotificationModal 
+        isOpen={notif.isOpen} 
+        onClose={() => setNotif({ ...notif, isOpen: false })} 
+        title={notif.title} 
+        message={notif.message} 
+        type={notif.type} 
+      />
+
+      <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Edit Nama Bidang">
+        <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nama Bidang</label>
+            <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full border rounded p-2" required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+            <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full border rounded p-2" />
+          </div>
+          <div className="pt-4 flex justify-end gap-2">
+            <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 border rounded-sm text-primary hover:bg-neutral">Batal</button>
+            <button type="submit" disabled={loading} className="bg-tertiary text-white px-4 py-2 rounded-sm shadow hover:bg-tertiary/90">
+              {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Req } from '@nestjs/common';
 import { ExecutionEvidenceService } from './execution-evidence.service';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { CreateExecutionEvidenceSchema, UpdateExecutionEvidenceSchema, CreateExecutionEvidenceDto, UpdateExecutionEvidenceDto } from '../dto/evidence.dto';
@@ -17,8 +17,8 @@ export class ExecutionEvidenceController {
   findOne(@Param('id') id: string) { return this.service.findOne(id); }
 
   @Post()
-  create(@Body(new ZodValidationPipe(CreateExecutionEvidenceSchema)) dto: CreateExecutionEvidenceDto) {
-    return this.service.create(dto);
+  create(@Body(new ZodValidationPipe(CreateExecutionEvidenceSchema)) dto: CreateExecutionEvidenceDto, @Req() req: any) {
+    return this.service.create(dto, req.user);
   }
 
   @Put(':id')

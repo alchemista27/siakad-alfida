@@ -7,6 +7,7 @@ import { useAuth } from '@/components/providers/auth-provider';
 import { Icon } from '@/components/ui/icon';
 
 import { NotificationModal } from '@/components/ui/notification-modal';
+import { KpiUploadModal } from '@/components/strategic/kpi-upload-modal';
 
 type User = { id: string; fullName: string; email: string };
 type Program = { id: string; title: string; };
@@ -39,6 +40,7 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
   const [formData, setFormData] = useState(initialForm);
   const [loading, setLoading] = useState(false);
   const [notif, setNotif] = useState({ isOpen: false, title: '', message: '', type: 'info' as 'success' | 'error' | 'info' });
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   // Sinkronisasi data dari server ke client state setiap kali props initialData berubah (akibat router.refresh())
   useEffect(() => {
@@ -116,19 +118,19 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold text-gray-800">Daftar KPI</h2>
         <div className="flex gap-3">
-          <a
-            href="http://187.127.113.61:3001/strategic/kpis/export/excel"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded shadow-sm hover:bg-green-700 transition-colors"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Icon name="download" />
-            <span>Export Excel</span>
-          </a>
           {canManageKPI && (
-            <button onClick={() => handleOpenModal()} className="bg-tertiary text-on-tertiary hover:bg-tertiary/90 px-4 py-2 rounded text-sm font-semibold transition-colors">
-              Tambah KPI
-            </button>
+            <>
+              <button 
+                onClick={() => setIsUploadModalOpen(true)} 
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 text-sm font-semibold rounded shadow-sm border border-gray-300 hover:bg-gray-50 transition-colors"
+              >
+                <Icon name="upload_file" className="text-sm" />
+                <span>Upload Excel</span>
+              </button>
+              <button onClick={() => handleOpenModal()} className="bg-tertiary text-on-tertiary hover:bg-tertiary/90 px-4 py-2 rounded text-sm font-semibold transition-colors">
+                Tambah KPI
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -176,6 +178,13 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
           </tbody>
         </table>
       </div>
+
+      <KpiUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onSuccess={() => router.refresh()}
+        programs={programs}
+      />
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
