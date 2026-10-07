@@ -19,7 +19,7 @@ export default function IssuesClient({ issues, tasks, users }: any) {
     e.preventDefault();
     setLoading(true);
     try {
-      await createExecutionIssue(formData, 'dummy-token-unused-anymore');
+      await createExecutionIssue('dummy-token-unused-anymore', formData);
       setIsModalOpen(false);
       setFormData({ title: '', description: '', severity: 'medium', deadline: '', assignedToId: '' });
       router.refresh();
