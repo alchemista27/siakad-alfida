@@ -91,7 +91,12 @@ export async function verifyKPIBaseline(id: string, status: string, notes?: stri
 
 // Users for PIC dropdown
 export async function getStrategicUsers() {
-  return apiFetch("/admin/users", { method: "GET", cache: "no-store" });
+  try {
+    return await apiFetch("/admin/users", { method: "GET", cache: "no-store" });
+  } catch (error) {
+    console.error("Failed to fetch strategic users:", error);
+    return [];
+  }
 }
 
 // Milestones
