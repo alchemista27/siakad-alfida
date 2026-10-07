@@ -19,13 +19,13 @@ export default function MeetingsClient({ meetings, users }: any) {
     e.preventDefault();
     setLoading(true);
     try {
-      await createExecutionMeeting({
+      await createExecutionMeeting('dummy-token-unused', {
         title: formData.title,
         meetingDate: formData.meetingDate ? new Date(formData.meetingDate).toISOString() : new Date().toISOString(),
         agenda: formData.agenda,
         attendees: formData.attendees,
         programId: '00000000-0000-0000-0000-000000000000' // requires a valid programId based on schema, needs refactoring to dropdown
-      }, 'dummy-token-unused');
+      });
       setIsModalOpen(false);
       setFormData({ title: '', meetingDate: '', agenda: '', attendees: [] });
       router.refresh();

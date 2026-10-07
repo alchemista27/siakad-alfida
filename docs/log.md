@@ -317,3 +317,12 @@
   1. *Resolusi Type Mismatch:* Menangani isu kompilasi kritis pada `issues/client.tsx` di mana argumen _Payload_ obyek secara keliru dimasukkan ke dalam deklarasi token string. Pembenahan parameter pemanggilan *Server Action* membebaskan monorepo dari `Exit Code 1` di lingkungan _Next.js Production Build_.
   2. *Useless Assignment Linting:* Mengeliminasi deklarasi statis (*dead code assignment*) `percent = 0` pada *KPI Dashboard Service*, menggantinya menjadi penugasan tipe tegas (`let percent: number`) demi memenuhi aturan ketat _ESLint_ 9 tanpa intervensi peringatan kompilator.
   **commit message:** chore: update log documentation for recent deployment fixes and lint resolutions
+
+---
+
+**tanggal:** 07 Oktober 2026
+**progress:**
+
+- Mengatasi kegagalan _build_ (Exit Code 1) saat _deployment_ di Coolify akibat galat _Type error_ pada komponen `meetings/client.tsx`.
+- Memperbaiki urutan argumen pada pemanggilan fungsi `createExecutionMeeting`, di mana _token_ JWT seharusnya dikirimkan sebagai argumen pertama sebelum _payload_ data. Perbaikan ini memungkinkan aplikasi melewati fase kompilasi TypeScript dengan sukses.
+  **commit message:** fix: resolve argument order in createExecutionMeeting to fix production build failure
