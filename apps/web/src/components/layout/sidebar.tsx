@@ -200,9 +200,9 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const isTeacher = userRoles.some((r: any) => r.role === "guru");
   const isKaryawan = userRoles.some((r: any) => r.role === "karyawan");
   const isKesekretariatan = user?.email?.toLowerCase().includes("sekretariat") || false;
-  const isSarpras = user?.email?.toLowerCase().includes("sarpras") || user?.email?.toLowerCase().includes("sarana") || userRoles.some((r: any) => r.role === "admin_biro");
+  const isSarpras = user?.email?.toLowerCase().includes("sarpras") || user?.email?.toLowerCase().includes("sarana");
   const isAdminKepegawaian = userRoles.some((r: any) => r.role === "admin_bidang") && (user?.email?.toLowerCase().includes("sdm") || user?.email?.toLowerCase().includes("hr") || user?.email?.toLowerCase().includes("kepegawaian"));
-  const isAdminBpi = (userRoles.some((r: any) => r.role === "admin_bidang") || userRoles.some((r: any) => r.role === "admin_biro")) && (user?.email?.toLowerCase().includes("bpi") || user?.email?.toLowerCase().includes("bina") || true);
+  const isAdminBpi = (userRoles.some((r: any) => r.role === "admin_bidang") || userRoles.some((r: any) => r.role === "admin_biro")) && (user?.email?.toLowerCase().includes("bpi") || user?.email?.toLowerCase().includes("bina"));
   const isMurobbi = userRoles.some((r: any) => r.role === "murobbi");
   const isParent = userRoles.some((r: any) => r.role === "orang_tua");
   const isAdminPendidikan = userRoles.some((r: any) => r.role === "admin_bidang") && user?.email?.toLowerCase().includes("pendidikan");

@@ -6,12 +6,13 @@ import { UserRole } from "@sim/database";
 export default async function StrategicDashboard() {
   const user = await requireRole([UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro, UserRole.pengawas_yayasan]);
   const isSuperAdmin = user.roles?.some((r) => r.role === UserRole.super_admin);
+  const isAdminBiro = user.roles?.some((r) => r.role === UserRole.admin_biro);
 
   const masterData = [];
 
   if (isSuperAdmin) {
     masterData.push({ title: "Struktur Bidang & PIC", desc: "Kelola hierarki organisasi yayasan, biro, dan unit.", href: "/admin/strategic/departments", icon: "account_tree" });
-  } else {
+  } else if (!isAdminBiro) {
     masterData.push({ title: "Anggota Bidang", desc: "Kelola daftar staf/guru yang tergabung di bidang Anda.", href: "/admin/strategic/members", icon: "group_add" });
   }
 

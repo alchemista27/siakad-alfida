@@ -1,3 +1,13 @@
+**tanggal:** 07 Oktober 2026
+**progress:**
+
+- Memperbaiki bug _Role-Based Access Control_ (RBAC) pada menu Perencanaan & Monitoring (Strategic). Menambahkan role `admin_biro` pada otorisasi endpoint `GET /admin/users` di NestJS agar fitur pemilihan PIC tidak mengembalikan `403 Forbidden`.
+- Merapikan logika visibilitas _sidebar_ Next.js untuk mencegah role `admin_biro` mendapatkan akses *bypass* ke menu Inventaris dan Bina Pribadi Islami (BPI) dengan menghapus pengecekan kondisi *hardcoded* (`|| true`).
+- Menyembunyikan _card_ master data "Anggota Bidang" di halaman Dasbor Strategis apabila login menggunakan role admin biro.
+  **commit message:** fix(rbac): resolve strategic dashboard permissions for admin biro
+
+---
+
 **tanggal:** 30 Agustus 2026
 **progress:**
 
