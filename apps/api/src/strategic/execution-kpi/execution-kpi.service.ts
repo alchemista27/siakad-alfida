@@ -179,7 +179,7 @@ export class ExecutionKpiService {
 
     kpis.forEach((kpi, index) => {
       // Kalkulasi capaian (percent) untuk mewarnai Status KPI
-      let percent = 0;
+      let percent: number;
       if (kpi.direction === 'higher_is_better') {
         percent = kpi.target > 0 ? (kpi.realization / kpi.target) * 100 : 0;
       } else if (kpi.direction === 'lower_is_better') {
