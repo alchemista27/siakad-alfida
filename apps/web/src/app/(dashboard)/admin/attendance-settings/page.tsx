@@ -31,10 +31,10 @@ export default async function AttendanceSettingsPage() {
     });
   }
   
-  const gpsConfigs = await getGpsConfigs();
+  const gpsConfigs = await getGpsConfigs().catch(() => []);
   
   const now = new Date();
-  const holidays = await getHolidays(now.getMonth() + 1, now.getFullYear());
+  const holidays = await getHolidays(now.getMonth() + 1, now.getFullYear()).catch(() => []);
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">

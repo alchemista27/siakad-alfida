@@ -3,7 +3,7 @@ import { getStaffDemographics } from '@/actions/hr-dashboard';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function HRDashboardPage() {
-  const data = await getStaffDemographics();
+  const data = await getStaffDemographics().catch(() => ({ totalUsers: 0, rolesCount: [], formattedUnitBreakdown: [] }));
 
   return (
     <div className="space-y-6">

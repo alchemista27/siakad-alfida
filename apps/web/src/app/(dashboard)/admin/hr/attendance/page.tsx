@@ -7,7 +7,7 @@ export default async function AttendanceRecapPage() {
   const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
   const endDate = now;
 
-  const recapData = await getAttendanceRecap(startDate, endDate);
+  const recapData = await getAttendanceRecap(startDate, endDate).catch(() => []);
 
   return (
     <div className="space-y-6">

@@ -19,7 +19,7 @@ export default async function AdminStaffPage() {
     .filter((r: any) => (r.role === "admin_unit" || r.role === "admin_unit_nondik") && r.unitId)
     .map((r: any) => r.unitId as string);
 
-  const allStaff = await getStaffAssignments();
+  const allStaff = await getStaffAssignments().catch(() => []);
   
   let visibleStaff = allStaff;
   let units;

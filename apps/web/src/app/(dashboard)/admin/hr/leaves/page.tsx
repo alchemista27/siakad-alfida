@@ -2,6 +2,6 @@ import { getAllLeaveRequests } from "@/actions/leave-approval";
 import { ApprovalClient } from "./approval-client";
 
 export default async function LeavesApprovalPage() {
-  const leaves = await getAllLeaveRequests();
+  const leaves = await getAllLeaveRequests().catch(() => []);
   return <ApprovalClient initialLeaves={leaves} />;
 }

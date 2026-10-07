@@ -2,7 +2,7 @@ import { getMyLiqoGroup } from "@/actions/mutarobbi";
 import { StaffLiqoClient } from "./staff-liqo-client";
 
 export default async function StaffLiqoPage() {
-  const group = await getMyLiqoGroup();
+  const group = await getMyLiqoGroup().catch(() => null);
 
   if (!group) {
     return (

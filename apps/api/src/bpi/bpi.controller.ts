@@ -69,15 +69,15 @@ export class BpiController {
 
   // Mutarobbi routes
   @Get('mutarobbi/group')
-  @Roles(UserRole.guru, UserRole.karyawan)
+  @Roles(UserRole.guru, UserRole.karyawan, UserRole.murobbi, UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro, UserRole.admin_unit, UserRole.admin_unit_nondik)
   async getMyLiqoGroup(@Req() req: any) { return this.bpiService.getMyLiqoGroup(req.user.id); }
 
   @Post('mutarobbi/mutabaah')
-  @Roles(UserRole.guru, UserRole.karyawan)
+  @Roles(UserRole.guru, UserRole.karyawan, UserRole.murobbi, UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro, UserRole.admin_unit, UserRole.admin_unit_nondik)
   async saveMutabaahRecord(@Body() body: any, @Req() req: any) { return this.bpiService.saveMutabaahRecord(req.user.id, body); }
 
   @Get('mutarobbi/mutabaah')
-  @Roles(UserRole.guru, UserRole.karyawan)
+  @Roles(UserRole.guru, UserRole.karyawan, UserRole.murobbi, UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro, UserRole.admin_unit, UserRole.admin_unit_nondik)
   async getMyMutabaah(@Query('start') start: string, @Query('end') end: string, @Req() req: any) { return this.bpiService.getMyMutabaah(req.user.id, start, end); }
 
   // Reports
