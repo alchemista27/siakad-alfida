@@ -312,3 +312,8 @@
   5. *Filter Laporan BPH:* Menyempurnakan _query_ Dasbor Pengawas Yayasan agar hanya memetakan departemen tingkat Induk (Klausa `where: { parentId: null }`) tanpa mengekspos rincian biro secara langsung.
   6. *Edit Departemen:* Membekali Dasbor Super Admin dengan hak istimewa untuk mengedit nama dan deskripsi Departemen / Bidang di antarmuka web.
   **commit message:** fix: address 7 manual test issues including UI refactors, real database endpoints for issues/meetings, biro CRUD operations, evidence ownership automation, and BPH dashboard filtering
+
+- **Pemecahan Isu Linting & Integrasi:**
+  1. *Resolusi Type Mismatch:* Menangani isu kompilasi kritis pada `issues/client.tsx` di mana argumen _Payload_ obyek secara keliru dimasukkan ke dalam deklarasi token string. Pembenahan parameter pemanggilan *Server Action* membebaskan monorepo dari `Exit Code 1` di lingkungan _Next.js Production Build_.
+  2. *Useless Assignment Linting:* Mengeliminasi deklarasi statis (*dead code assignment*) `percent = 0` pada *KPI Dashboard Service*, menggantinya menjadi penugasan tipe tegas (`let percent: number`) demi memenuhi aturan ketat _ESLint_ 9 tanpa intervensi peringatan kompilator.
+  **commit message:** chore: update log documentation for recent deployment fixes and lint resolutions
