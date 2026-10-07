@@ -11,39 +11,39 @@ export class BpiController {
   constructor(private readonly bpiService: BpiService) {}
 
   @Get('groups')
-  @Roles(UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async getLiqoGroups() { return this.bpiService.getLiqoGroups(); }
 
   @Post('groups')
-  @Roles(UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async upsertLiqoGroup(@Body() body: any) { return this.bpiService.upsertLiqoGroup(body); }
 
   @Get('groups/:id/members')
-  @Roles(UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async getLiqoMembers(@Param('id') id: string) { return this.bpiService.getLiqoMembers(id); }
 
   @Post('groups/members')
-  @Roles(UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async addLiqoMember(@Body() body: any) { return this.bpiService.addLiqoMember(body); }
 
   @Delete('groups/:groupId/members/:userId')
-  @Roles(UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async removeLiqoMember(@Param('groupId') groupId: string, @Param('userId') userId: string) { return this.bpiService.removeLiqoMember(groupId, userId); }
 
   @Get('potential-murobbis')
-  @Roles(UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async getPotentialMurobbis() { return this.bpiService.getPotentialMurobbis(); }
 
   @Get('potential-mutarobbis')
-  @Roles(UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async getPotentialMutarobbis() { return this.bpiService.getPotentialMutarobbis(); }
 
   @Get('attendance-stats')
-  @Roles(UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async getLiqoAttendanceStats() { return this.bpiService.getLiqoAttendanceStats(); }
 
   @Get('mutabaah-stats')
-  @Roles(UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async getGlobalMutabaahStats(@Query('start') start: string, @Query('end') end: string) { return this.bpiService.getGlobalMutabaahStats(start, end); }
 
   // Murobbi routes
@@ -52,7 +52,7 @@ export class BpiController {
   async getMyMurobbiGroups(@Req() req: any) { return this.bpiService.getMyMurobbiGroups(req.user.id); }
 
   @Put('groups/:groupId')
-  @Roles(UserRole.murobbi, UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.murobbi, UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async updateGroupSchedule(@Param('groupId') groupId: string, @Body() body: any) { return this.bpiService.updateGroupSchedule(groupId, body); }
 
   @Post('murobbi/groups/:groupId/meetings')
@@ -82,14 +82,14 @@ export class BpiController {
 
   // Reports
   @Get('reports')
-  @Roles(UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async getActivityReports(@Query('dept') dept: string, @Query('type') type: ReportType, @Req() req: any) { return this.bpiService.getActivityReports(req.user, dept, type); }
 
   @Post('reports')
-  @Roles(UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async createActivityReport(@Body() body: any, @Req() req: any) { return this.bpiService.createActivityReport(req.user.id, body); }
 
   @Delete('reports/:id')
-  @Roles(UserRole.super_admin, UserRole.admin_bidang)
+  @Roles(UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro)
   async deleteActivityReport(@Param('id') id: string) { return this.bpiService.deleteActivityReport(id); }
 }

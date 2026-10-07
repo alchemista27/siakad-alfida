@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createKPI, updateKPI, deleteKPI } from '@/actions/strategic';
+import { useAuth } from '@/components/providers/auth-provider';
 
 import { NotificationModal } from '@/components/ui/notification-modal';
 
@@ -24,6 +25,11 @@ type KPI = {
 
 export default function KPIsClient({ initialData, programs, users, isPengawas }: { initialData: KPI[], programs: Program[], users: User[], isPengawas?: boolean }) {
   const router = useRouter();
+  const { user: currentUser } = useAuth();
+  const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === 'super_admin');
+  const isDepartmentAdmin = currentUser?.roles?.some((r: any) => r.role === 'admin_bidang');
+  const canManageKPI = (isSuperAdmin || isDepartmentAdmin) && !isPengawas;
+
   const [kpis, setKpis] = useState<KPI[]>(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -108,7 +114,7 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
     <div className="bg-surface rounded-lg border border-hairline p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold text-gray-800">Daftar KPI</h2>
-        {!isPengawas && (
+        {canManageKPI && (
           <button onClick={() => handleOpenModal()} className="bg-tertiary text-on-tertiary hover:bg-tertiary/90 px-4 py-2 rounded text-sm font-semibold transition-colors">
             Tambah KPI
           </button>
@@ -123,13 +129,13 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
               <th className="px-6 py-3">Program Induk</th>
               <th className="px-6 py-3">Target</th>
               <th className="px-6 py-3">Bobot</th>
-              {!isPengawas && <th className="px-6 py-3 text-right">Aksi</th>}
+              {canManageKPI && <th className="px-6 py-3 text-right">Aksi</th>}
             </tr>
           </thead>
           <tbody>
             {kpis.length === 0 ? (
               <tr>
-                <td colSpan={isPengawas ? 4 : 5} className="px-6 py-8 text-center text-gray-500 italic">Belum ada data KPI</td>
+                <td colSpan={canManageKPI ? 5 : 4} className="px-6 py-8 text-center text-gray-500 italic">Belum ada data KPI</td>
               </tr>
             ) : (
               kpis.map(kpi => (
@@ -146,7 +152,7 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
                     </div>
                   </td>
                   <td className="px-6 py-4">{kpi.weight}%</td>
-                  {!isPengawas && (
+                  {canManageKPI && (
                     <td className="px-6 py-4 text-right space-x-3">
                       <button onClick={() => handleOpenModal(kpi)} className="text-blue-600 hover:underline">Edit</button>
                       <button onClick={() => handleDelete(kpi.id)} className="text-red-600 hover:underline">Hapus</button>

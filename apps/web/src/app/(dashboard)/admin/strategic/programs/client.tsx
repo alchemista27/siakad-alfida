@@ -3,6 +3,10 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createProgram, updateProgram, deleteProgram } from '@/actions/strategic';
+import { useAuth } from '@/components/providers/auth-provider';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
+import { ProgramUploadModal, downloadWorkProgramTemplate } from '@/components/strategic/program-upload-modal';
 
 type User = { id: string; fullName: string; email: string };
 type Department = { id: string; name: string; };
@@ -20,8 +24,14 @@ type Program = {
 
 export default function ProgramsClient({ initialData, departments, users }: { initialData: Program[], departments: Department[], users: User[] }) {
   const router = useRouter();
+  const { user: currentUser } = useAuth();
+  const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === 'super_admin');
+  const isDepartmentAdmin = currentUser?.roles?.some((r: any) => r.role === 'admin_bidang');
+  const canManagePrograms = isSuperAdmin || isDepartmentAdmin;
+
   const [programs, setPrograms] = useState<Program[]>(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ departmentId: '', title: '', description: '', coordinatorId: '', priority: 'medium', status: 'planned' });
   const [loading, setLoading] = useState(false);
@@ -84,12 +94,49 @@ export default function ProgramsClient({ initialData, departments, users }: { in
   };
 
   return (
-    <div className="bg-surface rounded-lg border border-hairline p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-semibold text-gray-800">Daftar Program Kerja</h2>
-        <button onClick={() => handleOpenModal()} className="bg-tertiary text-on-tertiary hover:bg-tertiary/90 px-4 py-2 rounded text-sm font-semibold transition-colors">
-          Tambah Program
-        </button>
+    <div className="bg-surface rounded-lg border border-hairline p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800">Daftar Program Kerja</h2>
+          <p className="text-xs text-gray-500">Program kerja operasional dan target sasaran tahunan</p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {canManagePrograms && (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => downloadWorkProgramTemplate(departments)}
+                className="flex items-center gap-1.5 text-xs text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 border-emerald-300"
+              >
+                <Icon name="download" className="text-sm" />
+                Template Excel
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsUploadModalOpen(true)}
+                className="flex items-center gap-1.5 text-xs text-primary hover:bg-neutral"
+              >
+                <Icon name="upload_file" className="text-sm" />
+                Upload Excel
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                onClick={() => handleOpenModal()}
+                className="flex items-center gap-1.5 text-xs"
+              >
+                <Icon name="add" className="text-sm" />
+                Tambah Program
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -183,6 +230,16 @@ export default function ProgramsClient({ initialData, departments, users }: { in
           </div>
         </div>
       )}
+
+      <ProgramUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onSuccess={() => {
+          router.refresh();
+          window.location.reload();
+        }}
+        departments={departments}
+      />
     </div>
   );
 }

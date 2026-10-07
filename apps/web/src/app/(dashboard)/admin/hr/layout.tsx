@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/actions/user";
 import { redirect } from "next/navigation";
 
-export default async function BpiLayout({
+export default async function HrLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -10,10 +10,9 @@ export default async function BpiLayout({
   const roles = user?.roles || [];
   const isSuperAdmin = roles.some((r: any) => r.role === "super_admin");
   const isAdminBidang = roles.some((r: any) => r.role === "admin_bidang");
-  const isAdminBiro = roles.some((r: any) => r.role === "admin_biro");
-  const isMurobbi = roles.some((r: any) => r.role === "murobbi");
+  const isAdminUnit = roles.some((r: any) => r.role === "admin_unit" || r.role === "admin_unit_nondik");
 
-  if (!isSuperAdmin && !isAdminBidang && !isAdminBiro && !isMurobbi) {
+  if (!isSuperAdmin && !isAdminBidang && !isAdminUnit) {
     redirect("/modules");
   }
 

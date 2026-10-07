@@ -21,6 +21,11 @@ export class ExecutionProgramController {
     return this.service.create(dto);
   }
 
+  @Post('batch-import')
+  batchImport(@Body() body: { programs: any[] }, @Req() req: any) {
+    return this.service.batchImport(body.programs, req.user);
+  }
+
   @Put(':id')
   update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateExecutionProgramSchema)) dto: UpdateExecutionProgramDto) {
     return this.service.update(id, dto);

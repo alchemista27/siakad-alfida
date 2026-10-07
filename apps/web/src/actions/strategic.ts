@@ -51,6 +51,13 @@ export async function deleteProgram(id: string) {
   return apiFetch(`/strategic/programs/${id}`, { method: "DELETE" });
 }
 
+export async function batchImportProgramsAction(programs: any[]) {
+  return apiFetch("/strategic/programs/batch-import", { 
+    method: "POST", 
+    body: JSON.stringify({ programs }) 
+  });
+}
+
 // KPIs
 export async function getKPIs() {
   return apiFetch("/strategic/kpis", { method: "GET", cache: "no-store" });

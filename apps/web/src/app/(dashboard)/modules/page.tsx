@@ -100,10 +100,11 @@ export default async function ModulesPage() {
   const isKesekretariatan = userDepts.some((d: any) => d.department.name.toLowerCase().includes("kesekretariatan"));
   const isAdminKepegawaian = userDepts.some((d: any) => d.department.name.toLowerCase().includes("sdm") || d.department.name.toLowerCase().includes("kepegawaian"));
   const isAdminPendidikan = userDepts.some((d: any) => d.department.name.toLowerCase().includes("pendidikan"));
-  const isAdminBpi = userDepts.some((d: any) => d.department.name.toLowerCase().includes("bpi"));
+  const isAdminBpi = userDepts.some((d: any) => d.department.name.toLowerCase().includes("bpi") || d.department.name.toLowerCase().includes("bina pribadi"));
+  const isSarprasAdmin = isSuperAdmin || userDepts.some((d: any) => d.department.name.toLowerCase().includes("sarpras") || d.department.name.toLowerCase().includes("sarana") || d.department.name.toLowerCase().includes("kerumahtanggaan"));
 
   const isParent = roles.some((r: any) => r.role === "orang_tua");
-  const isOnlyParent = isParent && !isSuperAdmin && !isAdminUnit && !isKaryawan && !isGuru && !isAdminKepegawaian && !isMurobbi && !isAdminPendidikan;
+  const isOnlyParent = isParent && !isSuperAdmin && !isAdminUnit && !isKaryawan && !isGuru && !isAdminKepegawaian && !isMurobbi && !isAdminPendidikan && !isSarprasAdmin;
   
   const isObserver = roles.some((r: any) => r.role === "observer");
   const isTimPpdb = roles.some((r: any) => r.role === "tim_ppdb");
@@ -195,6 +196,16 @@ export default async function ModulesPage() {
                 icon="monitoring"
                 active={true}
                 href={strategicHref}
+              />
+            )}
+
+            {isSarprasAdmin && (
+              <ModuleCard
+                title="Inventaris & Sarpras"
+                subtitle="Pencatatan aset, sarana prasarana, inventarisasi barang, dan fasilitas."
+                icon="inventory_2"
+                active={true}
+                href="/admin/sarpras/inventory"
               />
             )}
 

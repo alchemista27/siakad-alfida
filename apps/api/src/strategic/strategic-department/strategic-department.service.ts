@@ -85,18 +85,27 @@ export class StrategicDepartmentService {
     });
   }
 
-  async createSubdepartment(data: { name: string; description?: string; parentId: string; adminUserId?: string }, user: any) {
-    // Validate authorization (must be admin of the parentId)
+  async createSubdepartment(data: { name: string; description?: string; parentId?: string; adminUserId?: string }, user: any) {
+    let targetParentId = data.parentId;
+    if (!targetParentId) {
+      const myDept = await this.prisma.departmentAdmin.findFirst({
+        where: { userId: user.id }
+      });
+      if (!myDept) throw new Error("Pengguna tidak memiliki departemen induk yang dikelola.");
+      targetParentId = myDept.departmentId;
+    }
+
+    const isSuperAdmin = user.roles?.some((r: any) => r.role === 'super_admin');
     const isAdmin = await this.prisma.departmentAdmin.findUnique({
-      where: { departmentId_userId: { departmentId: data.parentId, userId: user.id } }
+      where: { departmentId_userId: { departmentId: targetParentId, userId: user.id } }
     });
-    if (!isAdmin) throw new Error("Unauthorized to create subdepartment for this department");
+    if (!isAdmin && !isSuperAdmin) throw new Error("Unauthorized to create subdepartment for this department");
 
     const dept = await this.prisma.department.create({
       data: {
         name: data.name,
         description: data.description,
-        parentId: data.parentId,
+        parentId: targetParentId,
       }
     });
 
@@ -127,12 +136,21 @@ export class StrategicDepartmentService {
     return true;
   }
 
-  async addMember(departmentId: string, userId: string, role: string | undefined, currentUser: any) {
-    await this.checkAdminAccess(departmentId, currentUser);
+  async addMember(departmentId: string | undefined, userId: string, role: string | undefined, currentUser: any) {
+    let targetDeptId = departmentId;
+    if (!targetDeptId || targetDeptId === 'my') {
+      const myDept = await this.prisma.departmentAdmin.findFirst({
+        where: { userId: currentUser.id }
+      });
+      if (!myDept) throw new Error("Pengguna tidak memiliki departemen yang dikelola.");
+      targetDeptId = myDept.departmentId;
+    }
+
+    await this.checkAdminAccess(targetDeptId, currentUser);
     return this.prisma.departmentMember.upsert({
-      where: { departmentId_userId: { departmentId, userId } },
+      where: { departmentId_userId: { departmentId: targetDeptId, userId } },
       update: { role },
-      create: { departmentId, userId, role }
+      create: { departmentId: targetDeptId, userId, role }
     });
   }
 

@@ -3,11 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '@/components/ui/icon';
 import { getMyMembers, addDepartmentMember, removeDepartmentMember, getStrategicUsers, getDepartments, getMyBiros, createSubDepartment } from '@/actions/strategic';
+import { useAuth } from '@/components/providers/auth-provider';
 import { Modal } from '@/components/ui/modal';
 import { NotificationModal } from '@/components/ui/notification-modal';
 import { Button } from '@/components/ui/button';
 
 export default function DepartmentMembersPage() {
+  const { user: currentUser } = useAuth();
+  const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === 'super_admin');
+
   const [activeTab, setActiveTab] = useState<'anggota' | 'biro'>('anggota');
   const [loading, setLoading] = useState(true);
   const [notif, setNotif] = useState({ isOpen: false, title: '', message: '', type: 'info' as 'success' | 'error' | 'info' });
@@ -39,9 +43,15 @@ export default function DepartmentMembersPage() {
       if (activeTab === 'anggota') {
         const res = await getMyMembers();
         setMembers(res);
+        if (res.length > 0 && !selectedDepartment) {
+          setSelectedDepartment(res[0].departmentId);
+        }
       } else {
         const res = await getMyBiros();
         setBiros(res);
+        if (res.length > 0 && !newBiro.parentId) {
+          setNewBiro(prev => ({ ...prev, parentId: res[0].parentId }));
+        }
       }
     } catch (e: any) {
       setNotif({ isOpen: true, title: 'Gagal', message: e?.message || 'Gagal mengambil data', type: 'error' });
@@ -51,38 +61,57 @@ export default function DepartmentMembersPage() {
 
   const handleOpenAddMemberModal = async () => {
     setIsAddMemberModalOpen(true);
-    if (users.length === 0) {
-      try {
-        const [u, d] = await Promise.all([getStrategicUsers(), getDepartments()]);
-        setUsers(u);
-        setDepartments(d);
-        if (d.length > 0) setSelectedDepartment(d[0].id);
-      } catch (e: any) {
-        setNotif({ isOpen: true, title: 'Gagal', message: 'Gagal memuat data pengguna', type: 'error' });
+    try {
+      const [u, d] = await Promise.all([
+        users.length === 0 ? getStrategicUsers() : Promise.resolve(users),
+        departments.length === 0 ? getDepartments() : Promise.resolve(departments)
+      ]);
+      setUsers(u);
+      setDepartments(d);
+      
+      // Auto-set department
+      if (!selectedDepartment) {
+        if (members.length > 0) {
+          setSelectedDepartment(members[0].departmentId);
+        } else if (d.length > 0) {
+          setSelectedDepartment(d[0].id);
+        }
       }
+    } catch (e: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: 'Gagal memuat data pengguna', type: 'error' });
     }
   };
 
   const handleOpenAddBiroModal = async () => {
     setIsAddBiroModalOpen(true);
-    if (users.length === 0) {
-      try {
-        const [u, d] = await Promise.all([getStrategicUsers(), getDepartments()]);
-        setUsers(u);
-        setDepartments(d);
-        if (d.length > 0) setNewBiro(prev => ({ ...prev, parentId: d[0].id }));
-      } catch (e: any) {
-        setNotif({ isOpen: true, title: 'Gagal', message: 'Gagal memuat data formulir', type: 'error' });
+    try {
+      const [u, d] = await Promise.all([
+        users.length === 0 ? getStrategicUsers() : Promise.resolve(users),
+        departments.length === 0 ? getDepartments() : Promise.resolve(departments)
+      ]);
+      setUsers(u);
+      setDepartments(d);
+
+      // Auto-set parentId
+      if (!newBiro.parentId) {
+        if (members.length > 0) {
+          setNewBiro(prev => ({ ...prev, parentId: members[0].departmentId }));
+        } else if (d.length > 0) {
+          setNewBiro(prev => ({ ...prev, parentId: d[0].id }));
+        }
       }
+    } catch (e: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: 'Gagal memuat data formulir', type: 'error' });
     }
   };
 
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedUser || !selectedDepartment) return;
+    const deptId = selectedDepartment || (members.length > 0 ? members[0].departmentId : (departments[0]?.id || 'my'));
+    if (!selectedUser || !deptId) return;
     setIsSubmitting(true);
     try {
-      await addDepartmentMember(selectedDepartment, { userId: selectedUser, role: memberRole });
+      await addDepartmentMember(deptId, { userId: selectedUser, role: memberRole });
       setIsAddMemberModalOpen(false);
       setSelectedUser('');
       setMemberRole('');
@@ -96,12 +125,13 @@ export default function DepartmentMembersPage() {
 
   const handleAddBiro = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newBiro.name || !newBiro.parentId) return;
+    const parentId = newBiro.parentId || (members.length > 0 ? members[0].departmentId : departments[0]?.id);
+    if (!newBiro.name || !parentId) return;
     setIsSubmitting(true);
     try {
-      await createSubDepartment(newBiro);
+      await createSubDepartment({ ...newBiro, parentId });
       setIsAddBiroModalOpen(false);
-      setNewBiro({ name: '', description: '', parentId: newBiro.parentId, adminUserId: '' });
+      setNewBiro({ name: '', description: '', parentId, adminUserId: '' });
       fetchData();
       setNotif({ isOpen: true, title: 'Sukses', message: 'Biro berhasil dibuat', type: 'success' });
     } catch (e: any) {
@@ -238,13 +268,22 @@ export default function DepartmentMembersPage() {
 
       <Modal isOpen={isAddMemberModalOpen} onClose={() => setIsAddMemberModalOpen(false)} title="Tambah Anggota ke Bidang">
         <form onSubmit={handleAddMember} className="p-5 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Bidang (Tujuan)</label>
-            <select className="w-full p-2 border border-border rounded focus:ring-1 focus:ring-tertiary" value={selectedDepartment} onChange={e => setSelectedDepartment(e.target.value)} required>
-              <option value="">-- Pilih --</option>
-              {departments.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
-            </select>
-          </div>
+          {isSuperAdmin ? (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Bidang (Tujuan)</label>
+              <select className="w-full p-2 border border-border rounded focus:ring-1 focus:ring-tertiary" value={selectedDepartment} onChange={e => setSelectedDepartment(e.target.value)} required>
+                <option value="">-- Pilih --</option>
+                {departments.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
+              </select>
+            </div>
+          ) : (
+            <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-lg text-xs text-blue-900 flex items-center gap-2">
+              <Icon name="info" className="text-blue-600 text-sm" />
+              <span>
+                Anggota akan secara otomatis ditambahkan ke bidang: <strong>{departments.find((d: any) => d.id === selectedDepartment)?.name || members[0]?.department?.name || "Bidang Anda"}</strong>
+              </span>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Pilih Pengguna</label>
             <select className="w-full p-2 border border-border rounded focus:ring-1 focus:ring-tertiary" value={selectedUser} onChange={e => setSelectedUser(e.target.value)} required>
@@ -269,13 +308,22 @@ export default function DepartmentMembersPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Nama Biro</label>
             <input type="text" className="w-full p-2 border border-border rounded focus:ring-1 focus:ring-tertiary" value={newBiro.name} onChange={e => setNewBiro({...newBiro, name: e.target.value})} required placeholder="Contoh: Biro SDM" />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Di Bawah Bidang</label>
-            <select className="w-full p-2 border border-border rounded focus:ring-1 focus:ring-tertiary" value={newBiro.parentId} onChange={e => setNewBiro({...newBiro, parentId: e.target.value})} required>
-              <option value="">-- Pilih Induk Bidang --</option>
-              {departments.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
-            </select>
-          </div>
+          {isSuperAdmin ? (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Di Bawah Bidang</label>
+              <select className="w-full p-2 border border-border rounded focus:ring-1 focus:ring-tertiary" value={newBiro.parentId} onChange={e => setNewBiro({...newBiro, parentId: e.target.value})} required>
+                <option value="">-- Pilih Induk Bidang --</option>
+                {departments.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
+              </select>
+            </div>
+          ) : (
+            <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-lg text-xs text-blue-900 flex items-center gap-2">
+              <Icon name="info" className="text-blue-600 text-sm" />
+              <span>
+                Biro baru akan otomatis terdaftar di bawah bidang: <strong>{departments.find((d: any) => d.id === newBiro.parentId)?.name || members[0]?.department?.name || "Bidang Anda"}</strong>
+              </span>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi (Opsional)</label>
             <textarea className="w-full p-2 border border-border rounded focus:ring-1 focus:ring-tertiary" value={newBiro.description} onChange={e => setNewBiro({...newBiro, description: e.target.value})} placeholder="Deskripsi singkat tentang biro ini..." />

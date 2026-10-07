@@ -10,6 +10,7 @@ import { BpiModule } from './bpi/bpi.module';
 import { StrategicModule } from './strategic/strategic.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SecretariatModule } from './secretariat/secretariat.module';
+import { InventoryModule } from './sarpras/inventory/inventory.module';
 import { CommonModule } from './common/common.module';
 
 @Module({
@@ -25,6 +26,7 @@ import { CommonModule } from './common/common.module';
     BpiModule,
     StrategicModule,
     SecretariatModule,
+    InventoryModule,
     CommonModule,
   ],
 })

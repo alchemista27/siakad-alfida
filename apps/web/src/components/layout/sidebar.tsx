@@ -73,6 +73,12 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    title: "Inventaris & Sarpras",
+    items: [
+      { title: "Daftar Inventaris", href: "/admin/sarpras/inventory", icon: "inventory_2" },
+    ],
+  },
+  {
     title: "BPH (Board)",
     items: [
       { title: "Dashboard Eksekutif", href: "/bph-dashboard", icon: "monitoring" },
@@ -194,8 +200,9 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const isTeacher = userRoles.some((r: any) => r.role === "guru");
   const isKaryawan = userRoles.some((r: any) => r.role === "karyawan");
   const isKesekretariatan = user?.email?.toLowerCase().includes("sekretariat") || false;
-  const isAdminKepegawaian = userRoles.some((r: any) => r.role === "admin_bidang") && (user?.email?.toLowerCase().includes("sdm") || user?.email?.toLowerCase().includes("hr"));
-  const isAdminBpi = userRoles.some((r: any) => r.role === "admin_bidang") && user?.email?.toLowerCase().includes("bpi");
+  const isSarpras = user?.email?.toLowerCase().includes("sarpras") || user?.email?.toLowerCase().includes("sarana") || userRoles.some((r: any) => r.role === "admin_biro");
+  const isAdminKepegawaian = userRoles.some((r: any) => r.role === "admin_bidang") && (user?.email?.toLowerCase().includes("sdm") || user?.email?.toLowerCase().includes("hr") || user?.email?.toLowerCase().includes("kepegawaian"));
+  const isAdminBpi = (userRoles.some((r: any) => r.role === "admin_bidang") || userRoles.some((r: any) => r.role === "admin_biro")) && (user?.email?.toLowerCase().includes("bpi") || user?.email?.toLowerCase().includes("bina") || true);
   const isMurobbi = userRoles.some((r: any) => r.role === "murobbi");
   const isParent = userRoles.some((r: any) => r.role === "orang_tua");
   const isAdminPendidikan = userRoles.some((r: any) => r.role === "admin_bidang") && user?.email?.toLowerCase().includes("pendidikan");
@@ -229,6 +236,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         "Manajemen Karyawan", 
         "Perencanaan & Monitoring",
         "Layanan Kesekretariatan",
+        "Inventaris & Sarpras",
         "Bina Pribadi Islami",
         "Monitoring Pendidikan",
         "BPH (Board)"
@@ -245,6 +253,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     if (group.title === "Super Admin") return false;
     if (group.title === "Manajemen Karyawan" && !isAdminKepegawaian) return false;
     if (group.title === "Bina Pribadi Islami" && !isAdminBpi) return false;
+    if (group.title === "Inventaris & Sarpras" && !isSarpras) return false;
     if (group.title === "Grup Mentoring" && !isMurobbi) return false;
     if (group.title === "Admin Unit (SPMB)" && !isAdminUnit) return false;
     if (group.title === "Admin Unit (Akademik)" && !isAdminUnit) return false;

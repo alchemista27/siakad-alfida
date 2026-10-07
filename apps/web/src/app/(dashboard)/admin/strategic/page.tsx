@@ -4,7 +4,7 @@ import { requireRole } from "@/lib/auth-guard";
 import { UserRole } from "@sim/database";
 
 export default async function StrategicDashboard() {
-  const user = await requireRole([UserRole.super_admin, UserRole.admin_bidang, UserRole.pengawas_yayasan]);
+  const user = await requireRole([UserRole.super_admin, UserRole.admin_bidang, UserRole.admin_biro, UserRole.pengawas_yayasan]);
   const isSuperAdmin = user.roles?.some((r) => r.role === UserRole.super_admin);
 
   const masterData = [];

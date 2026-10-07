@@ -267,6 +267,7 @@ model Unit {
   gpsAttendanceConfig GpsAttendanceConfig?
   gpsAttendances      GpsAttendance[]
   characterIndicators CharacterIndicator[]
+  inventoryItems      InventoryItem[]
 
   @@index([isActive])
   @@map("units")
@@ -1075,6 +1076,7 @@ model Department {
   workPrograms    WorkProgram[]
   activityReports ActivityReport[]
   biroUnits       Unit[]            @relation("BiroToUnit")
+  inventoryItems  InventoryItem[]
 
   @@map("departments")
   @@schema("sim")
@@ -1778,6 +1780,31 @@ model RoomBooking {
   booker    User         @relation(fields: [bookerId], references: [id], onDelete: Cascade)
 
   @@map("room_bookings")
+  @@schema("sim")
+}
+
+model InventoryItem {
+  id            String    @id @default(uuid()) @db.Uuid
+  code          String?   @db.VarChar(50)
+  name          String    @db.VarChar(150)
+  category      String    @db.VarChar(100)
+  quantity      Int       @default(1)
+  unitOfMeasure String    @default("unit") @map("unit") @db.VarChar(30)
+  condition     String    @default("baik") @db.VarChar(50)
+  location      String?   @db.VarChar(150)
+  departmentId  String?   @map("department_id") @db.Uuid
+  unitId        String?   @map("unit_id") @db.Uuid
+  purchaseDate  DateTime? @map("purchase_date") @db.Date
+  purchasePrice Float?    @map("purchase_price")
+  sourceOfFund  String?   @map("source_of_fund") @db.VarChar(100)
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  unit       Unit?       @relation(fields: [unitId], references: [id], onDelete: SetNull)
+
+  @@map("inventory_items")
   @@schema("sim")
 }
 
