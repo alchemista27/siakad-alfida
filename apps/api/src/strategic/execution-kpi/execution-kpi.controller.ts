@@ -1,5 +1,6 @@
 
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Query, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Query, Req, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { ExecutionKpiService } from './execution-kpi.service';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { CreateExecutionKPISchema, UpdateExecutionKPISchema, CreateExecutionKPIDto, UpdateExecutionKPIDto, SubmitBaselineSchema, SubmitBaselineDto, VerifyBaselineSchema, VerifyBaselineDto } from '../dto/kpi.dto';
@@ -14,6 +15,11 @@ export class ExecutionKpiController {
   findAll(@Req() req: any, @Query('programId') programId?: string) { 
     if (programId) return this.service.findByProgram(programId); // Might need filtering here too, but normally program is filtered earlier
     return this.service.findAll(req.user); 
+  }
+
+  @Get('export/excel')
+  async exportExcel(@Query('departmentId') departmentId: string, @Res() res: Response) {
+    return this.service.exportExcelByDepartment(departmentId, res);
   }
 
   @Get(':id')

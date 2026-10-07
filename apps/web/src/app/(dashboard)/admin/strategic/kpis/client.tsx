@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createKPI, updateKPI, deleteKPI } from '@/actions/strategic';
 import { useAuth } from '@/components/providers/auth-provider';
+import { Icon } from '@/components/ui/icon';
 
 import { NotificationModal } from '@/components/ui/notification-modal';
 
@@ -114,11 +115,22 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
     <div className="bg-surface rounded-lg border border-hairline p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold text-gray-800">Daftar KPI</h2>
-        {canManageKPI && (
-          <button onClick={() => handleOpenModal()} className="bg-tertiary text-on-tertiary hover:bg-tertiary/90 px-4 py-2 rounded text-sm font-semibold transition-colors">
-            Tambah KPI
-          </button>
-        )}
+        <div className="flex gap-3">
+          <a
+            href="http://187.127.113.61:3001/strategic/kpis/export/excel"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded shadow-sm hover:bg-green-700 transition-colors"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Icon name="download" />
+            <span>Export Excel</span>
+          </a>
+          {canManageKPI && (
+            <button onClick={() => handleOpenModal()} className="bg-tertiary text-on-tertiary hover:bg-tertiary/90 px-4 py-2 rounded text-sm font-semibold transition-colors">
+              Tambah KPI
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto">

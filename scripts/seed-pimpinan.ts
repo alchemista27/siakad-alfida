@@ -7,14 +7,14 @@ async function main() {
   const hash = await bcrypt.hash(process.env.DEFAULT_SEED_PASSWORD || "Admin123!", 10);
   
   const user = await prisma.user.upsert({
-    where: { email: "pengawas@alfida.or.id" },
+    where: { email: "pimpinan@alfida.or.id" },
     update: { passwordHash: hash },
     create: {
       id: crypto.randomUUID(),
-      email: "pengawas@alfida.or.id",
+      email: "pimpinan@alfida.or.id",
       passwordHash: hash,
-      name: "Pengawas Yayasan",
-      fullName: "Bapak Pengawas Yayasan",
+      name: "Pimpinan Yayasan",
+      fullName: "Bapak Pimpinan Yayasan",
       isActive: true,
       emailVerified: true
     }
@@ -56,8 +56,8 @@ async function main() {
     });
   }
 
-  console.log("✅ Akun Pengawas Yayasan berhasil dibuat:");
-  console.log("Email: pengawas@alfida.or.id");
+  console.log("✅ Akun Pimpinan Yayasan berhasil dibuat:");
+  console.log("Email: pimpinan@alfida.or.id");
   console.log("Password: " + (process.env.DEFAULT_SEED_PASSWORD || "Admin123!"));
 }
 

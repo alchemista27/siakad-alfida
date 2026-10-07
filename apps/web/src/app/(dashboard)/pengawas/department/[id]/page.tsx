@@ -53,6 +53,15 @@ export default async function DepartmentReportPage({
             Laporan sasaran strategis, indikator, dan capaian program kerja.
           </p>
         </div>
+        <a 
+          href={`http://187.127.113.61:3001/strategic/kpis/export/excel?departmentId=${deptId}`}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-semibold rounded-md shadow-sm hover:bg-green-700 transition-colors"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Icon name="download" />
+          <span>Download Laporan Excel</span>
+        </a>
       </div>
 
       {programs.length === 0 ? (

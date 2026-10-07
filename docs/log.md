@@ -299,3 +299,7 @@
 - Menambahkan _Notification Modal_ seragam yang mematuhi pedoman desain antarmuka `DESIGN.md` untuk menggantikan cetakan _console.log_ dan peringatan natif saat transaksi API (unggah KPI/dokumen) menemui hambatan (*error handling*).
 - Mengeksekusi pengetesan statis komprehensif pra-deployment (_Smoke Testing_, _Linting_, _Typechecking_ dengan Eslint 9 + TypeScript Strict, serta kompilasi _Next.js Production Build_) untuk menjamin stabilitas koding dan skema Prisma (_Prisma Validate_) sebelum ditarik ke Coolify.
   **commit message:** feat: refactor biro hierarchy under department, implement cloudinary evidence uploads, fix UI auth state & hydration bugs, and ensure strict TS/lint compliance
+- Mengembangkan modul *Excel Export* pada backend NestJS (`ExecutionKpiService`) yang memanfaatkan library `exceljs`. Fitur ini mengubah matriks KPI menjadi dokumen berformat `.xlsx` dengan pewarnaan kondisi sel (*Hijau, Kuning, Merah*) secara dinamis.
+- Menambahkan tautan *Download Laporan Excel* pada antarmuka *Dashboard* Pengawas Yayasan dan panel operasional Admin Bidang.
+- Menginjeksi entitas baru untuk *Pimpinan Yayasan* melalui seeder (`seed-pimpinan.ts`) yang diberikan *role* setara dengan *Pengawas Yayasan* agar Pimpinan dapat memonitor laporan metrik secara holistik. Menghapus hardcode credential pada skrip seeder untuk mencegah kebocoran informasi melalui git.
+  **commit message:** feat: implement KPI excel export for supervisors, add pimpinan foundation seeder, and secure seed credentials
