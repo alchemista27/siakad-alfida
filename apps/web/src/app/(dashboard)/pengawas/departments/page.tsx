@@ -4,6 +4,8 @@ import { Icon } from "@/components/ui/icon";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { prisma } from "@/lib/prisma";
+import { HeatmapKPI } from "@/components/ui/heatmap-kpi";
+import { AccordionDepartments } from "@/components/ui/accordion-departments";
 
 interface ModuleCardProps {
   title: string;
@@ -74,6 +76,17 @@ function ModuleCard({
 export default async function PengawasDepartmentsPage() {
   const departments = await prisma.department.findMany({
     where: { parentId: null },
+    include: {
+      workPrograms: {
+        include: { kpis: true }
+      },
+      children: {
+        include: {
+          workPrograms: { include: { kpis: true } }
+        },
+        orderBy: { name: "asc" }
+      }
+    },
     orderBy: { name: "asc" }
   });
 
@@ -81,28 +94,22 @@ export default async function PengawasDepartmentsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="font-heading font-bold text-3xl text-primary">
-          Laporan KPI Per Bidang
+          Laporan KPI Per Bidang & Biro
         </h1>
         <p className="text-sm text-gray-500 mt-2 font-body">
-          Pilih bidang untuk melihat matriks KPI, sasaran kinerja, dan realisasi capaian program kerja.
+          Pantau progres sasaran strategis yayasan secara menyeluruh melalui ringkasan di bawah ini.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {departments.map((dept) => (
-          <ModuleCard
-            key={dept.id}
-            title={`Laporan Bidang ${dept.name}`}
-            subtitle={`Pantau progres program kerja dan ketercapaian KPI Bidang ${dept.name}.`}
-            icon="domain"
-            active={true}
-            href={`/pengawas/department/${dept.id}`}
-          />
-        ))}
-        {departments.length === 0 && (
-          <p className="text-gray-500 italic text-sm">Belum ada data bidang terdaftar di sistem.</p>
-        )}
-      </div>
+      <HeatmapKPI departments={departments} />
+
+      <h3 className="font-heading font-bold text-xl text-primary mt-8 mb-4">Rincian Laporan Departemen</h3>
+      
+      {departments.length === 0 ? (
+        <p className="text-gray-500 italic text-sm">Belum ada data bidang terdaftar di sistem.</p>
+      ) : (
+        <AccordionDepartments departments={departments} />
+      )}
     </div>
   );
 }
