@@ -166,12 +166,14 @@ export class ExecutionKpiService {
       { header: 'No', key: 'no', width: 5 },
       { header: 'Sasaran Kinerja', key: 'sasaran', width: 35 },
       { header: 'Indikator', key: 'indikator', width: 35 },
+      { header: 'Baseline', key: 'baseline', width: 10 },
       { header: 'Update Frekuensi', key: 'frekuensi', width: 18 },
       { header: 'Target Kinerja', key: 'target', width: 15 },
       { header: 'Realisasi Kinerja', key: 'realisasi', width: 18 },
+      { header: 'Capaian (%)', key: 'capaian', width: 15 },
+      { header: 'Status KPI', key: 'status', width: 15 },
       { header: 'Bukti / Link Drive', key: 'bukti', width: 35 },
-      { header: 'PIC', key: 'pic', width: 25 },
-      { header: 'Status KPI', key: 'status', width: 15 }
+      { header: 'PIC', key: 'pic', width: 25 }
     ];
 
     worksheet.getRow(1).font = { bold: true };
@@ -206,9 +208,11 @@ export class ExecutionKpiService {
         no: index + 1,
         sasaran: kpi.program.title || '-', // karena di tabel WorkProgram namanya title
         indikator: kpi.name,
+        baseline: kpi.baseline,
         frekuensi: frekuensiLabel,
         target: `${kpi.target} ${kpi.unit}`,
         realisasi: `${kpi.realization} ${kpi.unit}`,
+        capaian: `${percent.toFixed(2)}%`,
         bukti: linkDrive,
         pic: kpi.pic?.fullName || '-',
         status: statusText

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createKPI, updateKPI, deleteKPI } from '@/actions/strategic';
+import { createKPI, updateKPI, deleteKPI, submitKPIBaseline, verifyKPIBaseline } from '@/actions/strategic';
 import { useAuth } from '@/components/providers/auth-provider';
 import { Icon } from '@/components/ui/icon';
 
@@ -20,6 +20,8 @@ type KPI = {
   target: number;
   unit: string;
   weight: number;
+  baseline: number;
+  baselineStatus: string;
   picId: string | null;
   program?: Program;
   pic?: User;
@@ -30,7 +32,8 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
   const { user: currentUser } = useAuth();
   const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === 'super_admin');
   const isDepartmentAdmin = currentUser?.roles?.some((r: any) => r.role === 'admin_bidang');
-  const canManageKPI = (isSuperAdmin || isDepartmentAdmin) && !isPengawas;
+  const isBiroAdmin = currentUser?.roles?.some((r: any) => r.role === 'admin_biro');
+  const canManageKPI = (isSuperAdmin || isDepartmentAdmin || isBiroAdmin) && !isPengawas;
 
   const [kpis, setKpis] = useState<KPI[]>(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -113,6 +116,29 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
     }
   };
 
+  const handleSubmitBaseline = async (id: string) => {
+    if (!confirm('Ajukan baseline KPI ke Bidang?')) return;
+    try {
+      await submitKPIBaseline(id, "");
+      router.refresh();
+      setNotif({ isOpen: true, title: 'Berhasil', message: 'Baseline diajukan ke Bidang.', type: 'success' });
+    } catch (err: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: err?.message || 'Gagal mengajukan baseline', type: 'error' });
+    }
+  };
+
+  const handleVerifyBaseline = async (id: string, status: string) => {
+    const isApproved = status === 'approved';
+    if (!confirm(isApproved ? 'Setujui baseline KPI ini?' : 'Tolak baseline KPI ini?')) return;
+    try {
+      await verifyKPIBaseline(id, status);
+      router.refresh();
+      setNotif({ isOpen: true, title: 'Berhasil', message: `Baseline ${isApproved ? 'disetujui' : 'ditolak'}.`, type: 'success' });
+    } catch (err: any) {
+      setNotif({ isOpen: true, title: 'Gagal', message: err?.message || 'Gagal verifikasi baseline', type: 'error' });
+    }
+  };
+
   return (
     <div className="bg-surface rounded-lg border border-hairline p-6">
       <div className="flex justify-between items-center mb-6">
@@ -143,13 +169,14 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
               <th className="px-6 py-3">Program Induk</th>
               <th className="px-6 py-3">Target</th>
               <th className="px-6 py-3">Bobot</th>
+              <th className="px-6 py-3">Baseline</th>
               {canManageKPI && <th className="px-6 py-3 text-right">Aksi</th>}
             </tr>
           </thead>
           <tbody>
             {kpis.length === 0 ? (
               <tr>
-                <td colSpan={canManageKPI ? 5 : 4} className="px-6 py-8 text-center text-gray-500 italic">Belum ada data KPI</td>
+                <td colSpan={canManageKPI ? 6 : 5} className="px-6 py-8 text-center text-gray-500 italic">Belum ada data KPI</td>
               </tr>
             ) : (
               kpis.map(kpi => (
@@ -166,10 +193,32 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
                     </div>
                   </td>
                   <td className="px-6 py-4">{kpi.weight}%</td>
+                  <td className="px-6 py-4">
+                    <span className="font-semibold text-gray-800">{kpi.baseline}</span> {kpi.unit}
+                    <div className="text-xs mt-1">
+                      {kpi.baselineStatus === 'draft' && <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded">Draft</span>}
+                      {kpi.baselineStatus === 'submitted' && <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Menunggu Persetujuan</span>}
+                      {kpi.baselineStatus === 'approved' && <span className="bg-green-100 text-green-700 px-2 py-1 rounded">Disetujui</span>}
+                      {kpi.baselineStatus === 'rejected' && <span className="bg-red-100 text-red-700 px-2 py-1 rounded">Ditolak</span>}
+                    </div>
+                  </td>
                   {canManageKPI && (
-                    <td className="px-6 py-4 text-right space-x-3">
-                      <button onClick={() => handleOpenModal(kpi)} className="text-blue-600 hover:underline">Edit</button>
-                      <button onClick={() => handleDelete(kpi.id)} className="text-red-600 hover:underline">Hapus</button>
+                    <td className="px-6 py-4 text-right space-y-2">
+                      <div className="space-x-3">
+                        <button onClick={() => handleOpenModal(kpi)} className="text-blue-600 hover:underline">Edit</button>
+                        <button onClick={() => handleDelete(kpi.id)} className="text-red-600 hover:underline">Hapus</button>
+                      </div>
+                      <div className="flex justify-end gap-2 text-xs">
+                        {isBiroAdmin && kpi.baselineStatus === 'draft' && (
+                          <button onClick={() => handleSubmitBaseline(kpi.id)} className="bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100">Ajukan Baseline</button>
+                        )}
+                        {isDepartmentAdmin && kpi.baselineStatus === 'submitted' && (
+                          <>
+                            <button onClick={() => handleVerifyBaseline(kpi.id, 'approved')} className="bg-green-50 text-green-600 px-2 py-1 rounded hover:bg-green-100">Setujui</button>
+                            <button onClick={() => handleVerifyBaseline(kpi.id, 'rejected')} className="bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100">Tolak</button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   )}
                 </tr>

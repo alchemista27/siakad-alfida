@@ -26,6 +26,10 @@ export default async function DepartmentReportPage({
       kpis: {
         include: {
           pic: true,
+          evidences: {
+            take: 1,
+            orderBy: { createdAt: "desc" }
+          }
         },
       },
     },
@@ -147,6 +151,24 @@ export default async function DepartmentReportPage({
                             <div className="p-3">
                               <div className="text-xs text-gray-500 mb-1">PIC</div>
                               <div className="font-semibold text-primary truncate" title={kpi.pic?.fullName || "-"}>{kpi.pic?.fullName || "-"}</div>
+                            </div>
+                            <div className="p-3">
+                              <div className="text-xs text-gray-500 mb-1">Bukti Dokumen</div>
+                              <div className="font-medium">
+                                {(kpi as any).evidences && (kpi as any).evidences.length > 0 && (kpi as any).evidences[0].digitalLink ? (
+                                  <a 
+                                    href={(kpi as any).evidences[0].digitalLink} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:underline flex items-center gap-1"
+                                  >
+                                    <Icon name="link" className="text-xs" />
+                                    Lihat
+                                  </a>
+                                ) : (
+                                  <span className="text-gray-400 italic font-normal">Belum ada</span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
