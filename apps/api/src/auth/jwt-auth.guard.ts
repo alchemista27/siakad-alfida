@@ -12,12 +12,21 @@ export class JwtAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const authHeader = request.headers.authorization;
+    let token = '';
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing or invalid Authorization header');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    } else {
+      // Proxy Next.js (seperti ekspor Excel) tidak membawa header Authorization
+      // tapi membawa cookie. Coba fallback ekstrak token dari Cookie.
+      const cookieHeader = request.headers.cookie || '';
+      const match = cookieHeader.match(/(?:^|;\s*)(?:better-auth\.session_token|__Secure-better-auth\.session_token)=([^;]+)/);
+      if (match) {
+        token = decodeURIComponent(match[1]);
+      } else {
+        throw new UnauthorizedException('Missing or invalid Authorization header');
+      }
     }
-
-    let token = authHeader.split(' ')[1];
 
     // Better Auth sends signed cookies in the format: <token>.<signature>
     // We only need the raw <token> to query the Session table in the database

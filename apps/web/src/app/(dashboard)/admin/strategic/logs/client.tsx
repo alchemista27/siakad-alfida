@@ -52,8 +52,10 @@ export default function LogsClient({ initialData, tasks, users }: { initialData:
     e.preventDefault();
     setLoading(true);
     try {
+      const selectedTask = tasks.find(t => t.id === formData.taskId) as any;
       const payload = {
         taskId: formData.taskId,
+        programId: selectedTask?.programId,
         authorId: formData.authorId,
         logDate: new Date(formData.logDate).toISOString(),
         hoursSpent: Number(formData.hoursSpent) || null,

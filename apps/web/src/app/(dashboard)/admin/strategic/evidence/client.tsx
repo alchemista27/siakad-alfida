@@ -63,8 +63,10 @@ export default function EvidenceClient({ initialData, tasks, users }: { initialD
     e.preventDefault();
     setLoading(true);
     try {
+      const selectedTask = tasks.find(t => t.id === formData.taskId) as any;
       const payload = {
         taskId: formData.taskId,
+        programId: selectedTask?.programId,
         name: formData.name,
         digitalLink: formData.digitalLink || null,
         type: formData.type,
