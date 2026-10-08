@@ -10,8 +10,8 @@ export default async function IssuesPage() {
 
   const [issues, tasks, users] = await Promise.all([
     getExecutionIssues(token).catch(() => []),
-    getTasks().catch(() => []),
-    getStrategicUsers().catch(() => []),
+    getTasks().then(res => res || []).catch(() => []),
+    getStrategicUsers().then(res => res || []).catch(() => []),
   ]);
 
   return <IssuesClient issues={issues} tasks={tasks} users={users} />;

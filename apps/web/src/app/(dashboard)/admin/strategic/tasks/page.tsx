@@ -4,9 +4,9 @@ import TasksClient from './client';
 
 export default async function StrategicTasksPage() {
   const [tasks, milestones, users] = await Promise.all([
-    getTasks(),
-    getMilestones(),
-    getStrategicUsers()
+    getTasks().then(res => res || []).then(res => res || []),
+    getMilestones().then(res => res || []).then(res => res || []),
+    getStrategicUsers().then(res => res || []).then(res => res || [])
   ]);
 
   return (

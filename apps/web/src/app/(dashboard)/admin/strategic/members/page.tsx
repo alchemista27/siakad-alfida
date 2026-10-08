@@ -65,8 +65,8 @@ export default function DepartmentMembersPage() {
     setIsAddMemberModalOpen(true);
     try {
       const [u, d] = await Promise.all([
-        users.length === 0 ? getStrategicUsers() : Promise.resolve(users),
-        departments.length === 0 ? getDepartments() : Promise.resolve(departments)
+        users.length === 0 ? getStrategicUsers().then(res => res || []) : Promise.resolve(users),
+        departments.length === 0 ? getDepartments().then(res => res || []) : Promise.resolve(departments)
       ]);
       setUsers(u);
       setDepartments(d);
@@ -91,8 +91,8 @@ export default function DepartmentMembersPage() {
     setIsAddBiroModalOpen(true);
     try {
       const [u, d] = await Promise.all([
-        users.length === 0 ? getStrategicUsers() : Promise.resolve(users),
-        departments.length === 0 ? getDepartments() : Promise.resolve(departments)
+        users.length === 0 ? getStrategicUsers().then(res => res || []) : Promise.resolve(users),
+        departments.length === 0 ? getDepartments().then(res => res || []) : Promise.resolve(departments)
       ]);
       setUsers(u);
       setDepartments(d);
@@ -170,8 +170,8 @@ export default function DepartmentMembersPage() {
       adminUserId: biro.admins?.[0]?.userId || ''
     });
     try {
-      if (users.length === 0) setUsers(await getStrategicUsers());
-      if (departments.length === 0) setDepartments(await getDepartments());
+      if (users.length === 0) setUsers(await getStrategicUsers().then(res => res || []));
+      if (departments.length === 0) setDepartments(await getDepartments().then(res => res || []));
     } catch (e) {}
   };
 

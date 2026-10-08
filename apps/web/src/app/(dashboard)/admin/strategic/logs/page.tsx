@@ -4,9 +4,9 @@ import LogsClient from './client';
 
 export default async function StrategicLogsPage() {
   const [logs, tasks, users] = await Promise.all([
-    getLogs(),
-    getTasks(),
-    getStrategicUsers()
+    getLogs().then(res => res || []).then(res => res || []),
+    getTasks().then(res => res || []).then(res => res || []),
+    getStrategicUsers().then(res => res || []).then(res => res || [])
   ]);
 
   return (

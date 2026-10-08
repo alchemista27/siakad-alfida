@@ -6,9 +6,9 @@ import KPIsClient from './client';
 
 export default async function StrategicKPIsPage() {
   const [kpis, programs, users] = await Promise.all([
-    getKPIs(),
-    getPrograms(),
-    getStrategicUsers()
+    getKPIs().then(res => res || []),
+    getPrograms().then(res => res || []),
+    getStrategicUsers().then(res => res || [])
   ]);
 
   const user = await requireRole([UserRole.super_admin, UserRole.admin_bidang, UserRole.pengawas_yayasan]);

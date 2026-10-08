@@ -11,7 +11,6 @@ export const auth = betterAuth({
         "https://siakad.alfida.or.id",
         "http://siakad.alfida.or.id",
         "http://localhost:3000",
-        "http://187.127.113.61:3000",
     ],
     database: prismaAdapter(prisma, {
         provider: "postgresql",

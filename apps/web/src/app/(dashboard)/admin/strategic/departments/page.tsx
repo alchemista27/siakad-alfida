@@ -4,8 +4,8 @@ import DepartmentsClient from './client';
 
 export default async function StrategicDepartmentsPage() {
   const [departments, users] = await Promise.all([
-    getDepartments(),
-    getStrategicUsers()
+    getDepartments().then(res => res || []),
+    getStrategicUsers().then(res => res || [])
   ]);
 
   return (

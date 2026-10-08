@@ -122,7 +122,7 @@ export default async function StrategicDashboard() {
           Pelaporan & Ekspor
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a href={`http://187.127.113.61:3001/strategic/kpis/export/excel?departmentId=${userDeptId}`} target="_blank" rel="noopener noreferrer" className="group block p-5 bg-surface border border-border rounded-lg hover:border-green-600 transition-all duration-300">
+          <a href={`/api/strategic/kpis/export/excel?departmentId=${userDeptId}`} target="_blank" rel="noopener noreferrer" className="group block p-5 bg-surface border border-border rounded-lg hover:border-green-600 transition-all duration-300">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors">
                 <Icon name="table_view" className="text-xl" />

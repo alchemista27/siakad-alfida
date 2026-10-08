@@ -4,8 +4,8 @@ import MilestonesClient from './client';
 
 export default async function StrategicMilestonesPage() {
   const [milestones, programs] = await Promise.all([
-    getMilestones(),
-    getPrograms()
+    getMilestones().then(res => res || []).then(res => res || []),
+    getPrograms().then(res => res || []).then(res => res || [])
   ]);
 
   return (

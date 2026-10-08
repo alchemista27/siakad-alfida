@@ -4,9 +4,9 @@ import ProgramsClient from './client';
 
 export default async function StrategicProgramsPage() {
   const [programs, departments, users] = await Promise.all([
-    getPrograms(),
-    getDepartments(),
-    getStrategicUsers()
+    getPrograms().then(res => res || []).then(res => res || []),
+    getDepartments().then(res => res || []).then(res => res || []),
+    getStrategicUsers().then(res => res || []).then(res => res || [])
   ]);
 
   return (

@@ -10,7 +10,7 @@ export default async function MeetingsPage() {
 
   const [meetings, users] = await Promise.all([
     getExecutionMeetings(token).catch(() => []),
-    getStrategicUsers().catch(() => []),
+    getStrategicUsers().then(res => res || []).catch(() => []),
   ]);
 
   return <MeetingsClient meetings={meetings} users={users} />;

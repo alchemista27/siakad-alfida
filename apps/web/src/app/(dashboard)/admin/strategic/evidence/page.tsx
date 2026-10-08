@@ -4,9 +4,9 @@ import EvidenceClient from './client';
 
 export default async function StrategicEvidencePage() {
   const [evidences, tasks, users] = await Promise.all([
-    getEvidences(),
-    getTasks(),
-    getStrategicUsers()
+    getEvidences().then(res => res || []).then(res => res || []),
+    getTasks().then(res => res || []).then(res => res || []),
+    getStrategicUsers().then(res => res || []).then(res => res || [])
   ]);
 
   return (

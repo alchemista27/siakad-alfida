@@ -14,7 +14,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
     headers.set('Authorization', `Bearer ${sessionToken}`);
   }
 
-  const baseUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001';
+  const baseUrl = process.env.INTERNAL_API_URL || 'http://127.0.0.1:3001';
   
   const url = `${baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
   
@@ -24,6 +24,12 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   });
 
   if (!res.ok) {
+    if (res.status === 401 || res.status === 403) {
+      console.warn(`[apiFetch] Unauthorized access to ${endpoint} (Status: ${res.status})`);
+      // Prevent 500 error on Next.js Server Components by returning null for unauthorized requests
+      return null;
+    }
+    
     let errorMessage = `API Request Failed with status ${res.status}`;
     try {
       const errorData = await res.json();

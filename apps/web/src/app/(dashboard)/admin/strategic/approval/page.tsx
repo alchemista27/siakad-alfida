@@ -19,7 +19,7 @@ export default function ApprovalPage() {
 
   const fetchData = async () => {
     try {
-      const data = await getKPIs();
+      const data = await getKPIs().then(res => res || []);
       // Filter KPIs that need baseline approval
       const submittedKpis = data.filter((k: any) => k.baselineStatus === 'submitted');
       setKpis(submittedKpis);
