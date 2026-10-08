@@ -38,6 +38,7 @@ enum UserRole {
   murobbi
   supervisor_kesiswaan
   pengawas_yayasan
+  pimpinan_yayasan
 
   @@schema("sim")
 }
