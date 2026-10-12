@@ -7,6 +7,7 @@ import { Modal } from "@/components/ui/modal";
 import { Icon } from "@/components/ui/icon";
 import type {  SubjectLevel  } from "@sim/database";
 import { createSubject, updateSubject, deleteSubject } from "@/actions/academic";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 interface SubjectData {
   id: string;
@@ -17,6 +18,8 @@ interface SubjectData {
 }
 
 export function SubjectClient({ initialData }: { initialData: SubjectData[] }) {
+  const { confirm } = useConfirm();
+
   const [subjects, setSubjects] = useState(initialData);
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -86,7 +89,7 @@ export function SubjectClient({ initialData }: { initialData: SubjectData[] }) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus mapel ini?")) return;
+    if (!await confirm({ message: "Apakah Anda yakin ingin menghapus mapel ini?", destructive: true })) return;
     
     setLoading(true);
     const res = await deleteSubject(id);

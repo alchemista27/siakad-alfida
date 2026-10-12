@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { NotificationModal } from "@/components/ui/notification-modal";
 import { createInventoryItem, updateInventoryItem, deleteInventoryItem } from "@/actions/inventory";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 interface InventoryItem {
   id: string;
@@ -51,6 +52,8 @@ const CONDITIONS = [
 ];
 
 export function InventoryClient({ initialItems, stats, departments, units }: InventoryClientProps) {
+  const { confirm } = useConfirm();
+
   const router = useRouter();
   const [items, setItems] = useState<InventoryItem[]>(initialItems);
   const [search, setSearch] = useState("");
@@ -144,7 +147,7 @@ export function InventoryClient({ initialItems, stats, departments, units }: Inv
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Yakin ingin menghapus aset "${name}" dari inventaris?`)) return;
+    if (!await confirm({ message: `Yakin ingin menghapus aset "${name}" dari inventaris?`, destructive: true })) return;
     try {
       await deleteInventoryItem(id);
       router.refresh();

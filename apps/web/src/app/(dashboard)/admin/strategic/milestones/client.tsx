@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createMilestone, updateMilestone, deleteMilestone } from '@/actions/strategic';
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 type Program = { id: string; title: string; };
 type Milestone = {
@@ -15,6 +16,8 @@ type Milestone = {
 };
 
 export default function MilestonesClient({ initialData, programs }: { initialData: Milestone[], programs: Program[] }) {
+  const { confirm } = useConfirm();
+
   const router = useRouter();
   const [milestones, setMilestones] = useState<Milestone[]>(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -67,7 +70,7 @@ export default function MilestonesClient({ initialData, programs }: { initialDat
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Yakin ingin menghapus milestone ini?')) return;
+    if (!await confirm({ message: 'Yakin ingin menghapus milestone ini?', destructive: true })) return;
     try {
       await deleteMilestone(id);
       router.refresh();

@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { createSchedule, deleteSchedule } from "@/actions/observation-schedule";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function ObservationScheduleClient({ schedules, academicYearId }: { schedules: any[], academicYearId: string }) {
+  const { confirm } = useConfirm();
+
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   
@@ -33,7 +36,7 @@ export function ObservationScheduleClient({ schedules, academicYearId }: { sched
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Hapus jadwal ini?")) {
+    if (await confirm({ message: "Hapus jadwal ini?", destructive: true })) {
       const res = await deleteSchedule(id);
       if (!res.success) alert(res.error);
     }

@@ -4,8 +4,11 @@ import { useState, useTransition } from "react";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { createCharacterIndicator, deleteCharacterIndicator } from "@/actions/unit-monitoring";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function CharacterIndicatorsClient({ units, indicators }: any) {
+  const { confirm } = useConfirm();
+
   const [selectedUnit, setSelectedUnit] = useState(units[0]?.id || "");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -24,8 +27,8 @@ export function CharacterIndicatorsClient({ units, indicators }: any) {
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (!confirm("Yakin ingin menghapus indikator ini? Data penilaian terkait mungkin akan hilang!")) return;
+  const handleDelete = async (id: string) => {
+    if (!await confirm({ message: "Yakin ingin menghapus indikator ini? Data penilaian terkait mungkin akan hilang!", destructive: true })) return;
     
     startTransition(async () => {
       await deleteCharacterIndicator(id);

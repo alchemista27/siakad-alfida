@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { upsertExtraSchedule, deleteExtraSchedule, upsertExtraJournal, deleteExtraJournal, upsertExtraGrade } from "@/actions/extracurricular";
 import type {  DayOfWeek  } from "@sim/database";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function ExtracurricularCoachClient({ extras }: { extras: any[] }) {
+  const { confirm } = useConfirm();
+
   const [selectedExtraId, setSelectedExtraId] = useState<string>(extras.length > 0 ? extras[0].id : "");
   const [activeTab, setActiveTab] = useState<"schedules" | "journals" | "grades">("schedules");
   const [loading, setLoading] = useState(false);
@@ -142,7 +145,7 @@ export function ExtracurricularCoachClient({ extras }: { extras: any[] }) {
   };
 
   const handleDeleteSchedule = async (id: string) => {
-    if (!confirm("Hapus jadwal ini?")) return;
+    if (!await confirm({ message: "Hapus jadwal ini?", destructive: true })) return;
     setLoading(true);
     const res = await deleteExtraSchedule(id);
     if (res.success) window.location.reload();
@@ -151,7 +154,7 @@ export function ExtracurricularCoachClient({ extras }: { extras: any[] }) {
   };
 
   const handleDeleteJournal = async (id: string) => {
-    if (!confirm("Hapus jurnal ini?")) return;
+    if (!await confirm({ message: "Hapus jurnal ini?", destructive: true })) return;
     setLoading(true);
     const res = await deleteExtraJournal(id);
     if (res.success) window.location.reload();

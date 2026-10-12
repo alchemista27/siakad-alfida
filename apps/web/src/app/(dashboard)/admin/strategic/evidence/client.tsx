@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createEvidence, updateEvidence, deleteEvidence } from '@/actions/strategic';
 import { NotificationModal } from '@/components/ui/notification-modal';
 import { CloudinaryUpload } from '@/components/ui/cloudinary-upload';
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 type User = { id: string; fullName: string; };
 type Program = { title: string; };
@@ -25,6 +26,8 @@ type Evidence = {
 };
 
 export default function EvidenceClient({ initialData, tasks, users }: { initialData: Evidence[], tasks: Task[], users: User[] }) {
+  const { confirm } = useConfirm();
+
   const router = useRouter();
   const [evidences, setEvidences] = useState<Evidence[]>(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -91,7 +94,7 @@ export default function EvidenceClient({ initialData, tasks, users }: { initialD
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Yakin ingin menghapus dokumen ini?')) return;
+    if (!await confirm({ message: 'Yakin ingin menghapus dokumen ini?', destructive: true })) return;
     try {
       await deleteEvidence(id);
       router.refresh();

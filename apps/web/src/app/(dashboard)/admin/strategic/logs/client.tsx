@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createLog, updateLog, deleteLog } from '@/actions/strategic';
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 type User = { id: string; fullName: string; };
 type Program = { title: string; };
@@ -21,6 +22,8 @@ type Log = {
 };
 
 export default function LogsClient({ initialData, tasks, users }: { initialData: Log[], tasks: Task[], users: User[] }) {
+  const { confirm } = useConfirm();
+
   const router = useRouter();
   const [logs, setLogs] = useState<Log[]>(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -79,7 +82,7 @@ export default function LogsClient({ initialData, tasks, users }: { initialData:
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Yakin ingin menghapus log realisasi ini?')) return;
+    if (!await confirm({ message: 'Yakin ingin menghapus log realisasi ini?', destructive: true })) return;
     try {
       await deleteLog(id);
       router.refresh();

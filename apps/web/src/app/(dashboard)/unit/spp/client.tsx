@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { generateBulkSppInvoices, verifySppInvoice } from "@/actions/spp";
 import { DocumentViewerModal } from "@/components/unit/document-viewer-modal";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function UnitSppClient({ 
   invoices, 
@@ -13,6 +14,8 @@ export function UnitSppClient({
   unitId: string,
   academicYearId: string
 }) {
+  const { confirm } = useConfirm();
+
   const [loading, setLoading] = useState(false);
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
   
@@ -39,7 +42,7 @@ export function UnitSppClient({
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!confirm(`Generate tagihan Rp ${genAmount.toLocaleString('id-ID')} untuk seluruh siswa aktif pada bulan ${genMonth}/${genYear}?`)) return;
+    if (!await confirm({ message: `Generate tagihan Rp ${genAmount.toLocaleString('id-ID')} untuk seluruh siswa aktif pada bulan ${genMonth}/${genYear}?`, destructive: true })) return;
     
     setLoading(true);
     const formData = new FormData();

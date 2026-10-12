@@ -4,8 +4,11 @@ import { useState, useRef } from "react";
 import { batchImportUsers } from "@/actions/users";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function UserUploadClient() {
+  const { confirm } = useConfirm();
+
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -18,7 +21,7 @@ export function UserUploadClient() {
       return;
     }
 
-    const confirmImport = confirm(`Apakah Anda yakin ingin mengimpor pengguna dari ${file.name}?`);
+    const confirmImport = await confirm({ message: `Apakah Anda yakin ingin mengimpor pengguna dari ${file.name}?`, destructive: true });
     if (!confirmImport) {
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;

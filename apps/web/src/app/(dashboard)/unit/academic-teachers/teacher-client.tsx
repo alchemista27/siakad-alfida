@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Modal } from "@/components/ui/modal";
 import { assignHomeroomTeacher, removeHomeroomAssignment, assignTeacherToSubject, removeTeacherAssignment } from "@/actions/academic";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function TeacherClient({
   academicYearId,
@@ -14,6 +15,8 @@ export function TeacherClient({
   teacherAssignments,
   homeroomAssignments,
 }: any) {
+  const { confirm } = useConfirm();
+
   const [activeTab, setActiveTab] = useState<"homeroom" | "subject">("homeroom");
   const [loading, setLoading] = useState(false);
 
@@ -38,7 +41,7 @@ export function TeacherClient({
   };
 
   const handleRemoveHomeroom = async (id: string) => {
-    if (!confirm("Hapus penugasan wali kelas ini?")) return;
+    if (!await confirm({ message: "Hapus penugasan wali kelas ini?", destructive: true })) return;
     setLoading(true);
     const res = await removeHomeroomAssignment(id);
     if (res.success) window.location.reload();
@@ -58,7 +61,7 @@ export function TeacherClient({
   };
 
   const handleRemoveSubject = async (id: string) => {
-    if (!confirm("Hapus penugasan guru mapel ini?")) return;
+    if (!await confirm({ message: "Hapus penugasan guru mapel ini?", destructive: true })) return;
     setLoading(true);
     const res = await removeTeacherAssignment(id);
     if (res.success) window.location.reload();

@@ -12,6 +12,7 @@ import {
   addLiqoMember, 
   removeLiqoMember 
 } from "@/actions/bpi";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 type LiqoGroup = {
   id: string;
@@ -66,6 +67,8 @@ export function LiqoClient({
   }[];
   globalMutabaahStats?: any;
 }) {
+  const { confirm } = useConfirm();
+
   const [activeTab, setActiveTab] = useState<"groups" | "stats" | "global-mutabaah">("groups");
 
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
@@ -160,7 +163,7 @@ export function LiqoClient({
 
   const handleRemoveMember = async (userId: string) => {
     if (!selectedGroup) return;
-    if (!confirm("Apakah Anda yakin ingin menghapus anggota ini?")) return;
+    if (!await confirm({ message: "Apakah Anda yakin ingin menghapus anggota ini?", destructive: true })) return;
     
     try {
       await removeLiqoMember(selectedGroup.id, userId);

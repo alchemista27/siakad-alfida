@@ -9,6 +9,7 @@ import type {  LeaveStatus, LeaveType  } from "@sim/database";
 import { approveLeaveRequest, rejectLeaveRequest } from "@/actions/leave-approval";
 import { useRouter } from "next/navigation";
 import type {  Prisma  } from "@sim/database";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 type LeaveRequestWithUser = Prisma.LeaveRequestGetPayload<{
   include: {
@@ -26,6 +27,8 @@ interface ApprovalClientProps {
 }
 
 export function ApprovalClient({ initialLeaves }: ApprovalClientProps) {
+  const { confirm } = useConfirm();
+
   const [activeTab, setActiveTab] = useState<"pending" | "history">("pending");
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const router = useRouter();
@@ -46,9 +49,7 @@ export function ApprovalClient({ initialLeaves }: ApprovalClientProps) {
 
     if (leave.type === "cuti") {
       if (
-        !window.confirm(
-          `Menyetujui cuti ini akan memotong sisa kuota cuti karyawan sebanyak ${days} hari. Lanjutkan?`
-        )
+        !await confirm({ message: `Menyetujui cuti ini akan memotong sisa kuota cuti karyawan sebanyak ${days} hari. Lanjutkan?`, destructive: true })
       ) {
         return;
       }
@@ -67,7 +68,7 @@ export function ApprovalClient({ initialLeaves }: ApprovalClientProps) {
   };
 
   const handleReject = async (leave: LeaveRequestWithUser) => {
-    if (!window.confirm("Tolak pengajuan ini?")) return;
+    if (!await confirm({ message: "Tolak pengajuan ini?", destructive: true })) return;
 
     try {
       setLoadingId(leave.id);

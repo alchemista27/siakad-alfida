@@ -7,6 +7,7 @@ import { useAuth } from '@/components/providers/auth-provider';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { ProgramUploadModal, downloadWorkProgramTemplate } from '@/components/strategic/program-upload-modal';
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 type User = { id: string; fullName: string; email: string };
 type Department = { id: string; name: string; };
@@ -23,6 +24,8 @@ type Program = {
 };
 
 export default function ProgramsClient({ initialData, departments, users }: { initialData: Program[], departments: Department[], users: User[] }) {
+  const { confirm } = useConfirm();
+
   const router = useRouter();
   const { user: currentUser } = useAuth();
   const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === 'super_admin');
@@ -83,7 +86,7 @@ export default function ProgramsClient({ initialData, departments, users }: { in
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Yakin ingin menghapus program ini?')) return;
+    if (!await confirm({ message: 'Yakin ingin menghapus program ini?', destructive: true })) return;
     try {
       await deleteProgram(id);
       router.refresh();

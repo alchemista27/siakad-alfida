@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { upsertExtracurricular, assignCoach, removeCoach } from "@/actions/extracurricular";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function ExtracurricularAdminClient({ 
   extras, 
@@ -12,6 +13,8 @@ export function ExtracurricularAdminClient({
   teachers: any[],
   academicYearId: string
 }) {
+  const { confirm } = useConfirm();
+
   const [loading, setLoading] = useState(false);
   
   // Extra Form State
@@ -86,7 +89,7 @@ export function ExtracurricularAdminClient({
   };
 
   const handleRemoveCoach = async (assignmentId: string) => {
-    if (!confirm("Cabut pembina ini?")) return;
+    if (!await confirm({ message: "Cabut pembina ini?", destructive: true })) return;
     setLoading(true);
     const res = await removeCoach(assignmentId);
     if (!res.success) alert("Error: " + res.error);

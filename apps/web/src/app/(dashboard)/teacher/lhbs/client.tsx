@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { generateLhbsReport } from "@/actions/lhbs";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function TeacherLhbsClient({ 
   enrollments, 
@@ -10,6 +11,8 @@ export function TeacherLhbsClient({
   enrollments: any[], 
   homeroomClasses: any[]
 }) {
+  const { confirm } = useConfirm();
+
   const [loading, setLoading] = useState(false);
   const [selectedClassId, setSelectedClassId] = useState<string>(homeroomClasses.length > 0 ? homeroomClasses[0].id : "");
   const [semester, setSemester] = useState<"mid" | "final">("mid");
@@ -31,7 +34,7 @@ export function TeacherLhbsClient({
   };
 
   const handleBulkGenerate = async () => {
-    if (!confirm("Generate rapor untuk seluruh siswa di kelas ini? Proses ini mungkin membutuhkan waktu beberapa saat.")) return;
+    if (!await confirm({ message: "Generate rapor untuk seluruh siswa di kelas ini? Proses ini mungkin membutuhkan waktu beberapa saat.", destructive: true })) return;
     
     setLoading(true);
     let successCount = 0;

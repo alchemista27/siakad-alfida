@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { createClass, deleteClass } from "@/actions/classes";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function ClassManagementClient({ classes, academicYearId, unitId }: { classes: any[], academicYearId: string, unitId: string }) {
+  const { confirm } = useConfirm();
+
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   
@@ -30,7 +33,7 @@ export function ClassManagementClient({ classes, academicYearId, unitId }: { cla
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Hapus kelas ini?")) {
+    if (await confirm({ message: "Hapus kelas ini?", destructive: true })) {
       const res = await deleteClass(id);
       if (!res.success) alert(res.error);
     }

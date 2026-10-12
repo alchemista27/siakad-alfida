@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { getClassSchedules, upsertClassSchedule, deleteClassSchedule } from "@/actions/schedules";
 import { DayOfWeek } from "@sim/shared";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function ScheduleManager({ 
   classes, 
@@ -13,6 +14,8 @@ export function ScheduleManager({
   subjects: any[], 
   teachers: any[] 
 }) {
+  const { confirm } = useConfirm();
+
   const [selectedClassId, setSelectedClassId] = useState<string>("");
   const [schedules, setSchedules] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -94,7 +97,7 @@ export function ScheduleManager({
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Hapus jadwal ini?")) return;
+    if (!await confirm({ message: "Hapus jadwal ini?", destructive: true })) return;
     
     setLoading(true);
     const res = await deleteClassSchedule(id);

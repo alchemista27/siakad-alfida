@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { getTeachingJournals, upsertTeachingJournal, deleteTeachingJournal } from "@/actions/teaching-journals";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function JournalClient({ assignments }: { assignments: any[] }) {
+  const { confirm } = useConfirm();
+
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>("");
   const [journals, setJournals] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -76,7 +79,7 @@ export function JournalClient({ assignments }: { assignments: any[] }) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Hapus jurnal ini?")) return;
+    if (!await confirm({ message: "Hapus jurnal ini?", destructive: true })) return;
     
     setLoading(true);
     const res = await deleteTeachingJournal(id);

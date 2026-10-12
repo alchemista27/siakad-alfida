@@ -8,6 +8,7 @@ import { Icon } from '@/components/ui/icon';
 
 import { NotificationModal } from '@/components/ui/notification-modal';
 import { KpiUploadModal } from '@/components/strategic/kpi-upload-modal';
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 type User = { id: string; fullName: string; email: string };
 type Program = { id: string; title: string; };
@@ -28,6 +29,8 @@ type KPI = {
 };
 
 export default function KPIsClient({ initialData, programs, users, isPengawas }: { initialData: KPI[], programs: Program[], users: User[], isPengawas?: boolean }) {
+  const { confirm } = useConfirm();
+
   const router = useRouter();
   const { user: currentUser } = useAuth();
   const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === 'super_admin');
@@ -106,7 +109,7 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
 
   const handleDelete = async (id: string) => {
     if (isPengawas) return;
-    if (!confirm('Yakin ingin menghapus KPI ini?')) return;
+    if (!await confirm({ message: 'Yakin ingin menghapus KPI ini?', destructive: true })) return;
     try {
       await deleteKPI(id);
       router.refresh();
@@ -117,7 +120,7 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
   };
 
   const handleSubmitBaseline = async (id: string) => {
-    if (!confirm('Ajukan baseline KPI ke Bidang?')) return;
+    if (!await confirm({ message: 'Ajukan baseline KPI ke Bidang?', destructive: true })) return;
     try {
       await submitKPIBaseline(id, "");
       router.refresh();
@@ -129,7 +132,7 @@ export default function KPIsClient({ initialData, programs, users, isPengawas }:
 
   const handleVerifyBaseline = async (id: string, status: string) => {
     const isApproved = status === 'approved';
-    if (!confirm(isApproved ? 'Setujui baseline KPI ini?' : 'Tolak baseline KPI ini?')) return;
+    if (!await confirm({ message: isApproved ? 'Setujui baseline KPI ini?' : 'Tolak baseline KPI ini?', destructive: true })) return;
     try {
       await verifyKPIBaseline(id, status);
       router.refresh();

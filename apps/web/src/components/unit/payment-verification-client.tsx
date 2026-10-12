@@ -4,13 +4,16 @@ import React, { useState } from "react";
 import { verifyPaymentAction } from "@/actions/unit-ppdb";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function PaymentVerificationClient({ registrationId }: { registrationId: string }) {
+  const { confirm } = useConfirm();
+
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleVerify = async (isApproved: boolean) => {
     // Basic confirm
-    if (!isApproved && !confirm("Yakin ingin menolak pembayaran ini? Orang tua harus mengupload ulang.")) {
+    if (!isApproved && !await confirm({ message: "Yakin ingin menolak pembayaran ini? Orang tua harus mengupload ulang.", destructive: true })) {
       return;
     }
     

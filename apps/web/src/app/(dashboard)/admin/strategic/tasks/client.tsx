@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createTask, updateTask, deleteTask } from '@/actions/strategic';
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 type User = { id: string; fullName: string; };
 type Program = { id: string; title: string; };
@@ -21,6 +22,8 @@ type Task = {
 };
 
 export default function TasksClient({ initialData, milestones, users }: { initialData: Task[], milestones: Milestone[], users: User[] }) {
+  const { confirm } = useConfirm();
+
   const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -79,7 +82,7 @@ export default function TasksClient({ initialData, milestones, users }: { initia
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Yakin ingin menghapus task ini?')) return;
+    if (!await confirm({ message: 'Yakin ingin menghapus task ini?', destructive: true })) return;
     try {
       await deleteTask(id);
       router.refresh();

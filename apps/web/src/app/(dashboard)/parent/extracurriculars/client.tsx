@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { joinExtracurricular, leaveExtracurricular } from "@/actions/extracurricular";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function ParentExtracurricularClient({ 
   enrollments, 
@@ -12,6 +13,8 @@ export function ParentExtracurricularClient({
   extras: any[],
   academicYearId: string
 }) {
+  const { confirm } = useConfirm();
+
   const [selectedEnrollmentId, setSelectedEnrollmentId] = useState<string>(
     enrollments.length > 0 ? enrollments[0].id : ""
   );
@@ -40,7 +43,7 @@ export function ParentExtracurricularClient({
   };
 
   const handleLeave = async (memberId: string) => {
-    if (!confirm("Apakah Anda yakin ingin membatalkan keikutsertaan ekskul ini?")) return;
+    if (!await confirm({ message: "Apakah Anda yakin ingin membatalkan keikutsertaan ekskul ini?", destructive: true })) return;
     setLoading(true);
     const res = await leaveExtracurricular(memberId);
     if (res.success) {

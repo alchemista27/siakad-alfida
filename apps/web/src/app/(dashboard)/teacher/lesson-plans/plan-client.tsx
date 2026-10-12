@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import { getLessonPlans, upsertLessonPlan, deleteLessonPlan } from "@/actions/lesson-plans";
 import type {  LessonPlanType  } from "@sim/database";
+import { useConfirm } from '@/components/providers/confirm-provider';
 
 export function PlanClient({ academicYearId, subjects }: { academicYearId: string, subjects: any[] }) {
+  const { confirm } = useConfirm();
+
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -94,7 +97,7 @@ export function PlanClient({ academicYearId, subjects }: { academicYearId: strin
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Hapus dokumen perencanaan ini?")) return;
+    if (!await confirm({ message: "Hapus dokumen perencanaan ini?", destructive: true })) return;
     
     setLoading(true);
     const res = await deleteLessonPlan(id);

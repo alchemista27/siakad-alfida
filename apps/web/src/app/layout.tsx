@@ -21,6 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 import AppProgressBar from "@/components/progress-bar";
+import { ConfirmProvider } from "@/components/providers/confirm-provider";
 
 export default function RootLayout({
   children,
@@ -49,8 +50,10 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased min-h-screen bg-neutral text-primary">
-        {children}
-        <AppProgressBar />
+        <ConfirmProvider>
+          {children}
+          <AppProgressBar />
+        </ConfirmProvider>
       </body>
     </html>
   );
