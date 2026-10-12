@@ -68,6 +68,19 @@ export default async function DepartmentReportPage({
         </a>
       </div>
 
+      {/* Catatan / Arahan Pimpinan jika ada */}
+      {department.notes && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-5 shadow-sm">
+          <div className="flex items-center gap-2 text-amber-900 font-bold mb-1">
+            <Icon name="rate_review" className="text-amber-800" />
+            <span>Arahan & Evaluasi Pimpinan Yayasan</span>
+          </div>
+          <p className="text-sm text-gray-700 whitespace-pre-line pl-7">
+            {department.notes}
+          </p>
+        </div>
+      )}
+
       {programs.length === 0 ? (
         <div className="bg-surface border border-border p-8 rounded-md text-center">
           <Icon name="folder_off" className="text-5xl text-gray-300 mb-3" />

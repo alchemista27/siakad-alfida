@@ -2,7 +2,13 @@ import React from 'react';
 import { Icon } from './icon';
 import Link from 'next/link';
 
-export function HeatmapKPI({ departments }: { departments: any[] }) {
+export function HeatmapKPI({ 
+  departments,
+  basePath = "/pengawas/department"
+}: { 
+  departments: any[];
+  basePath?: string;
+}) {
   // Fungsi hitung skor average kpi per unit
   const calculateScore = (programs: any[]) => {
     if (!programs || programs.length === 0) return null;
@@ -44,7 +50,7 @@ export function HeatmapKPI({ departments }: { departments: any[] }) {
         {departments.map(dept => {
           const score = calculateScore(dept.workPrograms);
           return (
-            <Link href={`/pengawas/department/${dept.id}`} key={dept.id}>
+            <Link href={`${basePath}/${dept.id}`} key={dept.id}>
               <div className={`p-4 rounded-md border text-center transition-colors ${getColor(score)}`}>
                 <div className="font-bold text-sm truncate" title={dept.name}>{dept.name}</div>
                 <div className="text-xl font-bold mt-1">{score !== null ? `${score.toFixed(0)}%` : '-'}</div>

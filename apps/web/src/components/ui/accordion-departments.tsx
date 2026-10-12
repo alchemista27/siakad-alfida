@@ -3,7 +3,13 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Icon } from './icon';
 
-export function AccordionDepartments({ departments }: { departments: any[] }) {
+export function AccordionDepartments({ 
+  departments,
+  basePath = "/pengawas/department"
+}: { 
+  departments: any[];
+  basePath?: string;
+}) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   const toggle = (id: string) => {
@@ -34,7 +40,7 @@ export function AccordionDepartments({ departments }: { departments: any[] }) {
               </div>
               <div className="flex items-center gap-4">
                 <Link 
-                  href={`/pengawas/department/${dept.id}`} 
+                  href={`${basePath}/${dept.id}`} 
                   onClick={(e) => e.stopPropagation()}
                   className="px-4 py-2 bg-white border border-gray-300 text-sm font-semibold rounded hover:bg-gray-50 transition-colors"
                 >
@@ -54,7 +60,7 @@ export function AccordionDepartments({ departments }: { departments: any[] }) {
                        <h4 className="font-bold text-gray-800 mb-1">{biro.name}</h4>
                        <p className="text-xs text-gray-500 mb-4">{biro.workPrograms?.length || 0} Program Kerja terdaftar</p>
                        <Link 
-                         href={`/pengawas/department/${biro.id}`} 
+                         href={`${basePath}/${biro.id}`} 
                          className="text-xs font-semibold text-tertiary hover:underline flex items-center gap-1"
                        >
                          Lihat Laporan Biro <Icon name="arrow_forward" className="text-[10px]" />

@@ -83,6 +83,7 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Dashboard Eksekutif", href: "/bph-dashboard", icon: "monitoring" },
       { title: "Laporan Per Bidang", href: "/pengawas/departments", icon: "domain" },
+      { title: "Arahan Pimpinan", href: "/pimpinan/departments", icon: "rate_review" },
     ],
   },
   {
@@ -207,6 +208,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const isParent = userRoles.some((r: any) => r.role === "orang_tua");
   const isAdminPendidikan = userRoles.some((r: any) => r.role === "admin_bidang") && user?.email?.toLowerCase().includes("pendidikan");
   const isPengawas = userRoles.some((r: any) => r.role === "pengawas_yayasan");
+  const isPimpinan = userRoles.some((r: any) => r.role === "pimpinan_yayasan");
 
   const filteredGroups = navGroups.map(group => {
     // Hide auth links if logged in
@@ -244,9 +246,19 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
       return allowedForSuperAdmin.includes(group.title);
     }
 
-    // Pengecualian MUTLAK untuk Pengawas Yayasan
-    if (isPengawas) {
-      return group.title === "Auth & Utama" || group.title === "BPH (Board)";
+    // Pengecualian MUTLAK untuk Pengawas dan Pimpinan Yayasan
+    if (isPengawas || isPimpinan) {
+      if (group.title === "BPH (Board)") {
+        return {
+          ...group,
+          items: group.items.filter(item => {
+            // Sembunyikan Arahan Pimpinan jika hanya pengawas biasa
+            if (item.href === "/pimpinan/departments" && !isPimpinan && !isSuperAdmin) return false;
+            return true;
+          })
+        };
+      }
+      return group.title === "Auth & Utama";
     }
 
     // Filter groups based on role strictly for non-super-admins and non-pengawas
