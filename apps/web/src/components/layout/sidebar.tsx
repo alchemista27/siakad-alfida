@@ -27,6 +27,15 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    title: "Layanan Terpadu (Subdomain)",
+    items: [
+      { title: "SIMAKIN (Kinerja)", href: "https://simakin.alfida.or.id", icon: "assignment" },
+      { title: "SIMPEG (Kepegawaian)", href: "https://simpeg.alfida.or.id", icon: "badge" },
+      { title: "SIYAUM (Al-Qur'an)", href: "https://siyaum.alfida.or.id", icon: "menu_book" },
+      { title: "Auth SSO & Akun", href: "https://auth.alfida.or.id", icon: "manage_accounts" },
+    ],
+  },
+  {
     title: "Super Admin",
     items: [
       { title: "Dashboard Admin", href: "/admin/dashboard", icon: "dashboard" },
@@ -89,6 +98,7 @@ const navGroups: NavGroup[] = [
   {
     title: "Admin Unit (SPMB)",
     items: [
+      { title: "Portal SPMB Baru", href: "https://spmb.alfida.or.id/admin", icon: "open_in_new" },
       { title: "Dashboard Unit", href: "/unit/dashboard", icon: "speed" },
       { title: "Settings Unit", href: "/unit/settings", icon: "tune" },
       { title: "Overview SPMB", href: "/unit/ppdb-overview", icon: "calendar_month" },
@@ -112,6 +122,7 @@ const navGroups: NavGroup[] = [
   {
     title: "Portal Orang Tua",
     items: [
+      { title: "Portal SPMB Online", href: "https://spmb.alfida.or.id", icon: "open_in_new" },
       { title: "Dashboard Ortu", href: "/parent/dashboard", icon: "home" },
       { title: "Pilih Unit (Daftar Baru)", href: "/parent/select-unit", icon: "school" },
     ],
@@ -234,6 +245,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
     if (isSuperAdmin) {
       const allowedForSuperAdmin = [
         "Auth & Utama", 
+        "Layanan Terpadu (Subdomain)",
         "Super Admin", 
         "Manajemen Karyawan", 
         "Perencanaan & Monitoring",
@@ -319,7 +331,11 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                       onClick={(e) => {
                         e.preventDefault();
                         if (onCloseMobile) onCloseMobile();
-                        router.push(item.href);
+                        if (item.href.startsWith("http")) {
+                          window.location.href = item.href;
+                        } else {
+                          router.push(item.href);
+                        }
                       }}
                       className={cn(
                         "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-medium rounded transition-colors text-left",

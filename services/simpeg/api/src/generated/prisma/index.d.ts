@@ -1,0 +1,22349 @@
+
+/**
+ * Client
+**/
+
+import * as runtime from './runtime/library.js';
+import $Types = runtime.Types // general types
+import $Public = runtime.Types.Public
+import $Utils = runtime.Types.Utils
+import $Extensions = runtime.Types.Extensions
+import $Result = runtime.Types.Result
+
+export type PrismaPromise<T> = $Public.PrismaPromise<T>
+
+
+/**
+ * Model User
+ * 
+ */
+export type User = $Result.DefaultSelection<Prisma.$UserPayload>
+/**
+ * Model EmployeeProfile
+ * 
+ */
+export type EmployeeProfile = $Result.DefaultSelection<Prisma.$EmployeeProfilePayload>
+/**
+ * Model EmployeeUnitAssignment
+ * 
+ */
+export type EmployeeUnitAssignment = $Result.DefaultSelection<Prisma.$EmployeeUnitAssignmentPayload>
+/**
+ * Model GpsAttendanceConfig
+ * 
+ */
+export type GpsAttendanceConfig = $Result.DefaultSelection<Prisma.$GpsAttendanceConfigPayload>
+/**
+ * Model GpsAttendance
+ * 
+ */
+export type GpsAttendance = $Result.DefaultSelection<Prisma.$GpsAttendancePayload>
+/**
+ * Model Holiday
+ * 
+ */
+export type Holiday = $Result.DefaultSelection<Prisma.$HolidayPayload>
+/**
+ * Model LeaveRequest
+ * 
+ */
+export type LeaveRequest = $Result.DefaultSelection<Prisma.$LeaveRequestPayload>
+/**
+ * Model LiqoGroup
+ * 
+ */
+export type LiqoGroup = $Result.DefaultSelection<Prisma.$LiqoGroupPayload>
+/**
+ * Model LiqoMember
+ * 
+ */
+export type LiqoMember = $Result.DefaultSelection<Prisma.$LiqoMemberPayload>
+/**
+ * Model LiqoMeeting
+ * 
+ */
+export type LiqoMeeting = $Result.DefaultSelection<Prisma.$LiqoMeetingPayload>
+/**
+ * Model LiqoAttendance
+ * 
+ */
+export type LiqoAttendance = $Result.DefaultSelection<Prisma.$LiqoAttendancePayload>
+/**
+ * Model MutabaahRecord
+ * 
+ */
+export type MutabaahRecord = $Result.DefaultSelection<Prisma.$MutabaahRecordPayload>
+
+/**
+ * Enums
+ */
+export namespace $Enums {
+  export const GpsAttendanceStatus: {
+  present: 'present',
+  late: 'late',
+  absent: 'absent',
+  leave: 'leave'
+};
+
+export type GpsAttendanceStatus = (typeof GpsAttendanceStatus)[keyof typeof GpsAttendanceStatus]
+
+
+export const LeaveType: {
+  cuti: 'cuti',
+  sakit: 'sakit',
+  izin: 'izin'
+};
+
+export type LeaveType = (typeof LeaveType)[keyof typeof LeaveType]
+
+
+export const LeaveStatus: {
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected'
+};
+
+export type LeaveStatus = (typeof LeaveStatus)[keyof typeof LeaveStatus]
+
+
+export const DayOfWeek: {
+  monday: 'monday',
+  tuesday: 'tuesday',
+  wednesday: 'wednesday',
+  thursday: 'thursday',
+  friday: 'friday',
+  saturday: 'saturday'
+};
+
+export type DayOfWeek = (typeof DayOfWeek)[keyof typeof DayOfWeek]
+
+
+export const AttendanceStatus: {
+  present: 'present',
+  sick: 'sick',
+  permitted: 'permitted',
+  absent: 'absent'
+};
+
+export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof AttendanceStatus]
+
+}
+
+export type GpsAttendanceStatus = $Enums.GpsAttendanceStatus
+
+export const GpsAttendanceStatus: typeof $Enums.GpsAttendanceStatus
+
+export type LeaveType = $Enums.LeaveType
+
+export const LeaveType: typeof $Enums.LeaveType
+
+export type LeaveStatus = $Enums.LeaveStatus
+
+export const LeaveStatus: typeof $Enums.LeaveStatus
+
+export type DayOfWeek = $Enums.DayOfWeek
+
+export const DayOfWeek: typeof $Enums.DayOfWeek
+
+export type AttendanceStatus = $Enums.AttendanceStatus
+
+export const AttendanceStatus: typeof $Enums.AttendanceStatus
+
+/**
+ * ##  Prisma Client ʲˢ
+ *
+ * Type-safe database client for TypeScript & Node.js
+ * @example
+ * ```
+ * const prisma = new PrismaClient()
+ * // Fetch zero or more Users
+ * const users = await prisma.user.findMany()
+ * ```
+ *
+ *
+ * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+ */
+export class PrismaClient<
+  ClientOptions extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions,
+  const U = 'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never,
+  ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs
+> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
+
+    /**
+   * ##  Prisma Client ʲˢ
+   *
+   * Type-safe database client for TypeScript & Node.js
+   * @example
+   * ```
+   * const prisma = new PrismaClient()
+   * // Fetch zero or more Users
+   * const users = await prisma.user.findMany()
+   * ```
+   *
+   *
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+   */
+
+  constructor(optionsArg ?: Prisma.Subset<ClientOptions, Prisma.PrismaClientOptions>);
+  $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): PrismaClient;
+
+  /**
+   * Connect with the database
+   */
+  $connect(): $Utils.JsPromise<void>;
+
+  /**
+   * Disconnect from the database
+   */
+  $disconnect(): $Utils.JsPromise<void>;
+
+/**
+   * Executes a prepared raw query and returns the number of affected rows.
+   * @example
+   * ```
+   * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
+   * ```
+   *
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   */
+  $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
+
+  /**
+   * Executes a raw query and returns the number of affected rows.
+   * Susceptible to SQL injections, see documentation.
+   * @example
+   * ```
+   * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
+   * ```
+   *
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   */
+  $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
+
+  /**
+   * Performs a prepared raw query and returns the `SELECT` data.
+   * @example
+   * ```
+   * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
+   * ```
+   *
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   */
+  $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
+
+  /**
+   * Performs a raw query and returns the `SELECT` data.
+   * Susceptible to SQL injections, see documentation.
+   * @example
+   * ```
+   * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
+   * ```
+   *
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   */
+  $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
+
+
+  /**
+   * Allows the running of a sequence of read/write operations that are guaranteed to either succeed or fail as a whole.
+   * @example
+   * ```
+   * const [george, bob, alice] = await prisma.$transaction([
+   *   prisma.user.create({ data: { name: 'George' } }),
+   *   prisma.user.create({ data: { name: 'Bob' } }),
+   *   prisma.user.create({ data: { name: 'Alice' } }),
+   * ])
+   * ```
+   * 
+   * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
+   */
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+
+  $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
+
+
+  $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb<ClientOptions>, ExtArgs, $Utils.Call<Prisma.TypeMapCb<ClientOptions>, {
+    extArgs: ExtArgs
+  }>>
+
+      /**
+   * `prisma.user`: Exposes CRUD operations for the **User** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Users
+    * const users = await prisma.user.findMany()
+    * ```
+    */
+  get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.employeeProfile`: Exposes CRUD operations for the **EmployeeProfile** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmployeeProfiles
+    * const employeeProfiles = await prisma.employeeProfile.findMany()
+    * ```
+    */
+  get employeeProfile(): Prisma.EmployeeProfileDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.employeeUnitAssignment`: Exposes CRUD operations for the **EmployeeUnitAssignment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmployeeUnitAssignments
+    * const employeeUnitAssignments = await prisma.employeeUnitAssignment.findMany()
+    * ```
+    */
+  get employeeUnitAssignment(): Prisma.EmployeeUnitAssignmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.gpsAttendanceConfig`: Exposes CRUD operations for the **GpsAttendanceConfig** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GpsAttendanceConfigs
+    * const gpsAttendanceConfigs = await prisma.gpsAttendanceConfig.findMany()
+    * ```
+    */
+  get gpsAttendanceConfig(): Prisma.GpsAttendanceConfigDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.gpsAttendance`: Exposes CRUD operations for the **GpsAttendance** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GpsAttendances
+    * const gpsAttendances = await prisma.gpsAttendance.findMany()
+    * ```
+    */
+  get gpsAttendance(): Prisma.GpsAttendanceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.holiday`: Exposes CRUD operations for the **Holiday** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Holidays
+    * const holidays = await prisma.holiday.findMany()
+    * ```
+    */
+  get holiday(): Prisma.HolidayDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.leaveRequest`: Exposes CRUD operations for the **LeaveRequest** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LeaveRequests
+    * const leaveRequests = await prisma.leaveRequest.findMany()
+    * ```
+    */
+  get leaveRequest(): Prisma.LeaveRequestDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.liqoGroup`: Exposes CRUD operations for the **LiqoGroup** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LiqoGroups
+    * const liqoGroups = await prisma.liqoGroup.findMany()
+    * ```
+    */
+  get liqoGroup(): Prisma.LiqoGroupDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.liqoMember`: Exposes CRUD operations for the **LiqoMember** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LiqoMembers
+    * const liqoMembers = await prisma.liqoMember.findMany()
+    * ```
+    */
+  get liqoMember(): Prisma.LiqoMemberDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.liqoMeeting`: Exposes CRUD operations for the **LiqoMeeting** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LiqoMeetings
+    * const liqoMeetings = await prisma.liqoMeeting.findMany()
+    * ```
+    */
+  get liqoMeeting(): Prisma.LiqoMeetingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.liqoAttendance`: Exposes CRUD operations for the **LiqoAttendance** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LiqoAttendances
+    * const liqoAttendances = await prisma.liqoAttendance.findMany()
+    * ```
+    */
+  get liqoAttendance(): Prisma.LiqoAttendanceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.mutabaahRecord`: Exposes CRUD operations for the **MutabaahRecord** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MutabaahRecords
+    * const mutabaahRecords = await prisma.mutabaahRecord.findMany()
+    * ```
+    */
+  get mutabaahRecord(): Prisma.MutabaahRecordDelegate<ExtArgs, ClientOptions>;
+}
+
+export namespace Prisma {
+  export import DMMF = runtime.DMMF
+
+  export type PrismaPromise<T> = $Public.PrismaPromise<T>
+
+  /**
+   * Validator
+   */
+  export import validator = runtime.Public.validator
+
+  /**
+   * Prisma Errors
+   */
+  export import PrismaClientKnownRequestError = runtime.PrismaClientKnownRequestError
+  export import PrismaClientUnknownRequestError = runtime.PrismaClientUnknownRequestError
+  export import PrismaClientRustPanicError = runtime.PrismaClientRustPanicError
+  export import PrismaClientInitializationError = runtime.PrismaClientInitializationError
+  export import PrismaClientValidationError = runtime.PrismaClientValidationError
+
+  /**
+   * Re-export of sql-template-tag
+   */
+  export import sql = runtime.sqltag
+  export import empty = runtime.empty
+  export import join = runtime.join
+  export import raw = runtime.raw
+  export import Sql = runtime.Sql
+
+
+
+  /**
+   * Decimal.js
+   */
+  export import Decimal = runtime.Decimal
+
+  export type DecimalJsLike = runtime.DecimalJsLike
+
+  /**
+   * Metrics
+   */
+  export type Metrics = runtime.Metrics
+  export type Metric<T> = runtime.Metric<T>
+  export type MetricHistogram = runtime.MetricHistogram
+  export type MetricHistogramBucket = runtime.MetricHistogramBucket
+
+  /**
+  * Extensions
+  */
+  export import Extension = $Extensions.UserArgs
+  export import getExtensionContext = runtime.Extensions.getExtensionContext
+  export import Args = $Public.Args
+  export import Payload = $Public.Payload
+  export import Result = $Public.Result
+  export import Exact = $Public.Exact
+
+  /**
+   * Prisma Client JS version: 6.19.3
+   * Query Engine version: c2990dca591cba766e3b7ef5d9e8a84796e47ab7
+   */
+  export type PrismaVersion = {
+    client: string
+  }
+
+  export const prismaVersion: PrismaVersion
+
+  /**
+   * Utility Types
+   */
+
+
+  export import Bytes = runtime.Bytes
+  export import JsonObject = runtime.JsonObject
+  export import JsonArray = runtime.JsonArray
+  export import JsonValue = runtime.JsonValue
+  export import InputJsonObject = runtime.InputJsonObject
+  export import InputJsonArray = runtime.InputJsonArray
+  export import InputJsonValue = runtime.InputJsonValue
+
+  /**
+   * Types of the values used to represent different kinds of `null` values when working with JSON fields.
+   *
+   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+   */
+  namespace NullTypes {
+    /**
+    * Type of `Prisma.DbNull`.
+    *
+    * You cannot use other instances of this class. Please use the `Prisma.DbNull` value.
+    *
+    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+    */
+    class DbNull {
+      private DbNull: never
+      private constructor()
+    }
+
+    /**
+    * Type of `Prisma.JsonNull`.
+    *
+    * You cannot use other instances of this class. Please use the `Prisma.JsonNull` value.
+    *
+    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+    */
+    class JsonNull {
+      private JsonNull: never
+      private constructor()
+    }
+
+    /**
+    * Type of `Prisma.AnyNull`.
+    *
+    * You cannot use other instances of this class. Please use the `Prisma.AnyNull` value.
+    *
+    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+    */
+    class AnyNull {
+      private AnyNull: never
+      private constructor()
+    }
+  }
+
+  /**
+   * Helper for filtering JSON entries that have `null` on the database (empty on the db)
+   *
+   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+   */
+  export const DbNull: NullTypes.DbNull
+
+  /**
+   * Helper for filtering JSON entries that have JSON `null` values (not empty on the db)
+   *
+   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+   */
+  export const JsonNull: NullTypes.JsonNull
+
+  /**
+   * Helper for filtering JSON entries that are `Prisma.DbNull` or `Prisma.JsonNull`
+   *
+   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
+   */
+  export const AnyNull: NullTypes.AnyNull
+
+  type SelectAndInclude = {
+    select: any
+    include: any
+  }
+
+  type SelectAndOmit = {
+    select: any
+    omit: any
+  }
+
+  /**
+   * Get the type of the value, that the Promise holds.
+   */
+  export type PromiseType<T extends PromiseLike<any>> = T extends PromiseLike<infer U> ? U : T;
+
+  /**
+   * Get the return type of a function which returns a Promise.
+   */
+  export type PromiseReturnType<T extends (...args: any) => $Utils.JsPromise<any>> = PromiseType<ReturnType<T>>
+
+  /**
+   * From T, pick a set of properties whose keys are in the union K
+   */
+  type Prisma__Pick<T, K extends keyof T> = {
+      [P in K]: T[P];
+  };
+
+
+  export type Enumerable<T> = T | Array<T>;
+
+  export type RequiredKeys<T> = {
+    [K in keyof T]-?: {} extends Prisma__Pick<T, K> ? never : K
+  }[keyof T]
+
+  export type TruthyKeys<T> = keyof {
+    [K in keyof T as T[K] extends false | undefined | null ? never : K]: K
+  }
+
+  export type TrueKeys<T> = TruthyKeys<Prisma__Pick<T, RequiredKeys<T>>>
+
+  /**
+   * Subset
+   * @desc From `T` pick properties that exist in `U`. Simple version of Intersection
+   */
+  export type Subset<T, U> = {
+    [key in keyof T]: key extends keyof U ? T[key] : never;
+  };
+
+  /**
+   * SelectSubset
+   * @desc From `T` pick properties that exist in `U`. Simple version of Intersection.
+   * Additionally, it validates, if both select and include are present. If the case, it errors.
+   */
+  export type SelectSubset<T, U> = {
+    [key in keyof T]: key extends keyof U ? T[key] : never
+  } &
+    (T extends SelectAndInclude
+      ? 'Please either choose `select` or `include`.'
+      : T extends SelectAndOmit
+        ? 'Please either choose `select` or `omit`.'
+        : {})
+
+  /**
+   * Subset + Intersection
+   * @desc From `T` pick properties that exist in `U` and intersect `K`
+   */
+  export type SubsetIntersection<T, U, K> = {
+    [key in keyof T]: key extends keyof U ? T[key] : never
+  } &
+    K
+
+  type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
+
+  /**
+   * XOR is needed to have a real mutually exclusive union type
+   * https://stackoverflow.com/questions/42123407/does-typescript-support-mutually-exclusive-types
+   */
+  type XOR<T, U> =
+    T extends object ?
+    U extends object ?
+      (Without<T, U> & U) | (Without<U, T> & T)
+    : U : T
+
+
+  /**
+   * Is T a Record?
+   */
+  type IsObject<T extends any> = T extends Array<any>
+  ? False
+  : T extends Date
+  ? False
+  : T extends Uint8Array
+  ? False
+  : T extends BigInt
+  ? False
+  : T extends object
+  ? True
+  : False
+
+
+  /**
+   * If it's T[], return T
+   */
+  export type UnEnumerate<T extends unknown> = T extends Array<infer U> ? U : T
+
+  /**
+   * From ts-toolbelt
+   */
+
+  type __Either<O extends object, K extends Key> = Omit<O, K> &
+    {
+      // Merge all but K
+      [P in K]: Prisma__Pick<O, P & keyof O> // With K possibilities
+    }[K]
+
+  type EitherStrict<O extends object, K extends Key> = Strict<__Either<O, K>>
+
+  type EitherLoose<O extends object, K extends Key> = ComputeRaw<__Either<O, K>>
+
+  type _Either<
+    O extends object,
+    K extends Key,
+    strict extends Boolean
+  > = {
+    1: EitherStrict<O, K>
+    0: EitherLoose<O, K>
+  }[strict]
+
+  type Either<
+    O extends object,
+    K extends Key,
+    strict extends Boolean = 1
+  > = O extends unknown ? _Either<O, K, strict> : never
+
+  export type Union = any
+
+  type PatchUndefined<O extends object, O1 extends object> = {
+    [K in keyof O]: O[K] extends undefined ? At<O1, K> : O[K]
+  } & {}
+
+  /** Helper Types for "Merge" **/
+  export type IntersectOf<U extends Union> = (
+    U extends unknown ? (k: U) => void : never
+  ) extends (k: infer I) => void
+    ? I
+    : never
+
+  export type Overwrite<O extends object, O1 extends object> = {
+      [K in keyof O]: K extends keyof O1 ? O1[K] : O[K];
+  } & {};
+
+  type _Merge<U extends object> = IntersectOf<Overwrite<U, {
+      [K in keyof U]-?: At<U, K>;
+  }>>;
+
+  type Key = string | number | symbol;
+  type AtBasic<O extends object, K extends Key> = K extends keyof O ? O[K] : never;
+  type AtStrict<O extends object, K extends Key> = O[K & keyof O];
+  type AtLoose<O extends object, K extends Key> = O extends unknown ? AtStrict<O, K> : never;
+  export type At<O extends object, K extends Key, strict extends Boolean = 1> = {
+      1: AtStrict<O, K>;
+      0: AtLoose<O, K>;
+  }[strict];
+
+  export type ComputeRaw<A extends any> = A extends Function ? A : {
+    [K in keyof A]: A[K];
+  } & {};
+
+  export type OptionalFlat<O> = {
+    [K in keyof O]?: O[K];
+  } & {};
+
+  type _Record<K extends keyof any, T> = {
+    [P in K]: T;
+  };
+
+  // cause typescript not to expand types and preserve names
+  type NoExpand<T> = T extends unknown ? T : never;
+
+  // this type assumes the passed object is entirely optional
+  type AtLeast<O extends object, K extends string> = NoExpand<
+    O extends unknown
+    ? | (K extends keyof O ? { [P in K]: O[P] } & O : O)
+      | {[P in keyof O as P extends K ? P : never]-?: O[P]} & O
+    : never>;
+
+  type _Strict<U, _U = U> = U extends unknown ? U & OptionalFlat<_Record<Exclude<Keys<_U>, keyof U>, never>> : never;
+
+  export type Strict<U extends object> = ComputeRaw<_Strict<U>>;
+  /** End Helper Types for "Merge" **/
+
+  export type Merge<U extends object> = ComputeRaw<_Merge<Strict<U>>>;
+
+  /**
+  A [[Boolean]]
+  */
+  export type Boolean = True | False
+
+  // /**
+  // 1
+  // */
+  export type True = 1
+
+  /**
+  0
+  */
+  export type False = 0
+
+  export type Not<B extends Boolean> = {
+    0: 1
+    1: 0
+  }[B]
+
+  export type Extends<A1 extends any, A2 extends any> = [A1] extends [never]
+    ? 0 // anything `never` is false
+    : A1 extends A2
+    ? 1
+    : 0
+
+  export type Has<U extends Union, U1 extends Union> = Not<
+    Extends<Exclude<U1, U>, U1>
+  >
+
+  export type Or<B1 extends Boolean, B2 extends Boolean> = {
+    0: {
+      0: 0
+      1: 1
+    }
+    1: {
+      0: 1
+      1: 1
+    }
+  }[B1][B2]
+
+  export type Keys<U extends Union> = U extends unknown ? keyof U : never
+
+  type Cast<A, B> = A extends B ? A : B;
+
+  export const type: unique symbol;
+
+
+
+  /**
+   * Used by group by
+   */
+
+  export type GetScalarType<T, O> = O extends object ? {
+    [P in keyof T]: P extends keyof O
+      ? O[P]
+      : never
+  } : never
+
+  type FieldPaths<
+    T,
+    U = Omit<T, '_avg' | '_sum' | '_count' | '_min' | '_max'>
+  > = IsObject<T> extends True ? U : T
+
+  type GetHavingFields<T> = {
+    [K in keyof T]: Or<
+      Or<Extends<'OR', K>, Extends<'AND', K>>,
+      Extends<'NOT', K>
+    > extends True
+      ? // infer is only needed to not hit TS limit
+        // based on the brilliant idea of Pierre-Antoine Mills
+        // https://github.com/microsoft/TypeScript/issues/30188#issuecomment-478938437
+        T[K] extends infer TK
+        ? GetHavingFields<UnEnumerate<TK> extends object ? Merge<UnEnumerate<TK>> : never>
+        : never
+      : {} extends FieldPaths<T[K]>
+      ? never
+      : K
+  }[keyof T]
+
+  /**
+   * Convert tuple to union
+   */
+  type _TupleToUnion<T> = T extends (infer E)[] ? E : never
+  type TupleToUnion<K extends readonly any[]> = _TupleToUnion<K>
+  type MaybeTupleToUnion<T> = T extends any[] ? TupleToUnion<T> : T
+
+  /**
+   * Like `Pick`, but additionally can also accept an array of keys
+   */
+  type PickEnumerable<T, K extends Enumerable<keyof T> | keyof T> = Prisma__Pick<T, MaybeTupleToUnion<K>>
+
+  /**
+   * Exclude all keys with underscores
+   */
+  type ExcludeUnderscoreKeys<T extends string> = T extends `_${string}` ? never : T
+
+
+  export type FieldRef<Model, FieldType> = runtime.FieldRef<Model, FieldType>
+
+  type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRef<Model, FieldType>
+
+
+  export const ModelName: {
+    User: 'User',
+    EmployeeProfile: 'EmployeeProfile',
+    EmployeeUnitAssignment: 'EmployeeUnitAssignment',
+    GpsAttendanceConfig: 'GpsAttendanceConfig',
+    GpsAttendance: 'GpsAttendance',
+    Holiday: 'Holiday',
+    LeaveRequest: 'LeaveRequest',
+    LiqoGroup: 'LiqoGroup',
+    LiqoMember: 'LiqoMember',
+    LiqoMeeting: 'LiqoMeeting',
+    LiqoAttendance: 'LiqoAttendance',
+    MutabaahRecord: 'MutabaahRecord'
+  };
+
+  export type ModelName = (typeof ModelName)[keyof typeof ModelName]
+
+
+  export type Datasources = {
+    db?: Datasource
+  }
+
+  interface TypeMapCb<ClientOptions = {}> extends $Utils.Fn<{extArgs: $Extensions.InternalArgs }, $Utils.Record<string, any>> {
+    returns: Prisma.TypeMap<this['params']['extArgs'], ClientOptions extends { omit: infer OmitOptions } ? OmitOptions : {}>
+  }
+
+  export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> = {
+    globalOmitOptions: {
+      omit: GlobalOmitOptions
+    }
+    meta: {
+      modelProps: "user" | "employeeProfile" | "employeeUnitAssignment" | "gpsAttendanceConfig" | "gpsAttendance" | "holiday" | "leaveRequest" | "liqoGroup" | "liqoMember" | "liqoMeeting" | "liqoAttendance" | "mutabaahRecord"
+      txIsolationLevel: Prisma.TransactionIsolationLevel
+    }
+    model: {
+      User: {
+        payload: Prisma.$UserPayload<ExtArgs>
+        fields: Prisma.UserFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          findFirst: {
+            args: Prisma.UserFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          findMany: {
+            args: Prisma.UserFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>[]
+          }
+          create: {
+            args: Prisma.UserCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          createMany: {
+            args: Prisma.UserCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>[]
+          }
+          delete: {
+            args: Prisma.UserDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          update: {
+            args: Prisma.UserUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>[]
+          }
+          upsert: {
+            args: Prisma.UserUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          aggregate: {
+            args: Prisma.UserAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUser>
+          }
+          groupBy: {
+            args: Prisma.UserGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserCountArgs<ExtArgs>
+            result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      EmployeeProfile: {
+        payload: Prisma.$EmployeeProfilePayload<ExtArgs>
+        fields: Prisma.EmployeeProfileFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmployeeProfileFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeProfilePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmployeeProfileFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeProfilePayload>
+          }
+          findFirst: {
+            args: Prisma.EmployeeProfileFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeProfilePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmployeeProfileFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeProfilePayload>
+          }
+          findMany: {
+            args: Prisma.EmployeeProfileFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeProfilePayload>[]
+          }
+          create: {
+            args: Prisma.EmployeeProfileCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeProfilePayload>
+          }
+          createMany: {
+            args: Prisma.EmployeeProfileCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmployeeProfileCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeProfilePayload>[]
+          }
+          delete: {
+            args: Prisma.EmployeeProfileDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeProfilePayload>
+          }
+          update: {
+            args: Prisma.EmployeeProfileUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeProfilePayload>
+          }
+          deleteMany: {
+            args: Prisma.EmployeeProfileDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmployeeProfileUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EmployeeProfileUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeProfilePayload>[]
+          }
+          upsert: {
+            args: Prisma.EmployeeProfileUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeProfilePayload>
+          }
+          aggregate: {
+            args: Prisma.EmployeeProfileAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmployeeProfile>
+          }
+          groupBy: {
+            args: Prisma.EmployeeProfileGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeProfileGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmployeeProfileCountArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeProfileCountAggregateOutputType> | number
+          }
+        }
+      }
+      EmployeeUnitAssignment: {
+        payload: Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>
+        fields: Prisma.EmployeeUnitAssignmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmployeeUnitAssignmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeUnitAssignmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmployeeUnitAssignmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeUnitAssignmentPayload>
+          }
+          findFirst: {
+            args: Prisma.EmployeeUnitAssignmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeUnitAssignmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmployeeUnitAssignmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeUnitAssignmentPayload>
+          }
+          findMany: {
+            args: Prisma.EmployeeUnitAssignmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeUnitAssignmentPayload>[]
+          }
+          create: {
+            args: Prisma.EmployeeUnitAssignmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeUnitAssignmentPayload>
+          }
+          createMany: {
+            args: Prisma.EmployeeUnitAssignmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EmployeeUnitAssignmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeUnitAssignmentPayload>[]
+          }
+          delete: {
+            args: Prisma.EmployeeUnitAssignmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeUnitAssignmentPayload>
+          }
+          update: {
+            args: Prisma.EmployeeUnitAssignmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeUnitAssignmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmployeeUnitAssignmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmployeeUnitAssignmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EmployeeUnitAssignmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeUnitAssignmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.EmployeeUnitAssignmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeUnitAssignmentPayload>
+          }
+          aggregate: {
+            args: Prisma.EmployeeUnitAssignmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmployeeUnitAssignment>
+          }
+          groupBy: {
+            args: Prisma.EmployeeUnitAssignmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeUnitAssignmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmployeeUnitAssignmentCountArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeUnitAssignmentCountAggregateOutputType> | number
+          }
+        }
+      }
+      GpsAttendanceConfig: {
+        payload: Prisma.$GpsAttendanceConfigPayload<ExtArgs>
+        fields: Prisma.GpsAttendanceConfigFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GpsAttendanceConfigFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendanceConfigPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GpsAttendanceConfigFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendanceConfigPayload>
+          }
+          findFirst: {
+            args: Prisma.GpsAttendanceConfigFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendanceConfigPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GpsAttendanceConfigFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendanceConfigPayload>
+          }
+          findMany: {
+            args: Prisma.GpsAttendanceConfigFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendanceConfigPayload>[]
+          }
+          create: {
+            args: Prisma.GpsAttendanceConfigCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendanceConfigPayload>
+          }
+          createMany: {
+            args: Prisma.GpsAttendanceConfigCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GpsAttendanceConfigCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendanceConfigPayload>[]
+          }
+          delete: {
+            args: Prisma.GpsAttendanceConfigDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendanceConfigPayload>
+          }
+          update: {
+            args: Prisma.GpsAttendanceConfigUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendanceConfigPayload>
+          }
+          deleteMany: {
+            args: Prisma.GpsAttendanceConfigDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GpsAttendanceConfigUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GpsAttendanceConfigUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendanceConfigPayload>[]
+          }
+          upsert: {
+            args: Prisma.GpsAttendanceConfigUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendanceConfigPayload>
+          }
+          aggregate: {
+            args: Prisma.GpsAttendanceConfigAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGpsAttendanceConfig>
+          }
+          groupBy: {
+            args: Prisma.GpsAttendanceConfigGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GpsAttendanceConfigGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GpsAttendanceConfigCountArgs<ExtArgs>
+            result: $Utils.Optional<GpsAttendanceConfigCountAggregateOutputType> | number
+          }
+        }
+      }
+      GpsAttendance: {
+        payload: Prisma.$GpsAttendancePayload<ExtArgs>
+        fields: Prisma.GpsAttendanceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GpsAttendanceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendancePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GpsAttendanceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendancePayload>
+          }
+          findFirst: {
+            args: Prisma.GpsAttendanceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendancePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GpsAttendanceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendancePayload>
+          }
+          findMany: {
+            args: Prisma.GpsAttendanceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendancePayload>[]
+          }
+          create: {
+            args: Prisma.GpsAttendanceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendancePayload>
+          }
+          createMany: {
+            args: Prisma.GpsAttendanceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GpsAttendanceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendancePayload>[]
+          }
+          delete: {
+            args: Prisma.GpsAttendanceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendancePayload>
+          }
+          update: {
+            args: Prisma.GpsAttendanceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendancePayload>
+          }
+          deleteMany: {
+            args: Prisma.GpsAttendanceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GpsAttendanceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GpsAttendanceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendancePayload>[]
+          }
+          upsert: {
+            args: Prisma.GpsAttendanceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GpsAttendancePayload>
+          }
+          aggregate: {
+            args: Prisma.GpsAttendanceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGpsAttendance>
+          }
+          groupBy: {
+            args: Prisma.GpsAttendanceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GpsAttendanceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GpsAttendanceCountArgs<ExtArgs>
+            result: $Utils.Optional<GpsAttendanceCountAggregateOutputType> | number
+          }
+        }
+      }
+      Holiday: {
+        payload: Prisma.$HolidayPayload<ExtArgs>
+        fields: Prisma.HolidayFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.HolidayFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HolidayPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.HolidayFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HolidayPayload>
+          }
+          findFirst: {
+            args: Prisma.HolidayFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HolidayPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.HolidayFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HolidayPayload>
+          }
+          findMany: {
+            args: Prisma.HolidayFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HolidayPayload>[]
+          }
+          create: {
+            args: Prisma.HolidayCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HolidayPayload>
+          }
+          createMany: {
+            args: Prisma.HolidayCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.HolidayCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HolidayPayload>[]
+          }
+          delete: {
+            args: Prisma.HolidayDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HolidayPayload>
+          }
+          update: {
+            args: Prisma.HolidayUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HolidayPayload>
+          }
+          deleteMany: {
+            args: Prisma.HolidayDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.HolidayUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.HolidayUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HolidayPayload>[]
+          }
+          upsert: {
+            args: Prisma.HolidayUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HolidayPayload>
+          }
+          aggregate: {
+            args: Prisma.HolidayAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateHoliday>
+          }
+          groupBy: {
+            args: Prisma.HolidayGroupByArgs<ExtArgs>
+            result: $Utils.Optional<HolidayGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.HolidayCountArgs<ExtArgs>
+            result: $Utils.Optional<HolidayCountAggregateOutputType> | number
+          }
+        }
+      }
+      LeaveRequest: {
+        payload: Prisma.$LeaveRequestPayload<ExtArgs>
+        fields: Prisma.LeaveRequestFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LeaveRequestFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaveRequestPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LeaveRequestFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaveRequestPayload>
+          }
+          findFirst: {
+            args: Prisma.LeaveRequestFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaveRequestPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LeaveRequestFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaveRequestPayload>
+          }
+          findMany: {
+            args: Prisma.LeaveRequestFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaveRequestPayload>[]
+          }
+          create: {
+            args: Prisma.LeaveRequestCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaveRequestPayload>
+          }
+          createMany: {
+            args: Prisma.LeaveRequestCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LeaveRequestCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaveRequestPayload>[]
+          }
+          delete: {
+            args: Prisma.LeaveRequestDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaveRequestPayload>
+          }
+          update: {
+            args: Prisma.LeaveRequestUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaveRequestPayload>
+          }
+          deleteMany: {
+            args: Prisma.LeaveRequestDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LeaveRequestUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LeaveRequestUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaveRequestPayload>[]
+          }
+          upsert: {
+            args: Prisma.LeaveRequestUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LeaveRequestPayload>
+          }
+          aggregate: {
+            args: Prisma.LeaveRequestAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLeaveRequest>
+          }
+          groupBy: {
+            args: Prisma.LeaveRequestGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LeaveRequestGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LeaveRequestCountArgs<ExtArgs>
+            result: $Utils.Optional<LeaveRequestCountAggregateOutputType> | number
+          }
+        }
+      }
+      LiqoGroup: {
+        payload: Prisma.$LiqoGroupPayload<ExtArgs>
+        fields: Prisma.LiqoGroupFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LiqoGroupFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoGroupPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LiqoGroupFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoGroupPayload>
+          }
+          findFirst: {
+            args: Prisma.LiqoGroupFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoGroupPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LiqoGroupFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoGroupPayload>
+          }
+          findMany: {
+            args: Prisma.LiqoGroupFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoGroupPayload>[]
+          }
+          create: {
+            args: Prisma.LiqoGroupCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoGroupPayload>
+          }
+          createMany: {
+            args: Prisma.LiqoGroupCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LiqoGroupCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoGroupPayload>[]
+          }
+          delete: {
+            args: Prisma.LiqoGroupDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoGroupPayload>
+          }
+          update: {
+            args: Prisma.LiqoGroupUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoGroupPayload>
+          }
+          deleteMany: {
+            args: Prisma.LiqoGroupDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LiqoGroupUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LiqoGroupUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoGroupPayload>[]
+          }
+          upsert: {
+            args: Prisma.LiqoGroupUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoGroupPayload>
+          }
+          aggregate: {
+            args: Prisma.LiqoGroupAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLiqoGroup>
+          }
+          groupBy: {
+            args: Prisma.LiqoGroupGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LiqoGroupGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LiqoGroupCountArgs<ExtArgs>
+            result: $Utils.Optional<LiqoGroupCountAggregateOutputType> | number
+          }
+        }
+      }
+      LiqoMember: {
+        payload: Prisma.$LiqoMemberPayload<ExtArgs>
+        fields: Prisma.LiqoMemberFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LiqoMemberFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMemberPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LiqoMemberFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMemberPayload>
+          }
+          findFirst: {
+            args: Prisma.LiqoMemberFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMemberPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LiqoMemberFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMemberPayload>
+          }
+          findMany: {
+            args: Prisma.LiqoMemberFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMemberPayload>[]
+          }
+          create: {
+            args: Prisma.LiqoMemberCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMemberPayload>
+          }
+          createMany: {
+            args: Prisma.LiqoMemberCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LiqoMemberCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMemberPayload>[]
+          }
+          delete: {
+            args: Prisma.LiqoMemberDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMemberPayload>
+          }
+          update: {
+            args: Prisma.LiqoMemberUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMemberPayload>
+          }
+          deleteMany: {
+            args: Prisma.LiqoMemberDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LiqoMemberUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LiqoMemberUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMemberPayload>[]
+          }
+          upsert: {
+            args: Prisma.LiqoMemberUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMemberPayload>
+          }
+          aggregate: {
+            args: Prisma.LiqoMemberAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLiqoMember>
+          }
+          groupBy: {
+            args: Prisma.LiqoMemberGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LiqoMemberGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LiqoMemberCountArgs<ExtArgs>
+            result: $Utils.Optional<LiqoMemberCountAggregateOutputType> | number
+          }
+        }
+      }
+      LiqoMeeting: {
+        payload: Prisma.$LiqoMeetingPayload<ExtArgs>
+        fields: Prisma.LiqoMeetingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LiqoMeetingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMeetingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LiqoMeetingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMeetingPayload>
+          }
+          findFirst: {
+            args: Prisma.LiqoMeetingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMeetingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LiqoMeetingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMeetingPayload>
+          }
+          findMany: {
+            args: Prisma.LiqoMeetingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMeetingPayload>[]
+          }
+          create: {
+            args: Prisma.LiqoMeetingCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMeetingPayload>
+          }
+          createMany: {
+            args: Prisma.LiqoMeetingCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LiqoMeetingCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMeetingPayload>[]
+          }
+          delete: {
+            args: Prisma.LiqoMeetingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMeetingPayload>
+          }
+          update: {
+            args: Prisma.LiqoMeetingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMeetingPayload>
+          }
+          deleteMany: {
+            args: Prisma.LiqoMeetingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LiqoMeetingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LiqoMeetingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMeetingPayload>[]
+          }
+          upsert: {
+            args: Prisma.LiqoMeetingUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoMeetingPayload>
+          }
+          aggregate: {
+            args: Prisma.LiqoMeetingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLiqoMeeting>
+          }
+          groupBy: {
+            args: Prisma.LiqoMeetingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LiqoMeetingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LiqoMeetingCountArgs<ExtArgs>
+            result: $Utils.Optional<LiqoMeetingCountAggregateOutputType> | number
+          }
+        }
+      }
+      LiqoAttendance: {
+        payload: Prisma.$LiqoAttendancePayload<ExtArgs>
+        fields: Prisma.LiqoAttendanceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LiqoAttendanceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoAttendancePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LiqoAttendanceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoAttendancePayload>
+          }
+          findFirst: {
+            args: Prisma.LiqoAttendanceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoAttendancePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LiqoAttendanceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoAttendancePayload>
+          }
+          findMany: {
+            args: Prisma.LiqoAttendanceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoAttendancePayload>[]
+          }
+          create: {
+            args: Prisma.LiqoAttendanceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoAttendancePayload>
+          }
+          createMany: {
+            args: Prisma.LiqoAttendanceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LiqoAttendanceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoAttendancePayload>[]
+          }
+          delete: {
+            args: Prisma.LiqoAttendanceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoAttendancePayload>
+          }
+          update: {
+            args: Prisma.LiqoAttendanceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoAttendancePayload>
+          }
+          deleteMany: {
+            args: Prisma.LiqoAttendanceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LiqoAttendanceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LiqoAttendanceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoAttendancePayload>[]
+          }
+          upsert: {
+            args: Prisma.LiqoAttendanceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiqoAttendancePayload>
+          }
+          aggregate: {
+            args: Prisma.LiqoAttendanceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLiqoAttendance>
+          }
+          groupBy: {
+            args: Prisma.LiqoAttendanceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LiqoAttendanceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LiqoAttendanceCountArgs<ExtArgs>
+            result: $Utils.Optional<LiqoAttendanceCountAggregateOutputType> | number
+          }
+        }
+      }
+      MutabaahRecord: {
+        payload: Prisma.$MutabaahRecordPayload<ExtArgs>
+        fields: Prisma.MutabaahRecordFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MutabaahRecordFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MutabaahRecordPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MutabaahRecordFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MutabaahRecordPayload>
+          }
+          findFirst: {
+            args: Prisma.MutabaahRecordFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MutabaahRecordPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MutabaahRecordFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MutabaahRecordPayload>
+          }
+          findMany: {
+            args: Prisma.MutabaahRecordFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MutabaahRecordPayload>[]
+          }
+          create: {
+            args: Prisma.MutabaahRecordCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MutabaahRecordPayload>
+          }
+          createMany: {
+            args: Prisma.MutabaahRecordCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MutabaahRecordCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MutabaahRecordPayload>[]
+          }
+          delete: {
+            args: Prisma.MutabaahRecordDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MutabaahRecordPayload>
+          }
+          update: {
+            args: Prisma.MutabaahRecordUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MutabaahRecordPayload>
+          }
+          deleteMany: {
+            args: Prisma.MutabaahRecordDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MutabaahRecordUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MutabaahRecordUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MutabaahRecordPayload>[]
+          }
+          upsert: {
+            args: Prisma.MutabaahRecordUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MutabaahRecordPayload>
+          }
+          aggregate: {
+            args: Prisma.MutabaahRecordAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMutabaahRecord>
+          }
+          groupBy: {
+            args: Prisma.MutabaahRecordGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MutabaahRecordGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MutabaahRecordCountArgs<ExtArgs>
+            result: $Utils.Optional<MutabaahRecordCountAggregateOutputType> | number
+          }
+        }
+      }
+    }
+  } & {
+    other: {
+      payload: any
+      operations: {
+        $executeRaw: {
+          args: [query: TemplateStringsArray | Prisma.Sql, ...values: any[]],
+          result: any
+        }
+        $executeRawUnsafe: {
+          args: [query: string, ...values: any[]],
+          result: any
+        }
+        $queryRaw: {
+          args: [query: TemplateStringsArray | Prisma.Sql, ...values: any[]],
+          result: any
+        }
+        $queryRawUnsafe: {
+          args: [query: string, ...values: any[]],
+          result: any
+        }
+      }
+    }
+  }
+  export const defineExtension: $Extensions.ExtendsHook<"define", Prisma.TypeMapCb, $Extensions.DefaultArgs>
+  export type DefaultPrismaClient = PrismaClient
+  export type ErrorFormat = 'pretty' | 'colorless' | 'minimal'
+  export interface PrismaClientOptions {
+    /**
+     * Overwrites the datasource url from your schema.prisma file
+     */
+    datasources?: Datasources
+    /**
+     * Overwrites the datasource url from your schema.prisma file
+     */
+    datasourceUrl?: string
+    /**
+     * @default "colorless"
+     */
+    errorFormat?: ErrorFormat
+    /**
+     * @example
+     * ```
+     * // Shorthand for `emit: 'stdout'`
+     * log: ['query', 'info', 'warn', 'error']
+     * 
+     * // Emit as events only
+     * log: [
+     *   { emit: 'event', level: 'query' },
+     *   { emit: 'event', level: 'info' },
+     *   { emit: 'event', level: 'warn' }
+     *   { emit: 'event', level: 'error' }
+     * ]
+     * 
+     * / Emit as events and log to stdout
+     * og: [
+     *  { emit: 'stdout', level: 'query' },
+     *  { emit: 'stdout', level: 'info' },
+     *  { emit: 'stdout', level: 'warn' }
+     *  { emit: 'stdout', level: 'error' }
+     * 
+     * ```
+     * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
+     */
+    log?: (LogLevel | LogDefinition)[]
+    /**
+     * The default values for transactionOptions
+     * maxWait ?= 2000
+     * timeout ?= 5000
+     */
+    transactionOptions?: {
+      maxWait?: number
+      timeout?: number
+      isolationLevel?: Prisma.TransactionIsolationLevel
+    }
+    /**
+     * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-planetscale`
+     */
+    adapter?: runtime.SqlDriverAdapterFactory | null
+    /**
+     * Global configuration for omitting model fields by default.
+     * 
+     * @example
+     * ```
+     * const prisma = new PrismaClient({
+     *   omit: {
+     *     user: {
+     *       password: true
+     *     }
+     *   }
+     * })
+     * ```
+     */
+    omit?: Prisma.GlobalOmitConfig
+  }
+  export type GlobalOmitConfig = {
+    user?: UserOmit
+    employeeProfile?: EmployeeProfileOmit
+    employeeUnitAssignment?: EmployeeUnitAssignmentOmit
+    gpsAttendanceConfig?: GpsAttendanceConfigOmit
+    gpsAttendance?: GpsAttendanceOmit
+    holiday?: HolidayOmit
+    leaveRequest?: LeaveRequestOmit
+    liqoGroup?: LiqoGroupOmit
+    liqoMember?: LiqoMemberOmit
+    liqoMeeting?: LiqoMeetingOmit
+    liqoAttendance?: LiqoAttendanceOmit
+    mutabaahRecord?: MutabaahRecordOmit
+  }
+
+  /* Types for Logging */
+  export type LogLevel = 'info' | 'query' | 'warn' | 'error'
+  export type LogDefinition = {
+    level: LogLevel
+    emit: 'stdout' | 'event'
+  }
+
+  export type CheckIsLogLevel<T> = T extends LogLevel ? T : never;
+
+  export type GetLogType<T> = CheckIsLogLevel<
+    T extends LogDefinition ? T['level'] : T
+  >;
+
+  export type GetEvents<T extends any[]> = T extends Array<LogLevel | LogDefinition>
+    ? GetLogType<T[number]>
+    : never;
+
+  export type QueryEvent = {
+    timestamp: Date
+    query: string
+    params: string
+    duration: number
+    target: string
+  }
+
+  export type LogEvent = {
+    timestamp: Date
+    message: string
+    target: string
+  }
+  /* End Types for Logging */
+
+
+  export type PrismaAction =
+    | 'findUnique'
+    | 'findUniqueOrThrow'
+    | 'findMany'
+    | 'findFirst'
+    | 'findFirstOrThrow'
+    | 'create'
+    | 'createMany'
+    | 'createManyAndReturn'
+    | 'update'
+    | 'updateMany'
+    | 'updateManyAndReturn'
+    | 'upsert'
+    | 'delete'
+    | 'deleteMany'
+    | 'executeRaw'
+    | 'queryRaw'
+    | 'aggregate'
+    | 'count'
+    | 'runCommandRaw'
+    | 'findRaw'
+    | 'groupBy'
+
+  // tested in getLogLevel.test.ts
+  export function getLogLevel(log: Array<LogLevel | LogDefinition>): LogLevel | undefined;
+
+  /**
+   * `PrismaClient` proxy available in interactive transactions.
+   */
+  export type TransactionClient = Omit<Prisma.DefaultPrismaClient, runtime.ITXClientDenyList>
+
+  export type Datasource = {
+    url?: string
+  }
+
+  /**
+   * Count Types
+   */
+
+
+  /**
+   * Count Type UserCountOutputType
+   */
+
+  export type UserCountOutputType = {
+    unitAssignments: number
+    gpsAttendances: number
+    leaveRequests: number
+    approvedLeaves: number
+    liqoGroupsAsMurobbi: number
+    liqoMemberships: number
+    liqoAttendances: number
+    mutabaahRecords: number
+  }
+
+  export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    unitAssignments?: boolean | UserCountOutputTypeCountUnitAssignmentsArgs
+    gpsAttendances?: boolean | UserCountOutputTypeCountGpsAttendancesArgs
+    leaveRequests?: boolean | UserCountOutputTypeCountLeaveRequestsArgs
+    approvedLeaves?: boolean | UserCountOutputTypeCountApprovedLeavesArgs
+    liqoGroupsAsMurobbi?: boolean | UserCountOutputTypeCountLiqoGroupsAsMurobbiArgs
+    liqoMemberships?: boolean | UserCountOutputTypeCountLiqoMembershipsArgs
+    liqoAttendances?: boolean | UserCountOutputTypeCountLiqoAttendancesArgs
+    mutabaahRecords?: boolean | UserCountOutputTypeCountMutabaahRecordsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserCountOutputType
+     */
+    select?: UserCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUnitAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeUnitAssignmentWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountGpsAttendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GpsAttendanceWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountLeaveRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LeaveRequestWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountApprovedLeavesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LeaveRequestWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountLiqoGroupsAsMurobbiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiqoGroupWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountLiqoMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiqoMemberWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountLiqoAttendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiqoAttendanceWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountMutabaahRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MutabaahRecordWhereInput
+  }
+
+
+  /**
+   * Count Type LiqoGroupCountOutputType
+   */
+
+  export type LiqoGroupCountOutputType = {
+    members: number
+    meetings: number
+  }
+
+  export type LiqoGroupCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    members?: boolean | LiqoGroupCountOutputTypeCountMembersArgs
+    meetings?: boolean | LiqoGroupCountOutputTypeCountMeetingsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * LiqoGroupCountOutputType without action
+   */
+  export type LiqoGroupCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroupCountOutputType
+     */
+    select?: LiqoGroupCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * LiqoGroupCountOutputType without action
+   */
+  export type LiqoGroupCountOutputTypeCountMembersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiqoMemberWhereInput
+  }
+
+  /**
+   * LiqoGroupCountOutputType without action
+   */
+  export type LiqoGroupCountOutputTypeCountMeetingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiqoMeetingWhereInput
+  }
+
+
+  /**
+   * Count Type LiqoMeetingCountOutputType
+   */
+
+  export type LiqoMeetingCountOutputType = {
+    attendances: number
+  }
+
+  export type LiqoMeetingCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    attendances?: boolean | LiqoMeetingCountOutputTypeCountAttendancesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * LiqoMeetingCountOutputType without action
+   */
+  export type LiqoMeetingCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeetingCountOutputType
+     */
+    select?: LiqoMeetingCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * LiqoMeetingCountOutputType without action
+   */
+  export type LiqoMeetingCountOutputTypeCountAttendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiqoAttendanceWhereInput
+  }
+
+
+  /**
+   * Models
+   */
+
+  /**
+   * Model User
+   */
+
+  export type AggregateUser = {
+    _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
+    _min: UserMinAggregateOutputType | null
+    _max: UserMaxAggregateOutputType | null
+  }
+
+  export type UserAvgAggregateOutputType = {
+    leaveQuota: number | null
+  }
+
+  export type UserSumAggregateOutputType = {
+    leaveQuota: number | null
+  }
+
+  export type UserMinAggregateOutputType = {
+    id: string | null
+    fullName: string | null
+    username: string | null
+    email: string | null
+    phone: string | null
+    avatarUrl: string | null
+    leaveQuota: number | null
+    isActive: boolean | null
+    createdAt: Date | null
+  }
+
+  export type UserMaxAggregateOutputType = {
+    id: string | null
+    fullName: string | null
+    username: string | null
+    email: string | null
+    phone: string | null
+    avatarUrl: string | null
+    leaveQuota: number | null
+    isActive: boolean | null
+    createdAt: Date | null
+  }
+
+  export type UserCountAggregateOutputType = {
+    id: number
+    fullName: number
+    username: number
+    email: number
+    phone: number
+    avatarUrl: number
+    leaveQuota: number
+    isActive: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type UserAvgAggregateInputType = {
+    leaveQuota?: true
+  }
+
+  export type UserSumAggregateInputType = {
+    leaveQuota?: true
+  }
+
+  export type UserMinAggregateInputType = {
+    id?: true
+    fullName?: true
+    username?: true
+    email?: true
+    phone?: true
+    avatarUrl?: true
+    leaveQuota?: true
+    isActive?: true
+    createdAt?: true
+  }
+
+  export type UserMaxAggregateInputType = {
+    id?: true
+    fullName?: true
+    username?: true
+    email?: true
+    phone?: true
+    avatarUrl?: true
+    leaveQuota?: true
+    isActive?: true
+    createdAt?: true
+  }
+
+  export type UserCountAggregateInputType = {
+    id?: true
+    fullName?: true
+    username?: true
+    email?: true
+    phone?: true
+    avatarUrl?: true
+    leaveQuota?: true
+    isActive?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type UserAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which User to aggregate.
+     */
+    where?: UserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Users to fetch.
+     */
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Users.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Users
+    **/
+    _count?: true | UserCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserMaxAggregateInputType
+  }
+
+  export type GetUserAggregateType<T extends UserAggregateArgs> = {
+        [P in keyof T & keyof AggregateUser]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUser[P]>
+      : GetScalarType<T[P], AggregateUser[P]>
+  }
+
+
+
+
+  export type UserGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserWhereInput
+    orderBy?: UserOrderByWithAggregationInput | UserOrderByWithAggregationInput[]
+    by: UserScalarFieldEnum[] | UserScalarFieldEnum
+    having?: UserScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserCountAggregateInputType | true
+    _avg?: UserAvgAggregateInputType
+    _sum?: UserSumAggregateInputType
+    _min?: UserMinAggregateInputType
+    _max?: UserMaxAggregateInputType
+  }
+
+  export type UserGroupByOutputType = {
+    id: string
+    fullName: string
+    username: string | null
+    email: string
+    phone: string | null
+    avatarUrl: string | null
+    leaveQuota: number
+    isActive: boolean
+    createdAt: Date
+    _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
+    _min: UserMinAggregateOutputType | null
+    _max: UserMaxAggregateOutputType | null
+  }
+
+  type GetUserGroupByPayload<T extends UserGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserGroupByOutputType[P]>
+            : GetScalarType<T[P], UserGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fullName?: boolean
+    username?: boolean
+    email?: boolean
+    phone?: boolean
+    avatarUrl?: boolean
+    leaveQuota?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    profile?: boolean | User$profileArgs<ExtArgs>
+    unitAssignments?: boolean | User$unitAssignmentsArgs<ExtArgs>
+    gpsAttendances?: boolean | User$gpsAttendancesArgs<ExtArgs>
+    leaveRequests?: boolean | User$leaveRequestsArgs<ExtArgs>
+    approvedLeaves?: boolean | User$approvedLeavesArgs<ExtArgs>
+    liqoGroupsAsMurobbi?: boolean | User$liqoGroupsAsMurobbiArgs<ExtArgs>
+    liqoMemberships?: boolean | User$liqoMembershipsArgs<ExtArgs>
+    liqoAttendances?: boolean | User$liqoAttendancesArgs<ExtArgs>
+    mutabaahRecords?: boolean | User$mutabaahRecordsArgs<ExtArgs>
+    _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["user"]>
+
+  export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fullName?: boolean
+    username?: boolean
+    email?: boolean
+    phone?: boolean
+    avatarUrl?: boolean
+    leaveQuota?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["user"]>
+
+  export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fullName?: boolean
+    username?: boolean
+    email?: boolean
+    phone?: boolean
+    avatarUrl?: boolean
+    leaveQuota?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["user"]>
+
+  export type UserSelectScalar = {
+    id?: boolean
+    fullName?: boolean
+    username?: boolean
+    email?: boolean
+    phone?: boolean
+    avatarUrl?: boolean
+    leaveQuota?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+  }
+
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fullName" | "username" | "email" | "phone" | "avatarUrl" | "leaveQuota" | "isActive" | "createdAt", ExtArgs["result"]["user"]>
+  export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    profile?: boolean | User$profileArgs<ExtArgs>
+    unitAssignments?: boolean | User$unitAssignmentsArgs<ExtArgs>
+    gpsAttendances?: boolean | User$gpsAttendancesArgs<ExtArgs>
+    leaveRequests?: boolean | User$leaveRequestsArgs<ExtArgs>
+    approvedLeaves?: boolean | User$approvedLeavesArgs<ExtArgs>
+    liqoGroupsAsMurobbi?: boolean | User$liqoGroupsAsMurobbiArgs<ExtArgs>
+    liqoMemberships?: boolean | User$liqoMembershipsArgs<ExtArgs>
+    liqoAttendances?: boolean | User$liqoAttendancesArgs<ExtArgs>
+    mutabaahRecords?: boolean | User$mutabaahRecordsArgs<ExtArgs>
+    _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "User"
+    objects: {
+      profile: Prisma.$EmployeeProfilePayload<ExtArgs> | null
+      unitAssignments: Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>[]
+      gpsAttendances: Prisma.$GpsAttendancePayload<ExtArgs>[]
+      leaveRequests: Prisma.$LeaveRequestPayload<ExtArgs>[]
+      approvedLeaves: Prisma.$LeaveRequestPayload<ExtArgs>[]
+      liqoGroupsAsMurobbi: Prisma.$LiqoGroupPayload<ExtArgs>[]
+      liqoMemberships: Prisma.$LiqoMemberPayload<ExtArgs>[]
+      liqoAttendances: Prisma.$LiqoAttendancePayload<ExtArgs>[]
+      mutabaahRecords: Prisma.$MutabaahRecordPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      fullName: string
+      username: string | null
+      email: string
+      phone: string | null
+      avatarUrl: string | null
+      leaveQuota: number
+      isActive: boolean
+      createdAt: Date
+    }, ExtArgs["result"]["user"]>
+    composites: {}
+  }
+
+  type UserGetPayload<S extends boolean | null | undefined | UserDefaultArgs> = $Result.GetResult<Prisma.$UserPayload, S>
+
+  type UserCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserCountAggregateInputType | true
+    }
+
+  export interface UserDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['User'], meta: { name: 'User' } }
+    /**
+     * Find zero or one User that matches the filter.
+     * @param {UserFindUniqueArgs} args - Arguments to find a User
+     * @example
+     * // Get one User
+     * const user = await prisma.user.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserFindUniqueArgs>(args: SelectSubset<T, UserFindUniqueArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one User that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserFindUniqueOrThrowArgs} args - Arguments to find a User
+     * @example
+     * // Get one User
+     * const user = await prisma.user.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserFindUniqueOrThrowArgs>(args: SelectSubset<T, UserFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first User that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserFindFirstArgs} args - Arguments to find a User
+     * @example
+     * // Get one User
+     * const user = await prisma.user.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserFindFirstArgs>(args?: SelectSubset<T, UserFindFirstArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first User that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserFindFirstOrThrowArgs} args - Arguments to find a User
+     * @example
+     * // Get one User
+     * const user = await prisma.user.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserFindFirstOrThrowArgs>(args?: SelectSubset<T, UserFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Users that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Users
+     * const users = await prisma.user.findMany()
+     * 
+     * // Get first 10 Users
+     * const users = await prisma.user.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userWithIdOnly = await prisma.user.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserFindManyArgs>(args?: SelectSubset<T, UserFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a User.
+     * @param {UserCreateArgs} args - Arguments to create a User.
+     * @example
+     * // Create one User
+     * const User = await prisma.user.create({
+     *   data: {
+     *     // ... data to create a User
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserCreateArgs>(args: SelectSubset<T, UserCreateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Users.
+     * @param {UserCreateManyArgs} args - Arguments to create many Users.
+     * @example
+     * // Create many Users
+     * const user = await prisma.user.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserCreateManyArgs>(args?: SelectSubset<T, UserCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Users and returns the data saved in the database.
+     * @param {UserCreateManyAndReturnArgs} args - Arguments to create many Users.
+     * @example
+     * // Create many Users
+     * const user = await prisma.user.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Users and only return the `id`
+     * const userWithIdOnly = await prisma.user.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserCreateManyAndReturnArgs>(args?: SelectSubset<T, UserCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a User.
+     * @param {UserDeleteArgs} args - Arguments to delete one User.
+     * @example
+     * // Delete one User
+     * const User = await prisma.user.delete({
+     *   where: {
+     *     // ... filter to delete one User
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserDeleteArgs>(args: SelectSubset<T, UserDeleteArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one User.
+     * @param {UserUpdateArgs} args - Arguments to update one User.
+     * @example
+     * // Update one User
+     * const user = await prisma.user.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserUpdateArgs>(args: SelectSubset<T, UserUpdateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Users.
+     * @param {UserDeleteManyArgs} args - Arguments to filter Users to delete.
+     * @example
+     * // Delete a few Users
+     * const { count } = await prisma.user.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserDeleteManyArgs>(args?: SelectSubset<T, UserDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Users.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Users
+     * const user = await prisma.user.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserUpdateManyArgs>(args: SelectSubset<T, UserUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Users and returns the data updated in the database.
+     * @param {UserUpdateManyAndReturnArgs} args - Arguments to update many Users.
+     * @example
+     * // Update many Users
+     * const user = await prisma.user.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Users and only return the `id`
+     * const userWithIdOnly = await prisma.user.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserUpdateManyAndReturnArgs>(args: SelectSubset<T, UserUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one User.
+     * @param {UserUpsertArgs} args - Arguments to update or create a User.
+     * @example
+     * // Update or create a User
+     * const user = await prisma.user.upsert({
+     *   create: {
+     *     // ... data to create a User
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the User we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserUpsertArgs>(args: SelectSubset<T, UserUpsertArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Users.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserCountArgs} args - Arguments to filter Users to count.
+     * @example
+     * // Count the number of Users
+     * const count = await prisma.user.count({
+     *   where: {
+     *     // ... the filter for the Users we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserCountArgs>(
+      args?: Subset<T, UserCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a User.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserAggregateArgs>(args: Subset<T, UserAggregateArgs>): Prisma.PrismaPromise<GetUserAggregateType<T>>
+
+    /**
+     * Group by User.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserGroupByArgs['orderBy'] }
+        : { orderBy?: UserGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the User model
+   */
+  readonly fields: UserFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for User.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    profile<T extends User$profileArgs<ExtArgs> = {}>(args?: Subset<T, User$profileArgs<ExtArgs>>): Prisma__EmployeeProfileClient<$Result.GetResult<Prisma.$EmployeeProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    unitAssignments<T extends User$unitAssignmentsArgs<ExtArgs> = {}>(args?: Subset<T, User$unitAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    gpsAttendances<T extends User$gpsAttendancesArgs<ExtArgs> = {}>(args?: Subset<T, User$gpsAttendancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GpsAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    leaveRequests<T extends User$leaveRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$leaveRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    approvedLeaves<T extends User$approvedLeavesArgs<ExtArgs> = {}>(args?: Subset<T, User$approvedLeavesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    liqoGroupsAsMurobbi<T extends User$liqoGroupsAsMurobbiArgs<ExtArgs> = {}>(args?: Subset<T, User$liqoGroupsAsMurobbiArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    liqoMemberships<T extends User$liqoMembershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$liqoMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    liqoAttendances<T extends User$liqoAttendancesArgs<ExtArgs> = {}>(args?: Subset<T, User$liqoAttendancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    mutabaahRecords<T extends User$mutabaahRecordsArgs<ExtArgs> = {}>(args?: Subset<T, User$mutabaahRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MutabaahRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the User model
+   */
+  interface UserFieldRefs {
+    readonly id: FieldRef<"User", 'String'>
+    readonly fullName: FieldRef<"User", 'String'>
+    readonly username: FieldRef<"User", 'String'>
+    readonly email: FieldRef<"User", 'String'>
+    readonly phone: FieldRef<"User", 'String'>
+    readonly avatarUrl: FieldRef<"User", 'String'>
+    readonly leaveQuota: FieldRef<"User", 'Int'>
+    readonly isActive: FieldRef<"User", 'Boolean'>
+    readonly createdAt: FieldRef<"User", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * User findUnique
+   */
+  export type UserFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which User to fetch.
+     */
+    where: UserWhereUniqueInput
+  }
+
+  /**
+   * User findUniqueOrThrow
+   */
+  export type UserFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which User to fetch.
+     */
+    where: UserWhereUniqueInput
+  }
+
+  /**
+   * User findFirst
+   */
+  export type UserFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which User to fetch.
+     */
+    where?: UserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Users to fetch.
+     */
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Users.
+     */
+    cursor?: UserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Users.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Users.
+     */
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * User findFirstOrThrow
+   */
+  export type UserFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which User to fetch.
+     */
+    where?: UserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Users to fetch.
+     */
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Users.
+     */
+    cursor?: UserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Users.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Users.
+     */
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * User findMany
+   */
+  export type UserFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which Users to fetch.
+     */
+    where?: UserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Users to fetch.
+     */
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Users.
+     */
+    cursor?: UserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Users.
+     */
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * User create
+   */
+  export type UserCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * The data needed to create a User.
+     */
+    data: XOR<UserCreateInput, UserUncheckedCreateInput>
+  }
+
+  /**
+   * User createMany
+   */
+  export type UserCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Users.
+     */
+    data: UserCreateManyInput | UserCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * User createManyAndReturn
+   */
+  export type UserCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * The data used to create many Users.
+     */
+    data: UserCreateManyInput | UserCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * User update
+   */
+  export type UserUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * The data needed to update a User.
+     */
+    data: XOR<UserUpdateInput, UserUncheckedUpdateInput>
+    /**
+     * Choose, which User to update.
+     */
+    where: UserWhereUniqueInput
+  }
+
+  /**
+   * User updateMany
+   */
+  export type UserUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Users.
+     */
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyInput>
+    /**
+     * Filter which Users to update
+     */
+    where?: UserWhereInput
+    /**
+     * Limit how many Users to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * User updateManyAndReturn
+   */
+  export type UserUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * The data used to update Users.
+     */
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyInput>
+    /**
+     * Filter which Users to update
+     */
+    where?: UserWhereInput
+    /**
+     * Limit how many Users to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * User upsert
+   */
+  export type UserUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * The filter to search for the User to update in case it exists.
+     */
+    where: UserWhereUniqueInput
+    /**
+     * In case the User found by the `where` argument doesn't exist, create a new User with this data.
+     */
+    create: XOR<UserCreateInput, UserUncheckedCreateInput>
+    /**
+     * In case the User was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserUpdateInput, UserUncheckedUpdateInput>
+  }
+
+  /**
+   * User delete
+   */
+  export type UserDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter which User to delete.
+     */
+    where: UserWhereUniqueInput
+  }
+
+  /**
+   * User deleteMany
+   */
+  export type UserDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Users to delete
+     */
+    where?: UserWhereInput
+    /**
+     * Limit how many Users to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * User.profile
+   */
+  export type User$profileArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileInclude<ExtArgs> | null
+    where?: EmployeeProfileWhereInput
+  }
+
+  /**
+   * User.unitAssignments
+   */
+  export type User$unitAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentInclude<ExtArgs> | null
+    where?: EmployeeUnitAssignmentWhereInput
+    orderBy?: EmployeeUnitAssignmentOrderByWithRelationInput | EmployeeUnitAssignmentOrderByWithRelationInput[]
+    cursor?: EmployeeUnitAssignmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EmployeeUnitAssignmentScalarFieldEnum | EmployeeUnitAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * User.gpsAttendances
+   */
+  export type User$gpsAttendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceInclude<ExtArgs> | null
+    where?: GpsAttendanceWhereInput
+    orderBy?: GpsAttendanceOrderByWithRelationInput | GpsAttendanceOrderByWithRelationInput[]
+    cursor?: GpsAttendanceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GpsAttendanceScalarFieldEnum | GpsAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * User.leaveRequests
+   */
+  export type User$leaveRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestInclude<ExtArgs> | null
+    where?: LeaveRequestWhereInput
+    orderBy?: LeaveRequestOrderByWithRelationInput | LeaveRequestOrderByWithRelationInput[]
+    cursor?: LeaveRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LeaveRequestScalarFieldEnum | LeaveRequestScalarFieldEnum[]
+  }
+
+  /**
+   * User.approvedLeaves
+   */
+  export type User$approvedLeavesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestInclude<ExtArgs> | null
+    where?: LeaveRequestWhereInput
+    orderBy?: LeaveRequestOrderByWithRelationInput | LeaveRequestOrderByWithRelationInput[]
+    cursor?: LeaveRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LeaveRequestScalarFieldEnum | LeaveRequestScalarFieldEnum[]
+  }
+
+  /**
+   * User.liqoGroupsAsMurobbi
+   */
+  export type User$liqoGroupsAsMurobbiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupInclude<ExtArgs> | null
+    where?: LiqoGroupWhereInput
+    orderBy?: LiqoGroupOrderByWithRelationInput | LiqoGroupOrderByWithRelationInput[]
+    cursor?: LiqoGroupWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LiqoGroupScalarFieldEnum | LiqoGroupScalarFieldEnum[]
+  }
+
+  /**
+   * User.liqoMemberships
+   */
+  export type User$liqoMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberInclude<ExtArgs> | null
+    where?: LiqoMemberWhereInput
+    orderBy?: LiqoMemberOrderByWithRelationInput | LiqoMemberOrderByWithRelationInput[]
+    cursor?: LiqoMemberWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LiqoMemberScalarFieldEnum | LiqoMemberScalarFieldEnum[]
+  }
+
+  /**
+   * User.liqoAttendances
+   */
+  export type User$liqoAttendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceInclude<ExtArgs> | null
+    where?: LiqoAttendanceWhereInput
+    orderBy?: LiqoAttendanceOrderByWithRelationInput | LiqoAttendanceOrderByWithRelationInput[]
+    cursor?: LiqoAttendanceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LiqoAttendanceScalarFieldEnum | LiqoAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * User.mutabaahRecords
+   */
+  export type User$mutabaahRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordInclude<ExtArgs> | null
+    where?: MutabaahRecordWhereInput
+    orderBy?: MutabaahRecordOrderByWithRelationInput | MutabaahRecordOrderByWithRelationInput[]
+    cursor?: MutabaahRecordWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MutabaahRecordScalarFieldEnum | MutabaahRecordScalarFieldEnum[]
+  }
+
+  /**
+   * User without action
+   */
+  export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EmployeeProfile
+   */
+
+  export type AggregateEmployeeProfile = {
+    _count: EmployeeProfileCountAggregateOutputType | null
+    _min: EmployeeProfileMinAggregateOutputType | null
+    _max: EmployeeProfileMaxAggregateOutputType | null
+  }
+
+  export type EmployeeProfileMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    nip: string | null
+    position: string | null
+    employeeType: string | null
+    joinDate: Date | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmployeeProfileMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    nip: string | null
+    position: string | null
+    employeeType: string | null
+    joinDate: Date | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmployeeProfileCountAggregateOutputType = {
+    id: number
+    userId: number
+    nip: number
+    position: number
+    employeeType: number
+    joinDate: number
+    notes: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EmployeeProfileMinAggregateInputType = {
+    id?: true
+    userId?: true
+    nip?: true
+    position?: true
+    employeeType?: true
+    joinDate?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmployeeProfileMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    nip?: true
+    position?: true
+    employeeType?: true
+    joinDate?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmployeeProfileCountAggregateInputType = {
+    id?: true
+    userId?: true
+    nip?: true
+    position?: true
+    employeeType?: true
+    joinDate?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EmployeeProfileAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmployeeProfile to aggregate.
+     */
+    where?: EmployeeProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeProfiles to fetch.
+     */
+    orderBy?: EmployeeProfileOrderByWithRelationInput | EmployeeProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmployeeProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeProfiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmployeeProfiles
+    **/
+    _count?: true | EmployeeProfileCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmployeeProfileMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmployeeProfileMaxAggregateInputType
+  }
+
+  export type GetEmployeeProfileAggregateType<T extends EmployeeProfileAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmployeeProfile]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmployeeProfile[P]>
+      : GetScalarType<T[P], AggregateEmployeeProfile[P]>
+  }
+
+
+
+
+  export type EmployeeProfileGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeProfileWhereInput
+    orderBy?: EmployeeProfileOrderByWithAggregationInput | EmployeeProfileOrderByWithAggregationInput[]
+    by: EmployeeProfileScalarFieldEnum[] | EmployeeProfileScalarFieldEnum
+    having?: EmployeeProfileScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmployeeProfileCountAggregateInputType | true
+    _min?: EmployeeProfileMinAggregateInputType
+    _max?: EmployeeProfileMaxAggregateInputType
+  }
+
+  export type EmployeeProfileGroupByOutputType = {
+    id: string
+    userId: string
+    nip: string | null
+    position: string | null
+    employeeType: string
+    joinDate: Date | null
+    notes: string | null
+    createdAt: Date
+    updatedAt: Date | null
+    _count: EmployeeProfileCountAggregateOutputType | null
+    _min: EmployeeProfileMinAggregateOutputType | null
+    _max: EmployeeProfileMaxAggregateOutputType | null
+  }
+
+  type GetEmployeeProfileGroupByPayload<T extends EmployeeProfileGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmployeeProfileGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmployeeProfileGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmployeeProfileGroupByOutputType[P]>
+            : GetScalarType<T[P], EmployeeProfileGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmployeeProfileSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    nip?: boolean
+    position?: boolean
+    employeeType?: boolean
+    joinDate?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeProfile"]>
+
+  export type EmployeeProfileSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    nip?: boolean
+    position?: boolean
+    employeeType?: boolean
+    joinDate?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeProfile"]>
+
+  export type EmployeeProfileSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    nip?: boolean
+    position?: boolean
+    employeeType?: boolean
+    joinDate?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeProfile"]>
+
+  export type EmployeeProfileSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    nip?: boolean
+    position?: boolean
+    employeeType?: boolean
+    joinDate?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EmployeeProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "nip" | "position" | "employeeType" | "joinDate" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["employeeProfile"]>
+  export type EmployeeProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type EmployeeProfileIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type EmployeeProfileIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $EmployeeProfilePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmployeeProfile"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      nip: string | null
+      position: string | null
+      employeeType: string
+      joinDate: Date | null
+      notes: string | null
+      createdAt: Date
+      updatedAt: Date | null
+    }, ExtArgs["result"]["employeeProfile"]>
+    composites: {}
+  }
+
+  type EmployeeProfileGetPayload<S extends boolean | null | undefined | EmployeeProfileDefaultArgs> = $Result.GetResult<Prisma.$EmployeeProfilePayload, S>
+
+  type EmployeeProfileCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmployeeProfileFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmployeeProfileCountAggregateInputType | true
+    }
+
+  export interface EmployeeProfileDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmployeeProfile'], meta: { name: 'EmployeeProfile' } }
+    /**
+     * Find zero or one EmployeeProfile that matches the filter.
+     * @param {EmployeeProfileFindUniqueArgs} args - Arguments to find a EmployeeProfile
+     * @example
+     * // Get one EmployeeProfile
+     * const employeeProfile = await prisma.employeeProfile.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmployeeProfileFindUniqueArgs>(args: SelectSubset<T, EmployeeProfileFindUniqueArgs<ExtArgs>>): Prisma__EmployeeProfileClient<$Result.GetResult<Prisma.$EmployeeProfilePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmployeeProfile that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmployeeProfileFindUniqueOrThrowArgs} args - Arguments to find a EmployeeProfile
+     * @example
+     * // Get one EmployeeProfile
+     * const employeeProfile = await prisma.employeeProfile.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmployeeProfileFindUniqueOrThrowArgs>(args: SelectSubset<T, EmployeeProfileFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmployeeProfileClient<$Result.GetResult<Prisma.$EmployeeProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmployeeProfile that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeProfileFindFirstArgs} args - Arguments to find a EmployeeProfile
+     * @example
+     * // Get one EmployeeProfile
+     * const employeeProfile = await prisma.employeeProfile.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmployeeProfileFindFirstArgs>(args?: SelectSubset<T, EmployeeProfileFindFirstArgs<ExtArgs>>): Prisma__EmployeeProfileClient<$Result.GetResult<Prisma.$EmployeeProfilePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmployeeProfile that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeProfileFindFirstOrThrowArgs} args - Arguments to find a EmployeeProfile
+     * @example
+     * // Get one EmployeeProfile
+     * const employeeProfile = await prisma.employeeProfile.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmployeeProfileFindFirstOrThrowArgs>(args?: SelectSubset<T, EmployeeProfileFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmployeeProfileClient<$Result.GetResult<Prisma.$EmployeeProfilePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmployeeProfiles that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeProfileFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmployeeProfiles
+     * const employeeProfiles = await prisma.employeeProfile.findMany()
+     * 
+     * // Get first 10 EmployeeProfiles
+     * const employeeProfiles = await prisma.employeeProfile.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const employeeProfileWithIdOnly = await prisma.employeeProfile.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmployeeProfileFindManyArgs>(args?: SelectSubset<T, EmployeeProfileFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeProfilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmployeeProfile.
+     * @param {EmployeeProfileCreateArgs} args - Arguments to create a EmployeeProfile.
+     * @example
+     * // Create one EmployeeProfile
+     * const EmployeeProfile = await prisma.employeeProfile.create({
+     *   data: {
+     *     // ... data to create a EmployeeProfile
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmployeeProfileCreateArgs>(args: SelectSubset<T, EmployeeProfileCreateArgs<ExtArgs>>): Prisma__EmployeeProfileClient<$Result.GetResult<Prisma.$EmployeeProfilePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmployeeProfiles.
+     * @param {EmployeeProfileCreateManyArgs} args - Arguments to create many EmployeeProfiles.
+     * @example
+     * // Create many EmployeeProfiles
+     * const employeeProfile = await prisma.employeeProfile.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmployeeProfileCreateManyArgs>(args?: SelectSubset<T, EmployeeProfileCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EmployeeProfiles and returns the data saved in the database.
+     * @param {EmployeeProfileCreateManyAndReturnArgs} args - Arguments to create many EmployeeProfiles.
+     * @example
+     * // Create many EmployeeProfiles
+     * const employeeProfile = await prisma.employeeProfile.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EmployeeProfiles and only return the `id`
+     * const employeeProfileWithIdOnly = await prisma.employeeProfile.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmployeeProfileCreateManyAndReturnArgs>(args?: SelectSubset<T, EmployeeProfileCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeProfilePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EmployeeProfile.
+     * @param {EmployeeProfileDeleteArgs} args - Arguments to delete one EmployeeProfile.
+     * @example
+     * // Delete one EmployeeProfile
+     * const EmployeeProfile = await prisma.employeeProfile.delete({
+     *   where: {
+     *     // ... filter to delete one EmployeeProfile
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmployeeProfileDeleteArgs>(args: SelectSubset<T, EmployeeProfileDeleteArgs<ExtArgs>>): Prisma__EmployeeProfileClient<$Result.GetResult<Prisma.$EmployeeProfilePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmployeeProfile.
+     * @param {EmployeeProfileUpdateArgs} args - Arguments to update one EmployeeProfile.
+     * @example
+     * // Update one EmployeeProfile
+     * const employeeProfile = await prisma.employeeProfile.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmployeeProfileUpdateArgs>(args: SelectSubset<T, EmployeeProfileUpdateArgs<ExtArgs>>): Prisma__EmployeeProfileClient<$Result.GetResult<Prisma.$EmployeeProfilePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmployeeProfiles.
+     * @param {EmployeeProfileDeleteManyArgs} args - Arguments to filter EmployeeProfiles to delete.
+     * @example
+     * // Delete a few EmployeeProfiles
+     * const { count } = await prisma.employeeProfile.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmployeeProfileDeleteManyArgs>(args?: SelectSubset<T, EmployeeProfileDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmployeeProfiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeProfileUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmployeeProfiles
+     * const employeeProfile = await prisma.employeeProfile.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmployeeProfileUpdateManyArgs>(args: SelectSubset<T, EmployeeProfileUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmployeeProfiles and returns the data updated in the database.
+     * @param {EmployeeProfileUpdateManyAndReturnArgs} args - Arguments to update many EmployeeProfiles.
+     * @example
+     * // Update many EmployeeProfiles
+     * const employeeProfile = await prisma.employeeProfile.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EmployeeProfiles and only return the `id`
+     * const employeeProfileWithIdOnly = await prisma.employeeProfile.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EmployeeProfileUpdateManyAndReturnArgs>(args: SelectSubset<T, EmployeeProfileUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeProfilePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EmployeeProfile.
+     * @param {EmployeeProfileUpsertArgs} args - Arguments to update or create a EmployeeProfile.
+     * @example
+     * // Update or create a EmployeeProfile
+     * const employeeProfile = await prisma.employeeProfile.upsert({
+     *   create: {
+     *     // ... data to create a EmployeeProfile
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmployeeProfile we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmployeeProfileUpsertArgs>(args: SelectSubset<T, EmployeeProfileUpsertArgs<ExtArgs>>): Prisma__EmployeeProfileClient<$Result.GetResult<Prisma.$EmployeeProfilePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmployeeProfiles.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeProfileCountArgs} args - Arguments to filter EmployeeProfiles to count.
+     * @example
+     * // Count the number of EmployeeProfiles
+     * const count = await prisma.employeeProfile.count({
+     *   where: {
+     *     // ... the filter for the EmployeeProfiles we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmployeeProfileCountArgs>(
+      args?: Subset<T, EmployeeProfileCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmployeeProfileCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmployeeProfile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeProfileAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmployeeProfileAggregateArgs>(args: Subset<T, EmployeeProfileAggregateArgs>): Prisma.PrismaPromise<GetEmployeeProfileAggregateType<T>>
+
+    /**
+     * Group by EmployeeProfile.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeProfileGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmployeeProfileGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmployeeProfileGroupByArgs['orderBy'] }
+        : { orderBy?: EmployeeProfileGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmployeeProfileGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmployeeProfileGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmployeeProfile model
+   */
+  readonly fields: EmployeeProfileFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmployeeProfile.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmployeeProfileClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmployeeProfile model
+   */
+  interface EmployeeProfileFieldRefs {
+    readonly id: FieldRef<"EmployeeProfile", 'String'>
+    readonly userId: FieldRef<"EmployeeProfile", 'String'>
+    readonly nip: FieldRef<"EmployeeProfile", 'String'>
+    readonly position: FieldRef<"EmployeeProfile", 'String'>
+    readonly employeeType: FieldRef<"EmployeeProfile", 'String'>
+    readonly joinDate: FieldRef<"EmployeeProfile", 'DateTime'>
+    readonly notes: FieldRef<"EmployeeProfile", 'String'>
+    readonly createdAt: FieldRef<"EmployeeProfile", 'DateTime'>
+    readonly updatedAt: FieldRef<"EmployeeProfile", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmployeeProfile findUnique
+   */
+  export type EmployeeProfileFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeProfile to fetch.
+     */
+    where: EmployeeProfileWhereUniqueInput
+  }
+
+  /**
+   * EmployeeProfile findUniqueOrThrow
+   */
+  export type EmployeeProfileFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeProfile to fetch.
+     */
+    where: EmployeeProfileWhereUniqueInput
+  }
+
+  /**
+   * EmployeeProfile findFirst
+   */
+  export type EmployeeProfileFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeProfile to fetch.
+     */
+    where?: EmployeeProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeProfiles to fetch.
+     */
+    orderBy?: EmployeeProfileOrderByWithRelationInput | EmployeeProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmployeeProfiles.
+     */
+    cursor?: EmployeeProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeProfiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmployeeProfiles.
+     */
+    distinct?: EmployeeProfileScalarFieldEnum | EmployeeProfileScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeProfile findFirstOrThrow
+   */
+  export type EmployeeProfileFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeProfile to fetch.
+     */
+    where?: EmployeeProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeProfiles to fetch.
+     */
+    orderBy?: EmployeeProfileOrderByWithRelationInput | EmployeeProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmployeeProfiles.
+     */
+    cursor?: EmployeeProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeProfiles.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmployeeProfiles.
+     */
+    distinct?: EmployeeProfileScalarFieldEnum | EmployeeProfileScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeProfile findMany
+   */
+  export type EmployeeProfileFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeProfiles to fetch.
+     */
+    where?: EmployeeProfileWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeProfiles to fetch.
+     */
+    orderBy?: EmployeeProfileOrderByWithRelationInput | EmployeeProfileOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmployeeProfiles.
+     */
+    cursor?: EmployeeProfileWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeProfiles from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeProfiles.
+     */
+    skip?: number
+    distinct?: EmployeeProfileScalarFieldEnum | EmployeeProfileScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeProfile create
+   */
+  export type EmployeeProfileCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EmployeeProfile.
+     */
+    data: XOR<EmployeeProfileCreateInput, EmployeeProfileUncheckedCreateInput>
+  }
+
+  /**
+   * EmployeeProfile createMany
+   */
+  export type EmployeeProfileCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmployeeProfiles.
+     */
+    data: EmployeeProfileCreateManyInput | EmployeeProfileCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EmployeeProfile createManyAndReturn
+   */
+  export type EmployeeProfileCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * The data used to create many EmployeeProfiles.
+     */
+    data: EmployeeProfileCreateManyInput | EmployeeProfileCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmployeeProfile update
+   */
+  export type EmployeeProfileUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EmployeeProfile.
+     */
+    data: XOR<EmployeeProfileUpdateInput, EmployeeProfileUncheckedUpdateInput>
+    /**
+     * Choose, which EmployeeProfile to update.
+     */
+    where: EmployeeProfileWhereUniqueInput
+  }
+
+  /**
+   * EmployeeProfile updateMany
+   */
+  export type EmployeeProfileUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmployeeProfiles.
+     */
+    data: XOR<EmployeeProfileUpdateManyMutationInput, EmployeeProfileUncheckedUpdateManyInput>
+    /**
+     * Filter which EmployeeProfiles to update
+     */
+    where?: EmployeeProfileWhereInput
+    /**
+     * Limit how many EmployeeProfiles to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmployeeProfile updateManyAndReturn
+   */
+  export type EmployeeProfileUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * The data used to update EmployeeProfiles.
+     */
+    data: XOR<EmployeeProfileUpdateManyMutationInput, EmployeeProfileUncheckedUpdateManyInput>
+    /**
+     * Filter which EmployeeProfiles to update
+     */
+    where?: EmployeeProfileWhereInput
+    /**
+     * Limit how many EmployeeProfiles to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmployeeProfile upsert
+   */
+  export type EmployeeProfileUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EmployeeProfile to update in case it exists.
+     */
+    where: EmployeeProfileWhereUniqueInput
+    /**
+     * In case the EmployeeProfile found by the `where` argument doesn't exist, create a new EmployeeProfile with this data.
+     */
+    create: XOR<EmployeeProfileCreateInput, EmployeeProfileUncheckedCreateInput>
+    /**
+     * In case the EmployeeProfile was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmployeeProfileUpdateInput, EmployeeProfileUncheckedUpdateInput>
+  }
+
+  /**
+   * EmployeeProfile delete
+   */
+  export type EmployeeProfileDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileInclude<ExtArgs> | null
+    /**
+     * Filter which EmployeeProfile to delete.
+     */
+    where: EmployeeProfileWhereUniqueInput
+  }
+
+  /**
+   * EmployeeProfile deleteMany
+   */
+  export type EmployeeProfileDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmployeeProfiles to delete
+     */
+    where?: EmployeeProfileWhereInput
+    /**
+     * Limit how many EmployeeProfiles to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmployeeProfile without action
+   */
+  export type EmployeeProfileDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeProfile
+     */
+    select?: EmployeeProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeProfile
+     */
+    omit?: EmployeeProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeProfileInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EmployeeUnitAssignment
+   */
+
+  export type AggregateEmployeeUnitAssignment = {
+    _count: EmployeeUnitAssignmentCountAggregateOutputType | null
+    _min: EmployeeUnitAssignmentMinAggregateOutputType | null
+    _max: EmployeeUnitAssignmentMaxAggregateOutputType | null
+  }
+
+  export type EmployeeUnitAssignmentMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    unitId: string | null
+    unitName: string | null
+    role: string | null
+    isPrimary: boolean | null
+    startDate: Date | null
+    endDate: Date | null
+    skNumber: string | null
+    notes: string | null
+    createdAt: Date | null
+  }
+
+  export type EmployeeUnitAssignmentMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    unitId: string | null
+    unitName: string | null
+    role: string | null
+    isPrimary: boolean | null
+    startDate: Date | null
+    endDate: Date | null
+    skNumber: string | null
+    notes: string | null
+    createdAt: Date | null
+  }
+
+  export type EmployeeUnitAssignmentCountAggregateOutputType = {
+    id: number
+    userId: number
+    unitId: number
+    unitName: number
+    role: number
+    isPrimary: number
+    startDate: number
+    endDate: number
+    skNumber: number
+    notes: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type EmployeeUnitAssignmentMinAggregateInputType = {
+    id?: true
+    userId?: true
+    unitId?: true
+    unitName?: true
+    role?: true
+    isPrimary?: true
+    startDate?: true
+    endDate?: true
+    skNumber?: true
+    notes?: true
+    createdAt?: true
+  }
+
+  export type EmployeeUnitAssignmentMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    unitId?: true
+    unitName?: true
+    role?: true
+    isPrimary?: true
+    startDate?: true
+    endDate?: true
+    skNumber?: true
+    notes?: true
+    createdAt?: true
+  }
+
+  export type EmployeeUnitAssignmentCountAggregateInputType = {
+    id?: true
+    userId?: true
+    unitId?: true
+    unitName?: true
+    role?: true
+    isPrimary?: true
+    startDate?: true
+    endDate?: true
+    skNumber?: true
+    notes?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type EmployeeUnitAssignmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmployeeUnitAssignment to aggregate.
+     */
+    where?: EmployeeUnitAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeUnitAssignments to fetch.
+     */
+    orderBy?: EmployeeUnitAssignmentOrderByWithRelationInput | EmployeeUnitAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmployeeUnitAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeUnitAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeUnitAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmployeeUnitAssignments
+    **/
+    _count?: true | EmployeeUnitAssignmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmployeeUnitAssignmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmployeeUnitAssignmentMaxAggregateInputType
+  }
+
+  export type GetEmployeeUnitAssignmentAggregateType<T extends EmployeeUnitAssignmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmployeeUnitAssignment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmployeeUnitAssignment[P]>
+      : GetScalarType<T[P], AggregateEmployeeUnitAssignment[P]>
+  }
+
+
+
+
+  export type EmployeeUnitAssignmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeUnitAssignmentWhereInput
+    orderBy?: EmployeeUnitAssignmentOrderByWithAggregationInput | EmployeeUnitAssignmentOrderByWithAggregationInput[]
+    by: EmployeeUnitAssignmentScalarFieldEnum[] | EmployeeUnitAssignmentScalarFieldEnum
+    having?: EmployeeUnitAssignmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmployeeUnitAssignmentCountAggregateInputType | true
+    _min?: EmployeeUnitAssignmentMinAggregateInputType
+    _max?: EmployeeUnitAssignmentMaxAggregateInputType
+  }
+
+  export type EmployeeUnitAssignmentGroupByOutputType = {
+    id: string
+    userId: string
+    unitId: string
+    unitName: string
+    role: string
+    isPrimary: boolean
+    startDate: Date
+    endDate: Date | null
+    skNumber: string | null
+    notes: string | null
+    createdAt: Date
+    _count: EmployeeUnitAssignmentCountAggregateOutputType | null
+    _min: EmployeeUnitAssignmentMinAggregateOutputType | null
+    _max: EmployeeUnitAssignmentMaxAggregateOutputType | null
+  }
+
+  type GetEmployeeUnitAssignmentGroupByPayload<T extends EmployeeUnitAssignmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmployeeUnitAssignmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmployeeUnitAssignmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmployeeUnitAssignmentGroupByOutputType[P]>
+            : GetScalarType<T[P], EmployeeUnitAssignmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmployeeUnitAssignmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    unitId?: boolean
+    unitName?: boolean
+    role?: boolean
+    isPrimary?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    skNumber?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeUnitAssignment"]>
+
+  export type EmployeeUnitAssignmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    unitId?: boolean
+    unitName?: boolean
+    role?: boolean
+    isPrimary?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    skNumber?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeUnitAssignment"]>
+
+  export type EmployeeUnitAssignmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    unitId?: boolean
+    unitName?: boolean
+    role?: boolean
+    isPrimary?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    skNumber?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeUnitAssignment"]>
+
+  export type EmployeeUnitAssignmentSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    unitId?: boolean
+    unitName?: boolean
+    role?: boolean
+    isPrimary?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    skNumber?: boolean
+    notes?: boolean
+    createdAt?: boolean
+  }
+
+  export type EmployeeUnitAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "unitId" | "unitName" | "role" | "isPrimary" | "startDate" | "endDate" | "skNumber" | "notes" | "createdAt", ExtArgs["result"]["employeeUnitAssignment"]>
+  export type EmployeeUnitAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type EmployeeUnitAssignmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type EmployeeUnitAssignmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $EmployeeUnitAssignmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmployeeUnitAssignment"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      unitId: string
+      unitName: string
+      role: string
+      isPrimary: boolean
+      startDate: Date
+      endDate: Date | null
+      skNumber: string | null
+      notes: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["employeeUnitAssignment"]>
+    composites: {}
+  }
+
+  type EmployeeUnitAssignmentGetPayload<S extends boolean | null | undefined | EmployeeUnitAssignmentDefaultArgs> = $Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload, S>
+
+  type EmployeeUnitAssignmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmployeeUnitAssignmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmployeeUnitAssignmentCountAggregateInputType | true
+    }
+
+  export interface EmployeeUnitAssignmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmployeeUnitAssignment'], meta: { name: 'EmployeeUnitAssignment' } }
+    /**
+     * Find zero or one EmployeeUnitAssignment that matches the filter.
+     * @param {EmployeeUnitAssignmentFindUniqueArgs} args - Arguments to find a EmployeeUnitAssignment
+     * @example
+     * // Get one EmployeeUnitAssignment
+     * const employeeUnitAssignment = await prisma.employeeUnitAssignment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmployeeUnitAssignmentFindUniqueArgs>(args: SelectSubset<T, EmployeeUnitAssignmentFindUniqueArgs<ExtArgs>>): Prisma__EmployeeUnitAssignmentClient<$Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmployeeUnitAssignment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmployeeUnitAssignmentFindUniqueOrThrowArgs} args - Arguments to find a EmployeeUnitAssignment
+     * @example
+     * // Get one EmployeeUnitAssignment
+     * const employeeUnitAssignment = await prisma.employeeUnitAssignment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmployeeUnitAssignmentFindUniqueOrThrowArgs>(args: SelectSubset<T, EmployeeUnitAssignmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmployeeUnitAssignmentClient<$Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmployeeUnitAssignment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeUnitAssignmentFindFirstArgs} args - Arguments to find a EmployeeUnitAssignment
+     * @example
+     * // Get one EmployeeUnitAssignment
+     * const employeeUnitAssignment = await prisma.employeeUnitAssignment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmployeeUnitAssignmentFindFirstArgs>(args?: SelectSubset<T, EmployeeUnitAssignmentFindFirstArgs<ExtArgs>>): Prisma__EmployeeUnitAssignmentClient<$Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmployeeUnitAssignment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeUnitAssignmentFindFirstOrThrowArgs} args - Arguments to find a EmployeeUnitAssignment
+     * @example
+     * // Get one EmployeeUnitAssignment
+     * const employeeUnitAssignment = await prisma.employeeUnitAssignment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmployeeUnitAssignmentFindFirstOrThrowArgs>(args?: SelectSubset<T, EmployeeUnitAssignmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmployeeUnitAssignmentClient<$Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmployeeUnitAssignments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeUnitAssignmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmployeeUnitAssignments
+     * const employeeUnitAssignments = await prisma.employeeUnitAssignment.findMany()
+     * 
+     * // Get first 10 EmployeeUnitAssignments
+     * const employeeUnitAssignments = await prisma.employeeUnitAssignment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const employeeUnitAssignmentWithIdOnly = await prisma.employeeUnitAssignment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmployeeUnitAssignmentFindManyArgs>(args?: SelectSubset<T, EmployeeUnitAssignmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmployeeUnitAssignment.
+     * @param {EmployeeUnitAssignmentCreateArgs} args - Arguments to create a EmployeeUnitAssignment.
+     * @example
+     * // Create one EmployeeUnitAssignment
+     * const EmployeeUnitAssignment = await prisma.employeeUnitAssignment.create({
+     *   data: {
+     *     // ... data to create a EmployeeUnitAssignment
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmployeeUnitAssignmentCreateArgs>(args: SelectSubset<T, EmployeeUnitAssignmentCreateArgs<ExtArgs>>): Prisma__EmployeeUnitAssignmentClient<$Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmployeeUnitAssignments.
+     * @param {EmployeeUnitAssignmentCreateManyArgs} args - Arguments to create many EmployeeUnitAssignments.
+     * @example
+     * // Create many EmployeeUnitAssignments
+     * const employeeUnitAssignment = await prisma.employeeUnitAssignment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmployeeUnitAssignmentCreateManyArgs>(args?: SelectSubset<T, EmployeeUnitAssignmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EmployeeUnitAssignments and returns the data saved in the database.
+     * @param {EmployeeUnitAssignmentCreateManyAndReturnArgs} args - Arguments to create many EmployeeUnitAssignments.
+     * @example
+     * // Create many EmployeeUnitAssignments
+     * const employeeUnitAssignment = await prisma.employeeUnitAssignment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EmployeeUnitAssignments and only return the `id`
+     * const employeeUnitAssignmentWithIdOnly = await prisma.employeeUnitAssignment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EmployeeUnitAssignmentCreateManyAndReturnArgs>(args?: SelectSubset<T, EmployeeUnitAssignmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EmployeeUnitAssignment.
+     * @param {EmployeeUnitAssignmentDeleteArgs} args - Arguments to delete one EmployeeUnitAssignment.
+     * @example
+     * // Delete one EmployeeUnitAssignment
+     * const EmployeeUnitAssignment = await prisma.employeeUnitAssignment.delete({
+     *   where: {
+     *     // ... filter to delete one EmployeeUnitAssignment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmployeeUnitAssignmentDeleteArgs>(args: SelectSubset<T, EmployeeUnitAssignmentDeleteArgs<ExtArgs>>): Prisma__EmployeeUnitAssignmentClient<$Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmployeeUnitAssignment.
+     * @param {EmployeeUnitAssignmentUpdateArgs} args - Arguments to update one EmployeeUnitAssignment.
+     * @example
+     * // Update one EmployeeUnitAssignment
+     * const employeeUnitAssignment = await prisma.employeeUnitAssignment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmployeeUnitAssignmentUpdateArgs>(args: SelectSubset<T, EmployeeUnitAssignmentUpdateArgs<ExtArgs>>): Prisma__EmployeeUnitAssignmentClient<$Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmployeeUnitAssignments.
+     * @param {EmployeeUnitAssignmentDeleteManyArgs} args - Arguments to filter EmployeeUnitAssignments to delete.
+     * @example
+     * // Delete a few EmployeeUnitAssignments
+     * const { count } = await prisma.employeeUnitAssignment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmployeeUnitAssignmentDeleteManyArgs>(args?: SelectSubset<T, EmployeeUnitAssignmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmployeeUnitAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeUnitAssignmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmployeeUnitAssignments
+     * const employeeUnitAssignment = await prisma.employeeUnitAssignment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmployeeUnitAssignmentUpdateManyArgs>(args: SelectSubset<T, EmployeeUnitAssignmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmployeeUnitAssignments and returns the data updated in the database.
+     * @param {EmployeeUnitAssignmentUpdateManyAndReturnArgs} args - Arguments to update many EmployeeUnitAssignments.
+     * @example
+     * // Update many EmployeeUnitAssignments
+     * const employeeUnitAssignment = await prisma.employeeUnitAssignment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EmployeeUnitAssignments and only return the `id`
+     * const employeeUnitAssignmentWithIdOnly = await prisma.employeeUnitAssignment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EmployeeUnitAssignmentUpdateManyAndReturnArgs>(args: SelectSubset<T, EmployeeUnitAssignmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EmployeeUnitAssignment.
+     * @param {EmployeeUnitAssignmentUpsertArgs} args - Arguments to update or create a EmployeeUnitAssignment.
+     * @example
+     * // Update or create a EmployeeUnitAssignment
+     * const employeeUnitAssignment = await prisma.employeeUnitAssignment.upsert({
+     *   create: {
+     *     // ... data to create a EmployeeUnitAssignment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmployeeUnitAssignment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmployeeUnitAssignmentUpsertArgs>(args: SelectSubset<T, EmployeeUnitAssignmentUpsertArgs<ExtArgs>>): Prisma__EmployeeUnitAssignmentClient<$Result.GetResult<Prisma.$EmployeeUnitAssignmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmployeeUnitAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeUnitAssignmentCountArgs} args - Arguments to filter EmployeeUnitAssignments to count.
+     * @example
+     * // Count the number of EmployeeUnitAssignments
+     * const count = await prisma.employeeUnitAssignment.count({
+     *   where: {
+     *     // ... the filter for the EmployeeUnitAssignments we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmployeeUnitAssignmentCountArgs>(
+      args?: Subset<T, EmployeeUnitAssignmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmployeeUnitAssignmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmployeeUnitAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeUnitAssignmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmployeeUnitAssignmentAggregateArgs>(args: Subset<T, EmployeeUnitAssignmentAggregateArgs>): Prisma.PrismaPromise<GetEmployeeUnitAssignmentAggregateType<T>>
+
+    /**
+     * Group by EmployeeUnitAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeUnitAssignmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmployeeUnitAssignmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmployeeUnitAssignmentGroupByArgs['orderBy'] }
+        : { orderBy?: EmployeeUnitAssignmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmployeeUnitAssignmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmployeeUnitAssignmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmployeeUnitAssignment model
+   */
+  readonly fields: EmployeeUnitAssignmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmployeeUnitAssignment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmployeeUnitAssignmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmployeeUnitAssignment model
+   */
+  interface EmployeeUnitAssignmentFieldRefs {
+    readonly id: FieldRef<"EmployeeUnitAssignment", 'String'>
+    readonly userId: FieldRef<"EmployeeUnitAssignment", 'String'>
+    readonly unitId: FieldRef<"EmployeeUnitAssignment", 'String'>
+    readonly unitName: FieldRef<"EmployeeUnitAssignment", 'String'>
+    readonly role: FieldRef<"EmployeeUnitAssignment", 'String'>
+    readonly isPrimary: FieldRef<"EmployeeUnitAssignment", 'Boolean'>
+    readonly startDate: FieldRef<"EmployeeUnitAssignment", 'DateTime'>
+    readonly endDate: FieldRef<"EmployeeUnitAssignment", 'DateTime'>
+    readonly skNumber: FieldRef<"EmployeeUnitAssignment", 'String'>
+    readonly notes: FieldRef<"EmployeeUnitAssignment", 'String'>
+    readonly createdAt: FieldRef<"EmployeeUnitAssignment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmployeeUnitAssignment findUnique
+   */
+  export type EmployeeUnitAssignmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeUnitAssignment to fetch.
+     */
+    where: EmployeeUnitAssignmentWhereUniqueInput
+  }
+
+  /**
+   * EmployeeUnitAssignment findUniqueOrThrow
+   */
+  export type EmployeeUnitAssignmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeUnitAssignment to fetch.
+     */
+    where: EmployeeUnitAssignmentWhereUniqueInput
+  }
+
+  /**
+   * EmployeeUnitAssignment findFirst
+   */
+  export type EmployeeUnitAssignmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeUnitAssignment to fetch.
+     */
+    where?: EmployeeUnitAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeUnitAssignments to fetch.
+     */
+    orderBy?: EmployeeUnitAssignmentOrderByWithRelationInput | EmployeeUnitAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmployeeUnitAssignments.
+     */
+    cursor?: EmployeeUnitAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeUnitAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeUnitAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmployeeUnitAssignments.
+     */
+    distinct?: EmployeeUnitAssignmentScalarFieldEnum | EmployeeUnitAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeUnitAssignment findFirstOrThrow
+   */
+  export type EmployeeUnitAssignmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeUnitAssignment to fetch.
+     */
+    where?: EmployeeUnitAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeUnitAssignments to fetch.
+     */
+    orderBy?: EmployeeUnitAssignmentOrderByWithRelationInput | EmployeeUnitAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmployeeUnitAssignments.
+     */
+    cursor?: EmployeeUnitAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeUnitAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeUnitAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmployeeUnitAssignments.
+     */
+    distinct?: EmployeeUnitAssignmentScalarFieldEnum | EmployeeUnitAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeUnitAssignment findMany
+   */
+  export type EmployeeUnitAssignmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeUnitAssignments to fetch.
+     */
+    where?: EmployeeUnitAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeUnitAssignments to fetch.
+     */
+    orderBy?: EmployeeUnitAssignmentOrderByWithRelationInput | EmployeeUnitAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmployeeUnitAssignments.
+     */
+    cursor?: EmployeeUnitAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeUnitAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeUnitAssignments.
+     */
+    skip?: number
+    distinct?: EmployeeUnitAssignmentScalarFieldEnum | EmployeeUnitAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeUnitAssignment create
+   */
+  export type EmployeeUnitAssignmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EmployeeUnitAssignment.
+     */
+    data: XOR<EmployeeUnitAssignmentCreateInput, EmployeeUnitAssignmentUncheckedCreateInput>
+  }
+
+  /**
+   * EmployeeUnitAssignment createMany
+   */
+  export type EmployeeUnitAssignmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmployeeUnitAssignments.
+     */
+    data: EmployeeUnitAssignmentCreateManyInput | EmployeeUnitAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EmployeeUnitAssignment createManyAndReturn
+   */
+  export type EmployeeUnitAssignmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many EmployeeUnitAssignments.
+     */
+    data: EmployeeUnitAssignmentCreateManyInput | EmployeeUnitAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmployeeUnitAssignment update
+   */
+  export type EmployeeUnitAssignmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EmployeeUnitAssignment.
+     */
+    data: XOR<EmployeeUnitAssignmentUpdateInput, EmployeeUnitAssignmentUncheckedUpdateInput>
+    /**
+     * Choose, which EmployeeUnitAssignment to update.
+     */
+    where: EmployeeUnitAssignmentWhereUniqueInput
+  }
+
+  /**
+   * EmployeeUnitAssignment updateMany
+   */
+  export type EmployeeUnitAssignmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmployeeUnitAssignments.
+     */
+    data: XOR<EmployeeUnitAssignmentUpdateManyMutationInput, EmployeeUnitAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which EmployeeUnitAssignments to update
+     */
+    where?: EmployeeUnitAssignmentWhereInput
+    /**
+     * Limit how many EmployeeUnitAssignments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmployeeUnitAssignment updateManyAndReturn
+   */
+  export type EmployeeUnitAssignmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to update EmployeeUnitAssignments.
+     */
+    data: XOR<EmployeeUnitAssignmentUpdateManyMutationInput, EmployeeUnitAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which EmployeeUnitAssignments to update
+     */
+    where?: EmployeeUnitAssignmentWhereInput
+    /**
+     * Limit how many EmployeeUnitAssignments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EmployeeUnitAssignment upsert
+   */
+  export type EmployeeUnitAssignmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EmployeeUnitAssignment to update in case it exists.
+     */
+    where: EmployeeUnitAssignmentWhereUniqueInput
+    /**
+     * In case the EmployeeUnitAssignment found by the `where` argument doesn't exist, create a new EmployeeUnitAssignment with this data.
+     */
+    create: XOR<EmployeeUnitAssignmentCreateInput, EmployeeUnitAssignmentUncheckedCreateInput>
+    /**
+     * In case the EmployeeUnitAssignment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmployeeUnitAssignmentUpdateInput, EmployeeUnitAssignmentUncheckedUpdateInput>
+  }
+
+  /**
+   * EmployeeUnitAssignment delete
+   */
+  export type EmployeeUnitAssignmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter which EmployeeUnitAssignment to delete.
+     */
+    where: EmployeeUnitAssignmentWhereUniqueInput
+  }
+
+  /**
+   * EmployeeUnitAssignment deleteMany
+   */
+  export type EmployeeUnitAssignmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmployeeUnitAssignments to delete
+     */
+    where?: EmployeeUnitAssignmentWhereInput
+    /**
+     * Limit how many EmployeeUnitAssignments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmployeeUnitAssignment without action
+   */
+  export type EmployeeUnitAssignmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeUnitAssignment
+     */
+    select?: EmployeeUnitAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeUnitAssignment
+     */
+    omit?: EmployeeUnitAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeUnitAssignmentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GpsAttendanceConfig
+   */
+
+  export type AggregateGpsAttendanceConfig = {
+    _count: GpsAttendanceConfigCountAggregateOutputType | null
+    _avg: GpsAttendanceConfigAvgAggregateOutputType | null
+    _sum: GpsAttendanceConfigSumAggregateOutputType | null
+    _min: GpsAttendanceConfigMinAggregateOutputType | null
+    _max: GpsAttendanceConfigMaxAggregateOutputType | null
+  }
+
+  export type GpsAttendanceConfigAvgAggregateOutputType = {
+    latitude: number | null
+    longitude: number | null
+    radiusMeters: number | null
+  }
+
+  export type GpsAttendanceConfigSumAggregateOutputType = {
+    latitude: number | null
+    longitude: number | null
+    radiusMeters: number | null
+  }
+
+  export type GpsAttendanceConfigMinAggregateOutputType = {
+    id: string | null
+    unitId: string | null
+    latitude: number | null
+    longitude: number | null
+    radiusMeters: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GpsAttendanceConfigMaxAggregateOutputType = {
+    id: string | null
+    unitId: string | null
+    latitude: number | null
+    longitude: number | null
+    radiusMeters: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GpsAttendanceConfigCountAggregateOutputType = {
+    id: number
+    unitId: number
+    latitude: number
+    longitude: number
+    radiusMeters: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type GpsAttendanceConfigAvgAggregateInputType = {
+    latitude?: true
+    longitude?: true
+    radiusMeters?: true
+  }
+
+  export type GpsAttendanceConfigSumAggregateInputType = {
+    latitude?: true
+    longitude?: true
+    radiusMeters?: true
+  }
+
+  export type GpsAttendanceConfigMinAggregateInputType = {
+    id?: true
+    unitId?: true
+    latitude?: true
+    longitude?: true
+    radiusMeters?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GpsAttendanceConfigMaxAggregateInputType = {
+    id?: true
+    unitId?: true
+    latitude?: true
+    longitude?: true
+    radiusMeters?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GpsAttendanceConfigCountAggregateInputType = {
+    id?: true
+    unitId?: true
+    latitude?: true
+    longitude?: true
+    radiusMeters?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type GpsAttendanceConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GpsAttendanceConfig to aggregate.
+     */
+    where?: GpsAttendanceConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GpsAttendanceConfigs to fetch.
+     */
+    orderBy?: GpsAttendanceConfigOrderByWithRelationInput | GpsAttendanceConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GpsAttendanceConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GpsAttendanceConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GpsAttendanceConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GpsAttendanceConfigs
+    **/
+    _count?: true | GpsAttendanceConfigCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GpsAttendanceConfigAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GpsAttendanceConfigSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GpsAttendanceConfigMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GpsAttendanceConfigMaxAggregateInputType
+  }
+
+  export type GetGpsAttendanceConfigAggregateType<T extends GpsAttendanceConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregateGpsAttendanceConfig]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGpsAttendanceConfig[P]>
+      : GetScalarType<T[P], AggregateGpsAttendanceConfig[P]>
+  }
+
+
+
+
+  export type GpsAttendanceConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GpsAttendanceConfigWhereInput
+    orderBy?: GpsAttendanceConfigOrderByWithAggregationInput | GpsAttendanceConfigOrderByWithAggregationInput[]
+    by: GpsAttendanceConfigScalarFieldEnum[] | GpsAttendanceConfigScalarFieldEnum
+    having?: GpsAttendanceConfigScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GpsAttendanceConfigCountAggregateInputType | true
+    _avg?: GpsAttendanceConfigAvgAggregateInputType
+    _sum?: GpsAttendanceConfigSumAggregateInputType
+    _min?: GpsAttendanceConfigMinAggregateInputType
+    _max?: GpsAttendanceConfigMaxAggregateInputType
+  }
+
+  export type GpsAttendanceConfigGroupByOutputType = {
+    id: string
+    unitId: string
+    latitude: number
+    longitude: number
+    radiusMeters: number
+    createdAt: Date
+    updatedAt: Date
+    _count: GpsAttendanceConfigCountAggregateOutputType | null
+    _avg: GpsAttendanceConfigAvgAggregateOutputType | null
+    _sum: GpsAttendanceConfigSumAggregateOutputType | null
+    _min: GpsAttendanceConfigMinAggregateOutputType | null
+    _max: GpsAttendanceConfigMaxAggregateOutputType | null
+  }
+
+  type GetGpsAttendanceConfigGroupByPayload<T extends GpsAttendanceConfigGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GpsAttendanceConfigGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GpsAttendanceConfigGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GpsAttendanceConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], GpsAttendanceConfigGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GpsAttendanceConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    unitId?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    radiusMeters?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["gpsAttendanceConfig"]>
+
+  export type GpsAttendanceConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    unitId?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    radiusMeters?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["gpsAttendanceConfig"]>
+
+  export type GpsAttendanceConfigSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    unitId?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    radiusMeters?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["gpsAttendanceConfig"]>
+
+  export type GpsAttendanceConfigSelectScalar = {
+    id?: boolean
+    unitId?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    radiusMeters?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type GpsAttendanceConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "unitId" | "latitude" | "longitude" | "radiusMeters" | "createdAt" | "updatedAt", ExtArgs["result"]["gpsAttendanceConfig"]>
+
+  export type $GpsAttendanceConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GpsAttendanceConfig"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      unitId: string
+      latitude: number
+      longitude: number
+      radiusMeters: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["gpsAttendanceConfig"]>
+    composites: {}
+  }
+
+  type GpsAttendanceConfigGetPayload<S extends boolean | null | undefined | GpsAttendanceConfigDefaultArgs> = $Result.GetResult<Prisma.$GpsAttendanceConfigPayload, S>
+
+  type GpsAttendanceConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GpsAttendanceConfigFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GpsAttendanceConfigCountAggregateInputType | true
+    }
+
+  export interface GpsAttendanceConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GpsAttendanceConfig'], meta: { name: 'GpsAttendanceConfig' } }
+    /**
+     * Find zero or one GpsAttendanceConfig that matches the filter.
+     * @param {GpsAttendanceConfigFindUniqueArgs} args - Arguments to find a GpsAttendanceConfig
+     * @example
+     * // Get one GpsAttendanceConfig
+     * const gpsAttendanceConfig = await prisma.gpsAttendanceConfig.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GpsAttendanceConfigFindUniqueArgs>(args: SelectSubset<T, GpsAttendanceConfigFindUniqueArgs<ExtArgs>>): Prisma__GpsAttendanceConfigClient<$Result.GetResult<Prisma.$GpsAttendanceConfigPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GpsAttendanceConfig that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GpsAttendanceConfigFindUniqueOrThrowArgs} args - Arguments to find a GpsAttendanceConfig
+     * @example
+     * // Get one GpsAttendanceConfig
+     * const gpsAttendanceConfig = await prisma.gpsAttendanceConfig.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GpsAttendanceConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, GpsAttendanceConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GpsAttendanceConfigClient<$Result.GetResult<Prisma.$GpsAttendanceConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GpsAttendanceConfig that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceConfigFindFirstArgs} args - Arguments to find a GpsAttendanceConfig
+     * @example
+     * // Get one GpsAttendanceConfig
+     * const gpsAttendanceConfig = await prisma.gpsAttendanceConfig.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GpsAttendanceConfigFindFirstArgs>(args?: SelectSubset<T, GpsAttendanceConfigFindFirstArgs<ExtArgs>>): Prisma__GpsAttendanceConfigClient<$Result.GetResult<Prisma.$GpsAttendanceConfigPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GpsAttendanceConfig that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceConfigFindFirstOrThrowArgs} args - Arguments to find a GpsAttendanceConfig
+     * @example
+     * // Get one GpsAttendanceConfig
+     * const gpsAttendanceConfig = await prisma.gpsAttendanceConfig.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GpsAttendanceConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, GpsAttendanceConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__GpsAttendanceConfigClient<$Result.GetResult<Prisma.$GpsAttendanceConfigPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GpsAttendanceConfigs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GpsAttendanceConfigs
+     * const gpsAttendanceConfigs = await prisma.gpsAttendanceConfig.findMany()
+     * 
+     * // Get first 10 GpsAttendanceConfigs
+     * const gpsAttendanceConfigs = await prisma.gpsAttendanceConfig.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const gpsAttendanceConfigWithIdOnly = await prisma.gpsAttendanceConfig.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GpsAttendanceConfigFindManyArgs>(args?: SelectSubset<T, GpsAttendanceConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GpsAttendanceConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GpsAttendanceConfig.
+     * @param {GpsAttendanceConfigCreateArgs} args - Arguments to create a GpsAttendanceConfig.
+     * @example
+     * // Create one GpsAttendanceConfig
+     * const GpsAttendanceConfig = await prisma.gpsAttendanceConfig.create({
+     *   data: {
+     *     // ... data to create a GpsAttendanceConfig
+     *   }
+     * })
+     * 
+     */
+    create<T extends GpsAttendanceConfigCreateArgs>(args: SelectSubset<T, GpsAttendanceConfigCreateArgs<ExtArgs>>): Prisma__GpsAttendanceConfigClient<$Result.GetResult<Prisma.$GpsAttendanceConfigPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GpsAttendanceConfigs.
+     * @param {GpsAttendanceConfigCreateManyArgs} args - Arguments to create many GpsAttendanceConfigs.
+     * @example
+     * // Create many GpsAttendanceConfigs
+     * const gpsAttendanceConfig = await prisma.gpsAttendanceConfig.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GpsAttendanceConfigCreateManyArgs>(args?: SelectSubset<T, GpsAttendanceConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GpsAttendanceConfigs and returns the data saved in the database.
+     * @param {GpsAttendanceConfigCreateManyAndReturnArgs} args - Arguments to create many GpsAttendanceConfigs.
+     * @example
+     * // Create many GpsAttendanceConfigs
+     * const gpsAttendanceConfig = await prisma.gpsAttendanceConfig.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GpsAttendanceConfigs and only return the `id`
+     * const gpsAttendanceConfigWithIdOnly = await prisma.gpsAttendanceConfig.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GpsAttendanceConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, GpsAttendanceConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GpsAttendanceConfigPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GpsAttendanceConfig.
+     * @param {GpsAttendanceConfigDeleteArgs} args - Arguments to delete one GpsAttendanceConfig.
+     * @example
+     * // Delete one GpsAttendanceConfig
+     * const GpsAttendanceConfig = await prisma.gpsAttendanceConfig.delete({
+     *   where: {
+     *     // ... filter to delete one GpsAttendanceConfig
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GpsAttendanceConfigDeleteArgs>(args: SelectSubset<T, GpsAttendanceConfigDeleteArgs<ExtArgs>>): Prisma__GpsAttendanceConfigClient<$Result.GetResult<Prisma.$GpsAttendanceConfigPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GpsAttendanceConfig.
+     * @param {GpsAttendanceConfigUpdateArgs} args - Arguments to update one GpsAttendanceConfig.
+     * @example
+     * // Update one GpsAttendanceConfig
+     * const gpsAttendanceConfig = await prisma.gpsAttendanceConfig.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GpsAttendanceConfigUpdateArgs>(args: SelectSubset<T, GpsAttendanceConfigUpdateArgs<ExtArgs>>): Prisma__GpsAttendanceConfigClient<$Result.GetResult<Prisma.$GpsAttendanceConfigPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GpsAttendanceConfigs.
+     * @param {GpsAttendanceConfigDeleteManyArgs} args - Arguments to filter GpsAttendanceConfigs to delete.
+     * @example
+     * // Delete a few GpsAttendanceConfigs
+     * const { count } = await prisma.gpsAttendanceConfig.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GpsAttendanceConfigDeleteManyArgs>(args?: SelectSubset<T, GpsAttendanceConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GpsAttendanceConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GpsAttendanceConfigs
+     * const gpsAttendanceConfig = await prisma.gpsAttendanceConfig.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GpsAttendanceConfigUpdateManyArgs>(args: SelectSubset<T, GpsAttendanceConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GpsAttendanceConfigs and returns the data updated in the database.
+     * @param {GpsAttendanceConfigUpdateManyAndReturnArgs} args - Arguments to update many GpsAttendanceConfigs.
+     * @example
+     * // Update many GpsAttendanceConfigs
+     * const gpsAttendanceConfig = await prisma.gpsAttendanceConfig.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GpsAttendanceConfigs and only return the `id`
+     * const gpsAttendanceConfigWithIdOnly = await prisma.gpsAttendanceConfig.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GpsAttendanceConfigUpdateManyAndReturnArgs>(args: SelectSubset<T, GpsAttendanceConfigUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GpsAttendanceConfigPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GpsAttendanceConfig.
+     * @param {GpsAttendanceConfigUpsertArgs} args - Arguments to update or create a GpsAttendanceConfig.
+     * @example
+     * // Update or create a GpsAttendanceConfig
+     * const gpsAttendanceConfig = await prisma.gpsAttendanceConfig.upsert({
+     *   create: {
+     *     // ... data to create a GpsAttendanceConfig
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GpsAttendanceConfig we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GpsAttendanceConfigUpsertArgs>(args: SelectSubset<T, GpsAttendanceConfigUpsertArgs<ExtArgs>>): Prisma__GpsAttendanceConfigClient<$Result.GetResult<Prisma.$GpsAttendanceConfigPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GpsAttendanceConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceConfigCountArgs} args - Arguments to filter GpsAttendanceConfigs to count.
+     * @example
+     * // Count the number of GpsAttendanceConfigs
+     * const count = await prisma.gpsAttendanceConfig.count({
+     *   where: {
+     *     // ... the filter for the GpsAttendanceConfigs we want to count
+     *   }
+     * })
+    **/
+    count<T extends GpsAttendanceConfigCountArgs>(
+      args?: Subset<T, GpsAttendanceConfigCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GpsAttendanceConfigCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GpsAttendanceConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GpsAttendanceConfigAggregateArgs>(args: Subset<T, GpsAttendanceConfigAggregateArgs>): Prisma.PrismaPromise<GetGpsAttendanceConfigAggregateType<T>>
+
+    /**
+     * Group by GpsAttendanceConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceConfigGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GpsAttendanceConfigGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GpsAttendanceConfigGroupByArgs['orderBy'] }
+        : { orderBy?: GpsAttendanceConfigGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GpsAttendanceConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGpsAttendanceConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GpsAttendanceConfig model
+   */
+  readonly fields: GpsAttendanceConfigFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GpsAttendanceConfig.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GpsAttendanceConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GpsAttendanceConfig model
+   */
+  interface GpsAttendanceConfigFieldRefs {
+    readonly id: FieldRef<"GpsAttendanceConfig", 'String'>
+    readonly unitId: FieldRef<"GpsAttendanceConfig", 'String'>
+    readonly latitude: FieldRef<"GpsAttendanceConfig", 'Float'>
+    readonly longitude: FieldRef<"GpsAttendanceConfig", 'Float'>
+    readonly radiusMeters: FieldRef<"GpsAttendanceConfig", 'Int'>
+    readonly createdAt: FieldRef<"GpsAttendanceConfig", 'DateTime'>
+    readonly updatedAt: FieldRef<"GpsAttendanceConfig", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GpsAttendanceConfig findUnique
+   */
+  export type GpsAttendanceConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendanceConfig
+     */
+    select?: GpsAttendanceConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendanceConfig
+     */
+    omit?: GpsAttendanceConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which GpsAttendanceConfig to fetch.
+     */
+    where: GpsAttendanceConfigWhereUniqueInput
+  }
+
+  /**
+   * GpsAttendanceConfig findUniqueOrThrow
+   */
+  export type GpsAttendanceConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendanceConfig
+     */
+    select?: GpsAttendanceConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendanceConfig
+     */
+    omit?: GpsAttendanceConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which GpsAttendanceConfig to fetch.
+     */
+    where: GpsAttendanceConfigWhereUniqueInput
+  }
+
+  /**
+   * GpsAttendanceConfig findFirst
+   */
+  export type GpsAttendanceConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendanceConfig
+     */
+    select?: GpsAttendanceConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendanceConfig
+     */
+    omit?: GpsAttendanceConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which GpsAttendanceConfig to fetch.
+     */
+    where?: GpsAttendanceConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GpsAttendanceConfigs to fetch.
+     */
+    orderBy?: GpsAttendanceConfigOrderByWithRelationInput | GpsAttendanceConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GpsAttendanceConfigs.
+     */
+    cursor?: GpsAttendanceConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GpsAttendanceConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GpsAttendanceConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GpsAttendanceConfigs.
+     */
+    distinct?: GpsAttendanceConfigScalarFieldEnum | GpsAttendanceConfigScalarFieldEnum[]
+  }
+
+  /**
+   * GpsAttendanceConfig findFirstOrThrow
+   */
+  export type GpsAttendanceConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendanceConfig
+     */
+    select?: GpsAttendanceConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendanceConfig
+     */
+    omit?: GpsAttendanceConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which GpsAttendanceConfig to fetch.
+     */
+    where?: GpsAttendanceConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GpsAttendanceConfigs to fetch.
+     */
+    orderBy?: GpsAttendanceConfigOrderByWithRelationInput | GpsAttendanceConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GpsAttendanceConfigs.
+     */
+    cursor?: GpsAttendanceConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GpsAttendanceConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GpsAttendanceConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GpsAttendanceConfigs.
+     */
+    distinct?: GpsAttendanceConfigScalarFieldEnum | GpsAttendanceConfigScalarFieldEnum[]
+  }
+
+  /**
+   * GpsAttendanceConfig findMany
+   */
+  export type GpsAttendanceConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendanceConfig
+     */
+    select?: GpsAttendanceConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendanceConfig
+     */
+    omit?: GpsAttendanceConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which GpsAttendanceConfigs to fetch.
+     */
+    where?: GpsAttendanceConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GpsAttendanceConfigs to fetch.
+     */
+    orderBy?: GpsAttendanceConfigOrderByWithRelationInput | GpsAttendanceConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GpsAttendanceConfigs.
+     */
+    cursor?: GpsAttendanceConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GpsAttendanceConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GpsAttendanceConfigs.
+     */
+    skip?: number
+    distinct?: GpsAttendanceConfigScalarFieldEnum | GpsAttendanceConfigScalarFieldEnum[]
+  }
+
+  /**
+   * GpsAttendanceConfig create
+   */
+  export type GpsAttendanceConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendanceConfig
+     */
+    select?: GpsAttendanceConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendanceConfig
+     */
+    omit?: GpsAttendanceConfigOmit<ExtArgs> | null
+    /**
+     * The data needed to create a GpsAttendanceConfig.
+     */
+    data: XOR<GpsAttendanceConfigCreateInput, GpsAttendanceConfigUncheckedCreateInput>
+  }
+
+  /**
+   * GpsAttendanceConfig createMany
+   */
+  export type GpsAttendanceConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GpsAttendanceConfigs.
+     */
+    data: GpsAttendanceConfigCreateManyInput | GpsAttendanceConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GpsAttendanceConfig createManyAndReturn
+   */
+  export type GpsAttendanceConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendanceConfig
+     */
+    select?: GpsAttendanceConfigSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendanceConfig
+     */
+    omit?: GpsAttendanceConfigOmit<ExtArgs> | null
+    /**
+     * The data used to create many GpsAttendanceConfigs.
+     */
+    data: GpsAttendanceConfigCreateManyInput | GpsAttendanceConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GpsAttendanceConfig update
+   */
+  export type GpsAttendanceConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendanceConfig
+     */
+    select?: GpsAttendanceConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendanceConfig
+     */
+    omit?: GpsAttendanceConfigOmit<ExtArgs> | null
+    /**
+     * The data needed to update a GpsAttendanceConfig.
+     */
+    data: XOR<GpsAttendanceConfigUpdateInput, GpsAttendanceConfigUncheckedUpdateInput>
+    /**
+     * Choose, which GpsAttendanceConfig to update.
+     */
+    where: GpsAttendanceConfigWhereUniqueInput
+  }
+
+  /**
+   * GpsAttendanceConfig updateMany
+   */
+  export type GpsAttendanceConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GpsAttendanceConfigs.
+     */
+    data: XOR<GpsAttendanceConfigUpdateManyMutationInput, GpsAttendanceConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which GpsAttendanceConfigs to update
+     */
+    where?: GpsAttendanceConfigWhereInput
+    /**
+     * Limit how many GpsAttendanceConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GpsAttendanceConfig updateManyAndReturn
+   */
+  export type GpsAttendanceConfigUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendanceConfig
+     */
+    select?: GpsAttendanceConfigSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendanceConfig
+     */
+    omit?: GpsAttendanceConfigOmit<ExtArgs> | null
+    /**
+     * The data used to update GpsAttendanceConfigs.
+     */
+    data: XOR<GpsAttendanceConfigUpdateManyMutationInput, GpsAttendanceConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which GpsAttendanceConfigs to update
+     */
+    where?: GpsAttendanceConfigWhereInput
+    /**
+     * Limit how many GpsAttendanceConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GpsAttendanceConfig upsert
+   */
+  export type GpsAttendanceConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendanceConfig
+     */
+    select?: GpsAttendanceConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendanceConfig
+     */
+    omit?: GpsAttendanceConfigOmit<ExtArgs> | null
+    /**
+     * The filter to search for the GpsAttendanceConfig to update in case it exists.
+     */
+    where: GpsAttendanceConfigWhereUniqueInput
+    /**
+     * In case the GpsAttendanceConfig found by the `where` argument doesn't exist, create a new GpsAttendanceConfig with this data.
+     */
+    create: XOR<GpsAttendanceConfigCreateInput, GpsAttendanceConfigUncheckedCreateInput>
+    /**
+     * In case the GpsAttendanceConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GpsAttendanceConfigUpdateInput, GpsAttendanceConfigUncheckedUpdateInput>
+  }
+
+  /**
+   * GpsAttendanceConfig delete
+   */
+  export type GpsAttendanceConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendanceConfig
+     */
+    select?: GpsAttendanceConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendanceConfig
+     */
+    omit?: GpsAttendanceConfigOmit<ExtArgs> | null
+    /**
+     * Filter which GpsAttendanceConfig to delete.
+     */
+    where: GpsAttendanceConfigWhereUniqueInput
+  }
+
+  /**
+   * GpsAttendanceConfig deleteMany
+   */
+  export type GpsAttendanceConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GpsAttendanceConfigs to delete
+     */
+    where?: GpsAttendanceConfigWhereInput
+    /**
+     * Limit how many GpsAttendanceConfigs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GpsAttendanceConfig without action
+   */
+  export type GpsAttendanceConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendanceConfig
+     */
+    select?: GpsAttendanceConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendanceConfig
+     */
+    omit?: GpsAttendanceConfigOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GpsAttendance
+   */
+
+  export type AggregateGpsAttendance = {
+    _count: GpsAttendanceCountAggregateOutputType | null
+    _avg: GpsAttendanceAvgAggregateOutputType | null
+    _sum: GpsAttendanceSumAggregateOutputType | null
+    _min: GpsAttendanceMinAggregateOutputType | null
+    _max: GpsAttendanceMaxAggregateOutputType | null
+  }
+
+  export type GpsAttendanceAvgAggregateOutputType = {
+    latitude: number | null
+    longitude: number | null
+  }
+
+  export type GpsAttendanceSumAggregateOutputType = {
+    latitude: number | null
+    longitude: number | null
+  }
+
+  export type GpsAttendanceMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    unitId: string | null
+    date: Date | null
+    checkInTime: Date | null
+    checkOutTime: Date | null
+    latitude: number | null
+    longitude: number | null
+    status: $Enums.GpsAttendanceStatus | null
+    notes: string | null
+    createdAt: Date | null
+  }
+
+  export type GpsAttendanceMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    unitId: string | null
+    date: Date | null
+    checkInTime: Date | null
+    checkOutTime: Date | null
+    latitude: number | null
+    longitude: number | null
+    status: $Enums.GpsAttendanceStatus | null
+    notes: string | null
+    createdAt: Date | null
+  }
+
+  export type GpsAttendanceCountAggregateOutputType = {
+    id: number
+    userId: number
+    unitId: number
+    date: number
+    checkInTime: number
+    checkOutTime: number
+    latitude: number
+    longitude: number
+    status: number
+    notes: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type GpsAttendanceAvgAggregateInputType = {
+    latitude?: true
+    longitude?: true
+  }
+
+  export type GpsAttendanceSumAggregateInputType = {
+    latitude?: true
+    longitude?: true
+  }
+
+  export type GpsAttendanceMinAggregateInputType = {
+    id?: true
+    userId?: true
+    unitId?: true
+    date?: true
+    checkInTime?: true
+    checkOutTime?: true
+    latitude?: true
+    longitude?: true
+    status?: true
+    notes?: true
+    createdAt?: true
+  }
+
+  export type GpsAttendanceMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    unitId?: true
+    date?: true
+    checkInTime?: true
+    checkOutTime?: true
+    latitude?: true
+    longitude?: true
+    status?: true
+    notes?: true
+    createdAt?: true
+  }
+
+  export type GpsAttendanceCountAggregateInputType = {
+    id?: true
+    userId?: true
+    unitId?: true
+    date?: true
+    checkInTime?: true
+    checkOutTime?: true
+    latitude?: true
+    longitude?: true
+    status?: true
+    notes?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type GpsAttendanceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GpsAttendance to aggregate.
+     */
+    where?: GpsAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GpsAttendances to fetch.
+     */
+    orderBy?: GpsAttendanceOrderByWithRelationInput | GpsAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GpsAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GpsAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GpsAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GpsAttendances
+    **/
+    _count?: true | GpsAttendanceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GpsAttendanceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GpsAttendanceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GpsAttendanceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GpsAttendanceMaxAggregateInputType
+  }
+
+  export type GetGpsAttendanceAggregateType<T extends GpsAttendanceAggregateArgs> = {
+        [P in keyof T & keyof AggregateGpsAttendance]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGpsAttendance[P]>
+      : GetScalarType<T[P], AggregateGpsAttendance[P]>
+  }
+
+
+
+
+  export type GpsAttendanceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GpsAttendanceWhereInput
+    orderBy?: GpsAttendanceOrderByWithAggregationInput | GpsAttendanceOrderByWithAggregationInput[]
+    by: GpsAttendanceScalarFieldEnum[] | GpsAttendanceScalarFieldEnum
+    having?: GpsAttendanceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GpsAttendanceCountAggregateInputType | true
+    _avg?: GpsAttendanceAvgAggregateInputType
+    _sum?: GpsAttendanceSumAggregateInputType
+    _min?: GpsAttendanceMinAggregateInputType
+    _max?: GpsAttendanceMaxAggregateInputType
+  }
+
+  export type GpsAttendanceGroupByOutputType = {
+    id: string
+    userId: string
+    unitId: string
+    date: Date
+    checkInTime: Date | null
+    checkOutTime: Date | null
+    latitude: number | null
+    longitude: number | null
+    status: $Enums.GpsAttendanceStatus
+    notes: string | null
+    createdAt: Date
+    _count: GpsAttendanceCountAggregateOutputType | null
+    _avg: GpsAttendanceAvgAggregateOutputType | null
+    _sum: GpsAttendanceSumAggregateOutputType | null
+    _min: GpsAttendanceMinAggregateOutputType | null
+    _max: GpsAttendanceMaxAggregateOutputType | null
+  }
+
+  type GetGpsAttendanceGroupByPayload<T extends GpsAttendanceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GpsAttendanceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GpsAttendanceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GpsAttendanceGroupByOutputType[P]>
+            : GetScalarType<T[P], GpsAttendanceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GpsAttendanceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    unitId?: boolean
+    date?: boolean
+    checkInTime?: boolean
+    checkOutTime?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    status?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gpsAttendance"]>
+
+  export type GpsAttendanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    unitId?: boolean
+    date?: boolean
+    checkInTime?: boolean
+    checkOutTime?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    status?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gpsAttendance"]>
+
+  export type GpsAttendanceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    unitId?: boolean
+    date?: boolean
+    checkInTime?: boolean
+    checkOutTime?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    status?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["gpsAttendance"]>
+
+  export type GpsAttendanceSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    unitId?: boolean
+    date?: boolean
+    checkInTime?: boolean
+    checkOutTime?: boolean
+    latitude?: boolean
+    longitude?: boolean
+    status?: boolean
+    notes?: boolean
+    createdAt?: boolean
+  }
+
+  export type GpsAttendanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "unitId" | "date" | "checkInTime" | "checkOutTime" | "latitude" | "longitude" | "status" | "notes" | "createdAt", ExtArgs["result"]["gpsAttendance"]>
+  export type GpsAttendanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type GpsAttendanceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type GpsAttendanceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $GpsAttendancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GpsAttendance"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      unitId: string
+      date: Date
+      checkInTime: Date | null
+      checkOutTime: Date | null
+      latitude: number | null
+      longitude: number | null
+      status: $Enums.GpsAttendanceStatus
+      notes: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["gpsAttendance"]>
+    composites: {}
+  }
+
+  type GpsAttendanceGetPayload<S extends boolean | null | undefined | GpsAttendanceDefaultArgs> = $Result.GetResult<Prisma.$GpsAttendancePayload, S>
+
+  type GpsAttendanceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GpsAttendanceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GpsAttendanceCountAggregateInputType | true
+    }
+
+  export interface GpsAttendanceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GpsAttendance'], meta: { name: 'GpsAttendance' } }
+    /**
+     * Find zero or one GpsAttendance that matches the filter.
+     * @param {GpsAttendanceFindUniqueArgs} args - Arguments to find a GpsAttendance
+     * @example
+     * // Get one GpsAttendance
+     * const gpsAttendance = await prisma.gpsAttendance.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GpsAttendanceFindUniqueArgs>(args: SelectSubset<T, GpsAttendanceFindUniqueArgs<ExtArgs>>): Prisma__GpsAttendanceClient<$Result.GetResult<Prisma.$GpsAttendancePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GpsAttendance that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GpsAttendanceFindUniqueOrThrowArgs} args - Arguments to find a GpsAttendance
+     * @example
+     * // Get one GpsAttendance
+     * const gpsAttendance = await prisma.gpsAttendance.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GpsAttendanceFindUniqueOrThrowArgs>(args: SelectSubset<T, GpsAttendanceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GpsAttendanceClient<$Result.GetResult<Prisma.$GpsAttendancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GpsAttendance that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceFindFirstArgs} args - Arguments to find a GpsAttendance
+     * @example
+     * // Get one GpsAttendance
+     * const gpsAttendance = await prisma.gpsAttendance.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GpsAttendanceFindFirstArgs>(args?: SelectSubset<T, GpsAttendanceFindFirstArgs<ExtArgs>>): Prisma__GpsAttendanceClient<$Result.GetResult<Prisma.$GpsAttendancePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GpsAttendance that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceFindFirstOrThrowArgs} args - Arguments to find a GpsAttendance
+     * @example
+     * // Get one GpsAttendance
+     * const gpsAttendance = await prisma.gpsAttendance.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GpsAttendanceFindFirstOrThrowArgs>(args?: SelectSubset<T, GpsAttendanceFindFirstOrThrowArgs<ExtArgs>>): Prisma__GpsAttendanceClient<$Result.GetResult<Prisma.$GpsAttendancePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GpsAttendances that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GpsAttendances
+     * const gpsAttendances = await prisma.gpsAttendance.findMany()
+     * 
+     * // Get first 10 GpsAttendances
+     * const gpsAttendances = await prisma.gpsAttendance.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const gpsAttendanceWithIdOnly = await prisma.gpsAttendance.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GpsAttendanceFindManyArgs>(args?: SelectSubset<T, GpsAttendanceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GpsAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GpsAttendance.
+     * @param {GpsAttendanceCreateArgs} args - Arguments to create a GpsAttendance.
+     * @example
+     * // Create one GpsAttendance
+     * const GpsAttendance = await prisma.gpsAttendance.create({
+     *   data: {
+     *     // ... data to create a GpsAttendance
+     *   }
+     * })
+     * 
+     */
+    create<T extends GpsAttendanceCreateArgs>(args: SelectSubset<T, GpsAttendanceCreateArgs<ExtArgs>>): Prisma__GpsAttendanceClient<$Result.GetResult<Prisma.$GpsAttendancePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GpsAttendances.
+     * @param {GpsAttendanceCreateManyArgs} args - Arguments to create many GpsAttendances.
+     * @example
+     * // Create many GpsAttendances
+     * const gpsAttendance = await prisma.gpsAttendance.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GpsAttendanceCreateManyArgs>(args?: SelectSubset<T, GpsAttendanceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GpsAttendances and returns the data saved in the database.
+     * @param {GpsAttendanceCreateManyAndReturnArgs} args - Arguments to create many GpsAttendances.
+     * @example
+     * // Create many GpsAttendances
+     * const gpsAttendance = await prisma.gpsAttendance.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GpsAttendances and only return the `id`
+     * const gpsAttendanceWithIdOnly = await prisma.gpsAttendance.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GpsAttendanceCreateManyAndReturnArgs>(args?: SelectSubset<T, GpsAttendanceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GpsAttendancePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GpsAttendance.
+     * @param {GpsAttendanceDeleteArgs} args - Arguments to delete one GpsAttendance.
+     * @example
+     * // Delete one GpsAttendance
+     * const GpsAttendance = await prisma.gpsAttendance.delete({
+     *   where: {
+     *     // ... filter to delete one GpsAttendance
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GpsAttendanceDeleteArgs>(args: SelectSubset<T, GpsAttendanceDeleteArgs<ExtArgs>>): Prisma__GpsAttendanceClient<$Result.GetResult<Prisma.$GpsAttendancePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GpsAttendance.
+     * @param {GpsAttendanceUpdateArgs} args - Arguments to update one GpsAttendance.
+     * @example
+     * // Update one GpsAttendance
+     * const gpsAttendance = await prisma.gpsAttendance.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GpsAttendanceUpdateArgs>(args: SelectSubset<T, GpsAttendanceUpdateArgs<ExtArgs>>): Prisma__GpsAttendanceClient<$Result.GetResult<Prisma.$GpsAttendancePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GpsAttendances.
+     * @param {GpsAttendanceDeleteManyArgs} args - Arguments to filter GpsAttendances to delete.
+     * @example
+     * // Delete a few GpsAttendances
+     * const { count } = await prisma.gpsAttendance.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GpsAttendanceDeleteManyArgs>(args?: SelectSubset<T, GpsAttendanceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GpsAttendances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GpsAttendances
+     * const gpsAttendance = await prisma.gpsAttendance.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GpsAttendanceUpdateManyArgs>(args: SelectSubset<T, GpsAttendanceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GpsAttendances and returns the data updated in the database.
+     * @param {GpsAttendanceUpdateManyAndReturnArgs} args - Arguments to update many GpsAttendances.
+     * @example
+     * // Update many GpsAttendances
+     * const gpsAttendance = await prisma.gpsAttendance.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GpsAttendances and only return the `id`
+     * const gpsAttendanceWithIdOnly = await prisma.gpsAttendance.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GpsAttendanceUpdateManyAndReturnArgs>(args: SelectSubset<T, GpsAttendanceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GpsAttendancePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GpsAttendance.
+     * @param {GpsAttendanceUpsertArgs} args - Arguments to update or create a GpsAttendance.
+     * @example
+     * // Update or create a GpsAttendance
+     * const gpsAttendance = await prisma.gpsAttendance.upsert({
+     *   create: {
+     *     // ... data to create a GpsAttendance
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GpsAttendance we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GpsAttendanceUpsertArgs>(args: SelectSubset<T, GpsAttendanceUpsertArgs<ExtArgs>>): Prisma__GpsAttendanceClient<$Result.GetResult<Prisma.$GpsAttendancePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GpsAttendances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceCountArgs} args - Arguments to filter GpsAttendances to count.
+     * @example
+     * // Count the number of GpsAttendances
+     * const count = await prisma.gpsAttendance.count({
+     *   where: {
+     *     // ... the filter for the GpsAttendances we want to count
+     *   }
+     * })
+    **/
+    count<T extends GpsAttendanceCountArgs>(
+      args?: Subset<T, GpsAttendanceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GpsAttendanceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GpsAttendance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GpsAttendanceAggregateArgs>(args: Subset<T, GpsAttendanceAggregateArgs>): Prisma.PrismaPromise<GetGpsAttendanceAggregateType<T>>
+
+    /**
+     * Group by GpsAttendance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GpsAttendanceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GpsAttendanceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GpsAttendanceGroupByArgs['orderBy'] }
+        : { orderBy?: GpsAttendanceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GpsAttendanceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGpsAttendanceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GpsAttendance model
+   */
+  readonly fields: GpsAttendanceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GpsAttendance.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GpsAttendanceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GpsAttendance model
+   */
+  interface GpsAttendanceFieldRefs {
+    readonly id: FieldRef<"GpsAttendance", 'String'>
+    readonly userId: FieldRef<"GpsAttendance", 'String'>
+    readonly unitId: FieldRef<"GpsAttendance", 'String'>
+    readonly date: FieldRef<"GpsAttendance", 'DateTime'>
+    readonly checkInTime: FieldRef<"GpsAttendance", 'DateTime'>
+    readonly checkOutTime: FieldRef<"GpsAttendance", 'DateTime'>
+    readonly latitude: FieldRef<"GpsAttendance", 'Float'>
+    readonly longitude: FieldRef<"GpsAttendance", 'Float'>
+    readonly status: FieldRef<"GpsAttendance", 'GpsAttendanceStatus'>
+    readonly notes: FieldRef<"GpsAttendance", 'String'>
+    readonly createdAt: FieldRef<"GpsAttendance", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GpsAttendance findUnique
+   */
+  export type GpsAttendanceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which GpsAttendance to fetch.
+     */
+    where: GpsAttendanceWhereUniqueInput
+  }
+
+  /**
+   * GpsAttendance findUniqueOrThrow
+   */
+  export type GpsAttendanceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which GpsAttendance to fetch.
+     */
+    where: GpsAttendanceWhereUniqueInput
+  }
+
+  /**
+   * GpsAttendance findFirst
+   */
+  export type GpsAttendanceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which GpsAttendance to fetch.
+     */
+    where?: GpsAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GpsAttendances to fetch.
+     */
+    orderBy?: GpsAttendanceOrderByWithRelationInput | GpsAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GpsAttendances.
+     */
+    cursor?: GpsAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GpsAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GpsAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GpsAttendances.
+     */
+    distinct?: GpsAttendanceScalarFieldEnum | GpsAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * GpsAttendance findFirstOrThrow
+   */
+  export type GpsAttendanceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which GpsAttendance to fetch.
+     */
+    where?: GpsAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GpsAttendances to fetch.
+     */
+    orderBy?: GpsAttendanceOrderByWithRelationInput | GpsAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GpsAttendances.
+     */
+    cursor?: GpsAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GpsAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GpsAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GpsAttendances.
+     */
+    distinct?: GpsAttendanceScalarFieldEnum | GpsAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * GpsAttendance findMany
+   */
+  export type GpsAttendanceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which GpsAttendances to fetch.
+     */
+    where?: GpsAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GpsAttendances to fetch.
+     */
+    orderBy?: GpsAttendanceOrderByWithRelationInput | GpsAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GpsAttendances.
+     */
+    cursor?: GpsAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GpsAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GpsAttendances.
+     */
+    skip?: number
+    distinct?: GpsAttendanceScalarFieldEnum | GpsAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * GpsAttendance create
+   */
+  export type GpsAttendanceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GpsAttendance.
+     */
+    data: XOR<GpsAttendanceCreateInput, GpsAttendanceUncheckedCreateInput>
+  }
+
+  /**
+   * GpsAttendance createMany
+   */
+  export type GpsAttendanceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GpsAttendances.
+     */
+    data: GpsAttendanceCreateManyInput | GpsAttendanceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GpsAttendance createManyAndReturn
+   */
+  export type GpsAttendanceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * The data used to create many GpsAttendances.
+     */
+    data: GpsAttendanceCreateManyInput | GpsAttendanceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GpsAttendance update
+   */
+  export type GpsAttendanceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GpsAttendance.
+     */
+    data: XOR<GpsAttendanceUpdateInput, GpsAttendanceUncheckedUpdateInput>
+    /**
+     * Choose, which GpsAttendance to update.
+     */
+    where: GpsAttendanceWhereUniqueInput
+  }
+
+  /**
+   * GpsAttendance updateMany
+   */
+  export type GpsAttendanceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GpsAttendances.
+     */
+    data: XOR<GpsAttendanceUpdateManyMutationInput, GpsAttendanceUncheckedUpdateManyInput>
+    /**
+     * Filter which GpsAttendances to update
+     */
+    where?: GpsAttendanceWhereInput
+    /**
+     * Limit how many GpsAttendances to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GpsAttendance updateManyAndReturn
+   */
+  export type GpsAttendanceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * The data used to update GpsAttendances.
+     */
+    data: XOR<GpsAttendanceUpdateManyMutationInput, GpsAttendanceUncheckedUpdateManyInput>
+    /**
+     * Filter which GpsAttendances to update
+     */
+    where?: GpsAttendanceWhereInput
+    /**
+     * Limit how many GpsAttendances to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GpsAttendance upsert
+   */
+  export type GpsAttendanceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GpsAttendance to update in case it exists.
+     */
+    where: GpsAttendanceWhereUniqueInput
+    /**
+     * In case the GpsAttendance found by the `where` argument doesn't exist, create a new GpsAttendance with this data.
+     */
+    create: XOR<GpsAttendanceCreateInput, GpsAttendanceUncheckedCreateInput>
+    /**
+     * In case the GpsAttendance was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GpsAttendanceUpdateInput, GpsAttendanceUncheckedUpdateInput>
+  }
+
+  /**
+   * GpsAttendance delete
+   */
+  export type GpsAttendanceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter which GpsAttendance to delete.
+     */
+    where: GpsAttendanceWhereUniqueInput
+  }
+
+  /**
+   * GpsAttendance deleteMany
+   */
+  export type GpsAttendanceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GpsAttendances to delete
+     */
+    where?: GpsAttendanceWhereInput
+    /**
+     * Limit how many GpsAttendances to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GpsAttendance without action
+   */
+  export type GpsAttendanceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GpsAttendance
+     */
+    select?: GpsAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GpsAttendance
+     */
+    omit?: GpsAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GpsAttendanceInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Holiday
+   */
+
+  export type AggregateHoliday = {
+    _count: HolidayCountAggregateOutputType | null
+    _min: HolidayMinAggregateOutputType | null
+    _max: HolidayMaxAggregateOutputType | null
+  }
+
+  export type HolidayMinAggregateOutputType = {
+    id: string | null
+    unitId: string | null
+    date: Date | null
+    name: string | null
+    description: string | null
+    createdAt: Date | null
+  }
+
+  export type HolidayMaxAggregateOutputType = {
+    id: string | null
+    unitId: string | null
+    date: Date | null
+    name: string | null
+    description: string | null
+    createdAt: Date | null
+  }
+
+  export type HolidayCountAggregateOutputType = {
+    id: number
+    unitId: number
+    date: number
+    name: number
+    description: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type HolidayMinAggregateInputType = {
+    id?: true
+    unitId?: true
+    date?: true
+    name?: true
+    description?: true
+    createdAt?: true
+  }
+
+  export type HolidayMaxAggregateInputType = {
+    id?: true
+    unitId?: true
+    date?: true
+    name?: true
+    description?: true
+    createdAt?: true
+  }
+
+  export type HolidayCountAggregateInputType = {
+    id?: true
+    unitId?: true
+    date?: true
+    name?: true
+    description?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type HolidayAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Holiday to aggregate.
+     */
+    where?: HolidayWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Holidays to fetch.
+     */
+    orderBy?: HolidayOrderByWithRelationInput | HolidayOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: HolidayWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Holidays from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Holidays.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Holidays
+    **/
+    _count?: true | HolidayCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: HolidayMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: HolidayMaxAggregateInputType
+  }
+
+  export type GetHolidayAggregateType<T extends HolidayAggregateArgs> = {
+        [P in keyof T & keyof AggregateHoliday]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateHoliday[P]>
+      : GetScalarType<T[P], AggregateHoliday[P]>
+  }
+
+
+
+
+  export type HolidayGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HolidayWhereInput
+    orderBy?: HolidayOrderByWithAggregationInput | HolidayOrderByWithAggregationInput[]
+    by: HolidayScalarFieldEnum[] | HolidayScalarFieldEnum
+    having?: HolidayScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: HolidayCountAggregateInputType | true
+    _min?: HolidayMinAggregateInputType
+    _max?: HolidayMaxAggregateInputType
+  }
+
+  export type HolidayGroupByOutputType = {
+    id: string
+    unitId: string | null
+    date: Date
+    name: string
+    description: string | null
+    createdAt: Date
+    _count: HolidayCountAggregateOutputType | null
+    _min: HolidayMinAggregateOutputType | null
+    _max: HolidayMaxAggregateOutputType | null
+  }
+
+  type GetHolidayGroupByPayload<T extends HolidayGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<HolidayGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof HolidayGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], HolidayGroupByOutputType[P]>
+            : GetScalarType<T[P], HolidayGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type HolidaySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    unitId?: boolean
+    date?: boolean
+    name?: boolean
+    description?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["holiday"]>
+
+  export type HolidaySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    unitId?: boolean
+    date?: boolean
+    name?: boolean
+    description?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["holiday"]>
+
+  export type HolidaySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    unitId?: boolean
+    date?: boolean
+    name?: boolean
+    description?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["holiday"]>
+
+  export type HolidaySelectScalar = {
+    id?: boolean
+    unitId?: boolean
+    date?: boolean
+    name?: boolean
+    description?: boolean
+    createdAt?: boolean
+  }
+
+  export type HolidayOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "unitId" | "date" | "name" | "description" | "createdAt", ExtArgs["result"]["holiday"]>
+
+  export type $HolidayPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Holiday"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      unitId: string | null
+      date: Date
+      name: string
+      description: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["holiday"]>
+    composites: {}
+  }
+
+  type HolidayGetPayload<S extends boolean | null | undefined | HolidayDefaultArgs> = $Result.GetResult<Prisma.$HolidayPayload, S>
+
+  type HolidayCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<HolidayFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: HolidayCountAggregateInputType | true
+    }
+
+  export interface HolidayDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Holiday'], meta: { name: 'Holiday' } }
+    /**
+     * Find zero or one Holiday that matches the filter.
+     * @param {HolidayFindUniqueArgs} args - Arguments to find a Holiday
+     * @example
+     * // Get one Holiday
+     * const holiday = await prisma.holiday.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends HolidayFindUniqueArgs>(args: SelectSubset<T, HolidayFindUniqueArgs<ExtArgs>>): Prisma__HolidayClient<$Result.GetResult<Prisma.$HolidayPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Holiday that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {HolidayFindUniqueOrThrowArgs} args - Arguments to find a Holiday
+     * @example
+     * // Get one Holiday
+     * const holiday = await prisma.holiday.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends HolidayFindUniqueOrThrowArgs>(args: SelectSubset<T, HolidayFindUniqueOrThrowArgs<ExtArgs>>): Prisma__HolidayClient<$Result.GetResult<Prisma.$HolidayPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Holiday that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HolidayFindFirstArgs} args - Arguments to find a Holiday
+     * @example
+     * // Get one Holiday
+     * const holiday = await prisma.holiday.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends HolidayFindFirstArgs>(args?: SelectSubset<T, HolidayFindFirstArgs<ExtArgs>>): Prisma__HolidayClient<$Result.GetResult<Prisma.$HolidayPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Holiday that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HolidayFindFirstOrThrowArgs} args - Arguments to find a Holiday
+     * @example
+     * // Get one Holiday
+     * const holiday = await prisma.holiday.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends HolidayFindFirstOrThrowArgs>(args?: SelectSubset<T, HolidayFindFirstOrThrowArgs<ExtArgs>>): Prisma__HolidayClient<$Result.GetResult<Prisma.$HolidayPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Holidays that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HolidayFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Holidays
+     * const holidays = await prisma.holiday.findMany()
+     * 
+     * // Get first 10 Holidays
+     * const holidays = await prisma.holiday.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const holidayWithIdOnly = await prisma.holiday.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends HolidayFindManyArgs>(args?: SelectSubset<T, HolidayFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HolidayPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Holiday.
+     * @param {HolidayCreateArgs} args - Arguments to create a Holiday.
+     * @example
+     * // Create one Holiday
+     * const Holiday = await prisma.holiday.create({
+     *   data: {
+     *     // ... data to create a Holiday
+     *   }
+     * })
+     * 
+     */
+    create<T extends HolidayCreateArgs>(args: SelectSubset<T, HolidayCreateArgs<ExtArgs>>): Prisma__HolidayClient<$Result.GetResult<Prisma.$HolidayPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Holidays.
+     * @param {HolidayCreateManyArgs} args - Arguments to create many Holidays.
+     * @example
+     * // Create many Holidays
+     * const holiday = await prisma.holiday.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends HolidayCreateManyArgs>(args?: SelectSubset<T, HolidayCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Holidays and returns the data saved in the database.
+     * @param {HolidayCreateManyAndReturnArgs} args - Arguments to create many Holidays.
+     * @example
+     * // Create many Holidays
+     * const holiday = await prisma.holiday.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Holidays and only return the `id`
+     * const holidayWithIdOnly = await prisma.holiday.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends HolidayCreateManyAndReturnArgs>(args?: SelectSubset<T, HolidayCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HolidayPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Holiday.
+     * @param {HolidayDeleteArgs} args - Arguments to delete one Holiday.
+     * @example
+     * // Delete one Holiday
+     * const Holiday = await prisma.holiday.delete({
+     *   where: {
+     *     // ... filter to delete one Holiday
+     *   }
+     * })
+     * 
+     */
+    delete<T extends HolidayDeleteArgs>(args: SelectSubset<T, HolidayDeleteArgs<ExtArgs>>): Prisma__HolidayClient<$Result.GetResult<Prisma.$HolidayPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Holiday.
+     * @param {HolidayUpdateArgs} args - Arguments to update one Holiday.
+     * @example
+     * // Update one Holiday
+     * const holiday = await prisma.holiday.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends HolidayUpdateArgs>(args: SelectSubset<T, HolidayUpdateArgs<ExtArgs>>): Prisma__HolidayClient<$Result.GetResult<Prisma.$HolidayPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Holidays.
+     * @param {HolidayDeleteManyArgs} args - Arguments to filter Holidays to delete.
+     * @example
+     * // Delete a few Holidays
+     * const { count } = await prisma.holiday.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends HolidayDeleteManyArgs>(args?: SelectSubset<T, HolidayDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Holidays.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HolidayUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Holidays
+     * const holiday = await prisma.holiday.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends HolidayUpdateManyArgs>(args: SelectSubset<T, HolidayUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Holidays and returns the data updated in the database.
+     * @param {HolidayUpdateManyAndReturnArgs} args - Arguments to update many Holidays.
+     * @example
+     * // Update many Holidays
+     * const holiday = await prisma.holiday.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Holidays and only return the `id`
+     * const holidayWithIdOnly = await prisma.holiday.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends HolidayUpdateManyAndReturnArgs>(args: SelectSubset<T, HolidayUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HolidayPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Holiday.
+     * @param {HolidayUpsertArgs} args - Arguments to update or create a Holiday.
+     * @example
+     * // Update or create a Holiday
+     * const holiday = await prisma.holiday.upsert({
+     *   create: {
+     *     // ... data to create a Holiday
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Holiday we want to update
+     *   }
+     * })
+     */
+    upsert<T extends HolidayUpsertArgs>(args: SelectSubset<T, HolidayUpsertArgs<ExtArgs>>): Prisma__HolidayClient<$Result.GetResult<Prisma.$HolidayPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Holidays.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HolidayCountArgs} args - Arguments to filter Holidays to count.
+     * @example
+     * // Count the number of Holidays
+     * const count = await prisma.holiday.count({
+     *   where: {
+     *     // ... the filter for the Holidays we want to count
+     *   }
+     * })
+    **/
+    count<T extends HolidayCountArgs>(
+      args?: Subset<T, HolidayCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], HolidayCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Holiday.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HolidayAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends HolidayAggregateArgs>(args: Subset<T, HolidayAggregateArgs>): Prisma.PrismaPromise<GetHolidayAggregateType<T>>
+
+    /**
+     * Group by Holiday.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HolidayGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends HolidayGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: HolidayGroupByArgs['orderBy'] }
+        : { orderBy?: HolidayGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, HolidayGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetHolidayGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Holiday model
+   */
+  readonly fields: HolidayFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Holiday.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__HolidayClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Holiday model
+   */
+  interface HolidayFieldRefs {
+    readonly id: FieldRef<"Holiday", 'String'>
+    readonly unitId: FieldRef<"Holiday", 'String'>
+    readonly date: FieldRef<"Holiday", 'DateTime'>
+    readonly name: FieldRef<"Holiday", 'String'>
+    readonly description: FieldRef<"Holiday", 'String'>
+    readonly createdAt: FieldRef<"Holiday", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Holiday findUnique
+   */
+  export type HolidayFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Holiday
+     */
+    select?: HolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Holiday
+     */
+    omit?: HolidayOmit<ExtArgs> | null
+    /**
+     * Filter, which Holiday to fetch.
+     */
+    where: HolidayWhereUniqueInput
+  }
+
+  /**
+   * Holiday findUniqueOrThrow
+   */
+  export type HolidayFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Holiday
+     */
+    select?: HolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Holiday
+     */
+    omit?: HolidayOmit<ExtArgs> | null
+    /**
+     * Filter, which Holiday to fetch.
+     */
+    where: HolidayWhereUniqueInput
+  }
+
+  /**
+   * Holiday findFirst
+   */
+  export type HolidayFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Holiday
+     */
+    select?: HolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Holiday
+     */
+    omit?: HolidayOmit<ExtArgs> | null
+    /**
+     * Filter, which Holiday to fetch.
+     */
+    where?: HolidayWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Holidays to fetch.
+     */
+    orderBy?: HolidayOrderByWithRelationInput | HolidayOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Holidays.
+     */
+    cursor?: HolidayWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Holidays from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Holidays.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Holidays.
+     */
+    distinct?: HolidayScalarFieldEnum | HolidayScalarFieldEnum[]
+  }
+
+  /**
+   * Holiday findFirstOrThrow
+   */
+  export type HolidayFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Holiday
+     */
+    select?: HolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Holiday
+     */
+    omit?: HolidayOmit<ExtArgs> | null
+    /**
+     * Filter, which Holiday to fetch.
+     */
+    where?: HolidayWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Holidays to fetch.
+     */
+    orderBy?: HolidayOrderByWithRelationInput | HolidayOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Holidays.
+     */
+    cursor?: HolidayWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Holidays from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Holidays.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Holidays.
+     */
+    distinct?: HolidayScalarFieldEnum | HolidayScalarFieldEnum[]
+  }
+
+  /**
+   * Holiday findMany
+   */
+  export type HolidayFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Holiday
+     */
+    select?: HolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Holiday
+     */
+    omit?: HolidayOmit<ExtArgs> | null
+    /**
+     * Filter, which Holidays to fetch.
+     */
+    where?: HolidayWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Holidays to fetch.
+     */
+    orderBy?: HolidayOrderByWithRelationInput | HolidayOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Holidays.
+     */
+    cursor?: HolidayWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Holidays from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Holidays.
+     */
+    skip?: number
+    distinct?: HolidayScalarFieldEnum | HolidayScalarFieldEnum[]
+  }
+
+  /**
+   * Holiday create
+   */
+  export type HolidayCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Holiday
+     */
+    select?: HolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Holiday
+     */
+    omit?: HolidayOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Holiday.
+     */
+    data: XOR<HolidayCreateInput, HolidayUncheckedCreateInput>
+  }
+
+  /**
+   * Holiday createMany
+   */
+  export type HolidayCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Holidays.
+     */
+    data: HolidayCreateManyInput | HolidayCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Holiday createManyAndReturn
+   */
+  export type HolidayCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Holiday
+     */
+    select?: HolidaySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Holiday
+     */
+    omit?: HolidayOmit<ExtArgs> | null
+    /**
+     * The data used to create many Holidays.
+     */
+    data: HolidayCreateManyInput | HolidayCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Holiday update
+   */
+  export type HolidayUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Holiday
+     */
+    select?: HolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Holiday
+     */
+    omit?: HolidayOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Holiday.
+     */
+    data: XOR<HolidayUpdateInput, HolidayUncheckedUpdateInput>
+    /**
+     * Choose, which Holiday to update.
+     */
+    where: HolidayWhereUniqueInput
+  }
+
+  /**
+   * Holiday updateMany
+   */
+  export type HolidayUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Holidays.
+     */
+    data: XOR<HolidayUpdateManyMutationInput, HolidayUncheckedUpdateManyInput>
+    /**
+     * Filter which Holidays to update
+     */
+    where?: HolidayWhereInput
+    /**
+     * Limit how many Holidays to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Holiday updateManyAndReturn
+   */
+  export type HolidayUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Holiday
+     */
+    select?: HolidaySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Holiday
+     */
+    omit?: HolidayOmit<ExtArgs> | null
+    /**
+     * The data used to update Holidays.
+     */
+    data: XOR<HolidayUpdateManyMutationInput, HolidayUncheckedUpdateManyInput>
+    /**
+     * Filter which Holidays to update
+     */
+    where?: HolidayWhereInput
+    /**
+     * Limit how many Holidays to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Holiday upsert
+   */
+  export type HolidayUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Holiday
+     */
+    select?: HolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Holiday
+     */
+    omit?: HolidayOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Holiday to update in case it exists.
+     */
+    where: HolidayWhereUniqueInput
+    /**
+     * In case the Holiday found by the `where` argument doesn't exist, create a new Holiday with this data.
+     */
+    create: XOR<HolidayCreateInput, HolidayUncheckedCreateInput>
+    /**
+     * In case the Holiday was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<HolidayUpdateInput, HolidayUncheckedUpdateInput>
+  }
+
+  /**
+   * Holiday delete
+   */
+  export type HolidayDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Holiday
+     */
+    select?: HolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Holiday
+     */
+    omit?: HolidayOmit<ExtArgs> | null
+    /**
+     * Filter which Holiday to delete.
+     */
+    where: HolidayWhereUniqueInput
+  }
+
+  /**
+   * Holiday deleteMany
+   */
+  export type HolidayDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Holidays to delete
+     */
+    where?: HolidayWhereInput
+    /**
+     * Limit how many Holidays to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Holiday without action
+   */
+  export type HolidayDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Holiday
+     */
+    select?: HolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Holiday
+     */
+    omit?: HolidayOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model LeaveRequest
+   */
+
+  export type AggregateLeaveRequest = {
+    _count: LeaveRequestCountAggregateOutputType | null
+    _min: LeaveRequestMinAggregateOutputType | null
+    _max: LeaveRequestMaxAggregateOutputType | null
+  }
+
+  export type LeaveRequestMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    type: $Enums.LeaveType | null
+    startDate: Date | null
+    endDate: Date | null
+    reason: string | null
+    attachmentUrl: string | null
+    status: $Enums.LeaveStatus | null
+    approvedById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LeaveRequestMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    type: $Enums.LeaveType | null
+    startDate: Date | null
+    endDate: Date | null
+    reason: string | null
+    attachmentUrl: string | null
+    status: $Enums.LeaveStatus | null
+    approvedById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LeaveRequestCountAggregateOutputType = {
+    id: number
+    userId: number
+    type: number
+    startDate: number
+    endDate: number
+    reason: number
+    attachmentUrl: number
+    status: number
+    approvedById: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LeaveRequestMinAggregateInputType = {
+    id?: true
+    userId?: true
+    type?: true
+    startDate?: true
+    endDate?: true
+    reason?: true
+    attachmentUrl?: true
+    status?: true
+    approvedById?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LeaveRequestMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    type?: true
+    startDate?: true
+    endDate?: true
+    reason?: true
+    attachmentUrl?: true
+    status?: true
+    approvedById?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LeaveRequestCountAggregateInputType = {
+    id?: true
+    userId?: true
+    type?: true
+    startDate?: true
+    endDate?: true
+    reason?: true
+    attachmentUrl?: true
+    status?: true
+    approvedById?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LeaveRequestAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LeaveRequest to aggregate.
+     */
+    where?: LeaveRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LeaveRequests to fetch.
+     */
+    orderBy?: LeaveRequestOrderByWithRelationInput | LeaveRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LeaveRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LeaveRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LeaveRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LeaveRequests
+    **/
+    _count?: true | LeaveRequestCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LeaveRequestMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LeaveRequestMaxAggregateInputType
+  }
+
+  export type GetLeaveRequestAggregateType<T extends LeaveRequestAggregateArgs> = {
+        [P in keyof T & keyof AggregateLeaveRequest]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLeaveRequest[P]>
+      : GetScalarType<T[P], AggregateLeaveRequest[P]>
+  }
+
+
+
+
+  export type LeaveRequestGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LeaveRequestWhereInput
+    orderBy?: LeaveRequestOrderByWithAggregationInput | LeaveRequestOrderByWithAggregationInput[]
+    by: LeaveRequestScalarFieldEnum[] | LeaveRequestScalarFieldEnum
+    having?: LeaveRequestScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LeaveRequestCountAggregateInputType | true
+    _min?: LeaveRequestMinAggregateInputType
+    _max?: LeaveRequestMaxAggregateInputType
+  }
+
+  export type LeaveRequestGroupByOutputType = {
+    id: string
+    userId: string
+    type: $Enums.LeaveType
+    startDate: Date
+    endDate: Date
+    reason: string
+    attachmentUrl: string | null
+    status: $Enums.LeaveStatus
+    approvedById: string | null
+    createdAt: Date
+    updatedAt: Date | null
+    _count: LeaveRequestCountAggregateOutputType | null
+    _min: LeaveRequestMinAggregateOutputType | null
+    _max: LeaveRequestMaxAggregateOutputType | null
+  }
+
+  type GetLeaveRequestGroupByPayload<T extends LeaveRequestGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LeaveRequestGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LeaveRequestGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LeaveRequestGroupByOutputType[P]>
+            : GetScalarType<T[P], LeaveRequestGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LeaveRequestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    type?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    reason?: boolean
+    attachmentUrl?: boolean
+    status?: boolean
+    approvedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    approvedBy?: boolean | LeaveRequest$approvedByArgs<ExtArgs>
+  }, ExtArgs["result"]["leaveRequest"]>
+
+  export type LeaveRequestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    type?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    reason?: boolean
+    attachmentUrl?: boolean
+    status?: boolean
+    approvedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    approvedBy?: boolean | LeaveRequest$approvedByArgs<ExtArgs>
+  }, ExtArgs["result"]["leaveRequest"]>
+
+  export type LeaveRequestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    type?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    reason?: boolean
+    attachmentUrl?: boolean
+    status?: boolean
+    approvedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    approvedBy?: boolean | LeaveRequest$approvedByArgs<ExtArgs>
+  }, ExtArgs["result"]["leaveRequest"]>
+
+  export type LeaveRequestSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    type?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    reason?: boolean
+    attachmentUrl?: boolean
+    status?: boolean
+    approvedById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LeaveRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "type" | "startDate" | "endDate" | "reason" | "attachmentUrl" | "status" | "approvedById" | "createdAt" | "updatedAt", ExtArgs["result"]["leaveRequest"]>
+  export type LeaveRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    approvedBy?: boolean | LeaveRequest$approvedByArgs<ExtArgs>
+  }
+  export type LeaveRequestIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    approvedBy?: boolean | LeaveRequest$approvedByArgs<ExtArgs>
+  }
+  export type LeaveRequestIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    approvedBy?: boolean | LeaveRequest$approvedByArgs<ExtArgs>
+  }
+
+  export type $LeaveRequestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LeaveRequest"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      approvedBy: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      type: $Enums.LeaveType
+      startDate: Date
+      endDate: Date
+      reason: string
+      attachmentUrl: string | null
+      status: $Enums.LeaveStatus
+      approvedById: string | null
+      createdAt: Date
+      updatedAt: Date | null
+    }, ExtArgs["result"]["leaveRequest"]>
+    composites: {}
+  }
+
+  type LeaveRequestGetPayload<S extends boolean | null | undefined | LeaveRequestDefaultArgs> = $Result.GetResult<Prisma.$LeaveRequestPayload, S>
+
+  type LeaveRequestCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LeaveRequestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LeaveRequestCountAggregateInputType | true
+    }
+
+  export interface LeaveRequestDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LeaveRequest'], meta: { name: 'LeaveRequest' } }
+    /**
+     * Find zero or one LeaveRequest that matches the filter.
+     * @param {LeaveRequestFindUniqueArgs} args - Arguments to find a LeaveRequest
+     * @example
+     * // Get one LeaveRequest
+     * const leaveRequest = await prisma.leaveRequest.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LeaveRequestFindUniqueArgs>(args: SelectSubset<T, LeaveRequestFindUniqueArgs<ExtArgs>>): Prisma__LeaveRequestClient<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LeaveRequest that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LeaveRequestFindUniqueOrThrowArgs} args - Arguments to find a LeaveRequest
+     * @example
+     * // Get one LeaveRequest
+     * const leaveRequest = await prisma.leaveRequest.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LeaveRequestFindUniqueOrThrowArgs>(args: SelectSubset<T, LeaveRequestFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LeaveRequestClient<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LeaveRequest that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaveRequestFindFirstArgs} args - Arguments to find a LeaveRequest
+     * @example
+     * // Get one LeaveRequest
+     * const leaveRequest = await prisma.leaveRequest.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LeaveRequestFindFirstArgs>(args?: SelectSubset<T, LeaveRequestFindFirstArgs<ExtArgs>>): Prisma__LeaveRequestClient<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LeaveRequest that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaveRequestFindFirstOrThrowArgs} args - Arguments to find a LeaveRequest
+     * @example
+     * // Get one LeaveRequest
+     * const leaveRequest = await prisma.leaveRequest.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LeaveRequestFindFirstOrThrowArgs>(args?: SelectSubset<T, LeaveRequestFindFirstOrThrowArgs<ExtArgs>>): Prisma__LeaveRequestClient<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LeaveRequests that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaveRequestFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LeaveRequests
+     * const leaveRequests = await prisma.leaveRequest.findMany()
+     * 
+     * // Get first 10 LeaveRequests
+     * const leaveRequests = await prisma.leaveRequest.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const leaveRequestWithIdOnly = await prisma.leaveRequest.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LeaveRequestFindManyArgs>(args?: SelectSubset<T, LeaveRequestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LeaveRequest.
+     * @param {LeaveRequestCreateArgs} args - Arguments to create a LeaveRequest.
+     * @example
+     * // Create one LeaveRequest
+     * const LeaveRequest = await prisma.leaveRequest.create({
+     *   data: {
+     *     // ... data to create a LeaveRequest
+     *   }
+     * })
+     * 
+     */
+    create<T extends LeaveRequestCreateArgs>(args: SelectSubset<T, LeaveRequestCreateArgs<ExtArgs>>): Prisma__LeaveRequestClient<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LeaveRequests.
+     * @param {LeaveRequestCreateManyArgs} args - Arguments to create many LeaveRequests.
+     * @example
+     * // Create many LeaveRequests
+     * const leaveRequest = await prisma.leaveRequest.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LeaveRequestCreateManyArgs>(args?: SelectSubset<T, LeaveRequestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LeaveRequests and returns the data saved in the database.
+     * @param {LeaveRequestCreateManyAndReturnArgs} args - Arguments to create many LeaveRequests.
+     * @example
+     * // Create many LeaveRequests
+     * const leaveRequest = await prisma.leaveRequest.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LeaveRequests and only return the `id`
+     * const leaveRequestWithIdOnly = await prisma.leaveRequest.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LeaveRequestCreateManyAndReturnArgs>(args?: SelectSubset<T, LeaveRequestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LeaveRequest.
+     * @param {LeaveRequestDeleteArgs} args - Arguments to delete one LeaveRequest.
+     * @example
+     * // Delete one LeaveRequest
+     * const LeaveRequest = await prisma.leaveRequest.delete({
+     *   where: {
+     *     // ... filter to delete one LeaveRequest
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LeaveRequestDeleteArgs>(args: SelectSubset<T, LeaveRequestDeleteArgs<ExtArgs>>): Prisma__LeaveRequestClient<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LeaveRequest.
+     * @param {LeaveRequestUpdateArgs} args - Arguments to update one LeaveRequest.
+     * @example
+     * // Update one LeaveRequest
+     * const leaveRequest = await prisma.leaveRequest.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LeaveRequestUpdateArgs>(args: SelectSubset<T, LeaveRequestUpdateArgs<ExtArgs>>): Prisma__LeaveRequestClient<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LeaveRequests.
+     * @param {LeaveRequestDeleteManyArgs} args - Arguments to filter LeaveRequests to delete.
+     * @example
+     * // Delete a few LeaveRequests
+     * const { count } = await prisma.leaveRequest.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LeaveRequestDeleteManyArgs>(args?: SelectSubset<T, LeaveRequestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LeaveRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaveRequestUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LeaveRequests
+     * const leaveRequest = await prisma.leaveRequest.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LeaveRequestUpdateManyArgs>(args: SelectSubset<T, LeaveRequestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LeaveRequests and returns the data updated in the database.
+     * @param {LeaveRequestUpdateManyAndReturnArgs} args - Arguments to update many LeaveRequests.
+     * @example
+     * // Update many LeaveRequests
+     * const leaveRequest = await prisma.leaveRequest.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LeaveRequests and only return the `id`
+     * const leaveRequestWithIdOnly = await prisma.leaveRequest.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LeaveRequestUpdateManyAndReturnArgs>(args: SelectSubset<T, LeaveRequestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LeaveRequest.
+     * @param {LeaveRequestUpsertArgs} args - Arguments to update or create a LeaveRequest.
+     * @example
+     * // Update or create a LeaveRequest
+     * const leaveRequest = await prisma.leaveRequest.upsert({
+     *   create: {
+     *     // ... data to create a LeaveRequest
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LeaveRequest we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LeaveRequestUpsertArgs>(args: SelectSubset<T, LeaveRequestUpsertArgs<ExtArgs>>): Prisma__LeaveRequestClient<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LeaveRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaveRequestCountArgs} args - Arguments to filter LeaveRequests to count.
+     * @example
+     * // Count the number of LeaveRequests
+     * const count = await prisma.leaveRequest.count({
+     *   where: {
+     *     // ... the filter for the LeaveRequests we want to count
+     *   }
+     * })
+    **/
+    count<T extends LeaveRequestCountArgs>(
+      args?: Subset<T, LeaveRequestCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LeaveRequestCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LeaveRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaveRequestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LeaveRequestAggregateArgs>(args: Subset<T, LeaveRequestAggregateArgs>): Prisma.PrismaPromise<GetLeaveRequestAggregateType<T>>
+
+    /**
+     * Group by LeaveRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LeaveRequestGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LeaveRequestGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LeaveRequestGroupByArgs['orderBy'] }
+        : { orderBy?: LeaveRequestGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LeaveRequestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLeaveRequestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LeaveRequest model
+   */
+  readonly fields: LeaveRequestFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LeaveRequest.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LeaveRequestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    approvedBy<T extends LeaveRequest$approvedByArgs<ExtArgs> = {}>(args?: Subset<T, LeaveRequest$approvedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LeaveRequest model
+   */
+  interface LeaveRequestFieldRefs {
+    readonly id: FieldRef<"LeaveRequest", 'String'>
+    readonly userId: FieldRef<"LeaveRequest", 'String'>
+    readonly type: FieldRef<"LeaveRequest", 'LeaveType'>
+    readonly startDate: FieldRef<"LeaveRequest", 'DateTime'>
+    readonly endDate: FieldRef<"LeaveRequest", 'DateTime'>
+    readonly reason: FieldRef<"LeaveRequest", 'String'>
+    readonly attachmentUrl: FieldRef<"LeaveRequest", 'String'>
+    readonly status: FieldRef<"LeaveRequest", 'LeaveStatus'>
+    readonly approvedById: FieldRef<"LeaveRequest", 'String'>
+    readonly createdAt: FieldRef<"LeaveRequest", 'DateTime'>
+    readonly updatedAt: FieldRef<"LeaveRequest", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LeaveRequest findUnique
+   */
+  export type LeaveRequestFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which LeaveRequest to fetch.
+     */
+    where: LeaveRequestWhereUniqueInput
+  }
+
+  /**
+   * LeaveRequest findUniqueOrThrow
+   */
+  export type LeaveRequestFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which LeaveRequest to fetch.
+     */
+    where: LeaveRequestWhereUniqueInput
+  }
+
+  /**
+   * LeaveRequest findFirst
+   */
+  export type LeaveRequestFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which LeaveRequest to fetch.
+     */
+    where?: LeaveRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LeaveRequests to fetch.
+     */
+    orderBy?: LeaveRequestOrderByWithRelationInput | LeaveRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LeaveRequests.
+     */
+    cursor?: LeaveRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LeaveRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LeaveRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LeaveRequests.
+     */
+    distinct?: LeaveRequestScalarFieldEnum | LeaveRequestScalarFieldEnum[]
+  }
+
+  /**
+   * LeaveRequest findFirstOrThrow
+   */
+  export type LeaveRequestFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which LeaveRequest to fetch.
+     */
+    where?: LeaveRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LeaveRequests to fetch.
+     */
+    orderBy?: LeaveRequestOrderByWithRelationInput | LeaveRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LeaveRequests.
+     */
+    cursor?: LeaveRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LeaveRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LeaveRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LeaveRequests.
+     */
+    distinct?: LeaveRequestScalarFieldEnum | LeaveRequestScalarFieldEnum[]
+  }
+
+  /**
+   * LeaveRequest findMany
+   */
+  export type LeaveRequestFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which LeaveRequests to fetch.
+     */
+    where?: LeaveRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LeaveRequests to fetch.
+     */
+    orderBy?: LeaveRequestOrderByWithRelationInput | LeaveRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LeaveRequests.
+     */
+    cursor?: LeaveRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LeaveRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LeaveRequests.
+     */
+    skip?: number
+    distinct?: LeaveRequestScalarFieldEnum | LeaveRequestScalarFieldEnum[]
+  }
+
+  /**
+   * LeaveRequest create
+   */
+  export type LeaveRequestCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LeaveRequest.
+     */
+    data: XOR<LeaveRequestCreateInput, LeaveRequestUncheckedCreateInput>
+  }
+
+  /**
+   * LeaveRequest createMany
+   */
+  export type LeaveRequestCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LeaveRequests.
+     */
+    data: LeaveRequestCreateManyInput | LeaveRequestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LeaveRequest createManyAndReturn
+   */
+  export type LeaveRequestCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * The data used to create many LeaveRequests.
+     */
+    data: LeaveRequestCreateManyInput | LeaveRequestCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LeaveRequest update
+   */
+  export type LeaveRequestUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LeaveRequest.
+     */
+    data: XOR<LeaveRequestUpdateInput, LeaveRequestUncheckedUpdateInput>
+    /**
+     * Choose, which LeaveRequest to update.
+     */
+    where: LeaveRequestWhereUniqueInput
+  }
+
+  /**
+   * LeaveRequest updateMany
+   */
+  export type LeaveRequestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LeaveRequests.
+     */
+    data: XOR<LeaveRequestUpdateManyMutationInput, LeaveRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which LeaveRequests to update
+     */
+    where?: LeaveRequestWhereInput
+    /**
+     * Limit how many LeaveRequests to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LeaveRequest updateManyAndReturn
+   */
+  export type LeaveRequestUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * The data used to update LeaveRequests.
+     */
+    data: XOR<LeaveRequestUpdateManyMutationInput, LeaveRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which LeaveRequests to update
+     */
+    where?: LeaveRequestWhereInput
+    /**
+     * Limit how many LeaveRequests to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LeaveRequest upsert
+   */
+  export type LeaveRequestUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LeaveRequest to update in case it exists.
+     */
+    where: LeaveRequestWhereUniqueInput
+    /**
+     * In case the LeaveRequest found by the `where` argument doesn't exist, create a new LeaveRequest with this data.
+     */
+    create: XOR<LeaveRequestCreateInput, LeaveRequestUncheckedCreateInput>
+    /**
+     * In case the LeaveRequest was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LeaveRequestUpdateInput, LeaveRequestUncheckedUpdateInput>
+  }
+
+  /**
+   * LeaveRequest delete
+   */
+  export type LeaveRequestDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestInclude<ExtArgs> | null
+    /**
+     * Filter which LeaveRequest to delete.
+     */
+    where: LeaveRequestWhereUniqueInput
+  }
+
+  /**
+   * LeaveRequest deleteMany
+   */
+  export type LeaveRequestDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LeaveRequests to delete
+     */
+    where?: LeaveRequestWhereInput
+    /**
+     * Limit how many LeaveRequests to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LeaveRequest.approvedBy
+   */
+  export type LeaveRequest$approvedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * LeaveRequest without action
+   */
+  export type LeaveRequestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LeaveRequest
+     */
+    select?: LeaveRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LeaveRequest
+     */
+    omit?: LeaveRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeaveRequestInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model LiqoGroup
+   */
+
+  export type AggregateLiqoGroup = {
+    _count: LiqoGroupCountAggregateOutputType | null
+    _min: LiqoGroupMinAggregateOutputType | null
+    _max: LiqoGroupMaxAggregateOutputType | null
+  }
+
+  export type LiqoGroupMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    murobbiId: string | null
+    description: string | null
+    scheduleDay: $Enums.DayOfWeek | null
+    scheduleTime: string | null
+    scheduleLocation: string | null
+    whatsappLink: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LiqoGroupMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    murobbiId: string | null
+    description: string | null
+    scheduleDay: $Enums.DayOfWeek | null
+    scheduleTime: string | null
+    scheduleLocation: string | null
+    whatsappLink: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LiqoGroupCountAggregateOutputType = {
+    id: number
+    name: number
+    murobbiId: number
+    description: number
+    scheduleDay: number
+    scheduleTime: number
+    scheduleLocation: number
+    whatsappLink: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LiqoGroupMinAggregateInputType = {
+    id?: true
+    name?: true
+    murobbiId?: true
+    description?: true
+    scheduleDay?: true
+    scheduleTime?: true
+    scheduleLocation?: true
+    whatsappLink?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LiqoGroupMaxAggregateInputType = {
+    id?: true
+    name?: true
+    murobbiId?: true
+    description?: true
+    scheduleDay?: true
+    scheduleTime?: true
+    scheduleLocation?: true
+    whatsappLink?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LiqoGroupCountAggregateInputType = {
+    id?: true
+    name?: true
+    murobbiId?: true
+    description?: true
+    scheduleDay?: true
+    scheduleTime?: true
+    scheduleLocation?: true
+    whatsappLink?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LiqoGroupAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LiqoGroup to aggregate.
+     */
+    where?: LiqoGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoGroups to fetch.
+     */
+    orderBy?: LiqoGroupOrderByWithRelationInput | LiqoGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LiqoGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LiqoGroups
+    **/
+    _count?: true | LiqoGroupCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LiqoGroupMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LiqoGroupMaxAggregateInputType
+  }
+
+  export type GetLiqoGroupAggregateType<T extends LiqoGroupAggregateArgs> = {
+        [P in keyof T & keyof AggregateLiqoGroup]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLiqoGroup[P]>
+      : GetScalarType<T[P], AggregateLiqoGroup[P]>
+  }
+
+
+
+
+  export type LiqoGroupGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiqoGroupWhereInput
+    orderBy?: LiqoGroupOrderByWithAggregationInput | LiqoGroupOrderByWithAggregationInput[]
+    by: LiqoGroupScalarFieldEnum[] | LiqoGroupScalarFieldEnum
+    having?: LiqoGroupScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LiqoGroupCountAggregateInputType | true
+    _min?: LiqoGroupMinAggregateInputType
+    _max?: LiqoGroupMaxAggregateInputType
+  }
+
+  export type LiqoGroupGroupByOutputType = {
+    id: string
+    name: string
+    murobbiId: string
+    description: string | null
+    scheduleDay: $Enums.DayOfWeek | null
+    scheduleTime: string | null
+    scheduleLocation: string | null
+    whatsappLink: string | null
+    createdAt: Date
+    updatedAt: Date | null
+    _count: LiqoGroupCountAggregateOutputType | null
+    _min: LiqoGroupMinAggregateOutputType | null
+    _max: LiqoGroupMaxAggregateOutputType | null
+  }
+
+  type GetLiqoGroupGroupByPayload<T extends LiqoGroupGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LiqoGroupGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LiqoGroupGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LiqoGroupGroupByOutputType[P]>
+            : GetScalarType<T[P], LiqoGroupGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LiqoGroupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    murobbiId?: boolean
+    description?: boolean
+    scheduleDay?: boolean
+    scheduleTime?: boolean
+    scheduleLocation?: boolean
+    whatsappLink?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    murobbi?: boolean | UserDefaultArgs<ExtArgs>
+    members?: boolean | LiqoGroup$membersArgs<ExtArgs>
+    meetings?: boolean | LiqoGroup$meetingsArgs<ExtArgs>
+    _count?: boolean | LiqoGroupCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liqoGroup"]>
+
+  export type LiqoGroupSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    murobbiId?: boolean
+    description?: boolean
+    scheduleDay?: boolean
+    scheduleTime?: boolean
+    scheduleLocation?: boolean
+    whatsappLink?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    murobbi?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liqoGroup"]>
+
+  export type LiqoGroupSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    murobbiId?: boolean
+    description?: boolean
+    scheduleDay?: boolean
+    scheduleTime?: boolean
+    scheduleLocation?: boolean
+    whatsappLink?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    murobbi?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liqoGroup"]>
+
+  export type LiqoGroupSelectScalar = {
+    id?: boolean
+    name?: boolean
+    murobbiId?: boolean
+    description?: boolean
+    scheduleDay?: boolean
+    scheduleTime?: boolean
+    scheduleLocation?: boolean
+    whatsappLink?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LiqoGroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "murobbiId" | "description" | "scheduleDay" | "scheduleTime" | "scheduleLocation" | "whatsappLink" | "createdAt" | "updatedAt", ExtArgs["result"]["liqoGroup"]>
+  export type LiqoGroupInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    murobbi?: boolean | UserDefaultArgs<ExtArgs>
+    members?: boolean | LiqoGroup$membersArgs<ExtArgs>
+    meetings?: boolean | LiqoGroup$meetingsArgs<ExtArgs>
+    _count?: boolean | LiqoGroupCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type LiqoGroupIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    murobbi?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type LiqoGroupIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    murobbi?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $LiqoGroupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LiqoGroup"
+    objects: {
+      murobbi: Prisma.$UserPayload<ExtArgs>
+      members: Prisma.$LiqoMemberPayload<ExtArgs>[]
+      meetings: Prisma.$LiqoMeetingPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      murobbiId: string
+      description: string | null
+      scheduleDay: $Enums.DayOfWeek | null
+      scheduleTime: string | null
+      scheduleLocation: string | null
+      whatsappLink: string | null
+      createdAt: Date
+      updatedAt: Date | null
+    }, ExtArgs["result"]["liqoGroup"]>
+    composites: {}
+  }
+
+  type LiqoGroupGetPayload<S extends boolean | null | undefined | LiqoGroupDefaultArgs> = $Result.GetResult<Prisma.$LiqoGroupPayload, S>
+
+  type LiqoGroupCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LiqoGroupFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LiqoGroupCountAggregateInputType | true
+    }
+
+  export interface LiqoGroupDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LiqoGroup'], meta: { name: 'LiqoGroup' } }
+    /**
+     * Find zero or one LiqoGroup that matches the filter.
+     * @param {LiqoGroupFindUniqueArgs} args - Arguments to find a LiqoGroup
+     * @example
+     * // Get one LiqoGroup
+     * const liqoGroup = await prisma.liqoGroup.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LiqoGroupFindUniqueArgs>(args: SelectSubset<T, LiqoGroupFindUniqueArgs<ExtArgs>>): Prisma__LiqoGroupClient<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LiqoGroup that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LiqoGroupFindUniqueOrThrowArgs} args - Arguments to find a LiqoGroup
+     * @example
+     * // Get one LiqoGroup
+     * const liqoGroup = await prisma.liqoGroup.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LiqoGroupFindUniqueOrThrowArgs>(args: SelectSubset<T, LiqoGroupFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LiqoGroupClient<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LiqoGroup that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoGroupFindFirstArgs} args - Arguments to find a LiqoGroup
+     * @example
+     * // Get one LiqoGroup
+     * const liqoGroup = await prisma.liqoGroup.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LiqoGroupFindFirstArgs>(args?: SelectSubset<T, LiqoGroupFindFirstArgs<ExtArgs>>): Prisma__LiqoGroupClient<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LiqoGroup that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoGroupFindFirstOrThrowArgs} args - Arguments to find a LiqoGroup
+     * @example
+     * // Get one LiqoGroup
+     * const liqoGroup = await prisma.liqoGroup.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LiqoGroupFindFirstOrThrowArgs>(args?: SelectSubset<T, LiqoGroupFindFirstOrThrowArgs<ExtArgs>>): Prisma__LiqoGroupClient<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LiqoGroups that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoGroupFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LiqoGroups
+     * const liqoGroups = await prisma.liqoGroup.findMany()
+     * 
+     * // Get first 10 LiqoGroups
+     * const liqoGroups = await prisma.liqoGroup.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const liqoGroupWithIdOnly = await prisma.liqoGroup.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LiqoGroupFindManyArgs>(args?: SelectSubset<T, LiqoGroupFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LiqoGroup.
+     * @param {LiqoGroupCreateArgs} args - Arguments to create a LiqoGroup.
+     * @example
+     * // Create one LiqoGroup
+     * const LiqoGroup = await prisma.liqoGroup.create({
+     *   data: {
+     *     // ... data to create a LiqoGroup
+     *   }
+     * })
+     * 
+     */
+    create<T extends LiqoGroupCreateArgs>(args: SelectSubset<T, LiqoGroupCreateArgs<ExtArgs>>): Prisma__LiqoGroupClient<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LiqoGroups.
+     * @param {LiqoGroupCreateManyArgs} args - Arguments to create many LiqoGroups.
+     * @example
+     * // Create many LiqoGroups
+     * const liqoGroup = await prisma.liqoGroup.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LiqoGroupCreateManyArgs>(args?: SelectSubset<T, LiqoGroupCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LiqoGroups and returns the data saved in the database.
+     * @param {LiqoGroupCreateManyAndReturnArgs} args - Arguments to create many LiqoGroups.
+     * @example
+     * // Create many LiqoGroups
+     * const liqoGroup = await prisma.liqoGroup.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LiqoGroups and only return the `id`
+     * const liqoGroupWithIdOnly = await prisma.liqoGroup.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LiqoGroupCreateManyAndReturnArgs>(args?: SelectSubset<T, LiqoGroupCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LiqoGroup.
+     * @param {LiqoGroupDeleteArgs} args - Arguments to delete one LiqoGroup.
+     * @example
+     * // Delete one LiqoGroup
+     * const LiqoGroup = await prisma.liqoGroup.delete({
+     *   where: {
+     *     // ... filter to delete one LiqoGroup
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LiqoGroupDeleteArgs>(args: SelectSubset<T, LiqoGroupDeleteArgs<ExtArgs>>): Prisma__LiqoGroupClient<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LiqoGroup.
+     * @param {LiqoGroupUpdateArgs} args - Arguments to update one LiqoGroup.
+     * @example
+     * // Update one LiqoGroup
+     * const liqoGroup = await prisma.liqoGroup.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LiqoGroupUpdateArgs>(args: SelectSubset<T, LiqoGroupUpdateArgs<ExtArgs>>): Prisma__LiqoGroupClient<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LiqoGroups.
+     * @param {LiqoGroupDeleteManyArgs} args - Arguments to filter LiqoGroups to delete.
+     * @example
+     * // Delete a few LiqoGroups
+     * const { count } = await prisma.liqoGroup.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LiqoGroupDeleteManyArgs>(args?: SelectSubset<T, LiqoGroupDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LiqoGroups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoGroupUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LiqoGroups
+     * const liqoGroup = await prisma.liqoGroup.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LiqoGroupUpdateManyArgs>(args: SelectSubset<T, LiqoGroupUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LiqoGroups and returns the data updated in the database.
+     * @param {LiqoGroupUpdateManyAndReturnArgs} args - Arguments to update many LiqoGroups.
+     * @example
+     * // Update many LiqoGroups
+     * const liqoGroup = await prisma.liqoGroup.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LiqoGroups and only return the `id`
+     * const liqoGroupWithIdOnly = await prisma.liqoGroup.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LiqoGroupUpdateManyAndReturnArgs>(args: SelectSubset<T, LiqoGroupUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LiqoGroup.
+     * @param {LiqoGroupUpsertArgs} args - Arguments to update or create a LiqoGroup.
+     * @example
+     * // Update or create a LiqoGroup
+     * const liqoGroup = await prisma.liqoGroup.upsert({
+     *   create: {
+     *     // ... data to create a LiqoGroup
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LiqoGroup we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LiqoGroupUpsertArgs>(args: SelectSubset<T, LiqoGroupUpsertArgs<ExtArgs>>): Prisma__LiqoGroupClient<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LiqoGroups.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoGroupCountArgs} args - Arguments to filter LiqoGroups to count.
+     * @example
+     * // Count the number of LiqoGroups
+     * const count = await prisma.liqoGroup.count({
+     *   where: {
+     *     // ... the filter for the LiqoGroups we want to count
+     *   }
+     * })
+    **/
+    count<T extends LiqoGroupCountArgs>(
+      args?: Subset<T, LiqoGroupCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LiqoGroupCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LiqoGroup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoGroupAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LiqoGroupAggregateArgs>(args: Subset<T, LiqoGroupAggregateArgs>): Prisma.PrismaPromise<GetLiqoGroupAggregateType<T>>
+
+    /**
+     * Group by LiqoGroup.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoGroupGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LiqoGroupGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LiqoGroupGroupByArgs['orderBy'] }
+        : { orderBy?: LiqoGroupGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LiqoGroupGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLiqoGroupGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LiqoGroup model
+   */
+  readonly fields: LiqoGroupFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LiqoGroup.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LiqoGroupClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    murobbi<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    members<T extends LiqoGroup$membersArgs<ExtArgs> = {}>(args?: Subset<T, LiqoGroup$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    meetings<T extends LiqoGroup$meetingsArgs<ExtArgs> = {}>(args?: Subset<T, LiqoGroup$meetingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LiqoGroup model
+   */
+  interface LiqoGroupFieldRefs {
+    readonly id: FieldRef<"LiqoGroup", 'String'>
+    readonly name: FieldRef<"LiqoGroup", 'String'>
+    readonly murobbiId: FieldRef<"LiqoGroup", 'String'>
+    readonly description: FieldRef<"LiqoGroup", 'String'>
+    readonly scheduleDay: FieldRef<"LiqoGroup", 'DayOfWeek'>
+    readonly scheduleTime: FieldRef<"LiqoGroup", 'String'>
+    readonly scheduleLocation: FieldRef<"LiqoGroup", 'String'>
+    readonly whatsappLink: FieldRef<"LiqoGroup", 'String'>
+    readonly createdAt: FieldRef<"LiqoGroup", 'DateTime'>
+    readonly updatedAt: FieldRef<"LiqoGroup", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LiqoGroup findUnique
+   */
+  export type LiqoGroupFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoGroup to fetch.
+     */
+    where: LiqoGroupWhereUniqueInput
+  }
+
+  /**
+   * LiqoGroup findUniqueOrThrow
+   */
+  export type LiqoGroupFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoGroup to fetch.
+     */
+    where: LiqoGroupWhereUniqueInput
+  }
+
+  /**
+   * LiqoGroup findFirst
+   */
+  export type LiqoGroupFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoGroup to fetch.
+     */
+    where?: LiqoGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoGroups to fetch.
+     */
+    orderBy?: LiqoGroupOrderByWithRelationInput | LiqoGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LiqoGroups.
+     */
+    cursor?: LiqoGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LiqoGroups.
+     */
+    distinct?: LiqoGroupScalarFieldEnum | LiqoGroupScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoGroup findFirstOrThrow
+   */
+  export type LiqoGroupFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoGroup to fetch.
+     */
+    where?: LiqoGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoGroups to fetch.
+     */
+    orderBy?: LiqoGroupOrderByWithRelationInput | LiqoGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LiqoGroups.
+     */
+    cursor?: LiqoGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoGroups.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LiqoGroups.
+     */
+    distinct?: LiqoGroupScalarFieldEnum | LiqoGroupScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoGroup findMany
+   */
+  export type LiqoGroupFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoGroups to fetch.
+     */
+    where?: LiqoGroupWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoGroups to fetch.
+     */
+    orderBy?: LiqoGroupOrderByWithRelationInput | LiqoGroupOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LiqoGroups.
+     */
+    cursor?: LiqoGroupWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoGroups from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoGroups.
+     */
+    skip?: number
+    distinct?: LiqoGroupScalarFieldEnum | LiqoGroupScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoGroup create
+   */
+  export type LiqoGroupCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LiqoGroup.
+     */
+    data: XOR<LiqoGroupCreateInput, LiqoGroupUncheckedCreateInput>
+  }
+
+  /**
+   * LiqoGroup createMany
+   */
+  export type LiqoGroupCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LiqoGroups.
+     */
+    data: LiqoGroupCreateManyInput | LiqoGroupCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LiqoGroup createManyAndReturn
+   */
+  export type LiqoGroupCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * The data used to create many LiqoGroups.
+     */
+    data: LiqoGroupCreateManyInput | LiqoGroupCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LiqoGroup update
+   */
+  export type LiqoGroupUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LiqoGroup.
+     */
+    data: XOR<LiqoGroupUpdateInput, LiqoGroupUncheckedUpdateInput>
+    /**
+     * Choose, which LiqoGroup to update.
+     */
+    where: LiqoGroupWhereUniqueInput
+  }
+
+  /**
+   * LiqoGroup updateMany
+   */
+  export type LiqoGroupUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LiqoGroups.
+     */
+    data: XOR<LiqoGroupUpdateManyMutationInput, LiqoGroupUncheckedUpdateManyInput>
+    /**
+     * Filter which LiqoGroups to update
+     */
+    where?: LiqoGroupWhereInput
+    /**
+     * Limit how many LiqoGroups to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LiqoGroup updateManyAndReturn
+   */
+  export type LiqoGroupUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * The data used to update LiqoGroups.
+     */
+    data: XOR<LiqoGroupUpdateManyMutationInput, LiqoGroupUncheckedUpdateManyInput>
+    /**
+     * Filter which LiqoGroups to update
+     */
+    where?: LiqoGroupWhereInput
+    /**
+     * Limit how many LiqoGroups to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LiqoGroup upsert
+   */
+  export type LiqoGroupUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LiqoGroup to update in case it exists.
+     */
+    where: LiqoGroupWhereUniqueInput
+    /**
+     * In case the LiqoGroup found by the `where` argument doesn't exist, create a new LiqoGroup with this data.
+     */
+    create: XOR<LiqoGroupCreateInput, LiqoGroupUncheckedCreateInput>
+    /**
+     * In case the LiqoGroup was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LiqoGroupUpdateInput, LiqoGroupUncheckedUpdateInput>
+  }
+
+  /**
+   * LiqoGroup delete
+   */
+  export type LiqoGroupDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupInclude<ExtArgs> | null
+    /**
+     * Filter which LiqoGroup to delete.
+     */
+    where: LiqoGroupWhereUniqueInput
+  }
+
+  /**
+   * LiqoGroup deleteMany
+   */
+  export type LiqoGroupDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LiqoGroups to delete
+     */
+    where?: LiqoGroupWhereInput
+    /**
+     * Limit how many LiqoGroups to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LiqoGroup.members
+   */
+  export type LiqoGroup$membersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberInclude<ExtArgs> | null
+    where?: LiqoMemberWhereInput
+    orderBy?: LiqoMemberOrderByWithRelationInput | LiqoMemberOrderByWithRelationInput[]
+    cursor?: LiqoMemberWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LiqoMemberScalarFieldEnum | LiqoMemberScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoGroup.meetings
+   */
+  export type LiqoGroup$meetingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingInclude<ExtArgs> | null
+    where?: LiqoMeetingWhereInput
+    orderBy?: LiqoMeetingOrderByWithRelationInput | LiqoMeetingOrderByWithRelationInput[]
+    cursor?: LiqoMeetingWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LiqoMeetingScalarFieldEnum | LiqoMeetingScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoGroup without action
+   */
+  export type LiqoGroupDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoGroup
+     */
+    select?: LiqoGroupSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoGroup
+     */
+    omit?: LiqoGroupOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoGroupInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model LiqoMember
+   */
+
+  export type AggregateLiqoMember = {
+    _count: LiqoMemberCountAggregateOutputType | null
+    _min: LiqoMemberMinAggregateOutputType | null
+    _max: LiqoMemberMaxAggregateOutputType | null
+  }
+
+  export type LiqoMemberMinAggregateOutputType = {
+    id: string | null
+    groupId: string | null
+    userId: string | null
+    joinedAt: Date | null
+  }
+
+  export type LiqoMemberMaxAggregateOutputType = {
+    id: string | null
+    groupId: string | null
+    userId: string | null
+    joinedAt: Date | null
+  }
+
+  export type LiqoMemberCountAggregateOutputType = {
+    id: number
+    groupId: number
+    userId: number
+    joinedAt: number
+    _all: number
+  }
+
+
+  export type LiqoMemberMinAggregateInputType = {
+    id?: true
+    groupId?: true
+    userId?: true
+    joinedAt?: true
+  }
+
+  export type LiqoMemberMaxAggregateInputType = {
+    id?: true
+    groupId?: true
+    userId?: true
+    joinedAt?: true
+  }
+
+  export type LiqoMemberCountAggregateInputType = {
+    id?: true
+    groupId?: true
+    userId?: true
+    joinedAt?: true
+    _all?: true
+  }
+
+  export type LiqoMemberAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LiqoMember to aggregate.
+     */
+    where?: LiqoMemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoMembers to fetch.
+     */
+    orderBy?: LiqoMemberOrderByWithRelationInput | LiqoMemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LiqoMemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoMembers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoMembers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LiqoMembers
+    **/
+    _count?: true | LiqoMemberCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LiqoMemberMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LiqoMemberMaxAggregateInputType
+  }
+
+  export type GetLiqoMemberAggregateType<T extends LiqoMemberAggregateArgs> = {
+        [P in keyof T & keyof AggregateLiqoMember]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLiqoMember[P]>
+      : GetScalarType<T[P], AggregateLiqoMember[P]>
+  }
+
+
+
+
+  export type LiqoMemberGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiqoMemberWhereInput
+    orderBy?: LiqoMemberOrderByWithAggregationInput | LiqoMemberOrderByWithAggregationInput[]
+    by: LiqoMemberScalarFieldEnum[] | LiqoMemberScalarFieldEnum
+    having?: LiqoMemberScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LiqoMemberCountAggregateInputType | true
+    _min?: LiqoMemberMinAggregateInputType
+    _max?: LiqoMemberMaxAggregateInputType
+  }
+
+  export type LiqoMemberGroupByOutputType = {
+    id: string
+    groupId: string
+    userId: string
+    joinedAt: Date
+    _count: LiqoMemberCountAggregateOutputType | null
+    _min: LiqoMemberMinAggregateOutputType | null
+    _max: LiqoMemberMaxAggregateOutputType | null
+  }
+
+  type GetLiqoMemberGroupByPayload<T extends LiqoMemberGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LiqoMemberGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LiqoMemberGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LiqoMemberGroupByOutputType[P]>
+            : GetScalarType<T[P], LiqoMemberGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LiqoMemberSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    groupId?: boolean
+    userId?: boolean
+    joinedAt?: boolean
+    group?: boolean | LiqoGroupDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liqoMember"]>
+
+  export type LiqoMemberSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    groupId?: boolean
+    userId?: boolean
+    joinedAt?: boolean
+    group?: boolean | LiqoGroupDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liqoMember"]>
+
+  export type LiqoMemberSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    groupId?: boolean
+    userId?: boolean
+    joinedAt?: boolean
+    group?: boolean | LiqoGroupDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liqoMember"]>
+
+  export type LiqoMemberSelectScalar = {
+    id?: boolean
+    groupId?: boolean
+    userId?: boolean
+    joinedAt?: boolean
+  }
+
+  export type LiqoMemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "groupId" | "userId" | "joinedAt", ExtArgs["result"]["liqoMember"]>
+  export type LiqoMemberInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    group?: boolean | LiqoGroupDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type LiqoMemberIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    group?: boolean | LiqoGroupDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type LiqoMemberIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    group?: boolean | LiqoGroupDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $LiqoMemberPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LiqoMember"
+    objects: {
+      group: Prisma.$LiqoGroupPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      groupId: string
+      userId: string
+      joinedAt: Date
+    }, ExtArgs["result"]["liqoMember"]>
+    composites: {}
+  }
+
+  type LiqoMemberGetPayload<S extends boolean | null | undefined | LiqoMemberDefaultArgs> = $Result.GetResult<Prisma.$LiqoMemberPayload, S>
+
+  type LiqoMemberCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LiqoMemberFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LiqoMemberCountAggregateInputType | true
+    }
+
+  export interface LiqoMemberDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LiqoMember'], meta: { name: 'LiqoMember' } }
+    /**
+     * Find zero or one LiqoMember that matches the filter.
+     * @param {LiqoMemberFindUniqueArgs} args - Arguments to find a LiqoMember
+     * @example
+     * // Get one LiqoMember
+     * const liqoMember = await prisma.liqoMember.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LiqoMemberFindUniqueArgs>(args: SelectSubset<T, LiqoMemberFindUniqueArgs<ExtArgs>>): Prisma__LiqoMemberClient<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LiqoMember that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LiqoMemberFindUniqueOrThrowArgs} args - Arguments to find a LiqoMember
+     * @example
+     * // Get one LiqoMember
+     * const liqoMember = await prisma.liqoMember.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LiqoMemberFindUniqueOrThrowArgs>(args: SelectSubset<T, LiqoMemberFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LiqoMemberClient<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LiqoMember that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMemberFindFirstArgs} args - Arguments to find a LiqoMember
+     * @example
+     * // Get one LiqoMember
+     * const liqoMember = await prisma.liqoMember.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LiqoMemberFindFirstArgs>(args?: SelectSubset<T, LiqoMemberFindFirstArgs<ExtArgs>>): Prisma__LiqoMemberClient<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LiqoMember that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMemberFindFirstOrThrowArgs} args - Arguments to find a LiqoMember
+     * @example
+     * // Get one LiqoMember
+     * const liqoMember = await prisma.liqoMember.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LiqoMemberFindFirstOrThrowArgs>(args?: SelectSubset<T, LiqoMemberFindFirstOrThrowArgs<ExtArgs>>): Prisma__LiqoMemberClient<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LiqoMembers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMemberFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LiqoMembers
+     * const liqoMembers = await prisma.liqoMember.findMany()
+     * 
+     * // Get first 10 LiqoMembers
+     * const liqoMembers = await prisma.liqoMember.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const liqoMemberWithIdOnly = await prisma.liqoMember.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LiqoMemberFindManyArgs>(args?: SelectSubset<T, LiqoMemberFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LiqoMember.
+     * @param {LiqoMemberCreateArgs} args - Arguments to create a LiqoMember.
+     * @example
+     * // Create one LiqoMember
+     * const LiqoMember = await prisma.liqoMember.create({
+     *   data: {
+     *     // ... data to create a LiqoMember
+     *   }
+     * })
+     * 
+     */
+    create<T extends LiqoMemberCreateArgs>(args: SelectSubset<T, LiqoMemberCreateArgs<ExtArgs>>): Prisma__LiqoMemberClient<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LiqoMembers.
+     * @param {LiqoMemberCreateManyArgs} args - Arguments to create many LiqoMembers.
+     * @example
+     * // Create many LiqoMembers
+     * const liqoMember = await prisma.liqoMember.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LiqoMemberCreateManyArgs>(args?: SelectSubset<T, LiqoMemberCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LiqoMembers and returns the data saved in the database.
+     * @param {LiqoMemberCreateManyAndReturnArgs} args - Arguments to create many LiqoMembers.
+     * @example
+     * // Create many LiqoMembers
+     * const liqoMember = await prisma.liqoMember.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LiqoMembers and only return the `id`
+     * const liqoMemberWithIdOnly = await prisma.liqoMember.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LiqoMemberCreateManyAndReturnArgs>(args?: SelectSubset<T, LiqoMemberCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LiqoMember.
+     * @param {LiqoMemberDeleteArgs} args - Arguments to delete one LiqoMember.
+     * @example
+     * // Delete one LiqoMember
+     * const LiqoMember = await prisma.liqoMember.delete({
+     *   where: {
+     *     // ... filter to delete one LiqoMember
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LiqoMemberDeleteArgs>(args: SelectSubset<T, LiqoMemberDeleteArgs<ExtArgs>>): Prisma__LiqoMemberClient<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LiqoMember.
+     * @param {LiqoMemberUpdateArgs} args - Arguments to update one LiqoMember.
+     * @example
+     * // Update one LiqoMember
+     * const liqoMember = await prisma.liqoMember.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LiqoMemberUpdateArgs>(args: SelectSubset<T, LiqoMemberUpdateArgs<ExtArgs>>): Prisma__LiqoMemberClient<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LiqoMembers.
+     * @param {LiqoMemberDeleteManyArgs} args - Arguments to filter LiqoMembers to delete.
+     * @example
+     * // Delete a few LiqoMembers
+     * const { count } = await prisma.liqoMember.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LiqoMemberDeleteManyArgs>(args?: SelectSubset<T, LiqoMemberDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LiqoMembers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMemberUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LiqoMembers
+     * const liqoMember = await prisma.liqoMember.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LiqoMemberUpdateManyArgs>(args: SelectSubset<T, LiqoMemberUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LiqoMembers and returns the data updated in the database.
+     * @param {LiqoMemberUpdateManyAndReturnArgs} args - Arguments to update many LiqoMembers.
+     * @example
+     * // Update many LiqoMembers
+     * const liqoMember = await prisma.liqoMember.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LiqoMembers and only return the `id`
+     * const liqoMemberWithIdOnly = await prisma.liqoMember.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LiqoMemberUpdateManyAndReturnArgs>(args: SelectSubset<T, LiqoMemberUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LiqoMember.
+     * @param {LiqoMemberUpsertArgs} args - Arguments to update or create a LiqoMember.
+     * @example
+     * // Update or create a LiqoMember
+     * const liqoMember = await prisma.liqoMember.upsert({
+     *   create: {
+     *     // ... data to create a LiqoMember
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LiqoMember we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LiqoMemberUpsertArgs>(args: SelectSubset<T, LiqoMemberUpsertArgs<ExtArgs>>): Prisma__LiqoMemberClient<$Result.GetResult<Prisma.$LiqoMemberPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LiqoMembers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMemberCountArgs} args - Arguments to filter LiqoMembers to count.
+     * @example
+     * // Count the number of LiqoMembers
+     * const count = await prisma.liqoMember.count({
+     *   where: {
+     *     // ... the filter for the LiqoMembers we want to count
+     *   }
+     * })
+    **/
+    count<T extends LiqoMemberCountArgs>(
+      args?: Subset<T, LiqoMemberCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LiqoMemberCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LiqoMember.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMemberAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LiqoMemberAggregateArgs>(args: Subset<T, LiqoMemberAggregateArgs>): Prisma.PrismaPromise<GetLiqoMemberAggregateType<T>>
+
+    /**
+     * Group by LiqoMember.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMemberGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LiqoMemberGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LiqoMemberGroupByArgs['orderBy'] }
+        : { orderBy?: LiqoMemberGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LiqoMemberGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLiqoMemberGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LiqoMember model
+   */
+  readonly fields: LiqoMemberFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LiqoMember.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LiqoMemberClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    group<T extends LiqoGroupDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LiqoGroupDefaultArgs<ExtArgs>>): Prisma__LiqoGroupClient<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LiqoMember model
+   */
+  interface LiqoMemberFieldRefs {
+    readonly id: FieldRef<"LiqoMember", 'String'>
+    readonly groupId: FieldRef<"LiqoMember", 'String'>
+    readonly userId: FieldRef<"LiqoMember", 'String'>
+    readonly joinedAt: FieldRef<"LiqoMember", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LiqoMember findUnique
+   */
+  export type LiqoMemberFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoMember to fetch.
+     */
+    where: LiqoMemberWhereUniqueInput
+  }
+
+  /**
+   * LiqoMember findUniqueOrThrow
+   */
+  export type LiqoMemberFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoMember to fetch.
+     */
+    where: LiqoMemberWhereUniqueInput
+  }
+
+  /**
+   * LiqoMember findFirst
+   */
+  export type LiqoMemberFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoMember to fetch.
+     */
+    where?: LiqoMemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoMembers to fetch.
+     */
+    orderBy?: LiqoMemberOrderByWithRelationInput | LiqoMemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LiqoMembers.
+     */
+    cursor?: LiqoMemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoMembers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoMembers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LiqoMembers.
+     */
+    distinct?: LiqoMemberScalarFieldEnum | LiqoMemberScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoMember findFirstOrThrow
+   */
+  export type LiqoMemberFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoMember to fetch.
+     */
+    where?: LiqoMemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoMembers to fetch.
+     */
+    orderBy?: LiqoMemberOrderByWithRelationInput | LiqoMemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LiqoMembers.
+     */
+    cursor?: LiqoMemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoMembers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoMembers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LiqoMembers.
+     */
+    distinct?: LiqoMemberScalarFieldEnum | LiqoMemberScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoMember findMany
+   */
+  export type LiqoMemberFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoMembers to fetch.
+     */
+    where?: LiqoMemberWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoMembers to fetch.
+     */
+    orderBy?: LiqoMemberOrderByWithRelationInput | LiqoMemberOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LiqoMembers.
+     */
+    cursor?: LiqoMemberWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoMembers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoMembers.
+     */
+    skip?: number
+    distinct?: LiqoMemberScalarFieldEnum | LiqoMemberScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoMember create
+   */
+  export type LiqoMemberCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LiqoMember.
+     */
+    data: XOR<LiqoMemberCreateInput, LiqoMemberUncheckedCreateInput>
+  }
+
+  /**
+   * LiqoMember createMany
+   */
+  export type LiqoMemberCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LiqoMembers.
+     */
+    data: LiqoMemberCreateManyInput | LiqoMemberCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LiqoMember createManyAndReturn
+   */
+  export type LiqoMemberCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * The data used to create many LiqoMembers.
+     */
+    data: LiqoMemberCreateManyInput | LiqoMemberCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LiqoMember update
+   */
+  export type LiqoMemberUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LiqoMember.
+     */
+    data: XOR<LiqoMemberUpdateInput, LiqoMemberUncheckedUpdateInput>
+    /**
+     * Choose, which LiqoMember to update.
+     */
+    where: LiqoMemberWhereUniqueInput
+  }
+
+  /**
+   * LiqoMember updateMany
+   */
+  export type LiqoMemberUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LiqoMembers.
+     */
+    data: XOR<LiqoMemberUpdateManyMutationInput, LiqoMemberUncheckedUpdateManyInput>
+    /**
+     * Filter which LiqoMembers to update
+     */
+    where?: LiqoMemberWhereInput
+    /**
+     * Limit how many LiqoMembers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LiqoMember updateManyAndReturn
+   */
+  export type LiqoMemberUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * The data used to update LiqoMembers.
+     */
+    data: XOR<LiqoMemberUpdateManyMutationInput, LiqoMemberUncheckedUpdateManyInput>
+    /**
+     * Filter which LiqoMembers to update
+     */
+    where?: LiqoMemberWhereInput
+    /**
+     * Limit how many LiqoMembers to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LiqoMember upsert
+   */
+  export type LiqoMemberUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LiqoMember to update in case it exists.
+     */
+    where: LiqoMemberWhereUniqueInput
+    /**
+     * In case the LiqoMember found by the `where` argument doesn't exist, create a new LiqoMember with this data.
+     */
+    create: XOR<LiqoMemberCreateInput, LiqoMemberUncheckedCreateInput>
+    /**
+     * In case the LiqoMember was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LiqoMemberUpdateInput, LiqoMemberUncheckedUpdateInput>
+  }
+
+  /**
+   * LiqoMember delete
+   */
+  export type LiqoMemberDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberInclude<ExtArgs> | null
+    /**
+     * Filter which LiqoMember to delete.
+     */
+    where: LiqoMemberWhereUniqueInput
+  }
+
+  /**
+   * LiqoMember deleteMany
+   */
+  export type LiqoMemberDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LiqoMembers to delete
+     */
+    where?: LiqoMemberWhereInput
+    /**
+     * Limit how many LiqoMembers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LiqoMember without action
+   */
+  export type LiqoMemberDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMember
+     */
+    select?: LiqoMemberSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMember
+     */
+    omit?: LiqoMemberOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMemberInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model LiqoMeeting
+   */
+
+  export type AggregateLiqoMeeting = {
+    _count: LiqoMeetingCountAggregateOutputType | null
+    _min: LiqoMeetingMinAggregateOutputType | null
+    _max: LiqoMeetingMaxAggregateOutputType | null
+  }
+
+  export type LiqoMeetingMinAggregateOutputType = {
+    id: string | null
+    groupId: string | null
+    date: Date | null
+    materialTitle: string | null
+    summary: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LiqoMeetingMaxAggregateOutputType = {
+    id: string | null
+    groupId: string | null
+    date: Date | null
+    materialTitle: string | null
+    summary: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LiqoMeetingCountAggregateOutputType = {
+    id: number
+    groupId: number
+    date: number
+    materialTitle: number
+    summary: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LiqoMeetingMinAggregateInputType = {
+    id?: true
+    groupId?: true
+    date?: true
+    materialTitle?: true
+    summary?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LiqoMeetingMaxAggregateInputType = {
+    id?: true
+    groupId?: true
+    date?: true
+    materialTitle?: true
+    summary?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LiqoMeetingCountAggregateInputType = {
+    id?: true
+    groupId?: true
+    date?: true
+    materialTitle?: true
+    summary?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LiqoMeetingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LiqoMeeting to aggregate.
+     */
+    where?: LiqoMeetingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoMeetings to fetch.
+     */
+    orderBy?: LiqoMeetingOrderByWithRelationInput | LiqoMeetingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LiqoMeetingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoMeetings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoMeetings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LiqoMeetings
+    **/
+    _count?: true | LiqoMeetingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LiqoMeetingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LiqoMeetingMaxAggregateInputType
+  }
+
+  export type GetLiqoMeetingAggregateType<T extends LiqoMeetingAggregateArgs> = {
+        [P in keyof T & keyof AggregateLiqoMeeting]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLiqoMeeting[P]>
+      : GetScalarType<T[P], AggregateLiqoMeeting[P]>
+  }
+
+
+
+
+  export type LiqoMeetingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiqoMeetingWhereInput
+    orderBy?: LiqoMeetingOrderByWithAggregationInput | LiqoMeetingOrderByWithAggregationInput[]
+    by: LiqoMeetingScalarFieldEnum[] | LiqoMeetingScalarFieldEnum
+    having?: LiqoMeetingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LiqoMeetingCountAggregateInputType | true
+    _min?: LiqoMeetingMinAggregateInputType
+    _max?: LiqoMeetingMaxAggregateInputType
+  }
+
+  export type LiqoMeetingGroupByOutputType = {
+    id: string
+    groupId: string
+    date: Date
+    materialTitle: string
+    summary: string | null
+    createdAt: Date
+    updatedAt: Date | null
+    _count: LiqoMeetingCountAggregateOutputType | null
+    _min: LiqoMeetingMinAggregateOutputType | null
+    _max: LiqoMeetingMaxAggregateOutputType | null
+  }
+
+  type GetLiqoMeetingGroupByPayload<T extends LiqoMeetingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LiqoMeetingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LiqoMeetingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LiqoMeetingGroupByOutputType[P]>
+            : GetScalarType<T[P], LiqoMeetingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LiqoMeetingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    groupId?: boolean
+    date?: boolean
+    materialTitle?: boolean
+    summary?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    group?: boolean | LiqoGroupDefaultArgs<ExtArgs>
+    attendances?: boolean | LiqoMeeting$attendancesArgs<ExtArgs>
+    _count?: boolean | LiqoMeetingCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liqoMeeting"]>
+
+  export type LiqoMeetingSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    groupId?: boolean
+    date?: boolean
+    materialTitle?: boolean
+    summary?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    group?: boolean | LiqoGroupDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liqoMeeting"]>
+
+  export type LiqoMeetingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    groupId?: boolean
+    date?: boolean
+    materialTitle?: boolean
+    summary?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    group?: boolean | LiqoGroupDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liqoMeeting"]>
+
+  export type LiqoMeetingSelectScalar = {
+    id?: boolean
+    groupId?: boolean
+    date?: boolean
+    materialTitle?: boolean
+    summary?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LiqoMeetingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "groupId" | "date" | "materialTitle" | "summary" | "createdAt" | "updatedAt", ExtArgs["result"]["liqoMeeting"]>
+  export type LiqoMeetingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    group?: boolean | LiqoGroupDefaultArgs<ExtArgs>
+    attendances?: boolean | LiqoMeeting$attendancesArgs<ExtArgs>
+    _count?: boolean | LiqoMeetingCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type LiqoMeetingIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    group?: boolean | LiqoGroupDefaultArgs<ExtArgs>
+  }
+  export type LiqoMeetingIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    group?: boolean | LiqoGroupDefaultArgs<ExtArgs>
+  }
+
+  export type $LiqoMeetingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LiqoMeeting"
+    objects: {
+      group: Prisma.$LiqoGroupPayload<ExtArgs>
+      attendances: Prisma.$LiqoAttendancePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      groupId: string
+      date: Date
+      materialTitle: string
+      summary: string | null
+      createdAt: Date
+      updatedAt: Date | null
+    }, ExtArgs["result"]["liqoMeeting"]>
+    composites: {}
+  }
+
+  type LiqoMeetingGetPayload<S extends boolean | null | undefined | LiqoMeetingDefaultArgs> = $Result.GetResult<Prisma.$LiqoMeetingPayload, S>
+
+  type LiqoMeetingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LiqoMeetingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LiqoMeetingCountAggregateInputType | true
+    }
+
+  export interface LiqoMeetingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LiqoMeeting'], meta: { name: 'LiqoMeeting' } }
+    /**
+     * Find zero or one LiqoMeeting that matches the filter.
+     * @param {LiqoMeetingFindUniqueArgs} args - Arguments to find a LiqoMeeting
+     * @example
+     * // Get one LiqoMeeting
+     * const liqoMeeting = await prisma.liqoMeeting.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LiqoMeetingFindUniqueArgs>(args: SelectSubset<T, LiqoMeetingFindUniqueArgs<ExtArgs>>): Prisma__LiqoMeetingClient<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LiqoMeeting that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LiqoMeetingFindUniqueOrThrowArgs} args - Arguments to find a LiqoMeeting
+     * @example
+     * // Get one LiqoMeeting
+     * const liqoMeeting = await prisma.liqoMeeting.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LiqoMeetingFindUniqueOrThrowArgs>(args: SelectSubset<T, LiqoMeetingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LiqoMeetingClient<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LiqoMeeting that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMeetingFindFirstArgs} args - Arguments to find a LiqoMeeting
+     * @example
+     * // Get one LiqoMeeting
+     * const liqoMeeting = await prisma.liqoMeeting.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LiqoMeetingFindFirstArgs>(args?: SelectSubset<T, LiqoMeetingFindFirstArgs<ExtArgs>>): Prisma__LiqoMeetingClient<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LiqoMeeting that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMeetingFindFirstOrThrowArgs} args - Arguments to find a LiqoMeeting
+     * @example
+     * // Get one LiqoMeeting
+     * const liqoMeeting = await prisma.liqoMeeting.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LiqoMeetingFindFirstOrThrowArgs>(args?: SelectSubset<T, LiqoMeetingFindFirstOrThrowArgs<ExtArgs>>): Prisma__LiqoMeetingClient<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LiqoMeetings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMeetingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LiqoMeetings
+     * const liqoMeetings = await prisma.liqoMeeting.findMany()
+     * 
+     * // Get first 10 LiqoMeetings
+     * const liqoMeetings = await prisma.liqoMeeting.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const liqoMeetingWithIdOnly = await prisma.liqoMeeting.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LiqoMeetingFindManyArgs>(args?: SelectSubset<T, LiqoMeetingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LiqoMeeting.
+     * @param {LiqoMeetingCreateArgs} args - Arguments to create a LiqoMeeting.
+     * @example
+     * // Create one LiqoMeeting
+     * const LiqoMeeting = await prisma.liqoMeeting.create({
+     *   data: {
+     *     // ... data to create a LiqoMeeting
+     *   }
+     * })
+     * 
+     */
+    create<T extends LiqoMeetingCreateArgs>(args: SelectSubset<T, LiqoMeetingCreateArgs<ExtArgs>>): Prisma__LiqoMeetingClient<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LiqoMeetings.
+     * @param {LiqoMeetingCreateManyArgs} args - Arguments to create many LiqoMeetings.
+     * @example
+     * // Create many LiqoMeetings
+     * const liqoMeeting = await prisma.liqoMeeting.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LiqoMeetingCreateManyArgs>(args?: SelectSubset<T, LiqoMeetingCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LiqoMeetings and returns the data saved in the database.
+     * @param {LiqoMeetingCreateManyAndReturnArgs} args - Arguments to create many LiqoMeetings.
+     * @example
+     * // Create many LiqoMeetings
+     * const liqoMeeting = await prisma.liqoMeeting.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LiqoMeetings and only return the `id`
+     * const liqoMeetingWithIdOnly = await prisma.liqoMeeting.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LiqoMeetingCreateManyAndReturnArgs>(args?: SelectSubset<T, LiqoMeetingCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LiqoMeeting.
+     * @param {LiqoMeetingDeleteArgs} args - Arguments to delete one LiqoMeeting.
+     * @example
+     * // Delete one LiqoMeeting
+     * const LiqoMeeting = await prisma.liqoMeeting.delete({
+     *   where: {
+     *     // ... filter to delete one LiqoMeeting
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LiqoMeetingDeleteArgs>(args: SelectSubset<T, LiqoMeetingDeleteArgs<ExtArgs>>): Prisma__LiqoMeetingClient<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LiqoMeeting.
+     * @param {LiqoMeetingUpdateArgs} args - Arguments to update one LiqoMeeting.
+     * @example
+     * // Update one LiqoMeeting
+     * const liqoMeeting = await prisma.liqoMeeting.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LiqoMeetingUpdateArgs>(args: SelectSubset<T, LiqoMeetingUpdateArgs<ExtArgs>>): Prisma__LiqoMeetingClient<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LiqoMeetings.
+     * @param {LiqoMeetingDeleteManyArgs} args - Arguments to filter LiqoMeetings to delete.
+     * @example
+     * // Delete a few LiqoMeetings
+     * const { count } = await prisma.liqoMeeting.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LiqoMeetingDeleteManyArgs>(args?: SelectSubset<T, LiqoMeetingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LiqoMeetings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMeetingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LiqoMeetings
+     * const liqoMeeting = await prisma.liqoMeeting.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LiqoMeetingUpdateManyArgs>(args: SelectSubset<T, LiqoMeetingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LiqoMeetings and returns the data updated in the database.
+     * @param {LiqoMeetingUpdateManyAndReturnArgs} args - Arguments to update many LiqoMeetings.
+     * @example
+     * // Update many LiqoMeetings
+     * const liqoMeeting = await prisma.liqoMeeting.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LiqoMeetings and only return the `id`
+     * const liqoMeetingWithIdOnly = await prisma.liqoMeeting.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LiqoMeetingUpdateManyAndReturnArgs>(args: SelectSubset<T, LiqoMeetingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LiqoMeeting.
+     * @param {LiqoMeetingUpsertArgs} args - Arguments to update or create a LiqoMeeting.
+     * @example
+     * // Update or create a LiqoMeeting
+     * const liqoMeeting = await prisma.liqoMeeting.upsert({
+     *   create: {
+     *     // ... data to create a LiqoMeeting
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LiqoMeeting we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LiqoMeetingUpsertArgs>(args: SelectSubset<T, LiqoMeetingUpsertArgs<ExtArgs>>): Prisma__LiqoMeetingClient<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LiqoMeetings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMeetingCountArgs} args - Arguments to filter LiqoMeetings to count.
+     * @example
+     * // Count the number of LiqoMeetings
+     * const count = await prisma.liqoMeeting.count({
+     *   where: {
+     *     // ... the filter for the LiqoMeetings we want to count
+     *   }
+     * })
+    **/
+    count<T extends LiqoMeetingCountArgs>(
+      args?: Subset<T, LiqoMeetingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LiqoMeetingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LiqoMeeting.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMeetingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LiqoMeetingAggregateArgs>(args: Subset<T, LiqoMeetingAggregateArgs>): Prisma.PrismaPromise<GetLiqoMeetingAggregateType<T>>
+
+    /**
+     * Group by LiqoMeeting.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoMeetingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LiqoMeetingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LiqoMeetingGroupByArgs['orderBy'] }
+        : { orderBy?: LiqoMeetingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LiqoMeetingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLiqoMeetingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LiqoMeeting model
+   */
+  readonly fields: LiqoMeetingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LiqoMeeting.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LiqoMeetingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    group<T extends LiqoGroupDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LiqoGroupDefaultArgs<ExtArgs>>): Prisma__LiqoGroupClient<$Result.GetResult<Prisma.$LiqoGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    attendances<T extends LiqoMeeting$attendancesArgs<ExtArgs> = {}>(args?: Subset<T, LiqoMeeting$attendancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LiqoMeeting model
+   */
+  interface LiqoMeetingFieldRefs {
+    readonly id: FieldRef<"LiqoMeeting", 'String'>
+    readonly groupId: FieldRef<"LiqoMeeting", 'String'>
+    readonly date: FieldRef<"LiqoMeeting", 'DateTime'>
+    readonly materialTitle: FieldRef<"LiqoMeeting", 'String'>
+    readonly summary: FieldRef<"LiqoMeeting", 'String'>
+    readonly createdAt: FieldRef<"LiqoMeeting", 'DateTime'>
+    readonly updatedAt: FieldRef<"LiqoMeeting", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LiqoMeeting findUnique
+   */
+  export type LiqoMeetingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoMeeting to fetch.
+     */
+    where: LiqoMeetingWhereUniqueInput
+  }
+
+  /**
+   * LiqoMeeting findUniqueOrThrow
+   */
+  export type LiqoMeetingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoMeeting to fetch.
+     */
+    where: LiqoMeetingWhereUniqueInput
+  }
+
+  /**
+   * LiqoMeeting findFirst
+   */
+  export type LiqoMeetingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoMeeting to fetch.
+     */
+    where?: LiqoMeetingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoMeetings to fetch.
+     */
+    orderBy?: LiqoMeetingOrderByWithRelationInput | LiqoMeetingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LiqoMeetings.
+     */
+    cursor?: LiqoMeetingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoMeetings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoMeetings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LiqoMeetings.
+     */
+    distinct?: LiqoMeetingScalarFieldEnum | LiqoMeetingScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoMeeting findFirstOrThrow
+   */
+  export type LiqoMeetingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoMeeting to fetch.
+     */
+    where?: LiqoMeetingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoMeetings to fetch.
+     */
+    orderBy?: LiqoMeetingOrderByWithRelationInput | LiqoMeetingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LiqoMeetings.
+     */
+    cursor?: LiqoMeetingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoMeetings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoMeetings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LiqoMeetings.
+     */
+    distinct?: LiqoMeetingScalarFieldEnum | LiqoMeetingScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoMeeting findMany
+   */
+  export type LiqoMeetingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoMeetings to fetch.
+     */
+    where?: LiqoMeetingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoMeetings to fetch.
+     */
+    orderBy?: LiqoMeetingOrderByWithRelationInput | LiqoMeetingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LiqoMeetings.
+     */
+    cursor?: LiqoMeetingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoMeetings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoMeetings.
+     */
+    skip?: number
+    distinct?: LiqoMeetingScalarFieldEnum | LiqoMeetingScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoMeeting create
+   */
+  export type LiqoMeetingCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LiqoMeeting.
+     */
+    data: XOR<LiqoMeetingCreateInput, LiqoMeetingUncheckedCreateInput>
+  }
+
+  /**
+   * LiqoMeeting createMany
+   */
+  export type LiqoMeetingCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LiqoMeetings.
+     */
+    data: LiqoMeetingCreateManyInput | LiqoMeetingCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LiqoMeeting createManyAndReturn
+   */
+  export type LiqoMeetingCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * The data used to create many LiqoMeetings.
+     */
+    data: LiqoMeetingCreateManyInput | LiqoMeetingCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LiqoMeeting update
+   */
+  export type LiqoMeetingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LiqoMeeting.
+     */
+    data: XOR<LiqoMeetingUpdateInput, LiqoMeetingUncheckedUpdateInput>
+    /**
+     * Choose, which LiqoMeeting to update.
+     */
+    where: LiqoMeetingWhereUniqueInput
+  }
+
+  /**
+   * LiqoMeeting updateMany
+   */
+  export type LiqoMeetingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LiqoMeetings.
+     */
+    data: XOR<LiqoMeetingUpdateManyMutationInput, LiqoMeetingUncheckedUpdateManyInput>
+    /**
+     * Filter which LiqoMeetings to update
+     */
+    where?: LiqoMeetingWhereInput
+    /**
+     * Limit how many LiqoMeetings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LiqoMeeting updateManyAndReturn
+   */
+  export type LiqoMeetingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * The data used to update LiqoMeetings.
+     */
+    data: XOR<LiqoMeetingUpdateManyMutationInput, LiqoMeetingUncheckedUpdateManyInput>
+    /**
+     * Filter which LiqoMeetings to update
+     */
+    where?: LiqoMeetingWhereInput
+    /**
+     * Limit how many LiqoMeetings to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LiqoMeeting upsert
+   */
+  export type LiqoMeetingUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LiqoMeeting to update in case it exists.
+     */
+    where: LiqoMeetingWhereUniqueInput
+    /**
+     * In case the LiqoMeeting found by the `where` argument doesn't exist, create a new LiqoMeeting with this data.
+     */
+    create: XOR<LiqoMeetingCreateInput, LiqoMeetingUncheckedCreateInput>
+    /**
+     * In case the LiqoMeeting was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LiqoMeetingUpdateInput, LiqoMeetingUncheckedUpdateInput>
+  }
+
+  /**
+   * LiqoMeeting delete
+   */
+  export type LiqoMeetingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingInclude<ExtArgs> | null
+    /**
+     * Filter which LiqoMeeting to delete.
+     */
+    where: LiqoMeetingWhereUniqueInput
+  }
+
+  /**
+   * LiqoMeeting deleteMany
+   */
+  export type LiqoMeetingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LiqoMeetings to delete
+     */
+    where?: LiqoMeetingWhereInput
+    /**
+     * Limit how many LiqoMeetings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LiqoMeeting.attendances
+   */
+  export type LiqoMeeting$attendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceInclude<ExtArgs> | null
+    where?: LiqoAttendanceWhereInput
+    orderBy?: LiqoAttendanceOrderByWithRelationInput | LiqoAttendanceOrderByWithRelationInput[]
+    cursor?: LiqoAttendanceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LiqoAttendanceScalarFieldEnum | LiqoAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoMeeting without action
+   */
+  export type LiqoMeetingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoMeeting
+     */
+    select?: LiqoMeetingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoMeeting
+     */
+    omit?: LiqoMeetingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoMeetingInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model LiqoAttendance
+   */
+
+  export type AggregateLiqoAttendance = {
+    _count: LiqoAttendanceCountAggregateOutputType | null
+    _min: LiqoAttendanceMinAggregateOutputType | null
+    _max: LiqoAttendanceMaxAggregateOutputType | null
+  }
+
+  export type LiqoAttendanceMinAggregateOutputType = {
+    id: string | null
+    meetingId: string | null
+    userId: string | null
+    status: $Enums.AttendanceStatus | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LiqoAttendanceMaxAggregateOutputType = {
+    id: string | null
+    meetingId: string | null
+    userId: string | null
+    status: $Enums.AttendanceStatus | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LiqoAttendanceCountAggregateOutputType = {
+    id: number
+    meetingId: number
+    userId: number
+    status: number
+    notes: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LiqoAttendanceMinAggregateInputType = {
+    id?: true
+    meetingId?: true
+    userId?: true
+    status?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LiqoAttendanceMaxAggregateInputType = {
+    id?: true
+    meetingId?: true
+    userId?: true
+    status?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LiqoAttendanceCountAggregateInputType = {
+    id?: true
+    meetingId?: true
+    userId?: true
+    status?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LiqoAttendanceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LiqoAttendance to aggregate.
+     */
+    where?: LiqoAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoAttendances to fetch.
+     */
+    orderBy?: LiqoAttendanceOrderByWithRelationInput | LiqoAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LiqoAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LiqoAttendances
+    **/
+    _count?: true | LiqoAttendanceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LiqoAttendanceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LiqoAttendanceMaxAggregateInputType
+  }
+
+  export type GetLiqoAttendanceAggregateType<T extends LiqoAttendanceAggregateArgs> = {
+        [P in keyof T & keyof AggregateLiqoAttendance]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLiqoAttendance[P]>
+      : GetScalarType<T[P], AggregateLiqoAttendance[P]>
+  }
+
+
+
+
+  export type LiqoAttendanceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiqoAttendanceWhereInput
+    orderBy?: LiqoAttendanceOrderByWithAggregationInput | LiqoAttendanceOrderByWithAggregationInput[]
+    by: LiqoAttendanceScalarFieldEnum[] | LiqoAttendanceScalarFieldEnum
+    having?: LiqoAttendanceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LiqoAttendanceCountAggregateInputType | true
+    _min?: LiqoAttendanceMinAggregateInputType
+    _max?: LiqoAttendanceMaxAggregateInputType
+  }
+
+  export type LiqoAttendanceGroupByOutputType = {
+    id: string
+    meetingId: string
+    userId: string
+    status: $Enums.AttendanceStatus
+    notes: string | null
+    createdAt: Date
+    updatedAt: Date | null
+    _count: LiqoAttendanceCountAggregateOutputType | null
+    _min: LiqoAttendanceMinAggregateOutputType | null
+    _max: LiqoAttendanceMaxAggregateOutputType | null
+  }
+
+  type GetLiqoAttendanceGroupByPayload<T extends LiqoAttendanceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LiqoAttendanceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LiqoAttendanceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LiqoAttendanceGroupByOutputType[P]>
+            : GetScalarType<T[P], LiqoAttendanceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LiqoAttendanceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    meetingId?: boolean
+    userId?: boolean
+    status?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    meeting?: boolean | LiqoMeetingDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liqoAttendance"]>
+
+  export type LiqoAttendanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    meetingId?: boolean
+    userId?: boolean
+    status?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    meeting?: boolean | LiqoMeetingDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liqoAttendance"]>
+
+  export type LiqoAttendanceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    meetingId?: boolean
+    userId?: boolean
+    status?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    meeting?: boolean | LiqoMeetingDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liqoAttendance"]>
+
+  export type LiqoAttendanceSelectScalar = {
+    id?: boolean
+    meetingId?: boolean
+    userId?: boolean
+    status?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LiqoAttendanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "meetingId" | "userId" | "status" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["liqoAttendance"]>
+  export type LiqoAttendanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    meeting?: boolean | LiqoMeetingDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type LiqoAttendanceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    meeting?: boolean | LiqoMeetingDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type LiqoAttendanceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    meeting?: boolean | LiqoMeetingDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $LiqoAttendancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LiqoAttendance"
+    objects: {
+      meeting: Prisma.$LiqoMeetingPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      meetingId: string
+      userId: string
+      status: $Enums.AttendanceStatus
+      notes: string | null
+      createdAt: Date
+      updatedAt: Date | null
+    }, ExtArgs["result"]["liqoAttendance"]>
+    composites: {}
+  }
+
+  type LiqoAttendanceGetPayload<S extends boolean | null | undefined | LiqoAttendanceDefaultArgs> = $Result.GetResult<Prisma.$LiqoAttendancePayload, S>
+
+  type LiqoAttendanceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LiqoAttendanceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LiqoAttendanceCountAggregateInputType | true
+    }
+
+  export interface LiqoAttendanceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LiqoAttendance'], meta: { name: 'LiqoAttendance' } }
+    /**
+     * Find zero or one LiqoAttendance that matches the filter.
+     * @param {LiqoAttendanceFindUniqueArgs} args - Arguments to find a LiqoAttendance
+     * @example
+     * // Get one LiqoAttendance
+     * const liqoAttendance = await prisma.liqoAttendance.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LiqoAttendanceFindUniqueArgs>(args: SelectSubset<T, LiqoAttendanceFindUniqueArgs<ExtArgs>>): Prisma__LiqoAttendanceClient<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LiqoAttendance that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LiqoAttendanceFindUniqueOrThrowArgs} args - Arguments to find a LiqoAttendance
+     * @example
+     * // Get one LiqoAttendance
+     * const liqoAttendance = await prisma.liqoAttendance.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LiqoAttendanceFindUniqueOrThrowArgs>(args: SelectSubset<T, LiqoAttendanceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LiqoAttendanceClient<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LiqoAttendance that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoAttendanceFindFirstArgs} args - Arguments to find a LiqoAttendance
+     * @example
+     * // Get one LiqoAttendance
+     * const liqoAttendance = await prisma.liqoAttendance.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LiqoAttendanceFindFirstArgs>(args?: SelectSubset<T, LiqoAttendanceFindFirstArgs<ExtArgs>>): Prisma__LiqoAttendanceClient<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LiqoAttendance that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoAttendanceFindFirstOrThrowArgs} args - Arguments to find a LiqoAttendance
+     * @example
+     * // Get one LiqoAttendance
+     * const liqoAttendance = await prisma.liqoAttendance.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LiqoAttendanceFindFirstOrThrowArgs>(args?: SelectSubset<T, LiqoAttendanceFindFirstOrThrowArgs<ExtArgs>>): Prisma__LiqoAttendanceClient<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LiqoAttendances that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoAttendanceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LiqoAttendances
+     * const liqoAttendances = await prisma.liqoAttendance.findMany()
+     * 
+     * // Get first 10 LiqoAttendances
+     * const liqoAttendances = await prisma.liqoAttendance.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const liqoAttendanceWithIdOnly = await prisma.liqoAttendance.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LiqoAttendanceFindManyArgs>(args?: SelectSubset<T, LiqoAttendanceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LiqoAttendance.
+     * @param {LiqoAttendanceCreateArgs} args - Arguments to create a LiqoAttendance.
+     * @example
+     * // Create one LiqoAttendance
+     * const LiqoAttendance = await prisma.liqoAttendance.create({
+     *   data: {
+     *     // ... data to create a LiqoAttendance
+     *   }
+     * })
+     * 
+     */
+    create<T extends LiqoAttendanceCreateArgs>(args: SelectSubset<T, LiqoAttendanceCreateArgs<ExtArgs>>): Prisma__LiqoAttendanceClient<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LiqoAttendances.
+     * @param {LiqoAttendanceCreateManyArgs} args - Arguments to create many LiqoAttendances.
+     * @example
+     * // Create many LiqoAttendances
+     * const liqoAttendance = await prisma.liqoAttendance.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LiqoAttendanceCreateManyArgs>(args?: SelectSubset<T, LiqoAttendanceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LiqoAttendances and returns the data saved in the database.
+     * @param {LiqoAttendanceCreateManyAndReturnArgs} args - Arguments to create many LiqoAttendances.
+     * @example
+     * // Create many LiqoAttendances
+     * const liqoAttendance = await prisma.liqoAttendance.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LiqoAttendances and only return the `id`
+     * const liqoAttendanceWithIdOnly = await prisma.liqoAttendance.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LiqoAttendanceCreateManyAndReturnArgs>(args?: SelectSubset<T, LiqoAttendanceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LiqoAttendance.
+     * @param {LiqoAttendanceDeleteArgs} args - Arguments to delete one LiqoAttendance.
+     * @example
+     * // Delete one LiqoAttendance
+     * const LiqoAttendance = await prisma.liqoAttendance.delete({
+     *   where: {
+     *     // ... filter to delete one LiqoAttendance
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LiqoAttendanceDeleteArgs>(args: SelectSubset<T, LiqoAttendanceDeleteArgs<ExtArgs>>): Prisma__LiqoAttendanceClient<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LiqoAttendance.
+     * @param {LiqoAttendanceUpdateArgs} args - Arguments to update one LiqoAttendance.
+     * @example
+     * // Update one LiqoAttendance
+     * const liqoAttendance = await prisma.liqoAttendance.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LiqoAttendanceUpdateArgs>(args: SelectSubset<T, LiqoAttendanceUpdateArgs<ExtArgs>>): Prisma__LiqoAttendanceClient<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LiqoAttendances.
+     * @param {LiqoAttendanceDeleteManyArgs} args - Arguments to filter LiqoAttendances to delete.
+     * @example
+     * // Delete a few LiqoAttendances
+     * const { count } = await prisma.liqoAttendance.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LiqoAttendanceDeleteManyArgs>(args?: SelectSubset<T, LiqoAttendanceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LiqoAttendances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoAttendanceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LiqoAttendances
+     * const liqoAttendance = await prisma.liqoAttendance.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LiqoAttendanceUpdateManyArgs>(args: SelectSubset<T, LiqoAttendanceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LiqoAttendances and returns the data updated in the database.
+     * @param {LiqoAttendanceUpdateManyAndReturnArgs} args - Arguments to update many LiqoAttendances.
+     * @example
+     * // Update many LiqoAttendances
+     * const liqoAttendance = await prisma.liqoAttendance.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LiqoAttendances and only return the `id`
+     * const liqoAttendanceWithIdOnly = await prisma.liqoAttendance.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LiqoAttendanceUpdateManyAndReturnArgs>(args: SelectSubset<T, LiqoAttendanceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LiqoAttendance.
+     * @param {LiqoAttendanceUpsertArgs} args - Arguments to update or create a LiqoAttendance.
+     * @example
+     * // Update or create a LiqoAttendance
+     * const liqoAttendance = await prisma.liqoAttendance.upsert({
+     *   create: {
+     *     // ... data to create a LiqoAttendance
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LiqoAttendance we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LiqoAttendanceUpsertArgs>(args: SelectSubset<T, LiqoAttendanceUpsertArgs<ExtArgs>>): Prisma__LiqoAttendanceClient<$Result.GetResult<Prisma.$LiqoAttendancePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LiqoAttendances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoAttendanceCountArgs} args - Arguments to filter LiqoAttendances to count.
+     * @example
+     * // Count the number of LiqoAttendances
+     * const count = await prisma.liqoAttendance.count({
+     *   where: {
+     *     // ... the filter for the LiqoAttendances we want to count
+     *   }
+     * })
+    **/
+    count<T extends LiqoAttendanceCountArgs>(
+      args?: Subset<T, LiqoAttendanceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LiqoAttendanceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LiqoAttendance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoAttendanceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LiqoAttendanceAggregateArgs>(args: Subset<T, LiqoAttendanceAggregateArgs>): Prisma.PrismaPromise<GetLiqoAttendanceAggregateType<T>>
+
+    /**
+     * Group by LiqoAttendance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiqoAttendanceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LiqoAttendanceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LiqoAttendanceGroupByArgs['orderBy'] }
+        : { orderBy?: LiqoAttendanceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LiqoAttendanceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLiqoAttendanceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LiqoAttendance model
+   */
+  readonly fields: LiqoAttendanceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LiqoAttendance.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LiqoAttendanceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    meeting<T extends LiqoMeetingDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LiqoMeetingDefaultArgs<ExtArgs>>): Prisma__LiqoMeetingClient<$Result.GetResult<Prisma.$LiqoMeetingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LiqoAttendance model
+   */
+  interface LiqoAttendanceFieldRefs {
+    readonly id: FieldRef<"LiqoAttendance", 'String'>
+    readonly meetingId: FieldRef<"LiqoAttendance", 'String'>
+    readonly userId: FieldRef<"LiqoAttendance", 'String'>
+    readonly status: FieldRef<"LiqoAttendance", 'AttendanceStatus'>
+    readonly notes: FieldRef<"LiqoAttendance", 'String'>
+    readonly createdAt: FieldRef<"LiqoAttendance", 'DateTime'>
+    readonly updatedAt: FieldRef<"LiqoAttendance", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LiqoAttendance findUnique
+   */
+  export type LiqoAttendanceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoAttendance to fetch.
+     */
+    where: LiqoAttendanceWhereUniqueInput
+  }
+
+  /**
+   * LiqoAttendance findUniqueOrThrow
+   */
+  export type LiqoAttendanceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoAttendance to fetch.
+     */
+    where: LiqoAttendanceWhereUniqueInput
+  }
+
+  /**
+   * LiqoAttendance findFirst
+   */
+  export type LiqoAttendanceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoAttendance to fetch.
+     */
+    where?: LiqoAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoAttendances to fetch.
+     */
+    orderBy?: LiqoAttendanceOrderByWithRelationInput | LiqoAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LiqoAttendances.
+     */
+    cursor?: LiqoAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LiqoAttendances.
+     */
+    distinct?: LiqoAttendanceScalarFieldEnum | LiqoAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoAttendance findFirstOrThrow
+   */
+  export type LiqoAttendanceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoAttendance to fetch.
+     */
+    where?: LiqoAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoAttendances to fetch.
+     */
+    orderBy?: LiqoAttendanceOrderByWithRelationInput | LiqoAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LiqoAttendances.
+     */
+    cursor?: LiqoAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LiqoAttendances.
+     */
+    distinct?: LiqoAttendanceScalarFieldEnum | LiqoAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoAttendance findMany
+   */
+  export type LiqoAttendanceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which LiqoAttendances to fetch.
+     */
+    where?: LiqoAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiqoAttendances to fetch.
+     */
+    orderBy?: LiqoAttendanceOrderByWithRelationInput | LiqoAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LiqoAttendances.
+     */
+    cursor?: LiqoAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiqoAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiqoAttendances.
+     */
+    skip?: number
+    distinct?: LiqoAttendanceScalarFieldEnum | LiqoAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * LiqoAttendance create
+   */
+  export type LiqoAttendanceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LiqoAttendance.
+     */
+    data: XOR<LiqoAttendanceCreateInput, LiqoAttendanceUncheckedCreateInput>
+  }
+
+  /**
+   * LiqoAttendance createMany
+   */
+  export type LiqoAttendanceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LiqoAttendances.
+     */
+    data: LiqoAttendanceCreateManyInput | LiqoAttendanceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LiqoAttendance createManyAndReturn
+   */
+  export type LiqoAttendanceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * The data used to create many LiqoAttendances.
+     */
+    data: LiqoAttendanceCreateManyInput | LiqoAttendanceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LiqoAttendance update
+   */
+  export type LiqoAttendanceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LiqoAttendance.
+     */
+    data: XOR<LiqoAttendanceUpdateInput, LiqoAttendanceUncheckedUpdateInput>
+    /**
+     * Choose, which LiqoAttendance to update.
+     */
+    where: LiqoAttendanceWhereUniqueInput
+  }
+
+  /**
+   * LiqoAttendance updateMany
+   */
+  export type LiqoAttendanceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LiqoAttendances.
+     */
+    data: XOR<LiqoAttendanceUpdateManyMutationInput, LiqoAttendanceUncheckedUpdateManyInput>
+    /**
+     * Filter which LiqoAttendances to update
+     */
+    where?: LiqoAttendanceWhereInput
+    /**
+     * Limit how many LiqoAttendances to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LiqoAttendance updateManyAndReturn
+   */
+  export type LiqoAttendanceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * The data used to update LiqoAttendances.
+     */
+    data: XOR<LiqoAttendanceUpdateManyMutationInput, LiqoAttendanceUncheckedUpdateManyInput>
+    /**
+     * Filter which LiqoAttendances to update
+     */
+    where?: LiqoAttendanceWhereInput
+    /**
+     * Limit how many LiqoAttendances to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LiqoAttendance upsert
+   */
+  export type LiqoAttendanceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LiqoAttendance to update in case it exists.
+     */
+    where: LiqoAttendanceWhereUniqueInput
+    /**
+     * In case the LiqoAttendance found by the `where` argument doesn't exist, create a new LiqoAttendance with this data.
+     */
+    create: XOR<LiqoAttendanceCreateInput, LiqoAttendanceUncheckedCreateInput>
+    /**
+     * In case the LiqoAttendance was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LiqoAttendanceUpdateInput, LiqoAttendanceUncheckedUpdateInput>
+  }
+
+  /**
+   * LiqoAttendance delete
+   */
+  export type LiqoAttendanceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter which LiqoAttendance to delete.
+     */
+    where: LiqoAttendanceWhereUniqueInput
+  }
+
+  /**
+   * LiqoAttendance deleteMany
+   */
+  export type LiqoAttendanceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LiqoAttendances to delete
+     */
+    where?: LiqoAttendanceWhereInput
+    /**
+     * Limit how many LiqoAttendances to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LiqoAttendance without action
+   */
+  export type LiqoAttendanceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiqoAttendance
+     */
+    select?: LiqoAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiqoAttendance
+     */
+    omit?: LiqoAttendanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiqoAttendanceInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model MutabaahRecord
+   */
+
+  export type AggregateMutabaahRecord = {
+    _count: MutabaahRecordCountAggregateOutputType | null
+    _avg: MutabaahRecordAvgAggregateOutputType | null
+    _sum: MutabaahRecordSumAggregateOutputType | null
+    _min: MutabaahRecordMinAggregateOutputType | null
+    _max: MutabaahRecordMaxAggregateOutputType | null
+  }
+
+  export type MutabaahRecordAvgAggregateOutputType = {
+    sholatJamaah: number | null
+    sholatRawatib: number | null
+    tilawahPages: number | null
+  }
+
+  export type MutabaahRecordSumAggregateOutputType = {
+    sholatJamaah: number | null
+    sholatRawatib: number | null
+    tilawahPages: number | null
+  }
+
+  export type MutabaahRecordMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    date: Date | null
+    sholatJamaah: number | null
+    sholatRawatib: number | null
+    sholatDhuha: boolean | null
+    sholatTahajud: boolean | null
+    tilawahPages: number | null
+    puasaSunnah: boolean | null
+    infaq: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MutabaahRecordMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    date: Date | null
+    sholatJamaah: number | null
+    sholatRawatib: number | null
+    sholatDhuha: boolean | null
+    sholatTahajud: boolean | null
+    tilawahPages: number | null
+    puasaSunnah: boolean | null
+    infaq: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MutabaahRecordCountAggregateOutputType = {
+    id: number
+    userId: number
+    date: number
+    sholatJamaah: number
+    sholatRawatib: number
+    sholatDhuha: number
+    sholatTahajud: number
+    tilawahPages: number
+    puasaSunnah: number
+    infaq: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MutabaahRecordAvgAggregateInputType = {
+    sholatJamaah?: true
+    sholatRawatib?: true
+    tilawahPages?: true
+  }
+
+  export type MutabaahRecordSumAggregateInputType = {
+    sholatJamaah?: true
+    sholatRawatib?: true
+    tilawahPages?: true
+  }
+
+  export type MutabaahRecordMinAggregateInputType = {
+    id?: true
+    userId?: true
+    date?: true
+    sholatJamaah?: true
+    sholatRawatib?: true
+    sholatDhuha?: true
+    sholatTahajud?: true
+    tilawahPages?: true
+    puasaSunnah?: true
+    infaq?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MutabaahRecordMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    date?: true
+    sholatJamaah?: true
+    sholatRawatib?: true
+    sholatDhuha?: true
+    sholatTahajud?: true
+    tilawahPages?: true
+    puasaSunnah?: true
+    infaq?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MutabaahRecordCountAggregateInputType = {
+    id?: true
+    userId?: true
+    date?: true
+    sholatJamaah?: true
+    sholatRawatib?: true
+    sholatDhuha?: true
+    sholatTahajud?: true
+    tilawahPages?: true
+    puasaSunnah?: true
+    infaq?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MutabaahRecordAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MutabaahRecord to aggregate.
+     */
+    where?: MutabaahRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MutabaahRecords to fetch.
+     */
+    orderBy?: MutabaahRecordOrderByWithRelationInput | MutabaahRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MutabaahRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MutabaahRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MutabaahRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MutabaahRecords
+    **/
+    _count?: true | MutabaahRecordCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MutabaahRecordAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MutabaahRecordSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MutabaahRecordMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MutabaahRecordMaxAggregateInputType
+  }
+
+  export type GetMutabaahRecordAggregateType<T extends MutabaahRecordAggregateArgs> = {
+        [P in keyof T & keyof AggregateMutabaahRecord]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMutabaahRecord[P]>
+      : GetScalarType<T[P], AggregateMutabaahRecord[P]>
+  }
+
+
+
+
+  export type MutabaahRecordGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MutabaahRecordWhereInput
+    orderBy?: MutabaahRecordOrderByWithAggregationInput | MutabaahRecordOrderByWithAggregationInput[]
+    by: MutabaahRecordScalarFieldEnum[] | MutabaahRecordScalarFieldEnum
+    having?: MutabaahRecordScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MutabaahRecordCountAggregateInputType | true
+    _avg?: MutabaahRecordAvgAggregateInputType
+    _sum?: MutabaahRecordSumAggregateInputType
+    _min?: MutabaahRecordMinAggregateInputType
+    _max?: MutabaahRecordMaxAggregateInputType
+  }
+
+  export type MutabaahRecordGroupByOutputType = {
+    id: string
+    userId: string
+    date: Date
+    sholatJamaah: number
+    sholatRawatib: number
+    sholatDhuha: boolean
+    sholatTahajud: boolean
+    tilawahPages: number
+    puasaSunnah: boolean
+    infaq: boolean
+    createdAt: Date
+    updatedAt: Date | null
+    _count: MutabaahRecordCountAggregateOutputType | null
+    _avg: MutabaahRecordAvgAggregateOutputType | null
+    _sum: MutabaahRecordSumAggregateOutputType | null
+    _min: MutabaahRecordMinAggregateOutputType | null
+    _max: MutabaahRecordMaxAggregateOutputType | null
+  }
+
+  type GetMutabaahRecordGroupByPayload<T extends MutabaahRecordGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MutabaahRecordGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MutabaahRecordGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MutabaahRecordGroupByOutputType[P]>
+            : GetScalarType<T[P], MutabaahRecordGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MutabaahRecordSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    date?: boolean
+    sholatJamaah?: boolean
+    sholatRawatib?: boolean
+    sholatDhuha?: boolean
+    sholatTahajud?: boolean
+    tilawahPages?: boolean
+    puasaSunnah?: boolean
+    infaq?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mutabaahRecord"]>
+
+  export type MutabaahRecordSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    date?: boolean
+    sholatJamaah?: boolean
+    sholatRawatib?: boolean
+    sholatDhuha?: boolean
+    sholatTahajud?: boolean
+    tilawahPages?: boolean
+    puasaSunnah?: boolean
+    infaq?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mutabaahRecord"]>
+
+  export type MutabaahRecordSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    date?: boolean
+    sholatJamaah?: boolean
+    sholatRawatib?: boolean
+    sholatDhuha?: boolean
+    sholatTahajud?: boolean
+    tilawahPages?: boolean
+    puasaSunnah?: boolean
+    infaq?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mutabaahRecord"]>
+
+  export type MutabaahRecordSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    date?: boolean
+    sholatJamaah?: boolean
+    sholatRawatib?: boolean
+    sholatDhuha?: boolean
+    sholatTahajud?: boolean
+    tilawahPages?: boolean
+    puasaSunnah?: boolean
+    infaq?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MutabaahRecordOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "date" | "sholatJamaah" | "sholatRawatib" | "sholatDhuha" | "sholatTahajud" | "tilawahPages" | "puasaSunnah" | "infaq" | "createdAt" | "updatedAt", ExtArgs["result"]["mutabaahRecord"]>
+  export type MutabaahRecordInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type MutabaahRecordIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type MutabaahRecordIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $MutabaahRecordPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MutabaahRecord"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      date: Date
+      sholatJamaah: number
+      sholatRawatib: number
+      sholatDhuha: boolean
+      sholatTahajud: boolean
+      tilawahPages: number
+      puasaSunnah: boolean
+      infaq: boolean
+      createdAt: Date
+      updatedAt: Date | null
+    }, ExtArgs["result"]["mutabaahRecord"]>
+    composites: {}
+  }
+
+  type MutabaahRecordGetPayload<S extends boolean | null | undefined | MutabaahRecordDefaultArgs> = $Result.GetResult<Prisma.$MutabaahRecordPayload, S>
+
+  type MutabaahRecordCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MutabaahRecordFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MutabaahRecordCountAggregateInputType | true
+    }
+
+  export interface MutabaahRecordDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MutabaahRecord'], meta: { name: 'MutabaahRecord' } }
+    /**
+     * Find zero or one MutabaahRecord that matches the filter.
+     * @param {MutabaahRecordFindUniqueArgs} args - Arguments to find a MutabaahRecord
+     * @example
+     * // Get one MutabaahRecord
+     * const mutabaahRecord = await prisma.mutabaahRecord.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MutabaahRecordFindUniqueArgs>(args: SelectSubset<T, MutabaahRecordFindUniqueArgs<ExtArgs>>): Prisma__MutabaahRecordClient<$Result.GetResult<Prisma.$MutabaahRecordPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MutabaahRecord that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MutabaahRecordFindUniqueOrThrowArgs} args - Arguments to find a MutabaahRecord
+     * @example
+     * // Get one MutabaahRecord
+     * const mutabaahRecord = await prisma.mutabaahRecord.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MutabaahRecordFindUniqueOrThrowArgs>(args: SelectSubset<T, MutabaahRecordFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MutabaahRecordClient<$Result.GetResult<Prisma.$MutabaahRecordPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MutabaahRecord that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MutabaahRecordFindFirstArgs} args - Arguments to find a MutabaahRecord
+     * @example
+     * // Get one MutabaahRecord
+     * const mutabaahRecord = await prisma.mutabaahRecord.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MutabaahRecordFindFirstArgs>(args?: SelectSubset<T, MutabaahRecordFindFirstArgs<ExtArgs>>): Prisma__MutabaahRecordClient<$Result.GetResult<Prisma.$MutabaahRecordPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MutabaahRecord that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MutabaahRecordFindFirstOrThrowArgs} args - Arguments to find a MutabaahRecord
+     * @example
+     * // Get one MutabaahRecord
+     * const mutabaahRecord = await prisma.mutabaahRecord.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MutabaahRecordFindFirstOrThrowArgs>(args?: SelectSubset<T, MutabaahRecordFindFirstOrThrowArgs<ExtArgs>>): Prisma__MutabaahRecordClient<$Result.GetResult<Prisma.$MutabaahRecordPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MutabaahRecords that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MutabaahRecordFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MutabaahRecords
+     * const mutabaahRecords = await prisma.mutabaahRecord.findMany()
+     * 
+     * // Get first 10 MutabaahRecords
+     * const mutabaahRecords = await prisma.mutabaahRecord.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const mutabaahRecordWithIdOnly = await prisma.mutabaahRecord.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MutabaahRecordFindManyArgs>(args?: SelectSubset<T, MutabaahRecordFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MutabaahRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MutabaahRecord.
+     * @param {MutabaahRecordCreateArgs} args - Arguments to create a MutabaahRecord.
+     * @example
+     * // Create one MutabaahRecord
+     * const MutabaahRecord = await prisma.mutabaahRecord.create({
+     *   data: {
+     *     // ... data to create a MutabaahRecord
+     *   }
+     * })
+     * 
+     */
+    create<T extends MutabaahRecordCreateArgs>(args: SelectSubset<T, MutabaahRecordCreateArgs<ExtArgs>>): Prisma__MutabaahRecordClient<$Result.GetResult<Prisma.$MutabaahRecordPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MutabaahRecords.
+     * @param {MutabaahRecordCreateManyArgs} args - Arguments to create many MutabaahRecords.
+     * @example
+     * // Create many MutabaahRecords
+     * const mutabaahRecord = await prisma.mutabaahRecord.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MutabaahRecordCreateManyArgs>(args?: SelectSubset<T, MutabaahRecordCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MutabaahRecords and returns the data saved in the database.
+     * @param {MutabaahRecordCreateManyAndReturnArgs} args - Arguments to create many MutabaahRecords.
+     * @example
+     * // Create many MutabaahRecords
+     * const mutabaahRecord = await prisma.mutabaahRecord.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MutabaahRecords and only return the `id`
+     * const mutabaahRecordWithIdOnly = await prisma.mutabaahRecord.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MutabaahRecordCreateManyAndReturnArgs>(args?: SelectSubset<T, MutabaahRecordCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MutabaahRecordPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MutabaahRecord.
+     * @param {MutabaahRecordDeleteArgs} args - Arguments to delete one MutabaahRecord.
+     * @example
+     * // Delete one MutabaahRecord
+     * const MutabaahRecord = await prisma.mutabaahRecord.delete({
+     *   where: {
+     *     // ... filter to delete one MutabaahRecord
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MutabaahRecordDeleteArgs>(args: SelectSubset<T, MutabaahRecordDeleteArgs<ExtArgs>>): Prisma__MutabaahRecordClient<$Result.GetResult<Prisma.$MutabaahRecordPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MutabaahRecord.
+     * @param {MutabaahRecordUpdateArgs} args - Arguments to update one MutabaahRecord.
+     * @example
+     * // Update one MutabaahRecord
+     * const mutabaahRecord = await prisma.mutabaahRecord.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MutabaahRecordUpdateArgs>(args: SelectSubset<T, MutabaahRecordUpdateArgs<ExtArgs>>): Prisma__MutabaahRecordClient<$Result.GetResult<Prisma.$MutabaahRecordPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MutabaahRecords.
+     * @param {MutabaahRecordDeleteManyArgs} args - Arguments to filter MutabaahRecords to delete.
+     * @example
+     * // Delete a few MutabaahRecords
+     * const { count } = await prisma.mutabaahRecord.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MutabaahRecordDeleteManyArgs>(args?: SelectSubset<T, MutabaahRecordDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MutabaahRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MutabaahRecordUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MutabaahRecords
+     * const mutabaahRecord = await prisma.mutabaahRecord.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MutabaahRecordUpdateManyArgs>(args: SelectSubset<T, MutabaahRecordUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MutabaahRecords and returns the data updated in the database.
+     * @param {MutabaahRecordUpdateManyAndReturnArgs} args - Arguments to update many MutabaahRecords.
+     * @example
+     * // Update many MutabaahRecords
+     * const mutabaahRecord = await prisma.mutabaahRecord.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MutabaahRecords and only return the `id`
+     * const mutabaahRecordWithIdOnly = await prisma.mutabaahRecord.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MutabaahRecordUpdateManyAndReturnArgs>(args: SelectSubset<T, MutabaahRecordUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MutabaahRecordPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MutabaahRecord.
+     * @param {MutabaahRecordUpsertArgs} args - Arguments to update or create a MutabaahRecord.
+     * @example
+     * // Update or create a MutabaahRecord
+     * const mutabaahRecord = await prisma.mutabaahRecord.upsert({
+     *   create: {
+     *     // ... data to create a MutabaahRecord
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MutabaahRecord we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MutabaahRecordUpsertArgs>(args: SelectSubset<T, MutabaahRecordUpsertArgs<ExtArgs>>): Prisma__MutabaahRecordClient<$Result.GetResult<Prisma.$MutabaahRecordPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MutabaahRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MutabaahRecordCountArgs} args - Arguments to filter MutabaahRecords to count.
+     * @example
+     * // Count the number of MutabaahRecords
+     * const count = await prisma.mutabaahRecord.count({
+     *   where: {
+     *     // ... the filter for the MutabaahRecords we want to count
+     *   }
+     * })
+    **/
+    count<T extends MutabaahRecordCountArgs>(
+      args?: Subset<T, MutabaahRecordCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MutabaahRecordCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MutabaahRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MutabaahRecordAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MutabaahRecordAggregateArgs>(args: Subset<T, MutabaahRecordAggregateArgs>): Prisma.PrismaPromise<GetMutabaahRecordAggregateType<T>>
+
+    /**
+     * Group by MutabaahRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MutabaahRecordGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MutabaahRecordGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MutabaahRecordGroupByArgs['orderBy'] }
+        : { orderBy?: MutabaahRecordGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MutabaahRecordGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMutabaahRecordGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MutabaahRecord model
+   */
+  readonly fields: MutabaahRecordFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MutabaahRecord.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MutabaahRecordClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MutabaahRecord model
+   */
+  interface MutabaahRecordFieldRefs {
+    readonly id: FieldRef<"MutabaahRecord", 'String'>
+    readonly userId: FieldRef<"MutabaahRecord", 'String'>
+    readonly date: FieldRef<"MutabaahRecord", 'DateTime'>
+    readonly sholatJamaah: FieldRef<"MutabaahRecord", 'Int'>
+    readonly sholatRawatib: FieldRef<"MutabaahRecord", 'Int'>
+    readonly sholatDhuha: FieldRef<"MutabaahRecord", 'Boolean'>
+    readonly sholatTahajud: FieldRef<"MutabaahRecord", 'Boolean'>
+    readonly tilawahPages: FieldRef<"MutabaahRecord", 'Int'>
+    readonly puasaSunnah: FieldRef<"MutabaahRecord", 'Boolean'>
+    readonly infaq: FieldRef<"MutabaahRecord", 'Boolean'>
+    readonly createdAt: FieldRef<"MutabaahRecord", 'DateTime'>
+    readonly updatedAt: FieldRef<"MutabaahRecord", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MutabaahRecord findUnique
+   */
+  export type MutabaahRecordFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which MutabaahRecord to fetch.
+     */
+    where: MutabaahRecordWhereUniqueInput
+  }
+
+  /**
+   * MutabaahRecord findUniqueOrThrow
+   */
+  export type MutabaahRecordFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which MutabaahRecord to fetch.
+     */
+    where: MutabaahRecordWhereUniqueInput
+  }
+
+  /**
+   * MutabaahRecord findFirst
+   */
+  export type MutabaahRecordFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which MutabaahRecord to fetch.
+     */
+    where?: MutabaahRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MutabaahRecords to fetch.
+     */
+    orderBy?: MutabaahRecordOrderByWithRelationInput | MutabaahRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MutabaahRecords.
+     */
+    cursor?: MutabaahRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MutabaahRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MutabaahRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MutabaahRecords.
+     */
+    distinct?: MutabaahRecordScalarFieldEnum | MutabaahRecordScalarFieldEnum[]
+  }
+
+  /**
+   * MutabaahRecord findFirstOrThrow
+   */
+  export type MutabaahRecordFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which MutabaahRecord to fetch.
+     */
+    where?: MutabaahRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MutabaahRecords to fetch.
+     */
+    orderBy?: MutabaahRecordOrderByWithRelationInput | MutabaahRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MutabaahRecords.
+     */
+    cursor?: MutabaahRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MutabaahRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MutabaahRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MutabaahRecords.
+     */
+    distinct?: MutabaahRecordScalarFieldEnum | MutabaahRecordScalarFieldEnum[]
+  }
+
+  /**
+   * MutabaahRecord findMany
+   */
+  export type MutabaahRecordFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which MutabaahRecords to fetch.
+     */
+    where?: MutabaahRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MutabaahRecords to fetch.
+     */
+    orderBy?: MutabaahRecordOrderByWithRelationInput | MutabaahRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MutabaahRecords.
+     */
+    cursor?: MutabaahRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MutabaahRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MutabaahRecords.
+     */
+    skip?: number
+    distinct?: MutabaahRecordScalarFieldEnum | MutabaahRecordScalarFieldEnum[]
+  }
+
+  /**
+   * MutabaahRecord create
+   */
+  export type MutabaahRecordCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MutabaahRecord.
+     */
+    data: XOR<MutabaahRecordCreateInput, MutabaahRecordUncheckedCreateInput>
+  }
+
+  /**
+   * MutabaahRecord createMany
+   */
+  export type MutabaahRecordCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MutabaahRecords.
+     */
+    data: MutabaahRecordCreateManyInput | MutabaahRecordCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MutabaahRecord createManyAndReturn
+   */
+  export type MutabaahRecordCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * The data used to create many MutabaahRecords.
+     */
+    data: MutabaahRecordCreateManyInput | MutabaahRecordCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MutabaahRecord update
+   */
+  export type MutabaahRecordUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MutabaahRecord.
+     */
+    data: XOR<MutabaahRecordUpdateInput, MutabaahRecordUncheckedUpdateInput>
+    /**
+     * Choose, which MutabaahRecord to update.
+     */
+    where: MutabaahRecordWhereUniqueInput
+  }
+
+  /**
+   * MutabaahRecord updateMany
+   */
+  export type MutabaahRecordUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MutabaahRecords.
+     */
+    data: XOR<MutabaahRecordUpdateManyMutationInput, MutabaahRecordUncheckedUpdateManyInput>
+    /**
+     * Filter which MutabaahRecords to update
+     */
+    where?: MutabaahRecordWhereInput
+    /**
+     * Limit how many MutabaahRecords to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MutabaahRecord updateManyAndReturn
+   */
+  export type MutabaahRecordUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * The data used to update MutabaahRecords.
+     */
+    data: XOR<MutabaahRecordUpdateManyMutationInput, MutabaahRecordUncheckedUpdateManyInput>
+    /**
+     * Filter which MutabaahRecords to update
+     */
+    where?: MutabaahRecordWhereInput
+    /**
+     * Limit how many MutabaahRecords to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MutabaahRecord upsert
+   */
+  export type MutabaahRecordUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MutabaahRecord to update in case it exists.
+     */
+    where: MutabaahRecordWhereUniqueInput
+    /**
+     * In case the MutabaahRecord found by the `where` argument doesn't exist, create a new MutabaahRecord with this data.
+     */
+    create: XOR<MutabaahRecordCreateInput, MutabaahRecordUncheckedCreateInput>
+    /**
+     * In case the MutabaahRecord was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MutabaahRecordUpdateInput, MutabaahRecordUncheckedUpdateInput>
+  }
+
+  /**
+   * MutabaahRecord delete
+   */
+  export type MutabaahRecordDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordInclude<ExtArgs> | null
+    /**
+     * Filter which MutabaahRecord to delete.
+     */
+    where: MutabaahRecordWhereUniqueInput
+  }
+
+  /**
+   * MutabaahRecord deleteMany
+   */
+  export type MutabaahRecordDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MutabaahRecords to delete
+     */
+    where?: MutabaahRecordWhereInput
+    /**
+     * Limit how many MutabaahRecords to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MutabaahRecord without action
+   */
+  export type MutabaahRecordDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MutabaahRecord
+     */
+    select?: MutabaahRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MutabaahRecord
+     */
+    omit?: MutabaahRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MutabaahRecordInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Enums
+   */
+
+  export const TransactionIsolationLevel: {
+    ReadUncommitted: 'ReadUncommitted',
+    ReadCommitted: 'ReadCommitted',
+    RepeatableRead: 'RepeatableRead',
+    Serializable: 'Serializable'
+  };
+
+  export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+  export const UserScalarFieldEnum: {
+    id: 'id',
+    fullName: 'fullName',
+    username: 'username',
+    email: 'email',
+    phone: 'phone',
+    avatarUrl: 'avatarUrl',
+    leaveQuota: 'leaveQuota',
+    isActive: 'isActive',
+    createdAt: 'createdAt'
+  };
+
+  export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+  export const EmployeeProfileScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    nip: 'nip',
+    position: 'position',
+    employeeType: 'employeeType',
+    joinDate: 'joinDate',
+    notes: 'notes',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EmployeeProfileScalarFieldEnum = (typeof EmployeeProfileScalarFieldEnum)[keyof typeof EmployeeProfileScalarFieldEnum]
+
+
+  export const EmployeeUnitAssignmentScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    unitId: 'unitId',
+    unitName: 'unitName',
+    role: 'role',
+    isPrimary: 'isPrimary',
+    startDate: 'startDate',
+    endDate: 'endDate',
+    skNumber: 'skNumber',
+    notes: 'notes',
+    createdAt: 'createdAt'
+  };
+
+  export type EmployeeUnitAssignmentScalarFieldEnum = (typeof EmployeeUnitAssignmentScalarFieldEnum)[keyof typeof EmployeeUnitAssignmentScalarFieldEnum]
+
+
+  export const GpsAttendanceConfigScalarFieldEnum: {
+    id: 'id',
+    unitId: 'unitId',
+    latitude: 'latitude',
+    longitude: 'longitude',
+    radiusMeters: 'radiusMeters',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type GpsAttendanceConfigScalarFieldEnum = (typeof GpsAttendanceConfigScalarFieldEnum)[keyof typeof GpsAttendanceConfigScalarFieldEnum]
+
+
+  export const GpsAttendanceScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    unitId: 'unitId',
+    date: 'date',
+    checkInTime: 'checkInTime',
+    checkOutTime: 'checkOutTime',
+    latitude: 'latitude',
+    longitude: 'longitude',
+    status: 'status',
+    notes: 'notes',
+    createdAt: 'createdAt'
+  };
+
+  export type GpsAttendanceScalarFieldEnum = (typeof GpsAttendanceScalarFieldEnum)[keyof typeof GpsAttendanceScalarFieldEnum]
+
+
+  export const HolidayScalarFieldEnum: {
+    id: 'id',
+    unitId: 'unitId',
+    date: 'date',
+    name: 'name',
+    description: 'description',
+    createdAt: 'createdAt'
+  };
+
+  export type HolidayScalarFieldEnum = (typeof HolidayScalarFieldEnum)[keyof typeof HolidayScalarFieldEnum]
+
+
+  export const LeaveRequestScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    type: 'type',
+    startDate: 'startDate',
+    endDate: 'endDate',
+    reason: 'reason',
+    attachmentUrl: 'attachmentUrl',
+    status: 'status',
+    approvedById: 'approvedById',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LeaveRequestScalarFieldEnum = (typeof LeaveRequestScalarFieldEnum)[keyof typeof LeaveRequestScalarFieldEnum]
+
+
+  export const LiqoGroupScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    murobbiId: 'murobbiId',
+    description: 'description',
+    scheduleDay: 'scheduleDay',
+    scheduleTime: 'scheduleTime',
+    scheduleLocation: 'scheduleLocation',
+    whatsappLink: 'whatsappLink',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LiqoGroupScalarFieldEnum = (typeof LiqoGroupScalarFieldEnum)[keyof typeof LiqoGroupScalarFieldEnum]
+
+
+  export const LiqoMemberScalarFieldEnum: {
+    id: 'id',
+    groupId: 'groupId',
+    userId: 'userId',
+    joinedAt: 'joinedAt'
+  };
+
+  export type LiqoMemberScalarFieldEnum = (typeof LiqoMemberScalarFieldEnum)[keyof typeof LiqoMemberScalarFieldEnum]
+
+
+  export const LiqoMeetingScalarFieldEnum: {
+    id: 'id',
+    groupId: 'groupId',
+    date: 'date',
+    materialTitle: 'materialTitle',
+    summary: 'summary',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LiqoMeetingScalarFieldEnum = (typeof LiqoMeetingScalarFieldEnum)[keyof typeof LiqoMeetingScalarFieldEnum]
+
+
+  export const LiqoAttendanceScalarFieldEnum: {
+    id: 'id',
+    meetingId: 'meetingId',
+    userId: 'userId',
+    status: 'status',
+    notes: 'notes',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LiqoAttendanceScalarFieldEnum = (typeof LiqoAttendanceScalarFieldEnum)[keyof typeof LiqoAttendanceScalarFieldEnum]
+
+
+  export const MutabaahRecordScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    date: 'date',
+    sholatJamaah: 'sholatJamaah',
+    sholatRawatib: 'sholatRawatib',
+    sholatDhuha: 'sholatDhuha',
+    sholatTahajud: 'sholatTahajud',
+    tilawahPages: 'tilawahPages',
+    puasaSunnah: 'puasaSunnah',
+    infaq: 'infaq',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MutabaahRecordScalarFieldEnum = (typeof MutabaahRecordScalarFieldEnum)[keyof typeof MutabaahRecordScalarFieldEnum]
+
+
+  export const SortOrder: {
+    asc: 'asc',
+    desc: 'desc'
+  };
+
+  export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  /**
+   * Field references
+   */
+
+
+  /**
+   * Reference to a field of type 'String'
+   */
+  export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
+    
+
+
+  /**
+   * Reference to a field of type 'String[]'
+   */
+  export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime'
+   */
+  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'GpsAttendanceStatus'
+   */
+  export type EnumGpsAttendanceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GpsAttendanceStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'GpsAttendanceStatus[]'
+   */
+  export type ListEnumGpsAttendanceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GpsAttendanceStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'LeaveType'
+   */
+  export type EnumLeaveTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeaveType'>
+    
+
+
+  /**
+   * Reference to a field of type 'LeaveType[]'
+   */
+  export type ListEnumLeaveTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeaveType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'LeaveStatus'
+   */
+  export type EnumLeaveStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeaveStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'LeaveStatus[]'
+   */
+  export type ListEnumLeaveStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeaveStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DayOfWeek'
+   */
+  export type EnumDayOfWeekFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DayOfWeek'>
+    
+
+
+  /**
+   * Reference to a field of type 'DayOfWeek[]'
+   */
+  export type ListEnumDayOfWeekFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DayOfWeek[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AttendanceStatus'
+   */
+  export type EnumAttendanceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AttendanceStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'AttendanceStatus[]'
+   */
+  export type ListEnumAttendanceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AttendanceStatus[]'>
+    
+  /**
+   * Deep Input Types
+   */
+
+
+  export type UserWhereInput = {
+    AND?: UserWhereInput | UserWhereInput[]
+    OR?: UserWhereInput[]
+    NOT?: UserWhereInput | UserWhereInput[]
+    id?: UuidFilter<"User"> | string
+    fullName?: StringFilter<"User"> | string
+    username?: StringNullableFilter<"User"> | string | null
+    email?: StringFilter<"User"> | string
+    phone?: StringNullableFilter<"User"> | string | null
+    avatarUrl?: StringNullableFilter<"User"> | string | null
+    leaveQuota?: IntFilter<"User"> | number
+    isActive?: BoolFilter<"User"> | boolean
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    profile?: XOR<EmployeeProfileNullableScalarRelationFilter, EmployeeProfileWhereInput> | null
+    unitAssignments?: EmployeeUnitAssignmentListRelationFilter
+    gpsAttendances?: GpsAttendanceListRelationFilter
+    leaveRequests?: LeaveRequestListRelationFilter
+    approvedLeaves?: LeaveRequestListRelationFilter
+    liqoGroupsAsMurobbi?: LiqoGroupListRelationFilter
+    liqoMemberships?: LiqoMemberListRelationFilter
+    liqoAttendances?: LiqoAttendanceListRelationFilter
+    mutabaahRecords?: MutabaahRecordListRelationFilter
+  }
+
+  export type UserOrderByWithRelationInput = {
+    id?: SortOrder
+    fullName?: SortOrder
+    username?: SortOrderInput | SortOrder
+    email?: SortOrder
+    phone?: SortOrderInput | SortOrder
+    avatarUrl?: SortOrderInput | SortOrder
+    leaveQuota?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    profile?: EmployeeProfileOrderByWithRelationInput
+    unitAssignments?: EmployeeUnitAssignmentOrderByRelationAggregateInput
+    gpsAttendances?: GpsAttendanceOrderByRelationAggregateInput
+    leaveRequests?: LeaveRequestOrderByRelationAggregateInput
+    approvedLeaves?: LeaveRequestOrderByRelationAggregateInput
+    liqoGroupsAsMurobbi?: LiqoGroupOrderByRelationAggregateInput
+    liqoMemberships?: LiqoMemberOrderByRelationAggregateInput
+    liqoAttendances?: LiqoAttendanceOrderByRelationAggregateInput
+    mutabaahRecords?: MutabaahRecordOrderByRelationAggregateInput
+  }
+
+  export type UserWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    username?: string
+    email?: string
+    AND?: UserWhereInput | UserWhereInput[]
+    OR?: UserWhereInput[]
+    NOT?: UserWhereInput | UserWhereInput[]
+    fullName?: StringFilter<"User"> | string
+    phone?: StringNullableFilter<"User"> | string | null
+    avatarUrl?: StringNullableFilter<"User"> | string | null
+    leaveQuota?: IntFilter<"User"> | number
+    isActive?: BoolFilter<"User"> | boolean
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    profile?: XOR<EmployeeProfileNullableScalarRelationFilter, EmployeeProfileWhereInput> | null
+    unitAssignments?: EmployeeUnitAssignmentListRelationFilter
+    gpsAttendances?: GpsAttendanceListRelationFilter
+    leaveRequests?: LeaveRequestListRelationFilter
+    approvedLeaves?: LeaveRequestListRelationFilter
+    liqoGroupsAsMurobbi?: LiqoGroupListRelationFilter
+    liqoMemberships?: LiqoMemberListRelationFilter
+    liqoAttendances?: LiqoAttendanceListRelationFilter
+    mutabaahRecords?: MutabaahRecordListRelationFilter
+  }, "id" | "username" | "email">
+
+  export type UserOrderByWithAggregationInput = {
+    id?: SortOrder
+    fullName?: SortOrder
+    username?: SortOrderInput | SortOrder
+    email?: SortOrder
+    phone?: SortOrderInput | SortOrder
+    avatarUrl?: SortOrderInput | SortOrder
+    leaveQuota?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    _count?: UserCountOrderByAggregateInput
+    _avg?: UserAvgOrderByAggregateInput
+    _max?: UserMaxOrderByAggregateInput
+    _min?: UserMinOrderByAggregateInput
+    _sum?: UserSumOrderByAggregateInput
+  }
+
+  export type UserScalarWhereWithAggregatesInput = {
+    AND?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
+    OR?: UserScalarWhereWithAggregatesInput[]
+    NOT?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"User"> | string
+    fullName?: StringWithAggregatesFilter<"User"> | string
+    username?: StringNullableWithAggregatesFilter<"User"> | string | null
+    email?: StringWithAggregatesFilter<"User"> | string
+    phone?: StringNullableWithAggregatesFilter<"User"> | string | null
+    avatarUrl?: StringNullableWithAggregatesFilter<"User"> | string | null
+    leaveQuota?: IntWithAggregatesFilter<"User"> | number
+    isActive?: BoolWithAggregatesFilter<"User"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+  }
+
+  export type EmployeeProfileWhereInput = {
+    AND?: EmployeeProfileWhereInput | EmployeeProfileWhereInput[]
+    OR?: EmployeeProfileWhereInput[]
+    NOT?: EmployeeProfileWhereInput | EmployeeProfileWhereInput[]
+    id?: UuidFilter<"EmployeeProfile"> | string
+    userId?: UuidFilter<"EmployeeProfile"> | string
+    nip?: StringNullableFilter<"EmployeeProfile"> | string | null
+    position?: StringNullableFilter<"EmployeeProfile"> | string | null
+    employeeType?: StringFilter<"EmployeeProfile"> | string
+    joinDate?: DateTimeNullableFilter<"EmployeeProfile"> | Date | string | null
+    notes?: StringNullableFilter<"EmployeeProfile"> | string | null
+    createdAt?: DateTimeFilter<"EmployeeProfile"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"EmployeeProfile"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type EmployeeProfileOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    nip?: SortOrderInput | SortOrder
+    position?: SortOrderInput | SortOrder
+    employeeType?: SortOrder
+    joinDate?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type EmployeeProfileWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId?: string
+    nip?: string
+    AND?: EmployeeProfileWhereInput | EmployeeProfileWhereInput[]
+    OR?: EmployeeProfileWhereInput[]
+    NOT?: EmployeeProfileWhereInput | EmployeeProfileWhereInput[]
+    position?: StringNullableFilter<"EmployeeProfile"> | string | null
+    employeeType?: StringFilter<"EmployeeProfile"> | string
+    joinDate?: DateTimeNullableFilter<"EmployeeProfile"> | Date | string | null
+    notes?: StringNullableFilter<"EmployeeProfile"> | string | null
+    createdAt?: DateTimeFilter<"EmployeeProfile"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"EmployeeProfile"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId" | "nip">
+
+  export type EmployeeProfileOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    nip?: SortOrderInput | SortOrder
+    position?: SortOrderInput | SortOrder
+    employeeType?: SortOrder
+    joinDate?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    _count?: EmployeeProfileCountOrderByAggregateInput
+    _max?: EmployeeProfileMaxOrderByAggregateInput
+    _min?: EmployeeProfileMinOrderByAggregateInput
+  }
+
+  export type EmployeeProfileScalarWhereWithAggregatesInput = {
+    AND?: EmployeeProfileScalarWhereWithAggregatesInput | EmployeeProfileScalarWhereWithAggregatesInput[]
+    OR?: EmployeeProfileScalarWhereWithAggregatesInput[]
+    NOT?: EmployeeProfileScalarWhereWithAggregatesInput | EmployeeProfileScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"EmployeeProfile"> | string
+    userId?: UuidWithAggregatesFilter<"EmployeeProfile"> | string
+    nip?: StringNullableWithAggregatesFilter<"EmployeeProfile"> | string | null
+    position?: StringNullableWithAggregatesFilter<"EmployeeProfile"> | string | null
+    employeeType?: StringWithAggregatesFilter<"EmployeeProfile"> | string
+    joinDate?: DateTimeNullableWithAggregatesFilter<"EmployeeProfile"> | Date | string | null
+    notes?: StringNullableWithAggregatesFilter<"EmployeeProfile"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EmployeeProfile"> | Date | string
+    updatedAt?: DateTimeNullableWithAggregatesFilter<"EmployeeProfile"> | Date | string | null
+  }
+
+  export type EmployeeUnitAssignmentWhereInput = {
+    AND?: EmployeeUnitAssignmentWhereInput | EmployeeUnitAssignmentWhereInput[]
+    OR?: EmployeeUnitAssignmentWhereInput[]
+    NOT?: EmployeeUnitAssignmentWhereInput | EmployeeUnitAssignmentWhereInput[]
+    id?: UuidFilter<"EmployeeUnitAssignment"> | string
+    userId?: UuidFilter<"EmployeeUnitAssignment"> | string
+    unitId?: UuidFilter<"EmployeeUnitAssignment"> | string
+    unitName?: StringFilter<"EmployeeUnitAssignment"> | string
+    role?: StringFilter<"EmployeeUnitAssignment"> | string
+    isPrimary?: BoolFilter<"EmployeeUnitAssignment"> | boolean
+    startDate?: DateTimeFilter<"EmployeeUnitAssignment"> | Date | string
+    endDate?: DateTimeNullableFilter<"EmployeeUnitAssignment"> | Date | string | null
+    skNumber?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
+    notes?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
+    createdAt?: DateTimeFilter<"EmployeeUnitAssignment"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type EmployeeUnitAssignmentOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    unitId?: SortOrder
+    unitName?: SortOrder
+    role?: SortOrder
+    isPrimary?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrderInput | SortOrder
+    skNumber?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type EmployeeUnitAssignmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: EmployeeUnitAssignmentWhereInput | EmployeeUnitAssignmentWhereInput[]
+    OR?: EmployeeUnitAssignmentWhereInput[]
+    NOT?: EmployeeUnitAssignmentWhereInput | EmployeeUnitAssignmentWhereInput[]
+    userId?: UuidFilter<"EmployeeUnitAssignment"> | string
+    unitId?: UuidFilter<"EmployeeUnitAssignment"> | string
+    unitName?: StringFilter<"EmployeeUnitAssignment"> | string
+    role?: StringFilter<"EmployeeUnitAssignment"> | string
+    isPrimary?: BoolFilter<"EmployeeUnitAssignment"> | boolean
+    startDate?: DateTimeFilter<"EmployeeUnitAssignment"> | Date | string
+    endDate?: DateTimeNullableFilter<"EmployeeUnitAssignment"> | Date | string | null
+    skNumber?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
+    notes?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
+    createdAt?: DateTimeFilter<"EmployeeUnitAssignment"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type EmployeeUnitAssignmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    unitId?: SortOrder
+    unitName?: SortOrder
+    role?: SortOrder
+    isPrimary?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrderInput | SortOrder
+    skNumber?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: EmployeeUnitAssignmentCountOrderByAggregateInput
+    _max?: EmployeeUnitAssignmentMaxOrderByAggregateInput
+    _min?: EmployeeUnitAssignmentMinOrderByAggregateInput
+  }
+
+  export type EmployeeUnitAssignmentScalarWhereWithAggregatesInput = {
+    AND?: EmployeeUnitAssignmentScalarWhereWithAggregatesInput | EmployeeUnitAssignmentScalarWhereWithAggregatesInput[]
+    OR?: EmployeeUnitAssignmentScalarWhereWithAggregatesInput[]
+    NOT?: EmployeeUnitAssignmentScalarWhereWithAggregatesInput | EmployeeUnitAssignmentScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"EmployeeUnitAssignment"> | string
+    userId?: UuidWithAggregatesFilter<"EmployeeUnitAssignment"> | string
+    unitId?: UuidWithAggregatesFilter<"EmployeeUnitAssignment"> | string
+    unitName?: StringWithAggregatesFilter<"EmployeeUnitAssignment"> | string
+    role?: StringWithAggregatesFilter<"EmployeeUnitAssignment"> | string
+    isPrimary?: BoolWithAggregatesFilter<"EmployeeUnitAssignment"> | boolean
+    startDate?: DateTimeWithAggregatesFilter<"EmployeeUnitAssignment"> | Date | string
+    endDate?: DateTimeNullableWithAggregatesFilter<"EmployeeUnitAssignment"> | Date | string | null
+    skNumber?: StringNullableWithAggregatesFilter<"EmployeeUnitAssignment"> | string | null
+    notes?: StringNullableWithAggregatesFilter<"EmployeeUnitAssignment"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EmployeeUnitAssignment"> | Date | string
+  }
+
+  export type GpsAttendanceConfigWhereInput = {
+    AND?: GpsAttendanceConfigWhereInput | GpsAttendanceConfigWhereInput[]
+    OR?: GpsAttendanceConfigWhereInput[]
+    NOT?: GpsAttendanceConfigWhereInput | GpsAttendanceConfigWhereInput[]
+    id?: UuidFilter<"GpsAttendanceConfig"> | string
+    unitId?: UuidFilter<"GpsAttendanceConfig"> | string
+    latitude?: FloatFilter<"GpsAttendanceConfig"> | number
+    longitude?: FloatFilter<"GpsAttendanceConfig"> | number
+    radiusMeters?: IntFilter<"GpsAttendanceConfig"> | number
+    createdAt?: DateTimeFilter<"GpsAttendanceConfig"> | Date | string
+    updatedAt?: DateTimeFilter<"GpsAttendanceConfig"> | Date | string
+  }
+
+  export type GpsAttendanceConfigOrderByWithRelationInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    radiusMeters?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GpsAttendanceConfigWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    unitId?: string
+    AND?: GpsAttendanceConfigWhereInput | GpsAttendanceConfigWhereInput[]
+    OR?: GpsAttendanceConfigWhereInput[]
+    NOT?: GpsAttendanceConfigWhereInput | GpsAttendanceConfigWhereInput[]
+    latitude?: FloatFilter<"GpsAttendanceConfig"> | number
+    longitude?: FloatFilter<"GpsAttendanceConfig"> | number
+    radiusMeters?: IntFilter<"GpsAttendanceConfig"> | number
+    createdAt?: DateTimeFilter<"GpsAttendanceConfig"> | Date | string
+    updatedAt?: DateTimeFilter<"GpsAttendanceConfig"> | Date | string
+  }, "id" | "unitId">
+
+  export type GpsAttendanceConfigOrderByWithAggregationInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    radiusMeters?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: GpsAttendanceConfigCountOrderByAggregateInput
+    _avg?: GpsAttendanceConfigAvgOrderByAggregateInput
+    _max?: GpsAttendanceConfigMaxOrderByAggregateInput
+    _min?: GpsAttendanceConfigMinOrderByAggregateInput
+    _sum?: GpsAttendanceConfigSumOrderByAggregateInput
+  }
+
+  export type GpsAttendanceConfigScalarWhereWithAggregatesInput = {
+    AND?: GpsAttendanceConfigScalarWhereWithAggregatesInput | GpsAttendanceConfigScalarWhereWithAggregatesInput[]
+    OR?: GpsAttendanceConfigScalarWhereWithAggregatesInput[]
+    NOT?: GpsAttendanceConfigScalarWhereWithAggregatesInput | GpsAttendanceConfigScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"GpsAttendanceConfig"> | string
+    unitId?: UuidWithAggregatesFilter<"GpsAttendanceConfig"> | string
+    latitude?: FloatWithAggregatesFilter<"GpsAttendanceConfig"> | number
+    longitude?: FloatWithAggregatesFilter<"GpsAttendanceConfig"> | number
+    radiusMeters?: IntWithAggregatesFilter<"GpsAttendanceConfig"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"GpsAttendanceConfig"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"GpsAttendanceConfig"> | Date | string
+  }
+
+  export type GpsAttendanceWhereInput = {
+    AND?: GpsAttendanceWhereInput | GpsAttendanceWhereInput[]
+    OR?: GpsAttendanceWhereInput[]
+    NOT?: GpsAttendanceWhereInput | GpsAttendanceWhereInput[]
+    id?: UuidFilter<"GpsAttendance"> | string
+    userId?: UuidFilter<"GpsAttendance"> | string
+    unitId?: UuidFilter<"GpsAttendance"> | string
+    date?: DateTimeFilter<"GpsAttendance"> | Date | string
+    checkInTime?: DateTimeNullableFilter<"GpsAttendance"> | Date | string | null
+    checkOutTime?: DateTimeNullableFilter<"GpsAttendance"> | Date | string | null
+    latitude?: FloatNullableFilter<"GpsAttendance"> | number | null
+    longitude?: FloatNullableFilter<"GpsAttendance"> | number | null
+    status?: EnumGpsAttendanceStatusFilter<"GpsAttendance"> | $Enums.GpsAttendanceStatus
+    notes?: StringNullableFilter<"GpsAttendance"> | string | null
+    createdAt?: DateTimeFilter<"GpsAttendance"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type GpsAttendanceOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    unitId?: SortOrder
+    date?: SortOrder
+    checkInTime?: SortOrderInput | SortOrder
+    checkOutTime?: SortOrderInput | SortOrder
+    latitude?: SortOrderInput | SortOrder
+    longitude?: SortOrderInput | SortOrder
+    status?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type GpsAttendanceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_date?: GpsAttendanceUserIdDateCompoundUniqueInput
+    AND?: GpsAttendanceWhereInput | GpsAttendanceWhereInput[]
+    OR?: GpsAttendanceWhereInput[]
+    NOT?: GpsAttendanceWhereInput | GpsAttendanceWhereInput[]
+    userId?: UuidFilter<"GpsAttendance"> | string
+    unitId?: UuidFilter<"GpsAttendance"> | string
+    date?: DateTimeFilter<"GpsAttendance"> | Date | string
+    checkInTime?: DateTimeNullableFilter<"GpsAttendance"> | Date | string | null
+    checkOutTime?: DateTimeNullableFilter<"GpsAttendance"> | Date | string | null
+    latitude?: FloatNullableFilter<"GpsAttendance"> | number | null
+    longitude?: FloatNullableFilter<"GpsAttendance"> | number | null
+    status?: EnumGpsAttendanceStatusFilter<"GpsAttendance"> | $Enums.GpsAttendanceStatus
+    notes?: StringNullableFilter<"GpsAttendance"> | string | null
+    createdAt?: DateTimeFilter<"GpsAttendance"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId_date">
+
+  export type GpsAttendanceOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    unitId?: SortOrder
+    date?: SortOrder
+    checkInTime?: SortOrderInput | SortOrder
+    checkOutTime?: SortOrderInput | SortOrder
+    latitude?: SortOrderInput | SortOrder
+    longitude?: SortOrderInput | SortOrder
+    status?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: GpsAttendanceCountOrderByAggregateInput
+    _avg?: GpsAttendanceAvgOrderByAggregateInput
+    _max?: GpsAttendanceMaxOrderByAggregateInput
+    _min?: GpsAttendanceMinOrderByAggregateInput
+    _sum?: GpsAttendanceSumOrderByAggregateInput
+  }
+
+  export type GpsAttendanceScalarWhereWithAggregatesInput = {
+    AND?: GpsAttendanceScalarWhereWithAggregatesInput | GpsAttendanceScalarWhereWithAggregatesInput[]
+    OR?: GpsAttendanceScalarWhereWithAggregatesInput[]
+    NOT?: GpsAttendanceScalarWhereWithAggregatesInput | GpsAttendanceScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"GpsAttendance"> | string
+    userId?: UuidWithAggregatesFilter<"GpsAttendance"> | string
+    unitId?: UuidWithAggregatesFilter<"GpsAttendance"> | string
+    date?: DateTimeWithAggregatesFilter<"GpsAttendance"> | Date | string
+    checkInTime?: DateTimeNullableWithAggregatesFilter<"GpsAttendance"> | Date | string | null
+    checkOutTime?: DateTimeNullableWithAggregatesFilter<"GpsAttendance"> | Date | string | null
+    latitude?: FloatNullableWithAggregatesFilter<"GpsAttendance"> | number | null
+    longitude?: FloatNullableWithAggregatesFilter<"GpsAttendance"> | number | null
+    status?: EnumGpsAttendanceStatusWithAggregatesFilter<"GpsAttendance"> | $Enums.GpsAttendanceStatus
+    notes?: StringNullableWithAggregatesFilter<"GpsAttendance"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"GpsAttendance"> | Date | string
+  }
+
+  export type HolidayWhereInput = {
+    AND?: HolidayWhereInput | HolidayWhereInput[]
+    OR?: HolidayWhereInput[]
+    NOT?: HolidayWhereInput | HolidayWhereInput[]
+    id?: UuidFilter<"Holiday"> | string
+    unitId?: UuidNullableFilter<"Holiday"> | string | null
+    date?: DateTimeFilter<"Holiday"> | Date | string
+    name?: StringFilter<"Holiday"> | string
+    description?: StringNullableFilter<"Holiday"> | string | null
+    createdAt?: DateTimeFilter<"Holiday"> | Date | string
+  }
+
+  export type HolidayOrderByWithRelationInput = {
+    id?: SortOrder
+    unitId?: SortOrderInput | SortOrder
+    date?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type HolidayWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    unitId_date?: HolidayUnitIdDateCompoundUniqueInput
+    AND?: HolidayWhereInput | HolidayWhereInput[]
+    OR?: HolidayWhereInput[]
+    NOT?: HolidayWhereInput | HolidayWhereInput[]
+    unitId?: UuidNullableFilter<"Holiday"> | string | null
+    date?: DateTimeFilter<"Holiday"> | Date | string
+    name?: StringFilter<"Holiday"> | string
+    description?: StringNullableFilter<"Holiday"> | string | null
+    createdAt?: DateTimeFilter<"Holiday"> | Date | string
+  }, "id" | "unitId_date">
+
+  export type HolidayOrderByWithAggregationInput = {
+    id?: SortOrder
+    unitId?: SortOrderInput | SortOrder
+    date?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: HolidayCountOrderByAggregateInput
+    _max?: HolidayMaxOrderByAggregateInput
+    _min?: HolidayMinOrderByAggregateInput
+  }
+
+  export type HolidayScalarWhereWithAggregatesInput = {
+    AND?: HolidayScalarWhereWithAggregatesInput | HolidayScalarWhereWithAggregatesInput[]
+    OR?: HolidayScalarWhereWithAggregatesInput[]
+    NOT?: HolidayScalarWhereWithAggregatesInput | HolidayScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"Holiday"> | string
+    unitId?: UuidNullableWithAggregatesFilter<"Holiday"> | string | null
+    date?: DateTimeWithAggregatesFilter<"Holiday"> | Date | string
+    name?: StringWithAggregatesFilter<"Holiday"> | string
+    description?: StringNullableWithAggregatesFilter<"Holiday"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Holiday"> | Date | string
+  }
+
+  export type LeaveRequestWhereInput = {
+    AND?: LeaveRequestWhereInput | LeaveRequestWhereInput[]
+    OR?: LeaveRequestWhereInput[]
+    NOT?: LeaveRequestWhereInput | LeaveRequestWhereInput[]
+    id?: UuidFilter<"LeaveRequest"> | string
+    userId?: UuidFilter<"LeaveRequest"> | string
+    type?: EnumLeaveTypeFilter<"LeaveRequest"> | $Enums.LeaveType
+    startDate?: DateTimeFilter<"LeaveRequest"> | Date | string
+    endDate?: DateTimeFilter<"LeaveRequest"> | Date | string
+    reason?: StringFilter<"LeaveRequest"> | string
+    attachmentUrl?: StringNullableFilter<"LeaveRequest"> | string | null
+    status?: EnumLeaveStatusFilter<"LeaveRequest"> | $Enums.LeaveStatus
+    approvedById?: UuidNullableFilter<"LeaveRequest"> | string | null
+    createdAt?: DateTimeFilter<"LeaveRequest"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"LeaveRequest"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    approvedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type LeaveRequestOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    type?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    reason?: SortOrder
+    attachmentUrl?: SortOrderInput | SortOrder
+    status?: SortOrder
+    approvedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+    approvedBy?: UserOrderByWithRelationInput
+  }
+
+  export type LeaveRequestWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: LeaveRequestWhereInput | LeaveRequestWhereInput[]
+    OR?: LeaveRequestWhereInput[]
+    NOT?: LeaveRequestWhereInput | LeaveRequestWhereInput[]
+    userId?: UuidFilter<"LeaveRequest"> | string
+    type?: EnumLeaveTypeFilter<"LeaveRequest"> | $Enums.LeaveType
+    startDate?: DateTimeFilter<"LeaveRequest"> | Date | string
+    endDate?: DateTimeFilter<"LeaveRequest"> | Date | string
+    reason?: StringFilter<"LeaveRequest"> | string
+    attachmentUrl?: StringNullableFilter<"LeaveRequest"> | string | null
+    status?: EnumLeaveStatusFilter<"LeaveRequest"> | $Enums.LeaveStatus
+    approvedById?: UuidNullableFilter<"LeaveRequest"> | string | null
+    createdAt?: DateTimeFilter<"LeaveRequest"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"LeaveRequest"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    approvedBy?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type LeaveRequestOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    type?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    reason?: SortOrder
+    attachmentUrl?: SortOrderInput | SortOrder
+    status?: SortOrder
+    approvedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    _count?: LeaveRequestCountOrderByAggregateInput
+    _max?: LeaveRequestMaxOrderByAggregateInput
+    _min?: LeaveRequestMinOrderByAggregateInput
+  }
+
+  export type LeaveRequestScalarWhereWithAggregatesInput = {
+    AND?: LeaveRequestScalarWhereWithAggregatesInput | LeaveRequestScalarWhereWithAggregatesInput[]
+    OR?: LeaveRequestScalarWhereWithAggregatesInput[]
+    NOT?: LeaveRequestScalarWhereWithAggregatesInput | LeaveRequestScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"LeaveRequest"> | string
+    userId?: UuidWithAggregatesFilter<"LeaveRequest"> | string
+    type?: EnumLeaveTypeWithAggregatesFilter<"LeaveRequest"> | $Enums.LeaveType
+    startDate?: DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
+    endDate?: DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
+    reason?: StringWithAggregatesFilter<"LeaveRequest"> | string
+    attachmentUrl?: StringNullableWithAggregatesFilter<"LeaveRequest"> | string | null
+    status?: EnumLeaveStatusWithAggregatesFilter<"LeaveRequest"> | $Enums.LeaveStatus
+    approvedById?: UuidNullableWithAggregatesFilter<"LeaveRequest"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
+    updatedAt?: DateTimeNullableWithAggregatesFilter<"LeaveRequest"> | Date | string | null
+  }
+
+  export type LiqoGroupWhereInput = {
+    AND?: LiqoGroupWhereInput | LiqoGroupWhereInput[]
+    OR?: LiqoGroupWhereInput[]
+    NOT?: LiqoGroupWhereInput | LiqoGroupWhereInput[]
+    id?: UuidFilter<"LiqoGroup"> | string
+    name?: StringFilter<"LiqoGroup"> | string
+    murobbiId?: UuidFilter<"LiqoGroup"> | string
+    description?: StringNullableFilter<"LiqoGroup"> | string | null
+    scheduleDay?: EnumDayOfWeekNullableFilter<"LiqoGroup"> | $Enums.DayOfWeek | null
+    scheduleTime?: StringNullableFilter<"LiqoGroup"> | string | null
+    scheduleLocation?: StringNullableFilter<"LiqoGroup"> | string | null
+    whatsappLink?: StringNullableFilter<"LiqoGroup"> | string | null
+    createdAt?: DateTimeFilter<"LiqoGroup"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"LiqoGroup"> | Date | string | null
+    murobbi?: XOR<UserScalarRelationFilter, UserWhereInput>
+    members?: LiqoMemberListRelationFilter
+    meetings?: LiqoMeetingListRelationFilter
+  }
+
+  export type LiqoGroupOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    murobbiId?: SortOrder
+    description?: SortOrderInput | SortOrder
+    scheduleDay?: SortOrderInput | SortOrder
+    scheduleTime?: SortOrderInput | SortOrder
+    scheduleLocation?: SortOrderInput | SortOrder
+    whatsappLink?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    murobbi?: UserOrderByWithRelationInput
+    members?: LiqoMemberOrderByRelationAggregateInput
+    meetings?: LiqoMeetingOrderByRelationAggregateInput
+  }
+
+  export type LiqoGroupWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: LiqoGroupWhereInput | LiqoGroupWhereInput[]
+    OR?: LiqoGroupWhereInput[]
+    NOT?: LiqoGroupWhereInput | LiqoGroupWhereInput[]
+    name?: StringFilter<"LiqoGroup"> | string
+    murobbiId?: UuidFilter<"LiqoGroup"> | string
+    description?: StringNullableFilter<"LiqoGroup"> | string | null
+    scheduleDay?: EnumDayOfWeekNullableFilter<"LiqoGroup"> | $Enums.DayOfWeek | null
+    scheduleTime?: StringNullableFilter<"LiqoGroup"> | string | null
+    scheduleLocation?: StringNullableFilter<"LiqoGroup"> | string | null
+    whatsappLink?: StringNullableFilter<"LiqoGroup"> | string | null
+    createdAt?: DateTimeFilter<"LiqoGroup"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"LiqoGroup"> | Date | string | null
+    murobbi?: XOR<UserScalarRelationFilter, UserWhereInput>
+    members?: LiqoMemberListRelationFilter
+    meetings?: LiqoMeetingListRelationFilter
+  }, "id">
+
+  export type LiqoGroupOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    murobbiId?: SortOrder
+    description?: SortOrderInput | SortOrder
+    scheduleDay?: SortOrderInput | SortOrder
+    scheduleTime?: SortOrderInput | SortOrder
+    scheduleLocation?: SortOrderInput | SortOrder
+    whatsappLink?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    _count?: LiqoGroupCountOrderByAggregateInput
+    _max?: LiqoGroupMaxOrderByAggregateInput
+    _min?: LiqoGroupMinOrderByAggregateInput
+  }
+
+  export type LiqoGroupScalarWhereWithAggregatesInput = {
+    AND?: LiqoGroupScalarWhereWithAggregatesInput | LiqoGroupScalarWhereWithAggregatesInput[]
+    OR?: LiqoGroupScalarWhereWithAggregatesInput[]
+    NOT?: LiqoGroupScalarWhereWithAggregatesInput | LiqoGroupScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"LiqoGroup"> | string
+    name?: StringWithAggregatesFilter<"LiqoGroup"> | string
+    murobbiId?: UuidWithAggregatesFilter<"LiqoGroup"> | string
+    description?: StringNullableWithAggregatesFilter<"LiqoGroup"> | string | null
+    scheduleDay?: EnumDayOfWeekNullableWithAggregatesFilter<"LiqoGroup"> | $Enums.DayOfWeek | null
+    scheduleTime?: StringNullableWithAggregatesFilter<"LiqoGroup"> | string | null
+    scheduleLocation?: StringNullableWithAggregatesFilter<"LiqoGroup"> | string | null
+    whatsappLink?: StringNullableWithAggregatesFilter<"LiqoGroup"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"LiqoGroup"> | Date | string
+    updatedAt?: DateTimeNullableWithAggregatesFilter<"LiqoGroup"> | Date | string | null
+  }
+
+  export type LiqoMemberWhereInput = {
+    AND?: LiqoMemberWhereInput | LiqoMemberWhereInput[]
+    OR?: LiqoMemberWhereInput[]
+    NOT?: LiqoMemberWhereInput | LiqoMemberWhereInput[]
+    id?: UuidFilter<"LiqoMember"> | string
+    groupId?: UuidFilter<"LiqoMember"> | string
+    userId?: UuidFilter<"LiqoMember"> | string
+    joinedAt?: DateTimeFilter<"LiqoMember"> | Date | string
+    group?: XOR<LiqoGroupScalarRelationFilter, LiqoGroupWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type LiqoMemberOrderByWithRelationInput = {
+    id?: SortOrder
+    groupId?: SortOrder
+    userId?: SortOrder
+    joinedAt?: SortOrder
+    group?: LiqoGroupOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type LiqoMemberWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    groupId_userId?: LiqoMemberGroupIdUserIdCompoundUniqueInput
+    AND?: LiqoMemberWhereInput | LiqoMemberWhereInput[]
+    OR?: LiqoMemberWhereInput[]
+    NOT?: LiqoMemberWhereInput | LiqoMemberWhereInput[]
+    groupId?: UuidFilter<"LiqoMember"> | string
+    userId?: UuidFilter<"LiqoMember"> | string
+    joinedAt?: DateTimeFilter<"LiqoMember"> | Date | string
+    group?: XOR<LiqoGroupScalarRelationFilter, LiqoGroupWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "groupId_userId">
+
+  export type LiqoMemberOrderByWithAggregationInput = {
+    id?: SortOrder
+    groupId?: SortOrder
+    userId?: SortOrder
+    joinedAt?: SortOrder
+    _count?: LiqoMemberCountOrderByAggregateInput
+    _max?: LiqoMemberMaxOrderByAggregateInput
+    _min?: LiqoMemberMinOrderByAggregateInput
+  }
+
+  export type LiqoMemberScalarWhereWithAggregatesInput = {
+    AND?: LiqoMemberScalarWhereWithAggregatesInput | LiqoMemberScalarWhereWithAggregatesInput[]
+    OR?: LiqoMemberScalarWhereWithAggregatesInput[]
+    NOT?: LiqoMemberScalarWhereWithAggregatesInput | LiqoMemberScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"LiqoMember"> | string
+    groupId?: UuidWithAggregatesFilter<"LiqoMember"> | string
+    userId?: UuidWithAggregatesFilter<"LiqoMember"> | string
+    joinedAt?: DateTimeWithAggregatesFilter<"LiqoMember"> | Date | string
+  }
+
+  export type LiqoMeetingWhereInput = {
+    AND?: LiqoMeetingWhereInput | LiqoMeetingWhereInput[]
+    OR?: LiqoMeetingWhereInput[]
+    NOT?: LiqoMeetingWhereInput | LiqoMeetingWhereInput[]
+    id?: UuidFilter<"LiqoMeeting"> | string
+    groupId?: UuidFilter<"LiqoMeeting"> | string
+    date?: DateTimeFilter<"LiqoMeeting"> | Date | string
+    materialTitle?: StringFilter<"LiqoMeeting"> | string
+    summary?: StringNullableFilter<"LiqoMeeting"> | string | null
+    createdAt?: DateTimeFilter<"LiqoMeeting"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"LiqoMeeting"> | Date | string | null
+    group?: XOR<LiqoGroupScalarRelationFilter, LiqoGroupWhereInput>
+    attendances?: LiqoAttendanceListRelationFilter
+  }
+
+  export type LiqoMeetingOrderByWithRelationInput = {
+    id?: SortOrder
+    groupId?: SortOrder
+    date?: SortOrder
+    materialTitle?: SortOrder
+    summary?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    group?: LiqoGroupOrderByWithRelationInput
+    attendances?: LiqoAttendanceOrderByRelationAggregateInput
+  }
+
+  export type LiqoMeetingWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: LiqoMeetingWhereInput | LiqoMeetingWhereInput[]
+    OR?: LiqoMeetingWhereInput[]
+    NOT?: LiqoMeetingWhereInput | LiqoMeetingWhereInput[]
+    groupId?: UuidFilter<"LiqoMeeting"> | string
+    date?: DateTimeFilter<"LiqoMeeting"> | Date | string
+    materialTitle?: StringFilter<"LiqoMeeting"> | string
+    summary?: StringNullableFilter<"LiqoMeeting"> | string | null
+    createdAt?: DateTimeFilter<"LiqoMeeting"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"LiqoMeeting"> | Date | string | null
+    group?: XOR<LiqoGroupScalarRelationFilter, LiqoGroupWhereInput>
+    attendances?: LiqoAttendanceListRelationFilter
+  }, "id">
+
+  export type LiqoMeetingOrderByWithAggregationInput = {
+    id?: SortOrder
+    groupId?: SortOrder
+    date?: SortOrder
+    materialTitle?: SortOrder
+    summary?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    _count?: LiqoMeetingCountOrderByAggregateInput
+    _max?: LiqoMeetingMaxOrderByAggregateInput
+    _min?: LiqoMeetingMinOrderByAggregateInput
+  }
+
+  export type LiqoMeetingScalarWhereWithAggregatesInput = {
+    AND?: LiqoMeetingScalarWhereWithAggregatesInput | LiqoMeetingScalarWhereWithAggregatesInput[]
+    OR?: LiqoMeetingScalarWhereWithAggregatesInput[]
+    NOT?: LiqoMeetingScalarWhereWithAggregatesInput | LiqoMeetingScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"LiqoMeeting"> | string
+    groupId?: UuidWithAggregatesFilter<"LiqoMeeting"> | string
+    date?: DateTimeWithAggregatesFilter<"LiqoMeeting"> | Date | string
+    materialTitle?: StringWithAggregatesFilter<"LiqoMeeting"> | string
+    summary?: StringNullableWithAggregatesFilter<"LiqoMeeting"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"LiqoMeeting"> | Date | string
+    updatedAt?: DateTimeNullableWithAggregatesFilter<"LiqoMeeting"> | Date | string | null
+  }
+
+  export type LiqoAttendanceWhereInput = {
+    AND?: LiqoAttendanceWhereInput | LiqoAttendanceWhereInput[]
+    OR?: LiqoAttendanceWhereInput[]
+    NOT?: LiqoAttendanceWhereInput | LiqoAttendanceWhereInput[]
+    id?: UuidFilter<"LiqoAttendance"> | string
+    meetingId?: UuidFilter<"LiqoAttendance"> | string
+    userId?: UuidFilter<"LiqoAttendance"> | string
+    status?: EnumAttendanceStatusFilter<"LiqoAttendance"> | $Enums.AttendanceStatus
+    notes?: StringNullableFilter<"LiqoAttendance"> | string | null
+    createdAt?: DateTimeFilter<"LiqoAttendance"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"LiqoAttendance"> | Date | string | null
+    meeting?: XOR<LiqoMeetingScalarRelationFilter, LiqoMeetingWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type LiqoAttendanceOrderByWithRelationInput = {
+    id?: SortOrder
+    meetingId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    meeting?: LiqoMeetingOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type LiqoAttendanceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    meetingId_userId?: LiqoAttendanceMeetingIdUserIdCompoundUniqueInput
+    AND?: LiqoAttendanceWhereInput | LiqoAttendanceWhereInput[]
+    OR?: LiqoAttendanceWhereInput[]
+    NOT?: LiqoAttendanceWhereInput | LiqoAttendanceWhereInput[]
+    meetingId?: UuidFilter<"LiqoAttendance"> | string
+    userId?: UuidFilter<"LiqoAttendance"> | string
+    status?: EnumAttendanceStatusFilter<"LiqoAttendance"> | $Enums.AttendanceStatus
+    notes?: StringNullableFilter<"LiqoAttendance"> | string | null
+    createdAt?: DateTimeFilter<"LiqoAttendance"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"LiqoAttendance"> | Date | string | null
+    meeting?: XOR<LiqoMeetingScalarRelationFilter, LiqoMeetingWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "meetingId_userId">
+
+  export type LiqoAttendanceOrderByWithAggregationInput = {
+    id?: SortOrder
+    meetingId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    _count?: LiqoAttendanceCountOrderByAggregateInput
+    _max?: LiqoAttendanceMaxOrderByAggregateInput
+    _min?: LiqoAttendanceMinOrderByAggregateInput
+  }
+
+  export type LiqoAttendanceScalarWhereWithAggregatesInput = {
+    AND?: LiqoAttendanceScalarWhereWithAggregatesInput | LiqoAttendanceScalarWhereWithAggregatesInput[]
+    OR?: LiqoAttendanceScalarWhereWithAggregatesInput[]
+    NOT?: LiqoAttendanceScalarWhereWithAggregatesInput | LiqoAttendanceScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"LiqoAttendance"> | string
+    meetingId?: UuidWithAggregatesFilter<"LiqoAttendance"> | string
+    userId?: UuidWithAggregatesFilter<"LiqoAttendance"> | string
+    status?: EnumAttendanceStatusWithAggregatesFilter<"LiqoAttendance"> | $Enums.AttendanceStatus
+    notes?: StringNullableWithAggregatesFilter<"LiqoAttendance"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"LiqoAttendance"> | Date | string
+    updatedAt?: DateTimeNullableWithAggregatesFilter<"LiqoAttendance"> | Date | string | null
+  }
+
+  export type MutabaahRecordWhereInput = {
+    AND?: MutabaahRecordWhereInput | MutabaahRecordWhereInput[]
+    OR?: MutabaahRecordWhereInput[]
+    NOT?: MutabaahRecordWhereInput | MutabaahRecordWhereInput[]
+    id?: UuidFilter<"MutabaahRecord"> | string
+    userId?: UuidFilter<"MutabaahRecord"> | string
+    date?: DateTimeFilter<"MutabaahRecord"> | Date | string
+    sholatJamaah?: IntFilter<"MutabaahRecord"> | number
+    sholatRawatib?: IntFilter<"MutabaahRecord"> | number
+    sholatDhuha?: BoolFilter<"MutabaahRecord"> | boolean
+    sholatTahajud?: BoolFilter<"MutabaahRecord"> | boolean
+    tilawahPages?: IntFilter<"MutabaahRecord"> | number
+    puasaSunnah?: BoolFilter<"MutabaahRecord"> | boolean
+    infaq?: BoolFilter<"MutabaahRecord"> | boolean
+    createdAt?: DateTimeFilter<"MutabaahRecord"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"MutabaahRecord"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type MutabaahRecordOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    date?: SortOrder
+    sholatJamaah?: SortOrder
+    sholatRawatib?: SortOrder
+    sholatDhuha?: SortOrder
+    sholatTahajud?: SortOrder
+    tilawahPages?: SortOrder
+    puasaSunnah?: SortOrder
+    infaq?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type MutabaahRecordWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_date?: MutabaahRecordUserIdDateCompoundUniqueInput
+    AND?: MutabaahRecordWhereInput | MutabaahRecordWhereInput[]
+    OR?: MutabaahRecordWhereInput[]
+    NOT?: MutabaahRecordWhereInput | MutabaahRecordWhereInput[]
+    userId?: UuidFilter<"MutabaahRecord"> | string
+    date?: DateTimeFilter<"MutabaahRecord"> | Date | string
+    sholatJamaah?: IntFilter<"MutabaahRecord"> | number
+    sholatRawatib?: IntFilter<"MutabaahRecord"> | number
+    sholatDhuha?: BoolFilter<"MutabaahRecord"> | boolean
+    sholatTahajud?: BoolFilter<"MutabaahRecord"> | boolean
+    tilawahPages?: IntFilter<"MutabaahRecord"> | number
+    puasaSunnah?: BoolFilter<"MutabaahRecord"> | boolean
+    infaq?: BoolFilter<"MutabaahRecord"> | boolean
+    createdAt?: DateTimeFilter<"MutabaahRecord"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"MutabaahRecord"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId_date">
+
+  export type MutabaahRecordOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    date?: SortOrder
+    sholatJamaah?: SortOrder
+    sholatRawatib?: SortOrder
+    sholatDhuha?: SortOrder
+    sholatTahajud?: SortOrder
+    tilawahPages?: SortOrder
+    puasaSunnah?: SortOrder
+    infaq?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    _count?: MutabaahRecordCountOrderByAggregateInput
+    _avg?: MutabaahRecordAvgOrderByAggregateInput
+    _max?: MutabaahRecordMaxOrderByAggregateInput
+    _min?: MutabaahRecordMinOrderByAggregateInput
+    _sum?: MutabaahRecordSumOrderByAggregateInput
+  }
+
+  export type MutabaahRecordScalarWhereWithAggregatesInput = {
+    AND?: MutabaahRecordScalarWhereWithAggregatesInput | MutabaahRecordScalarWhereWithAggregatesInput[]
+    OR?: MutabaahRecordScalarWhereWithAggregatesInput[]
+    NOT?: MutabaahRecordScalarWhereWithAggregatesInput | MutabaahRecordScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"MutabaahRecord"> | string
+    userId?: UuidWithAggregatesFilter<"MutabaahRecord"> | string
+    date?: DateTimeWithAggregatesFilter<"MutabaahRecord"> | Date | string
+    sholatJamaah?: IntWithAggregatesFilter<"MutabaahRecord"> | number
+    sholatRawatib?: IntWithAggregatesFilter<"MutabaahRecord"> | number
+    sholatDhuha?: BoolWithAggregatesFilter<"MutabaahRecord"> | boolean
+    sholatTahajud?: BoolWithAggregatesFilter<"MutabaahRecord"> | boolean
+    tilawahPages?: IntWithAggregatesFilter<"MutabaahRecord"> | number
+    puasaSunnah?: BoolWithAggregatesFilter<"MutabaahRecord"> | boolean
+    infaq?: BoolWithAggregatesFilter<"MutabaahRecord"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"MutabaahRecord"> | Date | string
+    updatedAt?: DateTimeNullableWithAggregatesFilter<"MutabaahRecord"> | Date | string | null
+  }
+
+  export type UserCreateInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileUncheckedCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceUncheckedCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestUncheckedCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberUncheckedCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceUncheckedCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUncheckedUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUncheckedUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUncheckedUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateManyInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+  }
+
+  export type UserUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeProfileCreateInput = {
+    id?: string
+    nip?: string | null
+    position?: string | null
+    employeeType?: string
+    joinDate?: Date | string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    user: UserCreateNestedOneWithoutProfileInput
+  }
+
+  export type EmployeeProfileUncheckedCreateInput = {
+    id?: string
+    userId: string
+    nip?: string | null
+    position?: string | null
+    employeeType?: string
+    joinDate?: Date | string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type EmployeeProfileUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nip?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    employeeType?: StringFieldUpdateOperationsInput | string
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutProfileNestedInput
+  }
+
+  export type EmployeeProfileUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    nip?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    employeeType?: StringFieldUpdateOperationsInput | string
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type EmployeeProfileCreateManyInput = {
+    id?: string
+    userId: string
+    nip?: string | null
+    position?: string | null
+    employeeType?: string
+    joinDate?: Date | string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type EmployeeProfileUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nip?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    employeeType?: StringFieldUpdateOperationsInput | string
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type EmployeeProfileUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    nip?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    employeeType?: StringFieldUpdateOperationsInput | string
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type EmployeeUnitAssignmentCreateInput = {
+    id?: string
+    unitId: string
+    unitName: string
+    role: string
+    isPrimary?: boolean
+    startDate: Date | string
+    endDate?: Date | string | null
+    skNumber?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutUnitAssignmentsInput
+  }
+
+  export type EmployeeUnitAssignmentUncheckedCreateInput = {
+    id?: string
+    userId: string
+    unitId: string
+    unitName: string
+    role: string
+    isPrimary?: boolean
+    startDate: Date | string
+    endDate?: Date | string | null
+    skNumber?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+  }
+
+  export type EmployeeUnitAssignmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    unitName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    skNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutUnitAssignmentsNestedInput
+  }
+
+  export type EmployeeUnitAssignmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    unitName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    skNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeUnitAssignmentCreateManyInput = {
+    id?: string
+    userId: string
+    unitId: string
+    unitName: string
+    role: string
+    isPrimary?: boolean
+    startDate: Date | string
+    endDate?: Date | string | null
+    skNumber?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+  }
+
+  export type EmployeeUnitAssignmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    unitName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    skNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeUnitAssignmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    unitName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    skNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GpsAttendanceConfigCreateInput = {
+    id?: string
+    unitId: string
+    latitude: number
+    longitude: number
+    radiusMeters?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GpsAttendanceConfigUncheckedCreateInput = {
+    id?: string
+    unitId: string
+    latitude: number
+    longitude: number
+    radiusMeters?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GpsAttendanceConfigUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    radiusMeters?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GpsAttendanceConfigUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    radiusMeters?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GpsAttendanceConfigCreateManyInput = {
+    id?: string
+    unitId: string
+    latitude: number
+    longitude: number
+    radiusMeters?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GpsAttendanceConfigUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    radiusMeters?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GpsAttendanceConfigUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    latitude?: FloatFieldUpdateOperationsInput | number
+    longitude?: FloatFieldUpdateOperationsInput | number
+    radiusMeters?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GpsAttendanceCreateInput = {
+    id?: string
+    unitId: string
+    date: Date | string
+    checkInTime?: Date | string | null
+    checkOutTime?: Date | string | null
+    latitude?: number | null
+    longitude?: number | null
+    status: $Enums.GpsAttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutGpsAttendancesInput
+  }
+
+  export type GpsAttendanceUncheckedCreateInput = {
+    id?: string
+    userId: string
+    unitId: string
+    date: Date | string
+    checkInTime?: Date | string | null
+    checkOutTime?: Date | string | null
+    latitude?: number | null
+    longitude?: number | null
+    status: $Enums.GpsAttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+  }
+
+  export type GpsAttendanceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumGpsAttendanceStatusFieldUpdateOperationsInput | $Enums.GpsAttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutGpsAttendancesNestedInput
+  }
+
+  export type GpsAttendanceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumGpsAttendanceStatusFieldUpdateOperationsInput | $Enums.GpsAttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GpsAttendanceCreateManyInput = {
+    id?: string
+    userId: string
+    unitId: string
+    date: Date | string
+    checkInTime?: Date | string | null
+    checkOutTime?: Date | string | null
+    latitude?: number | null
+    longitude?: number | null
+    status: $Enums.GpsAttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+  }
+
+  export type GpsAttendanceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumGpsAttendanceStatusFieldUpdateOperationsInput | $Enums.GpsAttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GpsAttendanceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumGpsAttendanceStatusFieldUpdateOperationsInput | $Enums.GpsAttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HolidayCreateInput = {
+    id?: string
+    unitId?: string | null
+    date: Date | string
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+  }
+
+  export type HolidayUncheckedCreateInput = {
+    id?: string
+    unitId?: string | null
+    date: Date | string
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+  }
+
+  export type HolidayUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HolidayUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HolidayCreateManyInput = {
+    id?: string
+    unitId?: string | null
+    date: Date | string
+    name: string
+    description?: string | null
+    createdAt?: Date | string
+  }
+
+  export type HolidayUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HolidayUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LeaveRequestCreateInput = {
+    id?: string
+    type: $Enums.LeaveType
+    startDate: Date | string
+    endDate: Date | string
+    reason: string
+    attachmentUrl?: string | null
+    status?: $Enums.LeaveStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    user: UserCreateNestedOneWithoutLeaveRequestsInput
+    approvedBy?: UserCreateNestedOneWithoutApprovedLeavesInput
+  }
+
+  export type LeaveRequestUncheckedCreateInput = {
+    id?: string
+    userId: string
+    type: $Enums.LeaveType
+    startDate: Date | string
+    endDate: Date | string
+    reason: string
+    attachmentUrl?: string | null
+    status?: $Enums.LeaveStatus
+    approvedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LeaveRequestUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: StringFieldUpdateOperationsInput | string
+    attachmentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutLeaveRequestsNestedInput
+    approvedBy?: UserUpdateOneWithoutApprovedLeavesNestedInput
+  }
+
+  export type LeaveRequestUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: StringFieldUpdateOperationsInput | string
+    attachmentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LeaveRequestCreateManyInput = {
+    id?: string
+    userId: string
+    type: $Enums.LeaveType
+    startDate: Date | string
+    endDate: Date | string
+    reason: string
+    attachmentUrl?: string | null
+    status?: $Enums.LeaveStatus
+    approvedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LeaveRequestUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: StringFieldUpdateOperationsInput | string
+    attachmentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LeaveRequestUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: StringFieldUpdateOperationsInput | string
+    attachmentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoGroupCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    scheduleDay?: $Enums.DayOfWeek | null
+    scheduleTime?: string | null
+    scheduleLocation?: string | null
+    whatsappLink?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    murobbi: UserCreateNestedOneWithoutLiqoGroupsAsMurobbiInput
+    members?: LiqoMemberCreateNestedManyWithoutGroupInput
+    meetings?: LiqoMeetingCreateNestedManyWithoutGroupInput
+  }
+
+  export type LiqoGroupUncheckedCreateInput = {
+    id?: string
+    name: string
+    murobbiId: string
+    description?: string | null
+    scheduleDay?: $Enums.DayOfWeek | null
+    scheduleTime?: string | null
+    scheduleLocation?: string | null
+    whatsappLink?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    members?: LiqoMemberUncheckedCreateNestedManyWithoutGroupInput
+    meetings?: LiqoMeetingUncheckedCreateNestedManyWithoutGroupInput
+  }
+
+  export type LiqoGroupUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleDay?: NullableEnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek | null
+    scheduleTime?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    murobbi?: UserUpdateOneRequiredWithoutLiqoGroupsAsMurobbiNestedInput
+    members?: LiqoMemberUpdateManyWithoutGroupNestedInput
+    meetings?: LiqoMeetingUpdateManyWithoutGroupNestedInput
+  }
+
+  export type LiqoGroupUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    murobbiId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleDay?: NullableEnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek | null
+    scheduleTime?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    members?: LiqoMemberUncheckedUpdateManyWithoutGroupNestedInput
+    meetings?: LiqoMeetingUncheckedUpdateManyWithoutGroupNestedInput
+  }
+
+  export type LiqoGroupCreateManyInput = {
+    id?: string
+    name: string
+    murobbiId: string
+    description?: string | null
+    scheduleDay?: $Enums.DayOfWeek | null
+    scheduleTime?: string | null
+    scheduleLocation?: string | null
+    whatsappLink?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LiqoGroupUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleDay?: NullableEnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek | null
+    scheduleTime?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoGroupUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    murobbiId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleDay?: NullableEnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek | null
+    scheduleTime?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoMemberCreateInput = {
+    id?: string
+    joinedAt?: Date | string
+    group: LiqoGroupCreateNestedOneWithoutMembersInput
+    user: UserCreateNestedOneWithoutLiqoMembershipsInput
+  }
+
+  export type LiqoMemberUncheckedCreateInput = {
+    id?: string
+    groupId: string
+    userId: string
+    joinedAt?: Date | string
+  }
+
+  export type LiqoMemberUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    group?: LiqoGroupUpdateOneRequiredWithoutMembersNestedInput
+    user?: UserUpdateOneRequiredWithoutLiqoMembershipsNestedInput
+  }
+
+  export type LiqoMemberUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    groupId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LiqoMemberCreateManyInput = {
+    id?: string
+    groupId: string
+    userId: string
+    joinedAt?: Date | string
+  }
+
+  export type LiqoMemberUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LiqoMemberUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    groupId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LiqoMeetingCreateInput = {
+    id?: string
+    date: Date | string
+    materialTitle: string
+    summary?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    group: LiqoGroupCreateNestedOneWithoutMeetingsInput
+    attendances?: LiqoAttendanceCreateNestedManyWithoutMeetingInput
+  }
+
+  export type LiqoMeetingUncheckedCreateInput = {
+    id?: string
+    groupId: string
+    date: Date | string
+    materialTitle: string
+    summary?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    attendances?: LiqoAttendanceUncheckedCreateNestedManyWithoutMeetingInput
+  }
+
+  export type LiqoMeetingUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    materialTitle?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    group?: LiqoGroupUpdateOneRequiredWithoutMeetingsNestedInput
+    attendances?: LiqoAttendanceUpdateManyWithoutMeetingNestedInput
+  }
+
+  export type LiqoMeetingUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    groupId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    materialTitle?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    attendances?: LiqoAttendanceUncheckedUpdateManyWithoutMeetingNestedInput
+  }
+
+  export type LiqoMeetingCreateManyInput = {
+    id?: string
+    groupId: string
+    date: Date | string
+    materialTitle: string
+    summary?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LiqoMeetingUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    materialTitle?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoMeetingUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    groupId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    materialTitle?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoAttendanceCreateInput = {
+    id?: string
+    status: $Enums.AttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    meeting: LiqoMeetingCreateNestedOneWithoutAttendancesInput
+    user: UserCreateNestedOneWithoutLiqoAttendancesInput
+  }
+
+  export type LiqoAttendanceUncheckedCreateInput = {
+    id?: string
+    meetingId: string
+    userId: string
+    status: $Enums.AttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LiqoAttendanceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    meeting?: LiqoMeetingUpdateOneRequiredWithoutAttendancesNestedInput
+    user?: UserUpdateOneRequiredWithoutLiqoAttendancesNestedInput
+  }
+
+  export type LiqoAttendanceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    meetingId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoAttendanceCreateManyInput = {
+    id?: string
+    meetingId: string
+    userId: string
+    status: $Enums.AttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LiqoAttendanceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoAttendanceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    meetingId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MutabaahRecordCreateInput = {
+    id?: string
+    date: Date | string
+    sholatJamaah?: number
+    sholatRawatib?: number
+    sholatDhuha?: boolean
+    sholatTahajud?: boolean
+    tilawahPages?: number
+    puasaSunnah?: boolean
+    infaq?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    user: UserCreateNestedOneWithoutMutabaahRecordsInput
+  }
+
+  export type MutabaahRecordUncheckedCreateInput = {
+    id?: string
+    userId: string
+    date: Date | string
+    sholatJamaah?: number
+    sholatRawatib?: number
+    sholatDhuha?: boolean
+    sholatTahajud?: boolean
+    tilawahPages?: number
+    puasaSunnah?: boolean
+    infaq?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type MutabaahRecordUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    sholatJamaah?: IntFieldUpdateOperationsInput | number
+    sholatRawatib?: IntFieldUpdateOperationsInput | number
+    sholatDhuha?: BoolFieldUpdateOperationsInput | boolean
+    sholatTahajud?: BoolFieldUpdateOperationsInput | boolean
+    tilawahPages?: IntFieldUpdateOperationsInput | number
+    puasaSunnah?: BoolFieldUpdateOperationsInput | boolean
+    infaq?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutMutabaahRecordsNestedInput
+  }
+
+  export type MutabaahRecordUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    sholatJamaah?: IntFieldUpdateOperationsInput | number
+    sholatRawatib?: IntFieldUpdateOperationsInput | number
+    sholatDhuha?: BoolFieldUpdateOperationsInput | boolean
+    sholatTahajud?: BoolFieldUpdateOperationsInput | boolean
+    tilawahPages?: IntFieldUpdateOperationsInput | number
+    puasaSunnah?: BoolFieldUpdateOperationsInput | boolean
+    infaq?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MutabaahRecordCreateManyInput = {
+    id?: string
+    userId: string
+    date: Date | string
+    sholatJamaah?: number
+    sholatRawatib?: number
+    sholatDhuha?: boolean
+    sholatTahajud?: boolean
+    tilawahPages?: number
+    puasaSunnah?: boolean
+    infaq?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type MutabaahRecordUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    sholatJamaah?: IntFieldUpdateOperationsInput | number
+    sholatRawatib?: IntFieldUpdateOperationsInput | number
+    sholatDhuha?: BoolFieldUpdateOperationsInput | boolean
+    sholatTahajud?: BoolFieldUpdateOperationsInput | boolean
+    tilawahPages?: IntFieldUpdateOperationsInput | number
+    puasaSunnah?: BoolFieldUpdateOperationsInput | boolean
+    infaq?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MutabaahRecordUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    sholatJamaah?: IntFieldUpdateOperationsInput | number
+    sholatRawatib?: IntFieldUpdateOperationsInput | number
+    sholatDhuha?: BoolFieldUpdateOperationsInput | boolean
+    sholatTahajud?: BoolFieldUpdateOperationsInput | boolean
+    tilawahPages?: IntFieldUpdateOperationsInput | number
+    puasaSunnah?: BoolFieldUpdateOperationsInput | boolean
+    infaq?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UuidFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidFilter<$PrismaModel> | string
+  }
+
+  export type StringFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringFilter<$PrismaModel> | string
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type EmployeeProfileNullableScalarRelationFilter = {
+    is?: EmployeeProfileWhereInput | null
+    isNot?: EmployeeProfileWhereInput | null
+  }
+
+  export type EmployeeUnitAssignmentListRelationFilter = {
+    every?: EmployeeUnitAssignmentWhereInput
+    some?: EmployeeUnitAssignmentWhereInput
+    none?: EmployeeUnitAssignmentWhereInput
+  }
+
+  export type GpsAttendanceListRelationFilter = {
+    every?: GpsAttendanceWhereInput
+    some?: GpsAttendanceWhereInput
+    none?: GpsAttendanceWhereInput
+  }
+
+  export type LeaveRequestListRelationFilter = {
+    every?: LeaveRequestWhereInput
+    some?: LeaveRequestWhereInput
+    none?: LeaveRequestWhereInput
+  }
+
+  export type LiqoGroupListRelationFilter = {
+    every?: LiqoGroupWhereInput
+    some?: LiqoGroupWhereInput
+    none?: LiqoGroupWhereInput
+  }
+
+  export type LiqoMemberListRelationFilter = {
+    every?: LiqoMemberWhereInput
+    some?: LiqoMemberWhereInput
+    none?: LiqoMemberWhereInput
+  }
+
+  export type LiqoAttendanceListRelationFilter = {
+    every?: LiqoAttendanceWhereInput
+    some?: LiqoAttendanceWhereInput
+    none?: LiqoAttendanceWhereInput
+  }
+
+  export type MutabaahRecordListRelationFilter = {
+    every?: MutabaahRecordWhereInput
+    some?: MutabaahRecordWhereInput
+    none?: MutabaahRecordWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
+  export type EmployeeUnitAssignmentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type GpsAttendanceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type LeaveRequestOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type LiqoGroupOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type LiqoMemberOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type LiqoAttendanceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MutabaahRecordOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type UserCountOrderByAggregateInput = {
+    id?: SortOrder
+    fullName?: SortOrder
+    username?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    avatarUrl?: SortOrder
+    leaveQuota?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UserAvgOrderByAggregateInput = {
+    leaveQuota?: SortOrder
+  }
+
+  export type UserMaxOrderByAggregateInput = {
+    id?: SortOrder
+    fullName?: SortOrder
+    username?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    avatarUrl?: SortOrder
+    leaveQuota?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UserMinOrderByAggregateInput = {
+    id?: SortOrder
+    fullName?: SortOrder
+    username?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    avatarUrl?: SortOrder
+    leaveQuota?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UserSumOrderByAggregateInput = {
+    leaveQuota?: SortOrder
+  }
+
+  export type UuidWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type StringWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type EmployeeProfileCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    nip?: SortOrder
+    position?: SortOrder
+    employeeType?: SortOrder
+    joinDate?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmployeeProfileMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    nip?: SortOrder
+    position?: SortOrder
+    employeeType?: SortOrder
+    joinDate?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmployeeProfileMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    nip?: SortOrder
+    position?: SortOrder
+    employeeType?: SortOrder
+    joinDate?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type EmployeeUnitAssignmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    unitId?: SortOrder
+    unitName?: SortOrder
+    role?: SortOrder
+    isPrimary?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    skNumber?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EmployeeUnitAssignmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    unitId?: SortOrder
+    unitName?: SortOrder
+    role?: SortOrder
+    isPrimary?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    skNumber?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EmployeeUnitAssignmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    unitId?: SortOrder
+    unitName?: SortOrder
+    role?: SortOrder
+    isPrimary?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    skNumber?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type GpsAttendanceConfigCountOrderByAggregateInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    radiusMeters?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GpsAttendanceConfigAvgOrderByAggregateInput = {
+    latitude?: SortOrder
+    longitude?: SortOrder
+    radiusMeters?: SortOrder
+  }
+
+  export type GpsAttendanceConfigMaxOrderByAggregateInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    radiusMeters?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GpsAttendanceConfigMinOrderByAggregateInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    radiusMeters?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GpsAttendanceConfigSumOrderByAggregateInput = {
+    latitude?: SortOrder
+    longitude?: SortOrder
+    radiusMeters?: SortOrder
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type EnumGpsAttendanceStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.GpsAttendanceStatus | EnumGpsAttendanceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.GpsAttendanceStatus[] | ListEnumGpsAttendanceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GpsAttendanceStatus[] | ListEnumGpsAttendanceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumGpsAttendanceStatusFilter<$PrismaModel> | $Enums.GpsAttendanceStatus
+  }
+
+  export type GpsAttendanceUserIdDateCompoundUniqueInput = {
+    userId: string
+    date: Date | string
+  }
+
+  export type GpsAttendanceCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    unitId?: SortOrder
+    date?: SortOrder
+    checkInTime?: SortOrder
+    checkOutTime?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GpsAttendanceAvgOrderByAggregateInput = {
+    latitude?: SortOrder
+    longitude?: SortOrder
+  }
+
+  export type GpsAttendanceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    unitId?: SortOrder
+    date?: SortOrder
+    checkInTime?: SortOrder
+    checkOutTime?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GpsAttendanceMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    unitId?: SortOrder
+    date?: SortOrder
+    checkInTime?: SortOrder
+    checkOutTime?: SortOrder
+    latitude?: SortOrder
+    longitude?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GpsAttendanceSumOrderByAggregateInput = {
+    latitude?: SortOrder
+    longitude?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type EnumGpsAttendanceStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GpsAttendanceStatus | EnumGpsAttendanceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.GpsAttendanceStatus[] | ListEnumGpsAttendanceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GpsAttendanceStatus[] | ListEnumGpsAttendanceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumGpsAttendanceStatusWithAggregatesFilter<$PrismaModel> | $Enums.GpsAttendanceStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumGpsAttendanceStatusFilter<$PrismaModel>
+    _max?: NestedEnumGpsAttendanceStatusFilter<$PrismaModel>
+  }
+
+  export type UuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type HolidayUnitIdDateCompoundUniqueInput = {
+    unitId: string
+    date: Date | string
+  }
+
+  export type HolidayCountOrderByAggregateInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    date?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type HolidayMaxOrderByAggregateInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    date?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type HolidayMinOrderByAggregateInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    date?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type EnumLeaveTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.LeaveType | EnumLeaveTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LeaveType[] | ListEnumLeaveTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LeaveType[] | ListEnumLeaveTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLeaveTypeFilter<$PrismaModel> | $Enums.LeaveType
+  }
+
+  export type EnumLeaveStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.LeaveStatus | EnumLeaveStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.LeaveStatus[] | ListEnumLeaveStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LeaveStatus[] | ListEnumLeaveStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumLeaveStatusFilter<$PrismaModel> | $Enums.LeaveStatus
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type LeaveRequestCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    type?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    reason?: SortOrder
+    attachmentUrl?: SortOrder
+    status?: SortOrder
+    approvedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LeaveRequestMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    type?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    reason?: SortOrder
+    attachmentUrl?: SortOrder
+    status?: SortOrder
+    approvedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LeaveRequestMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    type?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    reason?: SortOrder
+    attachmentUrl?: SortOrder
+    status?: SortOrder
+    approvedById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumLeaveTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LeaveType | EnumLeaveTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LeaveType[] | ListEnumLeaveTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LeaveType[] | ListEnumLeaveTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLeaveTypeWithAggregatesFilter<$PrismaModel> | $Enums.LeaveType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLeaveTypeFilter<$PrismaModel>
+    _max?: NestedEnumLeaveTypeFilter<$PrismaModel>
+  }
+
+  export type EnumLeaveStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LeaveStatus | EnumLeaveStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.LeaveStatus[] | ListEnumLeaveStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LeaveStatus[] | ListEnumLeaveStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumLeaveStatusWithAggregatesFilter<$PrismaModel> | $Enums.LeaveStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLeaveStatusFilter<$PrismaModel>
+    _max?: NestedEnumLeaveStatusFilter<$PrismaModel>
+  }
+
+  export type EnumDayOfWeekNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.DayOfWeek | EnumDayOfWeekFieldRefInput<$PrismaModel> | null
+    in?: $Enums.DayOfWeek[] | ListEnumDayOfWeekFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.DayOfWeek[] | ListEnumDayOfWeekFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumDayOfWeekNullableFilter<$PrismaModel> | $Enums.DayOfWeek | null
+  }
+
+  export type LiqoMeetingListRelationFilter = {
+    every?: LiqoMeetingWhereInput
+    some?: LiqoMeetingWhereInput
+    none?: LiqoMeetingWhereInput
+  }
+
+  export type LiqoMeetingOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type LiqoGroupCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    murobbiId?: SortOrder
+    description?: SortOrder
+    scheduleDay?: SortOrder
+    scheduleTime?: SortOrder
+    scheduleLocation?: SortOrder
+    whatsappLink?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LiqoGroupMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    murobbiId?: SortOrder
+    description?: SortOrder
+    scheduleDay?: SortOrder
+    scheduleTime?: SortOrder
+    scheduleLocation?: SortOrder
+    whatsappLink?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LiqoGroupMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    murobbiId?: SortOrder
+    description?: SortOrder
+    scheduleDay?: SortOrder
+    scheduleTime?: SortOrder
+    scheduleLocation?: SortOrder
+    whatsappLink?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumDayOfWeekNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DayOfWeek | EnumDayOfWeekFieldRefInput<$PrismaModel> | null
+    in?: $Enums.DayOfWeek[] | ListEnumDayOfWeekFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.DayOfWeek[] | ListEnumDayOfWeekFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumDayOfWeekNullableWithAggregatesFilter<$PrismaModel> | $Enums.DayOfWeek | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumDayOfWeekNullableFilter<$PrismaModel>
+    _max?: NestedEnumDayOfWeekNullableFilter<$PrismaModel>
+  }
+
+  export type LiqoGroupScalarRelationFilter = {
+    is?: LiqoGroupWhereInput
+    isNot?: LiqoGroupWhereInput
+  }
+
+  export type LiqoMemberGroupIdUserIdCompoundUniqueInput = {
+    groupId: string
+    userId: string
+  }
+
+  export type LiqoMemberCountOrderByAggregateInput = {
+    id?: SortOrder
+    groupId?: SortOrder
+    userId?: SortOrder
+    joinedAt?: SortOrder
+  }
+
+  export type LiqoMemberMaxOrderByAggregateInput = {
+    id?: SortOrder
+    groupId?: SortOrder
+    userId?: SortOrder
+    joinedAt?: SortOrder
+  }
+
+  export type LiqoMemberMinOrderByAggregateInput = {
+    id?: SortOrder
+    groupId?: SortOrder
+    userId?: SortOrder
+    joinedAt?: SortOrder
+  }
+
+  export type LiqoMeetingCountOrderByAggregateInput = {
+    id?: SortOrder
+    groupId?: SortOrder
+    date?: SortOrder
+    materialTitle?: SortOrder
+    summary?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LiqoMeetingMaxOrderByAggregateInput = {
+    id?: SortOrder
+    groupId?: SortOrder
+    date?: SortOrder
+    materialTitle?: SortOrder
+    summary?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LiqoMeetingMinOrderByAggregateInput = {
+    id?: SortOrder
+    groupId?: SortOrder
+    date?: SortOrder
+    materialTitle?: SortOrder
+    summary?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumAttendanceStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AttendanceStatus | EnumAttendanceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AttendanceStatus[] | ListEnumAttendanceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AttendanceStatus[] | ListEnumAttendanceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAttendanceStatusFilter<$PrismaModel> | $Enums.AttendanceStatus
+  }
+
+  export type LiqoMeetingScalarRelationFilter = {
+    is?: LiqoMeetingWhereInput
+    isNot?: LiqoMeetingWhereInput
+  }
+
+  export type LiqoAttendanceMeetingIdUserIdCompoundUniqueInput = {
+    meetingId: string
+    userId: string
+  }
+
+  export type LiqoAttendanceCountOrderByAggregateInput = {
+    id?: SortOrder
+    meetingId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LiqoAttendanceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    meetingId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LiqoAttendanceMinOrderByAggregateInput = {
+    id?: SortOrder
+    meetingId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumAttendanceStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AttendanceStatus | EnumAttendanceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AttendanceStatus[] | ListEnumAttendanceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AttendanceStatus[] | ListEnumAttendanceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAttendanceStatusWithAggregatesFilter<$PrismaModel> | $Enums.AttendanceStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAttendanceStatusFilter<$PrismaModel>
+    _max?: NestedEnumAttendanceStatusFilter<$PrismaModel>
+  }
+
+  export type MutabaahRecordUserIdDateCompoundUniqueInput = {
+    userId: string
+    date: Date | string
+  }
+
+  export type MutabaahRecordCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    date?: SortOrder
+    sholatJamaah?: SortOrder
+    sholatRawatib?: SortOrder
+    sholatDhuha?: SortOrder
+    sholatTahajud?: SortOrder
+    tilawahPages?: SortOrder
+    puasaSunnah?: SortOrder
+    infaq?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MutabaahRecordAvgOrderByAggregateInput = {
+    sholatJamaah?: SortOrder
+    sholatRawatib?: SortOrder
+    tilawahPages?: SortOrder
+  }
+
+  export type MutabaahRecordMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    date?: SortOrder
+    sholatJamaah?: SortOrder
+    sholatRawatib?: SortOrder
+    sholatDhuha?: SortOrder
+    sholatTahajud?: SortOrder
+    tilawahPages?: SortOrder
+    puasaSunnah?: SortOrder
+    infaq?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MutabaahRecordMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    date?: SortOrder
+    sholatJamaah?: SortOrder
+    sholatRawatib?: SortOrder
+    sholatDhuha?: SortOrder
+    sholatTahajud?: SortOrder
+    tilawahPages?: SortOrder
+    puasaSunnah?: SortOrder
+    infaq?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MutabaahRecordSumOrderByAggregateInput = {
+    sholatJamaah?: SortOrder
+    sholatRawatib?: SortOrder
+    tilawahPages?: SortOrder
+  }
+
+  export type EmployeeProfileCreateNestedOneWithoutUserInput = {
+    create?: XOR<EmployeeProfileCreateWithoutUserInput, EmployeeProfileUncheckedCreateWithoutUserInput>
+    connectOrCreate?: EmployeeProfileCreateOrConnectWithoutUserInput
+    connect?: EmployeeProfileWhereUniqueInput
+  }
+
+  export type EmployeeUnitAssignmentCreateNestedManyWithoutUserInput = {
+    create?: XOR<EmployeeUnitAssignmentCreateWithoutUserInput, EmployeeUnitAssignmentUncheckedCreateWithoutUserInput> | EmployeeUnitAssignmentCreateWithoutUserInput[] | EmployeeUnitAssignmentUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: EmployeeUnitAssignmentCreateOrConnectWithoutUserInput | EmployeeUnitAssignmentCreateOrConnectWithoutUserInput[]
+    createMany?: EmployeeUnitAssignmentCreateManyUserInputEnvelope
+    connect?: EmployeeUnitAssignmentWhereUniqueInput | EmployeeUnitAssignmentWhereUniqueInput[]
+  }
+
+  export type GpsAttendanceCreateNestedManyWithoutUserInput = {
+    create?: XOR<GpsAttendanceCreateWithoutUserInput, GpsAttendanceUncheckedCreateWithoutUserInput> | GpsAttendanceCreateWithoutUserInput[] | GpsAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: GpsAttendanceCreateOrConnectWithoutUserInput | GpsAttendanceCreateOrConnectWithoutUserInput[]
+    createMany?: GpsAttendanceCreateManyUserInputEnvelope
+    connect?: GpsAttendanceWhereUniqueInput | GpsAttendanceWhereUniqueInput[]
+  }
+
+  export type LeaveRequestCreateNestedManyWithoutUserInput = {
+    create?: XOR<LeaveRequestCreateWithoutUserInput, LeaveRequestUncheckedCreateWithoutUserInput> | LeaveRequestCreateWithoutUserInput[] | LeaveRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LeaveRequestCreateOrConnectWithoutUserInput | LeaveRequestCreateOrConnectWithoutUserInput[]
+    createMany?: LeaveRequestCreateManyUserInputEnvelope
+    connect?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+  }
+
+  export type LeaveRequestCreateNestedManyWithoutApprovedByInput = {
+    create?: XOR<LeaveRequestCreateWithoutApprovedByInput, LeaveRequestUncheckedCreateWithoutApprovedByInput> | LeaveRequestCreateWithoutApprovedByInput[] | LeaveRequestUncheckedCreateWithoutApprovedByInput[]
+    connectOrCreate?: LeaveRequestCreateOrConnectWithoutApprovedByInput | LeaveRequestCreateOrConnectWithoutApprovedByInput[]
+    createMany?: LeaveRequestCreateManyApprovedByInputEnvelope
+    connect?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+  }
+
+  export type LiqoGroupCreateNestedManyWithoutMurobbiInput = {
+    create?: XOR<LiqoGroupCreateWithoutMurobbiInput, LiqoGroupUncheckedCreateWithoutMurobbiInput> | LiqoGroupCreateWithoutMurobbiInput[] | LiqoGroupUncheckedCreateWithoutMurobbiInput[]
+    connectOrCreate?: LiqoGroupCreateOrConnectWithoutMurobbiInput | LiqoGroupCreateOrConnectWithoutMurobbiInput[]
+    createMany?: LiqoGroupCreateManyMurobbiInputEnvelope
+    connect?: LiqoGroupWhereUniqueInput | LiqoGroupWhereUniqueInput[]
+  }
+
+  export type LiqoMemberCreateNestedManyWithoutUserInput = {
+    create?: XOR<LiqoMemberCreateWithoutUserInput, LiqoMemberUncheckedCreateWithoutUserInput> | LiqoMemberCreateWithoutUserInput[] | LiqoMemberUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LiqoMemberCreateOrConnectWithoutUserInput | LiqoMemberCreateOrConnectWithoutUserInput[]
+    createMany?: LiqoMemberCreateManyUserInputEnvelope
+    connect?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+  }
+
+  export type LiqoAttendanceCreateNestedManyWithoutUserInput = {
+    create?: XOR<LiqoAttendanceCreateWithoutUserInput, LiqoAttendanceUncheckedCreateWithoutUserInput> | LiqoAttendanceCreateWithoutUserInput[] | LiqoAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LiqoAttendanceCreateOrConnectWithoutUserInput | LiqoAttendanceCreateOrConnectWithoutUserInput[]
+    createMany?: LiqoAttendanceCreateManyUserInputEnvelope
+    connect?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+  }
+
+  export type MutabaahRecordCreateNestedManyWithoutUserInput = {
+    create?: XOR<MutabaahRecordCreateWithoutUserInput, MutabaahRecordUncheckedCreateWithoutUserInput> | MutabaahRecordCreateWithoutUserInput[] | MutabaahRecordUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MutabaahRecordCreateOrConnectWithoutUserInput | MutabaahRecordCreateOrConnectWithoutUserInput[]
+    createMany?: MutabaahRecordCreateManyUserInputEnvelope
+    connect?: MutabaahRecordWhereUniqueInput | MutabaahRecordWhereUniqueInput[]
+  }
+
+  export type EmployeeProfileUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<EmployeeProfileCreateWithoutUserInput, EmployeeProfileUncheckedCreateWithoutUserInput>
+    connectOrCreate?: EmployeeProfileCreateOrConnectWithoutUserInput
+    connect?: EmployeeProfileWhereUniqueInput
+  }
+
+  export type EmployeeUnitAssignmentUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<EmployeeUnitAssignmentCreateWithoutUserInput, EmployeeUnitAssignmentUncheckedCreateWithoutUserInput> | EmployeeUnitAssignmentCreateWithoutUserInput[] | EmployeeUnitAssignmentUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: EmployeeUnitAssignmentCreateOrConnectWithoutUserInput | EmployeeUnitAssignmentCreateOrConnectWithoutUserInput[]
+    createMany?: EmployeeUnitAssignmentCreateManyUserInputEnvelope
+    connect?: EmployeeUnitAssignmentWhereUniqueInput | EmployeeUnitAssignmentWhereUniqueInput[]
+  }
+
+  export type GpsAttendanceUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<GpsAttendanceCreateWithoutUserInput, GpsAttendanceUncheckedCreateWithoutUserInput> | GpsAttendanceCreateWithoutUserInput[] | GpsAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: GpsAttendanceCreateOrConnectWithoutUserInput | GpsAttendanceCreateOrConnectWithoutUserInput[]
+    createMany?: GpsAttendanceCreateManyUserInputEnvelope
+    connect?: GpsAttendanceWhereUniqueInput | GpsAttendanceWhereUniqueInput[]
+  }
+
+  export type LeaveRequestUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<LeaveRequestCreateWithoutUserInput, LeaveRequestUncheckedCreateWithoutUserInput> | LeaveRequestCreateWithoutUserInput[] | LeaveRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LeaveRequestCreateOrConnectWithoutUserInput | LeaveRequestCreateOrConnectWithoutUserInput[]
+    createMany?: LeaveRequestCreateManyUserInputEnvelope
+    connect?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+  }
+
+  export type LeaveRequestUncheckedCreateNestedManyWithoutApprovedByInput = {
+    create?: XOR<LeaveRequestCreateWithoutApprovedByInput, LeaveRequestUncheckedCreateWithoutApprovedByInput> | LeaveRequestCreateWithoutApprovedByInput[] | LeaveRequestUncheckedCreateWithoutApprovedByInput[]
+    connectOrCreate?: LeaveRequestCreateOrConnectWithoutApprovedByInput | LeaveRequestCreateOrConnectWithoutApprovedByInput[]
+    createMany?: LeaveRequestCreateManyApprovedByInputEnvelope
+    connect?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+  }
+
+  export type LiqoGroupUncheckedCreateNestedManyWithoutMurobbiInput = {
+    create?: XOR<LiqoGroupCreateWithoutMurobbiInput, LiqoGroupUncheckedCreateWithoutMurobbiInput> | LiqoGroupCreateWithoutMurobbiInput[] | LiqoGroupUncheckedCreateWithoutMurobbiInput[]
+    connectOrCreate?: LiqoGroupCreateOrConnectWithoutMurobbiInput | LiqoGroupCreateOrConnectWithoutMurobbiInput[]
+    createMany?: LiqoGroupCreateManyMurobbiInputEnvelope
+    connect?: LiqoGroupWhereUniqueInput | LiqoGroupWhereUniqueInput[]
+  }
+
+  export type LiqoMemberUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<LiqoMemberCreateWithoutUserInput, LiqoMemberUncheckedCreateWithoutUserInput> | LiqoMemberCreateWithoutUserInput[] | LiqoMemberUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LiqoMemberCreateOrConnectWithoutUserInput | LiqoMemberCreateOrConnectWithoutUserInput[]
+    createMany?: LiqoMemberCreateManyUserInputEnvelope
+    connect?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+  }
+
+  export type LiqoAttendanceUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<LiqoAttendanceCreateWithoutUserInput, LiqoAttendanceUncheckedCreateWithoutUserInput> | LiqoAttendanceCreateWithoutUserInput[] | LiqoAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LiqoAttendanceCreateOrConnectWithoutUserInput | LiqoAttendanceCreateOrConnectWithoutUserInput[]
+    createMany?: LiqoAttendanceCreateManyUserInputEnvelope
+    connect?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+  }
+
+  export type MutabaahRecordUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<MutabaahRecordCreateWithoutUserInput, MutabaahRecordUncheckedCreateWithoutUserInput> | MutabaahRecordCreateWithoutUserInput[] | MutabaahRecordUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MutabaahRecordCreateOrConnectWithoutUserInput | MutabaahRecordCreateOrConnectWithoutUserInput[]
+    createMany?: MutabaahRecordCreateManyUserInputEnvelope
+    connect?: MutabaahRecordWhereUniqueInput | MutabaahRecordWhereUniqueInput[]
+  }
+
+  export type StringFieldUpdateOperationsInput = {
+    set?: string
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
+  }
+
+  export type EmployeeProfileUpdateOneWithoutUserNestedInput = {
+    create?: XOR<EmployeeProfileCreateWithoutUserInput, EmployeeProfileUncheckedCreateWithoutUserInput>
+    connectOrCreate?: EmployeeProfileCreateOrConnectWithoutUserInput
+    upsert?: EmployeeProfileUpsertWithoutUserInput
+    disconnect?: EmployeeProfileWhereInput | boolean
+    delete?: EmployeeProfileWhereInput | boolean
+    connect?: EmployeeProfileWhereUniqueInput
+    update?: XOR<XOR<EmployeeProfileUpdateToOneWithWhereWithoutUserInput, EmployeeProfileUpdateWithoutUserInput>, EmployeeProfileUncheckedUpdateWithoutUserInput>
+  }
+
+  export type EmployeeUnitAssignmentUpdateManyWithoutUserNestedInput = {
+    create?: XOR<EmployeeUnitAssignmentCreateWithoutUserInput, EmployeeUnitAssignmentUncheckedCreateWithoutUserInput> | EmployeeUnitAssignmentCreateWithoutUserInput[] | EmployeeUnitAssignmentUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: EmployeeUnitAssignmentCreateOrConnectWithoutUserInput | EmployeeUnitAssignmentCreateOrConnectWithoutUserInput[]
+    upsert?: EmployeeUnitAssignmentUpsertWithWhereUniqueWithoutUserInput | EmployeeUnitAssignmentUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: EmployeeUnitAssignmentCreateManyUserInputEnvelope
+    set?: EmployeeUnitAssignmentWhereUniqueInput | EmployeeUnitAssignmentWhereUniqueInput[]
+    disconnect?: EmployeeUnitAssignmentWhereUniqueInput | EmployeeUnitAssignmentWhereUniqueInput[]
+    delete?: EmployeeUnitAssignmentWhereUniqueInput | EmployeeUnitAssignmentWhereUniqueInput[]
+    connect?: EmployeeUnitAssignmentWhereUniqueInput | EmployeeUnitAssignmentWhereUniqueInput[]
+    update?: EmployeeUnitAssignmentUpdateWithWhereUniqueWithoutUserInput | EmployeeUnitAssignmentUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: EmployeeUnitAssignmentUpdateManyWithWhereWithoutUserInput | EmployeeUnitAssignmentUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: EmployeeUnitAssignmentScalarWhereInput | EmployeeUnitAssignmentScalarWhereInput[]
+  }
+
+  export type GpsAttendanceUpdateManyWithoutUserNestedInput = {
+    create?: XOR<GpsAttendanceCreateWithoutUserInput, GpsAttendanceUncheckedCreateWithoutUserInput> | GpsAttendanceCreateWithoutUserInput[] | GpsAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: GpsAttendanceCreateOrConnectWithoutUserInput | GpsAttendanceCreateOrConnectWithoutUserInput[]
+    upsert?: GpsAttendanceUpsertWithWhereUniqueWithoutUserInput | GpsAttendanceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: GpsAttendanceCreateManyUserInputEnvelope
+    set?: GpsAttendanceWhereUniqueInput | GpsAttendanceWhereUniqueInput[]
+    disconnect?: GpsAttendanceWhereUniqueInput | GpsAttendanceWhereUniqueInput[]
+    delete?: GpsAttendanceWhereUniqueInput | GpsAttendanceWhereUniqueInput[]
+    connect?: GpsAttendanceWhereUniqueInput | GpsAttendanceWhereUniqueInput[]
+    update?: GpsAttendanceUpdateWithWhereUniqueWithoutUserInput | GpsAttendanceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: GpsAttendanceUpdateManyWithWhereWithoutUserInput | GpsAttendanceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: GpsAttendanceScalarWhereInput | GpsAttendanceScalarWhereInput[]
+  }
+
+  export type LeaveRequestUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LeaveRequestCreateWithoutUserInput, LeaveRequestUncheckedCreateWithoutUserInput> | LeaveRequestCreateWithoutUserInput[] | LeaveRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LeaveRequestCreateOrConnectWithoutUserInput | LeaveRequestCreateOrConnectWithoutUserInput[]
+    upsert?: LeaveRequestUpsertWithWhereUniqueWithoutUserInput | LeaveRequestUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LeaveRequestCreateManyUserInputEnvelope
+    set?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    disconnect?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    delete?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    connect?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    update?: LeaveRequestUpdateWithWhereUniqueWithoutUserInput | LeaveRequestUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LeaveRequestUpdateManyWithWhereWithoutUserInput | LeaveRequestUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LeaveRequestScalarWhereInput | LeaveRequestScalarWhereInput[]
+  }
+
+  export type LeaveRequestUpdateManyWithoutApprovedByNestedInput = {
+    create?: XOR<LeaveRequestCreateWithoutApprovedByInput, LeaveRequestUncheckedCreateWithoutApprovedByInput> | LeaveRequestCreateWithoutApprovedByInput[] | LeaveRequestUncheckedCreateWithoutApprovedByInput[]
+    connectOrCreate?: LeaveRequestCreateOrConnectWithoutApprovedByInput | LeaveRequestCreateOrConnectWithoutApprovedByInput[]
+    upsert?: LeaveRequestUpsertWithWhereUniqueWithoutApprovedByInput | LeaveRequestUpsertWithWhereUniqueWithoutApprovedByInput[]
+    createMany?: LeaveRequestCreateManyApprovedByInputEnvelope
+    set?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    disconnect?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    delete?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    connect?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    update?: LeaveRequestUpdateWithWhereUniqueWithoutApprovedByInput | LeaveRequestUpdateWithWhereUniqueWithoutApprovedByInput[]
+    updateMany?: LeaveRequestUpdateManyWithWhereWithoutApprovedByInput | LeaveRequestUpdateManyWithWhereWithoutApprovedByInput[]
+    deleteMany?: LeaveRequestScalarWhereInput | LeaveRequestScalarWhereInput[]
+  }
+
+  export type LiqoGroupUpdateManyWithoutMurobbiNestedInput = {
+    create?: XOR<LiqoGroupCreateWithoutMurobbiInput, LiqoGroupUncheckedCreateWithoutMurobbiInput> | LiqoGroupCreateWithoutMurobbiInput[] | LiqoGroupUncheckedCreateWithoutMurobbiInput[]
+    connectOrCreate?: LiqoGroupCreateOrConnectWithoutMurobbiInput | LiqoGroupCreateOrConnectWithoutMurobbiInput[]
+    upsert?: LiqoGroupUpsertWithWhereUniqueWithoutMurobbiInput | LiqoGroupUpsertWithWhereUniqueWithoutMurobbiInput[]
+    createMany?: LiqoGroupCreateManyMurobbiInputEnvelope
+    set?: LiqoGroupWhereUniqueInput | LiqoGroupWhereUniqueInput[]
+    disconnect?: LiqoGroupWhereUniqueInput | LiqoGroupWhereUniqueInput[]
+    delete?: LiqoGroupWhereUniqueInput | LiqoGroupWhereUniqueInput[]
+    connect?: LiqoGroupWhereUniqueInput | LiqoGroupWhereUniqueInput[]
+    update?: LiqoGroupUpdateWithWhereUniqueWithoutMurobbiInput | LiqoGroupUpdateWithWhereUniqueWithoutMurobbiInput[]
+    updateMany?: LiqoGroupUpdateManyWithWhereWithoutMurobbiInput | LiqoGroupUpdateManyWithWhereWithoutMurobbiInput[]
+    deleteMany?: LiqoGroupScalarWhereInput | LiqoGroupScalarWhereInput[]
+  }
+
+  export type LiqoMemberUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LiqoMemberCreateWithoutUserInput, LiqoMemberUncheckedCreateWithoutUserInput> | LiqoMemberCreateWithoutUserInput[] | LiqoMemberUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LiqoMemberCreateOrConnectWithoutUserInput | LiqoMemberCreateOrConnectWithoutUserInput[]
+    upsert?: LiqoMemberUpsertWithWhereUniqueWithoutUserInput | LiqoMemberUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LiqoMemberCreateManyUserInputEnvelope
+    set?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    disconnect?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    delete?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    connect?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    update?: LiqoMemberUpdateWithWhereUniqueWithoutUserInput | LiqoMemberUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LiqoMemberUpdateManyWithWhereWithoutUserInput | LiqoMemberUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LiqoMemberScalarWhereInput | LiqoMemberScalarWhereInput[]
+  }
+
+  export type LiqoAttendanceUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LiqoAttendanceCreateWithoutUserInput, LiqoAttendanceUncheckedCreateWithoutUserInput> | LiqoAttendanceCreateWithoutUserInput[] | LiqoAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LiqoAttendanceCreateOrConnectWithoutUserInput | LiqoAttendanceCreateOrConnectWithoutUserInput[]
+    upsert?: LiqoAttendanceUpsertWithWhereUniqueWithoutUserInput | LiqoAttendanceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LiqoAttendanceCreateManyUserInputEnvelope
+    set?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    disconnect?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    delete?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    connect?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    update?: LiqoAttendanceUpdateWithWhereUniqueWithoutUserInput | LiqoAttendanceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LiqoAttendanceUpdateManyWithWhereWithoutUserInput | LiqoAttendanceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LiqoAttendanceScalarWhereInput | LiqoAttendanceScalarWhereInput[]
+  }
+
+  export type MutabaahRecordUpdateManyWithoutUserNestedInput = {
+    create?: XOR<MutabaahRecordCreateWithoutUserInput, MutabaahRecordUncheckedCreateWithoutUserInput> | MutabaahRecordCreateWithoutUserInput[] | MutabaahRecordUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MutabaahRecordCreateOrConnectWithoutUserInput | MutabaahRecordCreateOrConnectWithoutUserInput[]
+    upsert?: MutabaahRecordUpsertWithWhereUniqueWithoutUserInput | MutabaahRecordUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: MutabaahRecordCreateManyUserInputEnvelope
+    set?: MutabaahRecordWhereUniqueInput | MutabaahRecordWhereUniqueInput[]
+    disconnect?: MutabaahRecordWhereUniqueInput | MutabaahRecordWhereUniqueInput[]
+    delete?: MutabaahRecordWhereUniqueInput | MutabaahRecordWhereUniqueInput[]
+    connect?: MutabaahRecordWhereUniqueInput | MutabaahRecordWhereUniqueInput[]
+    update?: MutabaahRecordUpdateWithWhereUniqueWithoutUserInput | MutabaahRecordUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: MutabaahRecordUpdateManyWithWhereWithoutUserInput | MutabaahRecordUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: MutabaahRecordScalarWhereInput | MutabaahRecordScalarWhereInput[]
+  }
+
+  export type EmployeeProfileUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<EmployeeProfileCreateWithoutUserInput, EmployeeProfileUncheckedCreateWithoutUserInput>
+    connectOrCreate?: EmployeeProfileCreateOrConnectWithoutUserInput
+    upsert?: EmployeeProfileUpsertWithoutUserInput
+    disconnect?: EmployeeProfileWhereInput | boolean
+    delete?: EmployeeProfileWhereInput | boolean
+    connect?: EmployeeProfileWhereUniqueInput
+    update?: XOR<XOR<EmployeeProfileUpdateToOneWithWhereWithoutUserInput, EmployeeProfileUpdateWithoutUserInput>, EmployeeProfileUncheckedUpdateWithoutUserInput>
+  }
+
+  export type EmployeeUnitAssignmentUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<EmployeeUnitAssignmentCreateWithoutUserInput, EmployeeUnitAssignmentUncheckedCreateWithoutUserInput> | EmployeeUnitAssignmentCreateWithoutUserInput[] | EmployeeUnitAssignmentUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: EmployeeUnitAssignmentCreateOrConnectWithoutUserInput | EmployeeUnitAssignmentCreateOrConnectWithoutUserInput[]
+    upsert?: EmployeeUnitAssignmentUpsertWithWhereUniqueWithoutUserInput | EmployeeUnitAssignmentUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: EmployeeUnitAssignmentCreateManyUserInputEnvelope
+    set?: EmployeeUnitAssignmentWhereUniqueInput | EmployeeUnitAssignmentWhereUniqueInput[]
+    disconnect?: EmployeeUnitAssignmentWhereUniqueInput | EmployeeUnitAssignmentWhereUniqueInput[]
+    delete?: EmployeeUnitAssignmentWhereUniqueInput | EmployeeUnitAssignmentWhereUniqueInput[]
+    connect?: EmployeeUnitAssignmentWhereUniqueInput | EmployeeUnitAssignmentWhereUniqueInput[]
+    update?: EmployeeUnitAssignmentUpdateWithWhereUniqueWithoutUserInput | EmployeeUnitAssignmentUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: EmployeeUnitAssignmentUpdateManyWithWhereWithoutUserInput | EmployeeUnitAssignmentUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: EmployeeUnitAssignmentScalarWhereInput | EmployeeUnitAssignmentScalarWhereInput[]
+  }
+
+  export type GpsAttendanceUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<GpsAttendanceCreateWithoutUserInput, GpsAttendanceUncheckedCreateWithoutUserInput> | GpsAttendanceCreateWithoutUserInput[] | GpsAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: GpsAttendanceCreateOrConnectWithoutUserInput | GpsAttendanceCreateOrConnectWithoutUserInput[]
+    upsert?: GpsAttendanceUpsertWithWhereUniqueWithoutUserInput | GpsAttendanceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: GpsAttendanceCreateManyUserInputEnvelope
+    set?: GpsAttendanceWhereUniqueInput | GpsAttendanceWhereUniqueInput[]
+    disconnect?: GpsAttendanceWhereUniqueInput | GpsAttendanceWhereUniqueInput[]
+    delete?: GpsAttendanceWhereUniqueInput | GpsAttendanceWhereUniqueInput[]
+    connect?: GpsAttendanceWhereUniqueInput | GpsAttendanceWhereUniqueInput[]
+    update?: GpsAttendanceUpdateWithWhereUniqueWithoutUserInput | GpsAttendanceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: GpsAttendanceUpdateManyWithWhereWithoutUserInput | GpsAttendanceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: GpsAttendanceScalarWhereInput | GpsAttendanceScalarWhereInput[]
+  }
+
+  export type LeaveRequestUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LeaveRequestCreateWithoutUserInput, LeaveRequestUncheckedCreateWithoutUserInput> | LeaveRequestCreateWithoutUserInput[] | LeaveRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LeaveRequestCreateOrConnectWithoutUserInput | LeaveRequestCreateOrConnectWithoutUserInput[]
+    upsert?: LeaveRequestUpsertWithWhereUniqueWithoutUserInput | LeaveRequestUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LeaveRequestCreateManyUserInputEnvelope
+    set?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    disconnect?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    delete?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    connect?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    update?: LeaveRequestUpdateWithWhereUniqueWithoutUserInput | LeaveRequestUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LeaveRequestUpdateManyWithWhereWithoutUserInput | LeaveRequestUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LeaveRequestScalarWhereInput | LeaveRequestScalarWhereInput[]
+  }
+
+  export type LeaveRequestUncheckedUpdateManyWithoutApprovedByNestedInput = {
+    create?: XOR<LeaveRequestCreateWithoutApprovedByInput, LeaveRequestUncheckedCreateWithoutApprovedByInput> | LeaveRequestCreateWithoutApprovedByInput[] | LeaveRequestUncheckedCreateWithoutApprovedByInput[]
+    connectOrCreate?: LeaveRequestCreateOrConnectWithoutApprovedByInput | LeaveRequestCreateOrConnectWithoutApprovedByInput[]
+    upsert?: LeaveRequestUpsertWithWhereUniqueWithoutApprovedByInput | LeaveRequestUpsertWithWhereUniqueWithoutApprovedByInput[]
+    createMany?: LeaveRequestCreateManyApprovedByInputEnvelope
+    set?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    disconnect?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    delete?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    connect?: LeaveRequestWhereUniqueInput | LeaveRequestWhereUniqueInput[]
+    update?: LeaveRequestUpdateWithWhereUniqueWithoutApprovedByInput | LeaveRequestUpdateWithWhereUniqueWithoutApprovedByInput[]
+    updateMany?: LeaveRequestUpdateManyWithWhereWithoutApprovedByInput | LeaveRequestUpdateManyWithWhereWithoutApprovedByInput[]
+    deleteMany?: LeaveRequestScalarWhereInput | LeaveRequestScalarWhereInput[]
+  }
+
+  export type LiqoGroupUncheckedUpdateManyWithoutMurobbiNestedInput = {
+    create?: XOR<LiqoGroupCreateWithoutMurobbiInput, LiqoGroupUncheckedCreateWithoutMurobbiInput> | LiqoGroupCreateWithoutMurobbiInput[] | LiqoGroupUncheckedCreateWithoutMurobbiInput[]
+    connectOrCreate?: LiqoGroupCreateOrConnectWithoutMurobbiInput | LiqoGroupCreateOrConnectWithoutMurobbiInput[]
+    upsert?: LiqoGroupUpsertWithWhereUniqueWithoutMurobbiInput | LiqoGroupUpsertWithWhereUniqueWithoutMurobbiInput[]
+    createMany?: LiqoGroupCreateManyMurobbiInputEnvelope
+    set?: LiqoGroupWhereUniqueInput | LiqoGroupWhereUniqueInput[]
+    disconnect?: LiqoGroupWhereUniqueInput | LiqoGroupWhereUniqueInput[]
+    delete?: LiqoGroupWhereUniqueInput | LiqoGroupWhereUniqueInput[]
+    connect?: LiqoGroupWhereUniqueInput | LiqoGroupWhereUniqueInput[]
+    update?: LiqoGroupUpdateWithWhereUniqueWithoutMurobbiInput | LiqoGroupUpdateWithWhereUniqueWithoutMurobbiInput[]
+    updateMany?: LiqoGroupUpdateManyWithWhereWithoutMurobbiInput | LiqoGroupUpdateManyWithWhereWithoutMurobbiInput[]
+    deleteMany?: LiqoGroupScalarWhereInput | LiqoGroupScalarWhereInput[]
+  }
+
+  export type LiqoMemberUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LiqoMemberCreateWithoutUserInput, LiqoMemberUncheckedCreateWithoutUserInput> | LiqoMemberCreateWithoutUserInput[] | LiqoMemberUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LiqoMemberCreateOrConnectWithoutUserInput | LiqoMemberCreateOrConnectWithoutUserInput[]
+    upsert?: LiqoMemberUpsertWithWhereUniqueWithoutUserInput | LiqoMemberUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LiqoMemberCreateManyUserInputEnvelope
+    set?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    disconnect?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    delete?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    connect?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    update?: LiqoMemberUpdateWithWhereUniqueWithoutUserInput | LiqoMemberUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LiqoMemberUpdateManyWithWhereWithoutUserInput | LiqoMemberUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LiqoMemberScalarWhereInput | LiqoMemberScalarWhereInput[]
+  }
+
+  export type LiqoAttendanceUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LiqoAttendanceCreateWithoutUserInput, LiqoAttendanceUncheckedCreateWithoutUserInput> | LiqoAttendanceCreateWithoutUserInput[] | LiqoAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LiqoAttendanceCreateOrConnectWithoutUserInput | LiqoAttendanceCreateOrConnectWithoutUserInput[]
+    upsert?: LiqoAttendanceUpsertWithWhereUniqueWithoutUserInput | LiqoAttendanceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LiqoAttendanceCreateManyUserInputEnvelope
+    set?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    disconnect?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    delete?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    connect?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    update?: LiqoAttendanceUpdateWithWhereUniqueWithoutUserInput | LiqoAttendanceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LiqoAttendanceUpdateManyWithWhereWithoutUserInput | LiqoAttendanceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LiqoAttendanceScalarWhereInput | LiqoAttendanceScalarWhereInput[]
+  }
+
+  export type MutabaahRecordUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<MutabaahRecordCreateWithoutUserInput, MutabaahRecordUncheckedCreateWithoutUserInput> | MutabaahRecordCreateWithoutUserInput[] | MutabaahRecordUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: MutabaahRecordCreateOrConnectWithoutUserInput | MutabaahRecordCreateOrConnectWithoutUserInput[]
+    upsert?: MutabaahRecordUpsertWithWhereUniqueWithoutUserInput | MutabaahRecordUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: MutabaahRecordCreateManyUserInputEnvelope
+    set?: MutabaahRecordWhereUniqueInput | MutabaahRecordWhereUniqueInput[]
+    disconnect?: MutabaahRecordWhereUniqueInput | MutabaahRecordWhereUniqueInput[]
+    delete?: MutabaahRecordWhereUniqueInput | MutabaahRecordWhereUniqueInput[]
+    connect?: MutabaahRecordWhereUniqueInput | MutabaahRecordWhereUniqueInput[]
+    update?: MutabaahRecordUpdateWithWhereUniqueWithoutUserInput | MutabaahRecordUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: MutabaahRecordUpdateManyWithWhereWithoutUserInput | MutabaahRecordUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: MutabaahRecordScalarWhereInput | MutabaahRecordScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutProfileInput = {
+    create?: XOR<UserCreateWithoutProfileInput, UserUncheckedCreateWithoutProfileInput>
+    connectOrCreate?: UserCreateOrConnectWithoutProfileInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type UserUpdateOneRequiredWithoutProfileNestedInput = {
+    create?: XOR<UserCreateWithoutProfileInput, UserUncheckedCreateWithoutProfileInput>
+    connectOrCreate?: UserCreateOrConnectWithoutProfileInput
+    upsert?: UserUpsertWithoutProfileInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutProfileInput, UserUpdateWithoutProfileInput>, UserUncheckedUpdateWithoutProfileInput>
+  }
+
+  export type UserCreateNestedOneWithoutUnitAssignmentsInput = {
+    create?: XOR<UserCreateWithoutUnitAssignmentsInput, UserUncheckedCreateWithoutUnitAssignmentsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUnitAssignmentsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutUnitAssignmentsNestedInput = {
+    create?: XOR<UserCreateWithoutUnitAssignmentsInput, UserUncheckedCreateWithoutUnitAssignmentsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUnitAssignmentsInput
+    upsert?: UserUpsertWithoutUnitAssignmentsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUnitAssignmentsInput, UserUpdateWithoutUnitAssignmentsInput>, UserUncheckedUpdateWithoutUnitAssignmentsInput>
+  }
+
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type UserCreateNestedOneWithoutGpsAttendancesInput = {
+    create?: XOR<UserCreateWithoutGpsAttendancesInput, UserUncheckedCreateWithoutGpsAttendancesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutGpsAttendancesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type EnumGpsAttendanceStatusFieldUpdateOperationsInput = {
+    set?: $Enums.GpsAttendanceStatus
+  }
+
+  export type UserUpdateOneRequiredWithoutGpsAttendancesNestedInput = {
+    create?: XOR<UserCreateWithoutGpsAttendancesInput, UserUncheckedCreateWithoutGpsAttendancesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutGpsAttendancesInput
+    upsert?: UserUpsertWithoutGpsAttendancesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutGpsAttendancesInput, UserUpdateWithoutGpsAttendancesInput>, UserUncheckedUpdateWithoutGpsAttendancesInput>
+  }
+
+  export type UserCreateNestedOneWithoutLeaveRequestsInput = {
+    create?: XOR<UserCreateWithoutLeaveRequestsInput, UserUncheckedCreateWithoutLeaveRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLeaveRequestsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutApprovedLeavesInput = {
+    create?: XOR<UserCreateWithoutApprovedLeavesInput, UserUncheckedCreateWithoutApprovedLeavesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutApprovedLeavesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumLeaveTypeFieldUpdateOperationsInput = {
+    set?: $Enums.LeaveType
+  }
+
+  export type EnumLeaveStatusFieldUpdateOperationsInput = {
+    set?: $Enums.LeaveStatus
+  }
+
+  export type UserUpdateOneRequiredWithoutLeaveRequestsNestedInput = {
+    create?: XOR<UserCreateWithoutLeaveRequestsInput, UserUncheckedCreateWithoutLeaveRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLeaveRequestsInput
+    upsert?: UserUpsertWithoutLeaveRequestsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutLeaveRequestsInput, UserUpdateWithoutLeaveRequestsInput>, UserUncheckedUpdateWithoutLeaveRequestsInput>
+  }
+
+  export type UserUpdateOneWithoutApprovedLeavesNestedInput = {
+    create?: XOR<UserCreateWithoutApprovedLeavesInput, UserUncheckedCreateWithoutApprovedLeavesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutApprovedLeavesInput
+    upsert?: UserUpsertWithoutApprovedLeavesInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutApprovedLeavesInput, UserUpdateWithoutApprovedLeavesInput>, UserUncheckedUpdateWithoutApprovedLeavesInput>
+  }
+
+  export type UserCreateNestedOneWithoutLiqoGroupsAsMurobbiInput = {
+    create?: XOR<UserCreateWithoutLiqoGroupsAsMurobbiInput, UserUncheckedCreateWithoutLiqoGroupsAsMurobbiInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLiqoGroupsAsMurobbiInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type LiqoMemberCreateNestedManyWithoutGroupInput = {
+    create?: XOR<LiqoMemberCreateWithoutGroupInput, LiqoMemberUncheckedCreateWithoutGroupInput> | LiqoMemberCreateWithoutGroupInput[] | LiqoMemberUncheckedCreateWithoutGroupInput[]
+    connectOrCreate?: LiqoMemberCreateOrConnectWithoutGroupInput | LiqoMemberCreateOrConnectWithoutGroupInput[]
+    createMany?: LiqoMemberCreateManyGroupInputEnvelope
+    connect?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+  }
+
+  export type LiqoMeetingCreateNestedManyWithoutGroupInput = {
+    create?: XOR<LiqoMeetingCreateWithoutGroupInput, LiqoMeetingUncheckedCreateWithoutGroupInput> | LiqoMeetingCreateWithoutGroupInput[] | LiqoMeetingUncheckedCreateWithoutGroupInput[]
+    connectOrCreate?: LiqoMeetingCreateOrConnectWithoutGroupInput | LiqoMeetingCreateOrConnectWithoutGroupInput[]
+    createMany?: LiqoMeetingCreateManyGroupInputEnvelope
+    connect?: LiqoMeetingWhereUniqueInput | LiqoMeetingWhereUniqueInput[]
+  }
+
+  export type LiqoMemberUncheckedCreateNestedManyWithoutGroupInput = {
+    create?: XOR<LiqoMemberCreateWithoutGroupInput, LiqoMemberUncheckedCreateWithoutGroupInput> | LiqoMemberCreateWithoutGroupInput[] | LiqoMemberUncheckedCreateWithoutGroupInput[]
+    connectOrCreate?: LiqoMemberCreateOrConnectWithoutGroupInput | LiqoMemberCreateOrConnectWithoutGroupInput[]
+    createMany?: LiqoMemberCreateManyGroupInputEnvelope
+    connect?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+  }
+
+  export type LiqoMeetingUncheckedCreateNestedManyWithoutGroupInput = {
+    create?: XOR<LiqoMeetingCreateWithoutGroupInput, LiqoMeetingUncheckedCreateWithoutGroupInput> | LiqoMeetingCreateWithoutGroupInput[] | LiqoMeetingUncheckedCreateWithoutGroupInput[]
+    connectOrCreate?: LiqoMeetingCreateOrConnectWithoutGroupInput | LiqoMeetingCreateOrConnectWithoutGroupInput[]
+    createMany?: LiqoMeetingCreateManyGroupInputEnvelope
+    connect?: LiqoMeetingWhereUniqueInput | LiqoMeetingWhereUniqueInput[]
+  }
+
+  export type NullableEnumDayOfWeekFieldUpdateOperationsInput = {
+    set?: $Enums.DayOfWeek | null
+  }
+
+  export type UserUpdateOneRequiredWithoutLiqoGroupsAsMurobbiNestedInput = {
+    create?: XOR<UserCreateWithoutLiqoGroupsAsMurobbiInput, UserUncheckedCreateWithoutLiqoGroupsAsMurobbiInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLiqoGroupsAsMurobbiInput
+    upsert?: UserUpsertWithoutLiqoGroupsAsMurobbiInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutLiqoGroupsAsMurobbiInput, UserUpdateWithoutLiqoGroupsAsMurobbiInput>, UserUncheckedUpdateWithoutLiqoGroupsAsMurobbiInput>
+  }
+
+  export type LiqoMemberUpdateManyWithoutGroupNestedInput = {
+    create?: XOR<LiqoMemberCreateWithoutGroupInput, LiqoMemberUncheckedCreateWithoutGroupInput> | LiqoMemberCreateWithoutGroupInput[] | LiqoMemberUncheckedCreateWithoutGroupInput[]
+    connectOrCreate?: LiqoMemberCreateOrConnectWithoutGroupInput | LiqoMemberCreateOrConnectWithoutGroupInput[]
+    upsert?: LiqoMemberUpsertWithWhereUniqueWithoutGroupInput | LiqoMemberUpsertWithWhereUniqueWithoutGroupInput[]
+    createMany?: LiqoMemberCreateManyGroupInputEnvelope
+    set?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    disconnect?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    delete?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    connect?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    update?: LiqoMemberUpdateWithWhereUniqueWithoutGroupInput | LiqoMemberUpdateWithWhereUniqueWithoutGroupInput[]
+    updateMany?: LiqoMemberUpdateManyWithWhereWithoutGroupInput | LiqoMemberUpdateManyWithWhereWithoutGroupInput[]
+    deleteMany?: LiqoMemberScalarWhereInput | LiqoMemberScalarWhereInput[]
+  }
+
+  export type LiqoMeetingUpdateManyWithoutGroupNestedInput = {
+    create?: XOR<LiqoMeetingCreateWithoutGroupInput, LiqoMeetingUncheckedCreateWithoutGroupInput> | LiqoMeetingCreateWithoutGroupInput[] | LiqoMeetingUncheckedCreateWithoutGroupInput[]
+    connectOrCreate?: LiqoMeetingCreateOrConnectWithoutGroupInput | LiqoMeetingCreateOrConnectWithoutGroupInput[]
+    upsert?: LiqoMeetingUpsertWithWhereUniqueWithoutGroupInput | LiqoMeetingUpsertWithWhereUniqueWithoutGroupInput[]
+    createMany?: LiqoMeetingCreateManyGroupInputEnvelope
+    set?: LiqoMeetingWhereUniqueInput | LiqoMeetingWhereUniqueInput[]
+    disconnect?: LiqoMeetingWhereUniqueInput | LiqoMeetingWhereUniqueInput[]
+    delete?: LiqoMeetingWhereUniqueInput | LiqoMeetingWhereUniqueInput[]
+    connect?: LiqoMeetingWhereUniqueInput | LiqoMeetingWhereUniqueInput[]
+    update?: LiqoMeetingUpdateWithWhereUniqueWithoutGroupInput | LiqoMeetingUpdateWithWhereUniqueWithoutGroupInput[]
+    updateMany?: LiqoMeetingUpdateManyWithWhereWithoutGroupInput | LiqoMeetingUpdateManyWithWhereWithoutGroupInput[]
+    deleteMany?: LiqoMeetingScalarWhereInput | LiqoMeetingScalarWhereInput[]
+  }
+
+  export type LiqoMemberUncheckedUpdateManyWithoutGroupNestedInput = {
+    create?: XOR<LiqoMemberCreateWithoutGroupInput, LiqoMemberUncheckedCreateWithoutGroupInput> | LiqoMemberCreateWithoutGroupInput[] | LiqoMemberUncheckedCreateWithoutGroupInput[]
+    connectOrCreate?: LiqoMemberCreateOrConnectWithoutGroupInput | LiqoMemberCreateOrConnectWithoutGroupInput[]
+    upsert?: LiqoMemberUpsertWithWhereUniqueWithoutGroupInput | LiqoMemberUpsertWithWhereUniqueWithoutGroupInput[]
+    createMany?: LiqoMemberCreateManyGroupInputEnvelope
+    set?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    disconnect?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    delete?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    connect?: LiqoMemberWhereUniqueInput | LiqoMemberWhereUniqueInput[]
+    update?: LiqoMemberUpdateWithWhereUniqueWithoutGroupInput | LiqoMemberUpdateWithWhereUniqueWithoutGroupInput[]
+    updateMany?: LiqoMemberUpdateManyWithWhereWithoutGroupInput | LiqoMemberUpdateManyWithWhereWithoutGroupInput[]
+    deleteMany?: LiqoMemberScalarWhereInput | LiqoMemberScalarWhereInput[]
+  }
+
+  export type LiqoMeetingUncheckedUpdateManyWithoutGroupNestedInput = {
+    create?: XOR<LiqoMeetingCreateWithoutGroupInput, LiqoMeetingUncheckedCreateWithoutGroupInput> | LiqoMeetingCreateWithoutGroupInput[] | LiqoMeetingUncheckedCreateWithoutGroupInput[]
+    connectOrCreate?: LiqoMeetingCreateOrConnectWithoutGroupInput | LiqoMeetingCreateOrConnectWithoutGroupInput[]
+    upsert?: LiqoMeetingUpsertWithWhereUniqueWithoutGroupInput | LiqoMeetingUpsertWithWhereUniqueWithoutGroupInput[]
+    createMany?: LiqoMeetingCreateManyGroupInputEnvelope
+    set?: LiqoMeetingWhereUniqueInput | LiqoMeetingWhereUniqueInput[]
+    disconnect?: LiqoMeetingWhereUniqueInput | LiqoMeetingWhereUniqueInput[]
+    delete?: LiqoMeetingWhereUniqueInput | LiqoMeetingWhereUniqueInput[]
+    connect?: LiqoMeetingWhereUniqueInput | LiqoMeetingWhereUniqueInput[]
+    update?: LiqoMeetingUpdateWithWhereUniqueWithoutGroupInput | LiqoMeetingUpdateWithWhereUniqueWithoutGroupInput[]
+    updateMany?: LiqoMeetingUpdateManyWithWhereWithoutGroupInput | LiqoMeetingUpdateManyWithWhereWithoutGroupInput[]
+    deleteMany?: LiqoMeetingScalarWhereInput | LiqoMeetingScalarWhereInput[]
+  }
+
+  export type LiqoGroupCreateNestedOneWithoutMembersInput = {
+    create?: XOR<LiqoGroupCreateWithoutMembersInput, LiqoGroupUncheckedCreateWithoutMembersInput>
+    connectOrCreate?: LiqoGroupCreateOrConnectWithoutMembersInput
+    connect?: LiqoGroupWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutLiqoMembershipsInput = {
+    create?: XOR<UserCreateWithoutLiqoMembershipsInput, UserUncheckedCreateWithoutLiqoMembershipsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLiqoMembershipsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type LiqoGroupUpdateOneRequiredWithoutMembersNestedInput = {
+    create?: XOR<LiqoGroupCreateWithoutMembersInput, LiqoGroupUncheckedCreateWithoutMembersInput>
+    connectOrCreate?: LiqoGroupCreateOrConnectWithoutMembersInput
+    upsert?: LiqoGroupUpsertWithoutMembersInput
+    connect?: LiqoGroupWhereUniqueInput
+    update?: XOR<XOR<LiqoGroupUpdateToOneWithWhereWithoutMembersInput, LiqoGroupUpdateWithoutMembersInput>, LiqoGroupUncheckedUpdateWithoutMembersInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutLiqoMembershipsNestedInput = {
+    create?: XOR<UserCreateWithoutLiqoMembershipsInput, UserUncheckedCreateWithoutLiqoMembershipsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLiqoMembershipsInput
+    upsert?: UserUpsertWithoutLiqoMembershipsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutLiqoMembershipsInput, UserUpdateWithoutLiqoMembershipsInput>, UserUncheckedUpdateWithoutLiqoMembershipsInput>
+  }
+
+  export type LiqoGroupCreateNestedOneWithoutMeetingsInput = {
+    create?: XOR<LiqoGroupCreateWithoutMeetingsInput, LiqoGroupUncheckedCreateWithoutMeetingsInput>
+    connectOrCreate?: LiqoGroupCreateOrConnectWithoutMeetingsInput
+    connect?: LiqoGroupWhereUniqueInput
+  }
+
+  export type LiqoAttendanceCreateNestedManyWithoutMeetingInput = {
+    create?: XOR<LiqoAttendanceCreateWithoutMeetingInput, LiqoAttendanceUncheckedCreateWithoutMeetingInput> | LiqoAttendanceCreateWithoutMeetingInput[] | LiqoAttendanceUncheckedCreateWithoutMeetingInput[]
+    connectOrCreate?: LiqoAttendanceCreateOrConnectWithoutMeetingInput | LiqoAttendanceCreateOrConnectWithoutMeetingInput[]
+    createMany?: LiqoAttendanceCreateManyMeetingInputEnvelope
+    connect?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+  }
+
+  export type LiqoAttendanceUncheckedCreateNestedManyWithoutMeetingInput = {
+    create?: XOR<LiqoAttendanceCreateWithoutMeetingInput, LiqoAttendanceUncheckedCreateWithoutMeetingInput> | LiqoAttendanceCreateWithoutMeetingInput[] | LiqoAttendanceUncheckedCreateWithoutMeetingInput[]
+    connectOrCreate?: LiqoAttendanceCreateOrConnectWithoutMeetingInput | LiqoAttendanceCreateOrConnectWithoutMeetingInput[]
+    createMany?: LiqoAttendanceCreateManyMeetingInputEnvelope
+    connect?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+  }
+
+  export type LiqoGroupUpdateOneRequiredWithoutMeetingsNestedInput = {
+    create?: XOR<LiqoGroupCreateWithoutMeetingsInput, LiqoGroupUncheckedCreateWithoutMeetingsInput>
+    connectOrCreate?: LiqoGroupCreateOrConnectWithoutMeetingsInput
+    upsert?: LiqoGroupUpsertWithoutMeetingsInput
+    connect?: LiqoGroupWhereUniqueInput
+    update?: XOR<XOR<LiqoGroupUpdateToOneWithWhereWithoutMeetingsInput, LiqoGroupUpdateWithoutMeetingsInput>, LiqoGroupUncheckedUpdateWithoutMeetingsInput>
+  }
+
+  export type LiqoAttendanceUpdateManyWithoutMeetingNestedInput = {
+    create?: XOR<LiqoAttendanceCreateWithoutMeetingInput, LiqoAttendanceUncheckedCreateWithoutMeetingInput> | LiqoAttendanceCreateWithoutMeetingInput[] | LiqoAttendanceUncheckedCreateWithoutMeetingInput[]
+    connectOrCreate?: LiqoAttendanceCreateOrConnectWithoutMeetingInput | LiqoAttendanceCreateOrConnectWithoutMeetingInput[]
+    upsert?: LiqoAttendanceUpsertWithWhereUniqueWithoutMeetingInput | LiqoAttendanceUpsertWithWhereUniqueWithoutMeetingInput[]
+    createMany?: LiqoAttendanceCreateManyMeetingInputEnvelope
+    set?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    disconnect?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    delete?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    connect?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    update?: LiqoAttendanceUpdateWithWhereUniqueWithoutMeetingInput | LiqoAttendanceUpdateWithWhereUniqueWithoutMeetingInput[]
+    updateMany?: LiqoAttendanceUpdateManyWithWhereWithoutMeetingInput | LiqoAttendanceUpdateManyWithWhereWithoutMeetingInput[]
+    deleteMany?: LiqoAttendanceScalarWhereInput | LiqoAttendanceScalarWhereInput[]
+  }
+
+  export type LiqoAttendanceUncheckedUpdateManyWithoutMeetingNestedInput = {
+    create?: XOR<LiqoAttendanceCreateWithoutMeetingInput, LiqoAttendanceUncheckedCreateWithoutMeetingInput> | LiqoAttendanceCreateWithoutMeetingInput[] | LiqoAttendanceUncheckedCreateWithoutMeetingInput[]
+    connectOrCreate?: LiqoAttendanceCreateOrConnectWithoutMeetingInput | LiqoAttendanceCreateOrConnectWithoutMeetingInput[]
+    upsert?: LiqoAttendanceUpsertWithWhereUniqueWithoutMeetingInput | LiqoAttendanceUpsertWithWhereUniqueWithoutMeetingInput[]
+    createMany?: LiqoAttendanceCreateManyMeetingInputEnvelope
+    set?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    disconnect?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    delete?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    connect?: LiqoAttendanceWhereUniqueInput | LiqoAttendanceWhereUniqueInput[]
+    update?: LiqoAttendanceUpdateWithWhereUniqueWithoutMeetingInput | LiqoAttendanceUpdateWithWhereUniqueWithoutMeetingInput[]
+    updateMany?: LiqoAttendanceUpdateManyWithWhereWithoutMeetingInput | LiqoAttendanceUpdateManyWithWhereWithoutMeetingInput[]
+    deleteMany?: LiqoAttendanceScalarWhereInput | LiqoAttendanceScalarWhereInput[]
+  }
+
+  export type LiqoMeetingCreateNestedOneWithoutAttendancesInput = {
+    create?: XOR<LiqoMeetingCreateWithoutAttendancesInput, LiqoMeetingUncheckedCreateWithoutAttendancesInput>
+    connectOrCreate?: LiqoMeetingCreateOrConnectWithoutAttendancesInput
+    connect?: LiqoMeetingWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutLiqoAttendancesInput = {
+    create?: XOR<UserCreateWithoutLiqoAttendancesInput, UserUncheckedCreateWithoutLiqoAttendancesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLiqoAttendancesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumAttendanceStatusFieldUpdateOperationsInput = {
+    set?: $Enums.AttendanceStatus
+  }
+
+  export type LiqoMeetingUpdateOneRequiredWithoutAttendancesNestedInput = {
+    create?: XOR<LiqoMeetingCreateWithoutAttendancesInput, LiqoMeetingUncheckedCreateWithoutAttendancesInput>
+    connectOrCreate?: LiqoMeetingCreateOrConnectWithoutAttendancesInput
+    upsert?: LiqoMeetingUpsertWithoutAttendancesInput
+    connect?: LiqoMeetingWhereUniqueInput
+    update?: XOR<XOR<LiqoMeetingUpdateToOneWithWhereWithoutAttendancesInput, LiqoMeetingUpdateWithoutAttendancesInput>, LiqoMeetingUncheckedUpdateWithoutAttendancesInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutLiqoAttendancesNestedInput = {
+    create?: XOR<UserCreateWithoutLiqoAttendancesInput, UserUncheckedCreateWithoutLiqoAttendancesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLiqoAttendancesInput
+    upsert?: UserUpsertWithoutLiqoAttendancesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutLiqoAttendancesInput, UserUpdateWithoutLiqoAttendancesInput>, UserUncheckedUpdateWithoutLiqoAttendancesInput>
+  }
+
+  export type UserCreateNestedOneWithoutMutabaahRecordsInput = {
+    create?: XOR<UserCreateWithoutMutabaahRecordsInput, UserUncheckedCreateWithoutMutabaahRecordsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutMutabaahRecordsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutMutabaahRecordsNestedInput = {
+    create?: XOR<UserCreateWithoutMutabaahRecordsInput, UserUncheckedCreateWithoutMutabaahRecordsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutMutabaahRecordsInput
+    upsert?: UserUpsertWithoutMutabaahRecordsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutMutabaahRecordsInput, UserUpdateWithoutMutabaahRecordsInput>, UserUncheckedUpdateWithoutMutabaahRecordsInput>
+  }
+
+  export type NestedUuidFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidFilter<$PrismaModel> | string
+  }
+
+  export type NestedStringFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringFilter<$PrismaModel> | string
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedIntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedUuidWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedEnumGpsAttendanceStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.GpsAttendanceStatus | EnumGpsAttendanceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.GpsAttendanceStatus[] | ListEnumGpsAttendanceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GpsAttendanceStatus[] | ListEnumGpsAttendanceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumGpsAttendanceStatusFilter<$PrismaModel> | $Enums.GpsAttendanceStatus
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumGpsAttendanceStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GpsAttendanceStatus | EnumGpsAttendanceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.GpsAttendanceStatus[] | ListEnumGpsAttendanceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GpsAttendanceStatus[] | ListEnumGpsAttendanceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumGpsAttendanceStatusWithAggregatesFilter<$PrismaModel> | $Enums.GpsAttendanceStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumGpsAttendanceStatusFilter<$PrismaModel>
+    _max?: NestedEnumGpsAttendanceStatusFilter<$PrismaModel>
+  }
+
+  export type NestedUuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumLeaveTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.LeaveType | EnumLeaveTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LeaveType[] | ListEnumLeaveTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LeaveType[] | ListEnumLeaveTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLeaveTypeFilter<$PrismaModel> | $Enums.LeaveType
+  }
+
+  export type NestedEnumLeaveStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.LeaveStatus | EnumLeaveStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.LeaveStatus[] | ListEnumLeaveStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LeaveStatus[] | ListEnumLeaveStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumLeaveStatusFilter<$PrismaModel> | $Enums.LeaveStatus
+  }
+
+  export type NestedEnumLeaveTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LeaveType | EnumLeaveTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LeaveType[] | ListEnumLeaveTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LeaveType[] | ListEnumLeaveTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLeaveTypeWithAggregatesFilter<$PrismaModel> | $Enums.LeaveType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLeaveTypeFilter<$PrismaModel>
+    _max?: NestedEnumLeaveTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumLeaveStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LeaveStatus | EnumLeaveStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.LeaveStatus[] | ListEnumLeaveStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LeaveStatus[] | ListEnumLeaveStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumLeaveStatusWithAggregatesFilter<$PrismaModel> | $Enums.LeaveStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLeaveStatusFilter<$PrismaModel>
+    _max?: NestedEnumLeaveStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumDayOfWeekNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.DayOfWeek | EnumDayOfWeekFieldRefInput<$PrismaModel> | null
+    in?: $Enums.DayOfWeek[] | ListEnumDayOfWeekFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.DayOfWeek[] | ListEnumDayOfWeekFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumDayOfWeekNullableFilter<$PrismaModel> | $Enums.DayOfWeek | null
+  }
+
+  export type NestedEnumDayOfWeekNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DayOfWeek | EnumDayOfWeekFieldRefInput<$PrismaModel> | null
+    in?: $Enums.DayOfWeek[] | ListEnumDayOfWeekFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.DayOfWeek[] | ListEnumDayOfWeekFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumDayOfWeekNullableWithAggregatesFilter<$PrismaModel> | $Enums.DayOfWeek | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumDayOfWeekNullableFilter<$PrismaModel>
+    _max?: NestedEnumDayOfWeekNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAttendanceStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AttendanceStatus | EnumAttendanceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AttendanceStatus[] | ListEnumAttendanceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AttendanceStatus[] | ListEnumAttendanceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAttendanceStatusFilter<$PrismaModel> | $Enums.AttendanceStatus
+  }
+
+  export type NestedEnumAttendanceStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AttendanceStatus | EnumAttendanceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AttendanceStatus[] | ListEnumAttendanceStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AttendanceStatus[] | ListEnumAttendanceStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAttendanceStatusWithAggregatesFilter<$PrismaModel> | $Enums.AttendanceStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAttendanceStatusFilter<$PrismaModel>
+    _max?: NestedEnumAttendanceStatusFilter<$PrismaModel>
+  }
+
+  export type EmployeeProfileCreateWithoutUserInput = {
+    id?: string
+    nip?: string | null
+    position?: string | null
+    employeeType?: string
+    joinDate?: Date | string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type EmployeeProfileUncheckedCreateWithoutUserInput = {
+    id?: string
+    nip?: string | null
+    position?: string | null
+    employeeType?: string
+    joinDate?: Date | string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type EmployeeProfileCreateOrConnectWithoutUserInput = {
+    where: EmployeeProfileWhereUniqueInput
+    create: XOR<EmployeeProfileCreateWithoutUserInput, EmployeeProfileUncheckedCreateWithoutUserInput>
+  }
+
+  export type EmployeeUnitAssignmentCreateWithoutUserInput = {
+    id?: string
+    unitId: string
+    unitName: string
+    role: string
+    isPrimary?: boolean
+    startDate: Date | string
+    endDate?: Date | string | null
+    skNumber?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+  }
+
+  export type EmployeeUnitAssignmentUncheckedCreateWithoutUserInput = {
+    id?: string
+    unitId: string
+    unitName: string
+    role: string
+    isPrimary?: boolean
+    startDate: Date | string
+    endDate?: Date | string | null
+    skNumber?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+  }
+
+  export type EmployeeUnitAssignmentCreateOrConnectWithoutUserInput = {
+    where: EmployeeUnitAssignmentWhereUniqueInput
+    create: XOR<EmployeeUnitAssignmentCreateWithoutUserInput, EmployeeUnitAssignmentUncheckedCreateWithoutUserInput>
+  }
+
+  export type EmployeeUnitAssignmentCreateManyUserInputEnvelope = {
+    data: EmployeeUnitAssignmentCreateManyUserInput | EmployeeUnitAssignmentCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type GpsAttendanceCreateWithoutUserInput = {
+    id?: string
+    unitId: string
+    date: Date | string
+    checkInTime?: Date | string | null
+    checkOutTime?: Date | string | null
+    latitude?: number | null
+    longitude?: number | null
+    status: $Enums.GpsAttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+  }
+
+  export type GpsAttendanceUncheckedCreateWithoutUserInput = {
+    id?: string
+    unitId: string
+    date: Date | string
+    checkInTime?: Date | string | null
+    checkOutTime?: Date | string | null
+    latitude?: number | null
+    longitude?: number | null
+    status: $Enums.GpsAttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+  }
+
+  export type GpsAttendanceCreateOrConnectWithoutUserInput = {
+    where: GpsAttendanceWhereUniqueInput
+    create: XOR<GpsAttendanceCreateWithoutUserInput, GpsAttendanceUncheckedCreateWithoutUserInput>
+  }
+
+  export type GpsAttendanceCreateManyUserInputEnvelope = {
+    data: GpsAttendanceCreateManyUserInput | GpsAttendanceCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LeaveRequestCreateWithoutUserInput = {
+    id?: string
+    type: $Enums.LeaveType
+    startDate: Date | string
+    endDate: Date | string
+    reason: string
+    attachmentUrl?: string | null
+    status?: $Enums.LeaveStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    approvedBy?: UserCreateNestedOneWithoutApprovedLeavesInput
+  }
+
+  export type LeaveRequestUncheckedCreateWithoutUserInput = {
+    id?: string
+    type: $Enums.LeaveType
+    startDate: Date | string
+    endDate: Date | string
+    reason: string
+    attachmentUrl?: string | null
+    status?: $Enums.LeaveStatus
+    approvedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LeaveRequestCreateOrConnectWithoutUserInput = {
+    where: LeaveRequestWhereUniqueInput
+    create: XOR<LeaveRequestCreateWithoutUserInput, LeaveRequestUncheckedCreateWithoutUserInput>
+  }
+
+  export type LeaveRequestCreateManyUserInputEnvelope = {
+    data: LeaveRequestCreateManyUserInput | LeaveRequestCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LeaveRequestCreateWithoutApprovedByInput = {
+    id?: string
+    type: $Enums.LeaveType
+    startDate: Date | string
+    endDate: Date | string
+    reason: string
+    attachmentUrl?: string | null
+    status?: $Enums.LeaveStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    user: UserCreateNestedOneWithoutLeaveRequestsInput
+  }
+
+  export type LeaveRequestUncheckedCreateWithoutApprovedByInput = {
+    id?: string
+    userId: string
+    type: $Enums.LeaveType
+    startDate: Date | string
+    endDate: Date | string
+    reason: string
+    attachmentUrl?: string | null
+    status?: $Enums.LeaveStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LeaveRequestCreateOrConnectWithoutApprovedByInput = {
+    where: LeaveRequestWhereUniqueInput
+    create: XOR<LeaveRequestCreateWithoutApprovedByInput, LeaveRequestUncheckedCreateWithoutApprovedByInput>
+  }
+
+  export type LeaveRequestCreateManyApprovedByInputEnvelope = {
+    data: LeaveRequestCreateManyApprovedByInput | LeaveRequestCreateManyApprovedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LiqoGroupCreateWithoutMurobbiInput = {
+    id?: string
+    name: string
+    description?: string | null
+    scheduleDay?: $Enums.DayOfWeek | null
+    scheduleTime?: string | null
+    scheduleLocation?: string | null
+    whatsappLink?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    members?: LiqoMemberCreateNestedManyWithoutGroupInput
+    meetings?: LiqoMeetingCreateNestedManyWithoutGroupInput
+  }
+
+  export type LiqoGroupUncheckedCreateWithoutMurobbiInput = {
+    id?: string
+    name: string
+    description?: string | null
+    scheduleDay?: $Enums.DayOfWeek | null
+    scheduleTime?: string | null
+    scheduleLocation?: string | null
+    whatsappLink?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    members?: LiqoMemberUncheckedCreateNestedManyWithoutGroupInput
+    meetings?: LiqoMeetingUncheckedCreateNestedManyWithoutGroupInput
+  }
+
+  export type LiqoGroupCreateOrConnectWithoutMurobbiInput = {
+    where: LiqoGroupWhereUniqueInput
+    create: XOR<LiqoGroupCreateWithoutMurobbiInput, LiqoGroupUncheckedCreateWithoutMurobbiInput>
+  }
+
+  export type LiqoGroupCreateManyMurobbiInputEnvelope = {
+    data: LiqoGroupCreateManyMurobbiInput | LiqoGroupCreateManyMurobbiInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LiqoMemberCreateWithoutUserInput = {
+    id?: string
+    joinedAt?: Date | string
+    group: LiqoGroupCreateNestedOneWithoutMembersInput
+  }
+
+  export type LiqoMemberUncheckedCreateWithoutUserInput = {
+    id?: string
+    groupId: string
+    joinedAt?: Date | string
+  }
+
+  export type LiqoMemberCreateOrConnectWithoutUserInput = {
+    where: LiqoMemberWhereUniqueInput
+    create: XOR<LiqoMemberCreateWithoutUserInput, LiqoMemberUncheckedCreateWithoutUserInput>
+  }
+
+  export type LiqoMemberCreateManyUserInputEnvelope = {
+    data: LiqoMemberCreateManyUserInput | LiqoMemberCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LiqoAttendanceCreateWithoutUserInput = {
+    id?: string
+    status: $Enums.AttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    meeting: LiqoMeetingCreateNestedOneWithoutAttendancesInput
+  }
+
+  export type LiqoAttendanceUncheckedCreateWithoutUserInput = {
+    id?: string
+    meetingId: string
+    status: $Enums.AttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LiqoAttendanceCreateOrConnectWithoutUserInput = {
+    where: LiqoAttendanceWhereUniqueInput
+    create: XOR<LiqoAttendanceCreateWithoutUserInput, LiqoAttendanceUncheckedCreateWithoutUserInput>
+  }
+
+  export type LiqoAttendanceCreateManyUserInputEnvelope = {
+    data: LiqoAttendanceCreateManyUserInput | LiqoAttendanceCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MutabaahRecordCreateWithoutUserInput = {
+    id?: string
+    date: Date | string
+    sholatJamaah?: number
+    sholatRawatib?: number
+    sholatDhuha?: boolean
+    sholatTahajud?: boolean
+    tilawahPages?: number
+    puasaSunnah?: boolean
+    infaq?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type MutabaahRecordUncheckedCreateWithoutUserInput = {
+    id?: string
+    date: Date | string
+    sholatJamaah?: number
+    sholatRawatib?: number
+    sholatDhuha?: boolean
+    sholatTahajud?: boolean
+    tilawahPages?: number
+    puasaSunnah?: boolean
+    infaq?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type MutabaahRecordCreateOrConnectWithoutUserInput = {
+    where: MutabaahRecordWhereUniqueInput
+    create: XOR<MutabaahRecordCreateWithoutUserInput, MutabaahRecordUncheckedCreateWithoutUserInput>
+  }
+
+  export type MutabaahRecordCreateManyUserInputEnvelope = {
+    data: MutabaahRecordCreateManyUserInput | MutabaahRecordCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type EmployeeProfileUpsertWithoutUserInput = {
+    update: XOR<EmployeeProfileUpdateWithoutUserInput, EmployeeProfileUncheckedUpdateWithoutUserInput>
+    create: XOR<EmployeeProfileCreateWithoutUserInput, EmployeeProfileUncheckedCreateWithoutUserInput>
+    where?: EmployeeProfileWhereInput
+  }
+
+  export type EmployeeProfileUpdateToOneWithWhereWithoutUserInput = {
+    where?: EmployeeProfileWhereInput
+    data: XOR<EmployeeProfileUpdateWithoutUserInput, EmployeeProfileUncheckedUpdateWithoutUserInput>
+  }
+
+  export type EmployeeProfileUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nip?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    employeeType?: StringFieldUpdateOperationsInput | string
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type EmployeeProfileUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nip?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: NullableStringFieldUpdateOperationsInput | string | null
+    employeeType?: StringFieldUpdateOperationsInput | string
+    joinDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type EmployeeUnitAssignmentUpsertWithWhereUniqueWithoutUserInput = {
+    where: EmployeeUnitAssignmentWhereUniqueInput
+    update: XOR<EmployeeUnitAssignmentUpdateWithoutUserInput, EmployeeUnitAssignmentUncheckedUpdateWithoutUserInput>
+    create: XOR<EmployeeUnitAssignmentCreateWithoutUserInput, EmployeeUnitAssignmentUncheckedCreateWithoutUserInput>
+  }
+
+  export type EmployeeUnitAssignmentUpdateWithWhereUniqueWithoutUserInput = {
+    where: EmployeeUnitAssignmentWhereUniqueInput
+    data: XOR<EmployeeUnitAssignmentUpdateWithoutUserInput, EmployeeUnitAssignmentUncheckedUpdateWithoutUserInput>
+  }
+
+  export type EmployeeUnitAssignmentUpdateManyWithWhereWithoutUserInput = {
+    where: EmployeeUnitAssignmentScalarWhereInput
+    data: XOR<EmployeeUnitAssignmentUpdateManyMutationInput, EmployeeUnitAssignmentUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type EmployeeUnitAssignmentScalarWhereInput = {
+    AND?: EmployeeUnitAssignmentScalarWhereInput | EmployeeUnitAssignmentScalarWhereInput[]
+    OR?: EmployeeUnitAssignmentScalarWhereInput[]
+    NOT?: EmployeeUnitAssignmentScalarWhereInput | EmployeeUnitAssignmentScalarWhereInput[]
+    id?: UuidFilter<"EmployeeUnitAssignment"> | string
+    userId?: UuidFilter<"EmployeeUnitAssignment"> | string
+    unitId?: UuidFilter<"EmployeeUnitAssignment"> | string
+    unitName?: StringFilter<"EmployeeUnitAssignment"> | string
+    role?: StringFilter<"EmployeeUnitAssignment"> | string
+    isPrimary?: BoolFilter<"EmployeeUnitAssignment"> | boolean
+    startDate?: DateTimeFilter<"EmployeeUnitAssignment"> | Date | string
+    endDate?: DateTimeNullableFilter<"EmployeeUnitAssignment"> | Date | string | null
+    skNumber?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
+    notes?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
+    createdAt?: DateTimeFilter<"EmployeeUnitAssignment"> | Date | string
+  }
+
+  export type GpsAttendanceUpsertWithWhereUniqueWithoutUserInput = {
+    where: GpsAttendanceWhereUniqueInput
+    update: XOR<GpsAttendanceUpdateWithoutUserInput, GpsAttendanceUncheckedUpdateWithoutUserInput>
+    create: XOR<GpsAttendanceCreateWithoutUserInput, GpsAttendanceUncheckedCreateWithoutUserInput>
+  }
+
+  export type GpsAttendanceUpdateWithWhereUniqueWithoutUserInput = {
+    where: GpsAttendanceWhereUniqueInput
+    data: XOR<GpsAttendanceUpdateWithoutUserInput, GpsAttendanceUncheckedUpdateWithoutUserInput>
+  }
+
+  export type GpsAttendanceUpdateManyWithWhereWithoutUserInput = {
+    where: GpsAttendanceScalarWhereInput
+    data: XOR<GpsAttendanceUpdateManyMutationInput, GpsAttendanceUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type GpsAttendanceScalarWhereInput = {
+    AND?: GpsAttendanceScalarWhereInput | GpsAttendanceScalarWhereInput[]
+    OR?: GpsAttendanceScalarWhereInput[]
+    NOT?: GpsAttendanceScalarWhereInput | GpsAttendanceScalarWhereInput[]
+    id?: UuidFilter<"GpsAttendance"> | string
+    userId?: UuidFilter<"GpsAttendance"> | string
+    unitId?: UuidFilter<"GpsAttendance"> | string
+    date?: DateTimeFilter<"GpsAttendance"> | Date | string
+    checkInTime?: DateTimeNullableFilter<"GpsAttendance"> | Date | string | null
+    checkOutTime?: DateTimeNullableFilter<"GpsAttendance"> | Date | string | null
+    latitude?: FloatNullableFilter<"GpsAttendance"> | number | null
+    longitude?: FloatNullableFilter<"GpsAttendance"> | number | null
+    status?: EnumGpsAttendanceStatusFilter<"GpsAttendance"> | $Enums.GpsAttendanceStatus
+    notes?: StringNullableFilter<"GpsAttendance"> | string | null
+    createdAt?: DateTimeFilter<"GpsAttendance"> | Date | string
+  }
+
+  export type LeaveRequestUpsertWithWhereUniqueWithoutUserInput = {
+    where: LeaveRequestWhereUniqueInput
+    update: XOR<LeaveRequestUpdateWithoutUserInput, LeaveRequestUncheckedUpdateWithoutUserInput>
+    create: XOR<LeaveRequestCreateWithoutUserInput, LeaveRequestUncheckedCreateWithoutUserInput>
+  }
+
+  export type LeaveRequestUpdateWithWhereUniqueWithoutUserInput = {
+    where: LeaveRequestWhereUniqueInput
+    data: XOR<LeaveRequestUpdateWithoutUserInput, LeaveRequestUncheckedUpdateWithoutUserInput>
+  }
+
+  export type LeaveRequestUpdateManyWithWhereWithoutUserInput = {
+    where: LeaveRequestScalarWhereInput
+    data: XOR<LeaveRequestUpdateManyMutationInput, LeaveRequestUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type LeaveRequestScalarWhereInput = {
+    AND?: LeaveRequestScalarWhereInput | LeaveRequestScalarWhereInput[]
+    OR?: LeaveRequestScalarWhereInput[]
+    NOT?: LeaveRequestScalarWhereInput | LeaveRequestScalarWhereInput[]
+    id?: UuidFilter<"LeaveRequest"> | string
+    userId?: UuidFilter<"LeaveRequest"> | string
+    type?: EnumLeaveTypeFilter<"LeaveRequest"> | $Enums.LeaveType
+    startDate?: DateTimeFilter<"LeaveRequest"> | Date | string
+    endDate?: DateTimeFilter<"LeaveRequest"> | Date | string
+    reason?: StringFilter<"LeaveRequest"> | string
+    attachmentUrl?: StringNullableFilter<"LeaveRequest"> | string | null
+    status?: EnumLeaveStatusFilter<"LeaveRequest"> | $Enums.LeaveStatus
+    approvedById?: UuidNullableFilter<"LeaveRequest"> | string | null
+    createdAt?: DateTimeFilter<"LeaveRequest"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"LeaveRequest"> | Date | string | null
+  }
+
+  export type LeaveRequestUpsertWithWhereUniqueWithoutApprovedByInput = {
+    where: LeaveRequestWhereUniqueInput
+    update: XOR<LeaveRequestUpdateWithoutApprovedByInput, LeaveRequestUncheckedUpdateWithoutApprovedByInput>
+    create: XOR<LeaveRequestCreateWithoutApprovedByInput, LeaveRequestUncheckedCreateWithoutApprovedByInput>
+  }
+
+  export type LeaveRequestUpdateWithWhereUniqueWithoutApprovedByInput = {
+    where: LeaveRequestWhereUniqueInput
+    data: XOR<LeaveRequestUpdateWithoutApprovedByInput, LeaveRequestUncheckedUpdateWithoutApprovedByInput>
+  }
+
+  export type LeaveRequestUpdateManyWithWhereWithoutApprovedByInput = {
+    where: LeaveRequestScalarWhereInput
+    data: XOR<LeaveRequestUpdateManyMutationInput, LeaveRequestUncheckedUpdateManyWithoutApprovedByInput>
+  }
+
+  export type LiqoGroupUpsertWithWhereUniqueWithoutMurobbiInput = {
+    where: LiqoGroupWhereUniqueInput
+    update: XOR<LiqoGroupUpdateWithoutMurobbiInput, LiqoGroupUncheckedUpdateWithoutMurobbiInput>
+    create: XOR<LiqoGroupCreateWithoutMurobbiInput, LiqoGroupUncheckedCreateWithoutMurobbiInput>
+  }
+
+  export type LiqoGroupUpdateWithWhereUniqueWithoutMurobbiInput = {
+    where: LiqoGroupWhereUniqueInput
+    data: XOR<LiqoGroupUpdateWithoutMurobbiInput, LiqoGroupUncheckedUpdateWithoutMurobbiInput>
+  }
+
+  export type LiqoGroupUpdateManyWithWhereWithoutMurobbiInput = {
+    where: LiqoGroupScalarWhereInput
+    data: XOR<LiqoGroupUpdateManyMutationInput, LiqoGroupUncheckedUpdateManyWithoutMurobbiInput>
+  }
+
+  export type LiqoGroupScalarWhereInput = {
+    AND?: LiqoGroupScalarWhereInput | LiqoGroupScalarWhereInput[]
+    OR?: LiqoGroupScalarWhereInput[]
+    NOT?: LiqoGroupScalarWhereInput | LiqoGroupScalarWhereInput[]
+    id?: UuidFilter<"LiqoGroup"> | string
+    name?: StringFilter<"LiqoGroup"> | string
+    murobbiId?: UuidFilter<"LiqoGroup"> | string
+    description?: StringNullableFilter<"LiqoGroup"> | string | null
+    scheduleDay?: EnumDayOfWeekNullableFilter<"LiqoGroup"> | $Enums.DayOfWeek | null
+    scheduleTime?: StringNullableFilter<"LiqoGroup"> | string | null
+    scheduleLocation?: StringNullableFilter<"LiqoGroup"> | string | null
+    whatsappLink?: StringNullableFilter<"LiqoGroup"> | string | null
+    createdAt?: DateTimeFilter<"LiqoGroup"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"LiqoGroup"> | Date | string | null
+  }
+
+  export type LiqoMemberUpsertWithWhereUniqueWithoutUserInput = {
+    where: LiqoMemberWhereUniqueInput
+    update: XOR<LiqoMemberUpdateWithoutUserInput, LiqoMemberUncheckedUpdateWithoutUserInput>
+    create: XOR<LiqoMemberCreateWithoutUserInput, LiqoMemberUncheckedCreateWithoutUserInput>
+  }
+
+  export type LiqoMemberUpdateWithWhereUniqueWithoutUserInput = {
+    where: LiqoMemberWhereUniqueInput
+    data: XOR<LiqoMemberUpdateWithoutUserInput, LiqoMemberUncheckedUpdateWithoutUserInput>
+  }
+
+  export type LiqoMemberUpdateManyWithWhereWithoutUserInput = {
+    where: LiqoMemberScalarWhereInput
+    data: XOR<LiqoMemberUpdateManyMutationInput, LiqoMemberUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type LiqoMemberScalarWhereInput = {
+    AND?: LiqoMemberScalarWhereInput | LiqoMemberScalarWhereInput[]
+    OR?: LiqoMemberScalarWhereInput[]
+    NOT?: LiqoMemberScalarWhereInput | LiqoMemberScalarWhereInput[]
+    id?: UuidFilter<"LiqoMember"> | string
+    groupId?: UuidFilter<"LiqoMember"> | string
+    userId?: UuidFilter<"LiqoMember"> | string
+    joinedAt?: DateTimeFilter<"LiqoMember"> | Date | string
+  }
+
+  export type LiqoAttendanceUpsertWithWhereUniqueWithoutUserInput = {
+    where: LiqoAttendanceWhereUniqueInput
+    update: XOR<LiqoAttendanceUpdateWithoutUserInput, LiqoAttendanceUncheckedUpdateWithoutUserInput>
+    create: XOR<LiqoAttendanceCreateWithoutUserInput, LiqoAttendanceUncheckedCreateWithoutUserInput>
+  }
+
+  export type LiqoAttendanceUpdateWithWhereUniqueWithoutUserInput = {
+    where: LiqoAttendanceWhereUniqueInput
+    data: XOR<LiqoAttendanceUpdateWithoutUserInput, LiqoAttendanceUncheckedUpdateWithoutUserInput>
+  }
+
+  export type LiqoAttendanceUpdateManyWithWhereWithoutUserInput = {
+    where: LiqoAttendanceScalarWhereInput
+    data: XOR<LiqoAttendanceUpdateManyMutationInput, LiqoAttendanceUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type LiqoAttendanceScalarWhereInput = {
+    AND?: LiqoAttendanceScalarWhereInput | LiqoAttendanceScalarWhereInput[]
+    OR?: LiqoAttendanceScalarWhereInput[]
+    NOT?: LiqoAttendanceScalarWhereInput | LiqoAttendanceScalarWhereInput[]
+    id?: UuidFilter<"LiqoAttendance"> | string
+    meetingId?: UuidFilter<"LiqoAttendance"> | string
+    userId?: UuidFilter<"LiqoAttendance"> | string
+    status?: EnumAttendanceStatusFilter<"LiqoAttendance"> | $Enums.AttendanceStatus
+    notes?: StringNullableFilter<"LiqoAttendance"> | string | null
+    createdAt?: DateTimeFilter<"LiqoAttendance"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"LiqoAttendance"> | Date | string | null
+  }
+
+  export type MutabaahRecordUpsertWithWhereUniqueWithoutUserInput = {
+    where: MutabaahRecordWhereUniqueInput
+    update: XOR<MutabaahRecordUpdateWithoutUserInput, MutabaahRecordUncheckedUpdateWithoutUserInput>
+    create: XOR<MutabaahRecordCreateWithoutUserInput, MutabaahRecordUncheckedCreateWithoutUserInput>
+  }
+
+  export type MutabaahRecordUpdateWithWhereUniqueWithoutUserInput = {
+    where: MutabaahRecordWhereUniqueInput
+    data: XOR<MutabaahRecordUpdateWithoutUserInput, MutabaahRecordUncheckedUpdateWithoutUserInput>
+  }
+
+  export type MutabaahRecordUpdateManyWithWhereWithoutUserInput = {
+    where: MutabaahRecordScalarWhereInput
+    data: XOR<MutabaahRecordUpdateManyMutationInput, MutabaahRecordUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type MutabaahRecordScalarWhereInput = {
+    AND?: MutabaahRecordScalarWhereInput | MutabaahRecordScalarWhereInput[]
+    OR?: MutabaahRecordScalarWhereInput[]
+    NOT?: MutabaahRecordScalarWhereInput | MutabaahRecordScalarWhereInput[]
+    id?: UuidFilter<"MutabaahRecord"> | string
+    userId?: UuidFilter<"MutabaahRecord"> | string
+    date?: DateTimeFilter<"MutabaahRecord"> | Date | string
+    sholatJamaah?: IntFilter<"MutabaahRecord"> | number
+    sholatRawatib?: IntFilter<"MutabaahRecord"> | number
+    sholatDhuha?: BoolFilter<"MutabaahRecord"> | boolean
+    sholatTahajud?: BoolFilter<"MutabaahRecord"> | boolean
+    tilawahPages?: IntFilter<"MutabaahRecord"> | number
+    puasaSunnah?: BoolFilter<"MutabaahRecord"> | boolean
+    infaq?: BoolFilter<"MutabaahRecord"> | boolean
+    createdAt?: DateTimeFilter<"MutabaahRecord"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"MutabaahRecord"> | Date | string | null
+  }
+
+  export type UserCreateWithoutProfileInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    unitAssignments?: EmployeeUnitAssignmentCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutProfileInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    unitAssignments?: EmployeeUnitAssignmentUncheckedCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceUncheckedCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestUncheckedCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberUncheckedCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceUncheckedCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutProfileInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutProfileInput, UserUncheckedCreateWithoutProfileInput>
+  }
+
+  export type UserUpsertWithoutProfileInput = {
+    update: XOR<UserUpdateWithoutProfileInput, UserUncheckedUpdateWithoutProfileInput>
+    create: XOR<UserCreateWithoutProfileInput, UserUncheckedCreateWithoutProfileInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutProfileInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutProfileInput, UserUncheckedUpdateWithoutProfileInput>
+  }
+
+  export type UserUpdateWithoutProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unitAssignments?: EmployeeUnitAssignmentUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unitAssignments?: EmployeeUnitAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUncheckedUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUncheckedUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutUnitAssignmentsInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileCreateNestedOneWithoutUserInput
+    gpsAttendances?: GpsAttendanceCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutUnitAssignmentsInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileUncheckedCreateNestedOneWithoutUserInput
+    gpsAttendances?: GpsAttendanceUncheckedCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestUncheckedCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberUncheckedCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceUncheckedCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutUnitAssignmentsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUnitAssignmentsInput, UserUncheckedCreateWithoutUnitAssignmentsInput>
+  }
+
+  export type UserUpsertWithoutUnitAssignmentsInput = {
+    update: XOR<UserUpdateWithoutUnitAssignmentsInput, UserUncheckedUpdateWithoutUnitAssignmentsInput>
+    create: XOR<UserCreateWithoutUnitAssignmentsInput, UserUncheckedCreateWithoutUnitAssignmentsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUnitAssignmentsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUnitAssignmentsInput, UserUncheckedUpdateWithoutUnitAssignmentsInput>
+  }
+
+  export type UserUpdateWithoutUnitAssignmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUpdateOneWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUnitAssignmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUncheckedUpdateOneWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUncheckedUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUncheckedUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutGpsAttendancesInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutGpsAttendancesInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileUncheckedCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestUncheckedCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberUncheckedCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceUncheckedCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutGpsAttendancesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutGpsAttendancesInput, UserUncheckedCreateWithoutGpsAttendancesInput>
+  }
+
+  export type UserUpsertWithoutGpsAttendancesInput = {
+    update: XOR<UserUpdateWithoutGpsAttendancesInput, UserUncheckedUpdateWithoutGpsAttendancesInput>
+    create: XOR<UserCreateWithoutGpsAttendancesInput, UserUncheckedCreateWithoutGpsAttendancesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutGpsAttendancesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutGpsAttendancesInput, UserUncheckedUpdateWithoutGpsAttendancesInput>
+  }
+
+  export type UserUpdateWithoutGpsAttendancesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutGpsAttendancesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUncheckedUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUncheckedUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUncheckedUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutLeaveRequestsInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutLeaveRequestsInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileUncheckedCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceUncheckedCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestUncheckedCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberUncheckedCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceUncheckedCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutLeaveRequestsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutLeaveRequestsInput, UserUncheckedCreateWithoutLeaveRequestsInput>
+  }
+
+  export type UserCreateWithoutApprovedLeavesInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestCreateNestedManyWithoutUserInput
+    liqoGroupsAsMurobbi?: LiqoGroupCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutApprovedLeavesInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileUncheckedCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceUncheckedCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutUserInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberUncheckedCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceUncheckedCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutApprovedLeavesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutApprovedLeavesInput, UserUncheckedCreateWithoutApprovedLeavesInput>
+  }
+
+  export type UserUpsertWithoutLeaveRequestsInput = {
+    update: XOR<UserUpdateWithoutLeaveRequestsInput, UserUncheckedUpdateWithoutLeaveRequestsInput>
+    create: XOR<UserCreateWithoutLeaveRequestsInput, UserUncheckedCreateWithoutLeaveRequestsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutLeaveRequestsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutLeaveRequestsInput, UserUncheckedUpdateWithoutLeaveRequestsInput>
+  }
+
+  export type UserUpdateWithoutLeaveRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutLeaveRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUncheckedUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUncheckedUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUncheckedUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUpsertWithoutApprovedLeavesInput = {
+    update: XOR<UserUpdateWithoutApprovedLeavesInput, UserUncheckedUpdateWithoutApprovedLeavesInput>
+    create: XOR<UserCreateWithoutApprovedLeavesInput, UserUncheckedCreateWithoutApprovedLeavesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutApprovedLeavesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutApprovedLeavesInput, UserUncheckedUpdateWithoutApprovedLeavesInput>
+  }
+
+  export type UserUpdateWithoutApprovedLeavesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUpdateManyWithoutUserNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutApprovedLeavesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUncheckedUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutUserNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUncheckedUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutLiqoGroupsAsMurobbiInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestCreateNestedManyWithoutApprovedByInput
+    liqoMemberships?: LiqoMemberCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutLiqoGroupsAsMurobbiInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileUncheckedCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceUncheckedCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestUncheckedCreateNestedManyWithoutApprovedByInput
+    liqoMemberships?: LiqoMemberUncheckedCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceUncheckedCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutLiqoGroupsAsMurobbiInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutLiqoGroupsAsMurobbiInput, UserUncheckedCreateWithoutLiqoGroupsAsMurobbiInput>
+  }
+
+  export type LiqoMemberCreateWithoutGroupInput = {
+    id?: string
+    joinedAt?: Date | string
+    user: UserCreateNestedOneWithoutLiqoMembershipsInput
+  }
+
+  export type LiqoMemberUncheckedCreateWithoutGroupInput = {
+    id?: string
+    userId: string
+    joinedAt?: Date | string
+  }
+
+  export type LiqoMemberCreateOrConnectWithoutGroupInput = {
+    where: LiqoMemberWhereUniqueInput
+    create: XOR<LiqoMemberCreateWithoutGroupInput, LiqoMemberUncheckedCreateWithoutGroupInput>
+  }
+
+  export type LiqoMemberCreateManyGroupInputEnvelope = {
+    data: LiqoMemberCreateManyGroupInput | LiqoMemberCreateManyGroupInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LiqoMeetingCreateWithoutGroupInput = {
+    id?: string
+    date: Date | string
+    materialTitle: string
+    summary?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    attendances?: LiqoAttendanceCreateNestedManyWithoutMeetingInput
+  }
+
+  export type LiqoMeetingUncheckedCreateWithoutGroupInput = {
+    id?: string
+    date: Date | string
+    materialTitle: string
+    summary?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    attendances?: LiqoAttendanceUncheckedCreateNestedManyWithoutMeetingInput
+  }
+
+  export type LiqoMeetingCreateOrConnectWithoutGroupInput = {
+    where: LiqoMeetingWhereUniqueInput
+    create: XOR<LiqoMeetingCreateWithoutGroupInput, LiqoMeetingUncheckedCreateWithoutGroupInput>
+  }
+
+  export type LiqoMeetingCreateManyGroupInputEnvelope = {
+    data: LiqoMeetingCreateManyGroupInput | LiqoMeetingCreateManyGroupInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutLiqoGroupsAsMurobbiInput = {
+    update: XOR<UserUpdateWithoutLiqoGroupsAsMurobbiInput, UserUncheckedUpdateWithoutLiqoGroupsAsMurobbiInput>
+    create: XOR<UserCreateWithoutLiqoGroupsAsMurobbiInput, UserUncheckedCreateWithoutLiqoGroupsAsMurobbiInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutLiqoGroupsAsMurobbiInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutLiqoGroupsAsMurobbiInput, UserUncheckedUpdateWithoutLiqoGroupsAsMurobbiInput>
+  }
+
+  export type UserUpdateWithoutLiqoGroupsAsMurobbiInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUpdateManyWithoutApprovedByNestedInput
+    liqoMemberships?: LiqoMemberUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutLiqoGroupsAsMurobbiInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUncheckedUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUncheckedUpdateManyWithoutApprovedByNestedInput
+    liqoMemberships?: LiqoMemberUncheckedUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type LiqoMemberUpsertWithWhereUniqueWithoutGroupInput = {
+    where: LiqoMemberWhereUniqueInput
+    update: XOR<LiqoMemberUpdateWithoutGroupInput, LiqoMemberUncheckedUpdateWithoutGroupInput>
+    create: XOR<LiqoMemberCreateWithoutGroupInput, LiqoMemberUncheckedCreateWithoutGroupInput>
+  }
+
+  export type LiqoMemberUpdateWithWhereUniqueWithoutGroupInput = {
+    where: LiqoMemberWhereUniqueInput
+    data: XOR<LiqoMemberUpdateWithoutGroupInput, LiqoMemberUncheckedUpdateWithoutGroupInput>
+  }
+
+  export type LiqoMemberUpdateManyWithWhereWithoutGroupInput = {
+    where: LiqoMemberScalarWhereInput
+    data: XOR<LiqoMemberUpdateManyMutationInput, LiqoMemberUncheckedUpdateManyWithoutGroupInput>
+  }
+
+  export type LiqoMeetingUpsertWithWhereUniqueWithoutGroupInput = {
+    where: LiqoMeetingWhereUniqueInput
+    update: XOR<LiqoMeetingUpdateWithoutGroupInput, LiqoMeetingUncheckedUpdateWithoutGroupInput>
+    create: XOR<LiqoMeetingCreateWithoutGroupInput, LiqoMeetingUncheckedCreateWithoutGroupInput>
+  }
+
+  export type LiqoMeetingUpdateWithWhereUniqueWithoutGroupInput = {
+    where: LiqoMeetingWhereUniqueInput
+    data: XOR<LiqoMeetingUpdateWithoutGroupInput, LiqoMeetingUncheckedUpdateWithoutGroupInput>
+  }
+
+  export type LiqoMeetingUpdateManyWithWhereWithoutGroupInput = {
+    where: LiqoMeetingScalarWhereInput
+    data: XOR<LiqoMeetingUpdateManyMutationInput, LiqoMeetingUncheckedUpdateManyWithoutGroupInput>
+  }
+
+  export type LiqoMeetingScalarWhereInput = {
+    AND?: LiqoMeetingScalarWhereInput | LiqoMeetingScalarWhereInput[]
+    OR?: LiqoMeetingScalarWhereInput[]
+    NOT?: LiqoMeetingScalarWhereInput | LiqoMeetingScalarWhereInput[]
+    id?: UuidFilter<"LiqoMeeting"> | string
+    groupId?: UuidFilter<"LiqoMeeting"> | string
+    date?: DateTimeFilter<"LiqoMeeting"> | Date | string
+    materialTitle?: StringFilter<"LiqoMeeting"> | string
+    summary?: StringNullableFilter<"LiqoMeeting"> | string | null
+    createdAt?: DateTimeFilter<"LiqoMeeting"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"LiqoMeeting"> | Date | string | null
+  }
+
+  export type LiqoGroupCreateWithoutMembersInput = {
+    id?: string
+    name: string
+    description?: string | null
+    scheduleDay?: $Enums.DayOfWeek | null
+    scheduleTime?: string | null
+    scheduleLocation?: string | null
+    whatsappLink?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    murobbi: UserCreateNestedOneWithoutLiqoGroupsAsMurobbiInput
+    meetings?: LiqoMeetingCreateNestedManyWithoutGroupInput
+  }
+
+  export type LiqoGroupUncheckedCreateWithoutMembersInput = {
+    id?: string
+    name: string
+    murobbiId: string
+    description?: string | null
+    scheduleDay?: $Enums.DayOfWeek | null
+    scheduleTime?: string | null
+    scheduleLocation?: string | null
+    whatsappLink?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    meetings?: LiqoMeetingUncheckedCreateNestedManyWithoutGroupInput
+  }
+
+  export type LiqoGroupCreateOrConnectWithoutMembersInput = {
+    where: LiqoGroupWhereUniqueInput
+    create: XOR<LiqoGroupCreateWithoutMembersInput, LiqoGroupUncheckedCreateWithoutMembersInput>
+  }
+
+  export type UserCreateWithoutLiqoMembershipsInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupCreateNestedManyWithoutMurobbiInput
+    liqoAttendances?: LiqoAttendanceCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutLiqoMembershipsInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileUncheckedCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceUncheckedCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestUncheckedCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedCreateNestedManyWithoutMurobbiInput
+    liqoAttendances?: LiqoAttendanceUncheckedCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutLiqoMembershipsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutLiqoMembershipsInput, UserUncheckedCreateWithoutLiqoMembershipsInput>
+  }
+
+  export type LiqoGroupUpsertWithoutMembersInput = {
+    update: XOR<LiqoGroupUpdateWithoutMembersInput, LiqoGroupUncheckedUpdateWithoutMembersInput>
+    create: XOR<LiqoGroupCreateWithoutMembersInput, LiqoGroupUncheckedCreateWithoutMembersInput>
+    where?: LiqoGroupWhereInput
+  }
+
+  export type LiqoGroupUpdateToOneWithWhereWithoutMembersInput = {
+    where?: LiqoGroupWhereInput
+    data: XOR<LiqoGroupUpdateWithoutMembersInput, LiqoGroupUncheckedUpdateWithoutMembersInput>
+  }
+
+  export type LiqoGroupUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleDay?: NullableEnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek | null
+    scheduleTime?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    murobbi?: UserUpdateOneRequiredWithoutLiqoGroupsAsMurobbiNestedInput
+    meetings?: LiqoMeetingUpdateManyWithoutGroupNestedInput
+  }
+
+  export type LiqoGroupUncheckedUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    murobbiId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleDay?: NullableEnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek | null
+    scheduleTime?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    meetings?: LiqoMeetingUncheckedUpdateManyWithoutGroupNestedInput
+  }
+
+  export type UserUpsertWithoutLiqoMembershipsInput = {
+    update: XOR<UserUpdateWithoutLiqoMembershipsInput, UserUncheckedUpdateWithoutLiqoMembershipsInput>
+    create: XOR<UserCreateWithoutLiqoMembershipsInput, UserUncheckedCreateWithoutLiqoMembershipsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutLiqoMembershipsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutLiqoMembershipsInput, UserUncheckedUpdateWithoutLiqoMembershipsInput>
+  }
+
+  export type UserUpdateWithoutLiqoMembershipsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUpdateManyWithoutMurobbiNestedInput
+    liqoAttendances?: LiqoAttendanceUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutLiqoMembershipsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUncheckedUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUncheckedUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedUpdateManyWithoutMurobbiNestedInput
+    liqoAttendances?: LiqoAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type LiqoGroupCreateWithoutMeetingsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    scheduleDay?: $Enums.DayOfWeek | null
+    scheduleTime?: string | null
+    scheduleLocation?: string | null
+    whatsappLink?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    murobbi: UserCreateNestedOneWithoutLiqoGroupsAsMurobbiInput
+    members?: LiqoMemberCreateNestedManyWithoutGroupInput
+  }
+
+  export type LiqoGroupUncheckedCreateWithoutMeetingsInput = {
+    id?: string
+    name: string
+    murobbiId: string
+    description?: string | null
+    scheduleDay?: $Enums.DayOfWeek | null
+    scheduleTime?: string | null
+    scheduleLocation?: string | null
+    whatsappLink?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    members?: LiqoMemberUncheckedCreateNestedManyWithoutGroupInput
+  }
+
+  export type LiqoGroupCreateOrConnectWithoutMeetingsInput = {
+    where: LiqoGroupWhereUniqueInput
+    create: XOR<LiqoGroupCreateWithoutMeetingsInput, LiqoGroupUncheckedCreateWithoutMeetingsInput>
+  }
+
+  export type LiqoAttendanceCreateWithoutMeetingInput = {
+    id?: string
+    status: $Enums.AttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    user: UserCreateNestedOneWithoutLiqoAttendancesInput
+  }
+
+  export type LiqoAttendanceUncheckedCreateWithoutMeetingInput = {
+    id?: string
+    userId: string
+    status: $Enums.AttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LiqoAttendanceCreateOrConnectWithoutMeetingInput = {
+    where: LiqoAttendanceWhereUniqueInput
+    create: XOR<LiqoAttendanceCreateWithoutMeetingInput, LiqoAttendanceUncheckedCreateWithoutMeetingInput>
+  }
+
+  export type LiqoAttendanceCreateManyMeetingInputEnvelope = {
+    data: LiqoAttendanceCreateManyMeetingInput | LiqoAttendanceCreateManyMeetingInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LiqoGroupUpsertWithoutMeetingsInput = {
+    update: XOR<LiqoGroupUpdateWithoutMeetingsInput, LiqoGroupUncheckedUpdateWithoutMeetingsInput>
+    create: XOR<LiqoGroupCreateWithoutMeetingsInput, LiqoGroupUncheckedCreateWithoutMeetingsInput>
+    where?: LiqoGroupWhereInput
+  }
+
+  export type LiqoGroupUpdateToOneWithWhereWithoutMeetingsInput = {
+    where?: LiqoGroupWhereInput
+    data: XOR<LiqoGroupUpdateWithoutMeetingsInput, LiqoGroupUncheckedUpdateWithoutMeetingsInput>
+  }
+
+  export type LiqoGroupUpdateWithoutMeetingsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleDay?: NullableEnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek | null
+    scheduleTime?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    murobbi?: UserUpdateOneRequiredWithoutLiqoGroupsAsMurobbiNestedInput
+    members?: LiqoMemberUpdateManyWithoutGroupNestedInput
+  }
+
+  export type LiqoGroupUncheckedUpdateWithoutMeetingsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    murobbiId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleDay?: NullableEnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek | null
+    scheduleTime?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    members?: LiqoMemberUncheckedUpdateManyWithoutGroupNestedInput
+  }
+
+  export type LiqoAttendanceUpsertWithWhereUniqueWithoutMeetingInput = {
+    where: LiqoAttendanceWhereUniqueInput
+    update: XOR<LiqoAttendanceUpdateWithoutMeetingInput, LiqoAttendanceUncheckedUpdateWithoutMeetingInput>
+    create: XOR<LiqoAttendanceCreateWithoutMeetingInput, LiqoAttendanceUncheckedCreateWithoutMeetingInput>
+  }
+
+  export type LiqoAttendanceUpdateWithWhereUniqueWithoutMeetingInput = {
+    where: LiqoAttendanceWhereUniqueInput
+    data: XOR<LiqoAttendanceUpdateWithoutMeetingInput, LiqoAttendanceUncheckedUpdateWithoutMeetingInput>
+  }
+
+  export type LiqoAttendanceUpdateManyWithWhereWithoutMeetingInput = {
+    where: LiqoAttendanceScalarWhereInput
+    data: XOR<LiqoAttendanceUpdateManyMutationInput, LiqoAttendanceUncheckedUpdateManyWithoutMeetingInput>
+  }
+
+  export type LiqoMeetingCreateWithoutAttendancesInput = {
+    id?: string
+    date: Date | string
+    materialTitle: string
+    summary?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    group: LiqoGroupCreateNestedOneWithoutMeetingsInput
+  }
+
+  export type LiqoMeetingUncheckedCreateWithoutAttendancesInput = {
+    id?: string
+    groupId: string
+    date: Date | string
+    materialTitle: string
+    summary?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LiqoMeetingCreateOrConnectWithoutAttendancesInput = {
+    where: LiqoMeetingWhereUniqueInput
+    create: XOR<LiqoMeetingCreateWithoutAttendancesInput, LiqoMeetingUncheckedCreateWithoutAttendancesInput>
+  }
+
+  export type UserCreateWithoutLiqoAttendancesInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutLiqoAttendancesInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileUncheckedCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceUncheckedCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestUncheckedCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberUncheckedCreateNestedManyWithoutUserInput
+    mutabaahRecords?: MutabaahRecordUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutLiqoAttendancesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutLiqoAttendancesInput, UserUncheckedCreateWithoutLiqoAttendancesInput>
+  }
+
+  export type LiqoMeetingUpsertWithoutAttendancesInput = {
+    update: XOR<LiqoMeetingUpdateWithoutAttendancesInput, LiqoMeetingUncheckedUpdateWithoutAttendancesInput>
+    create: XOR<LiqoMeetingCreateWithoutAttendancesInput, LiqoMeetingUncheckedCreateWithoutAttendancesInput>
+    where?: LiqoMeetingWhereInput
+  }
+
+  export type LiqoMeetingUpdateToOneWithWhereWithoutAttendancesInput = {
+    where?: LiqoMeetingWhereInput
+    data: XOR<LiqoMeetingUpdateWithoutAttendancesInput, LiqoMeetingUncheckedUpdateWithoutAttendancesInput>
+  }
+
+  export type LiqoMeetingUpdateWithoutAttendancesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    materialTitle?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    group?: LiqoGroupUpdateOneRequiredWithoutMeetingsNestedInput
+  }
+
+  export type LiqoMeetingUncheckedUpdateWithoutAttendancesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    groupId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    materialTitle?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserUpsertWithoutLiqoAttendancesInput = {
+    update: XOR<UserUpdateWithoutLiqoAttendancesInput, UserUncheckedUpdateWithoutLiqoAttendancesInput>
+    create: XOR<UserCreateWithoutLiqoAttendancesInput, UserUncheckedCreateWithoutLiqoAttendancesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutLiqoAttendancesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutLiqoAttendancesInput, UserUncheckedUpdateWithoutLiqoAttendancesInput>
+  }
+
+  export type UserUpdateWithoutLiqoAttendancesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutLiqoAttendancesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUncheckedUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUncheckedUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUncheckedUpdateManyWithoutUserNestedInput
+    mutabaahRecords?: MutabaahRecordUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutMutabaahRecordsInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutMutabaahRecordsInput = {
+    id?: string
+    fullName: string
+    username?: string | null
+    email: string
+    phone?: string | null
+    avatarUrl?: string | null
+    leaveQuota?: number
+    isActive?: boolean
+    createdAt?: Date | string
+    profile?: EmployeeProfileUncheckedCreateNestedOneWithoutUserInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedCreateNestedManyWithoutUserInput
+    gpsAttendances?: GpsAttendanceUncheckedCreateNestedManyWithoutUserInput
+    leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutUserInput
+    approvedLeaves?: LeaveRequestUncheckedCreateNestedManyWithoutApprovedByInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedCreateNestedManyWithoutMurobbiInput
+    liqoMemberships?: LiqoMemberUncheckedCreateNestedManyWithoutUserInput
+    liqoAttendances?: LiqoAttendanceUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutMutabaahRecordsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutMutabaahRecordsInput, UserUncheckedCreateWithoutMutabaahRecordsInput>
+  }
+
+  export type UserUpsertWithoutMutabaahRecordsInput = {
+    update: XOR<UserUpdateWithoutMutabaahRecordsInput, UserUncheckedUpdateWithoutMutabaahRecordsInput>
+    create: XOR<UserCreateWithoutMutabaahRecordsInput, UserUncheckedCreateWithoutMutabaahRecordsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutMutabaahRecordsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutMutabaahRecordsInput, UserUncheckedUpdateWithoutMutabaahRecordsInput>
+  }
+
+  export type UserUpdateWithoutMutabaahRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutMutabaahRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    leaveQuota?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    profile?: EmployeeProfileUncheckedUpdateOneWithoutUserNestedInput
+    unitAssignments?: EmployeeUnitAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    gpsAttendances?: GpsAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutUserNestedInput
+    approvedLeaves?: LeaveRequestUncheckedUpdateManyWithoutApprovedByNestedInput
+    liqoGroupsAsMurobbi?: LiqoGroupUncheckedUpdateManyWithoutMurobbiNestedInput
+    liqoMemberships?: LiqoMemberUncheckedUpdateManyWithoutUserNestedInput
+    liqoAttendances?: LiqoAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type EmployeeUnitAssignmentCreateManyUserInput = {
+    id?: string
+    unitId: string
+    unitName: string
+    role: string
+    isPrimary?: boolean
+    startDate: Date | string
+    endDate?: Date | string | null
+    skNumber?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+  }
+
+  export type GpsAttendanceCreateManyUserInput = {
+    id?: string
+    unitId: string
+    date: Date | string
+    checkInTime?: Date | string | null
+    checkOutTime?: Date | string | null
+    latitude?: number | null
+    longitude?: number | null
+    status: $Enums.GpsAttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+  }
+
+  export type LeaveRequestCreateManyUserInput = {
+    id?: string
+    type: $Enums.LeaveType
+    startDate: Date | string
+    endDate: Date | string
+    reason: string
+    attachmentUrl?: string | null
+    status?: $Enums.LeaveStatus
+    approvedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LeaveRequestCreateManyApprovedByInput = {
+    id?: string
+    userId: string
+    type: $Enums.LeaveType
+    startDate: Date | string
+    endDate: Date | string
+    reason: string
+    attachmentUrl?: string | null
+    status?: $Enums.LeaveStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LiqoGroupCreateManyMurobbiInput = {
+    id?: string
+    name: string
+    description?: string | null
+    scheduleDay?: $Enums.DayOfWeek | null
+    scheduleTime?: string | null
+    scheduleLocation?: string | null
+    whatsappLink?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LiqoMemberCreateManyUserInput = {
+    id?: string
+    groupId: string
+    joinedAt?: Date | string
+  }
+
+  export type LiqoAttendanceCreateManyUserInput = {
+    id?: string
+    meetingId: string
+    status: $Enums.AttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type MutabaahRecordCreateManyUserInput = {
+    id?: string
+    date: Date | string
+    sholatJamaah?: number
+    sholatRawatib?: number
+    sholatDhuha?: boolean
+    sholatTahajud?: boolean
+    tilawahPages?: number
+    puasaSunnah?: boolean
+    infaq?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type EmployeeUnitAssignmentUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    unitName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    skNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeUnitAssignmentUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    unitName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    skNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeUnitAssignmentUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    unitName?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isPrimary?: BoolFieldUpdateOperationsInput | boolean
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    skNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GpsAttendanceUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumGpsAttendanceStatusFieldUpdateOperationsInput | $Enums.GpsAttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GpsAttendanceUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumGpsAttendanceStatusFieldUpdateOperationsInput | $Enums.GpsAttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GpsAttendanceUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    checkInTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    checkOutTime?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    latitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    longitude?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumGpsAttendanceStatusFieldUpdateOperationsInput | $Enums.GpsAttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LeaveRequestUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: StringFieldUpdateOperationsInput | string
+    attachmentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedBy?: UserUpdateOneWithoutApprovedLeavesNestedInput
+  }
+
+  export type LeaveRequestUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: StringFieldUpdateOperationsInput | string
+    attachmentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LeaveRequestUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: StringFieldUpdateOperationsInput | string
+    attachmentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LeaveRequestUpdateWithoutApprovedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: StringFieldUpdateOperationsInput | string
+    attachmentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutLeaveRequestsNestedInput
+  }
+
+  export type LeaveRequestUncheckedUpdateWithoutApprovedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: StringFieldUpdateOperationsInput | string
+    attachmentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LeaveRequestUncheckedUpdateManyWithoutApprovedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    type?: EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    reason?: StringFieldUpdateOperationsInput | string
+    attachmentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoGroupUpdateWithoutMurobbiInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleDay?: NullableEnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek | null
+    scheduleTime?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    members?: LiqoMemberUpdateManyWithoutGroupNestedInput
+    meetings?: LiqoMeetingUpdateManyWithoutGroupNestedInput
+  }
+
+  export type LiqoGroupUncheckedUpdateWithoutMurobbiInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleDay?: NullableEnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek | null
+    scheduleTime?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    members?: LiqoMemberUncheckedUpdateManyWithoutGroupNestedInput
+    meetings?: LiqoMeetingUncheckedUpdateManyWithoutGroupNestedInput
+  }
+
+  export type LiqoGroupUncheckedUpdateManyWithoutMurobbiInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleDay?: NullableEnumDayOfWeekFieldUpdateOperationsInput | $Enums.DayOfWeek | null
+    scheduleTime?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduleLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoMemberUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    group?: LiqoGroupUpdateOneRequiredWithoutMembersNestedInput
+  }
+
+  export type LiqoMemberUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    groupId?: StringFieldUpdateOperationsInput | string
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LiqoMemberUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    groupId?: StringFieldUpdateOperationsInput | string
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LiqoAttendanceUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    meeting?: LiqoMeetingUpdateOneRequiredWithoutAttendancesNestedInput
+  }
+
+  export type LiqoAttendanceUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    meetingId?: StringFieldUpdateOperationsInput | string
+    status?: EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoAttendanceUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    meetingId?: StringFieldUpdateOperationsInput | string
+    status?: EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MutabaahRecordUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    sholatJamaah?: IntFieldUpdateOperationsInput | number
+    sholatRawatib?: IntFieldUpdateOperationsInput | number
+    sholatDhuha?: BoolFieldUpdateOperationsInput | boolean
+    sholatTahajud?: BoolFieldUpdateOperationsInput | boolean
+    tilawahPages?: IntFieldUpdateOperationsInput | number
+    puasaSunnah?: BoolFieldUpdateOperationsInput | boolean
+    infaq?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MutabaahRecordUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    sholatJamaah?: IntFieldUpdateOperationsInput | number
+    sholatRawatib?: IntFieldUpdateOperationsInput | number
+    sholatDhuha?: BoolFieldUpdateOperationsInput | boolean
+    sholatTahajud?: BoolFieldUpdateOperationsInput | boolean
+    tilawahPages?: IntFieldUpdateOperationsInput | number
+    puasaSunnah?: BoolFieldUpdateOperationsInput | boolean
+    infaq?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MutabaahRecordUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    sholatJamaah?: IntFieldUpdateOperationsInput | number
+    sholatRawatib?: IntFieldUpdateOperationsInput | number
+    sholatDhuha?: BoolFieldUpdateOperationsInput | boolean
+    sholatTahajud?: BoolFieldUpdateOperationsInput | boolean
+    tilawahPages?: IntFieldUpdateOperationsInput | number
+    puasaSunnah?: BoolFieldUpdateOperationsInput | boolean
+    infaq?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoMemberCreateManyGroupInput = {
+    id?: string
+    userId: string
+    joinedAt?: Date | string
+  }
+
+  export type LiqoMeetingCreateManyGroupInput = {
+    id?: string
+    date: Date | string
+    materialTitle: string
+    summary?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LiqoMemberUpdateWithoutGroupInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutLiqoMembershipsNestedInput
+  }
+
+  export type LiqoMemberUncheckedUpdateWithoutGroupInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LiqoMemberUncheckedUpdateManyWithoutGroupInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LiqoMeetingUpdateWithoutGroupInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    materialTitle?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    attendances?: LiqoAttendanceUpdateManyWithoutMeetingNestedInput
+  }
+
+  export type LiqoMeetingUncheckedUpdateWithoutGroupInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    materialTitle?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    attendances?: LiqoAttendanceUncheckedUpdateManyWithoutMeetingNestedInput
+  }
+
+  export type LiqoMeetingUncheckedUpdateManyWithoutGroupInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    materialTitle?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoAttendanceCreateManyMeetingInput = {
+    id?: string
+    userId: string
+    status: $Enums.AttendanceStatus
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type LiqoAttendanceUpdateWithoutMeetingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutLiqoAttendancesNestedInput
+  }
+
+  export type LiqoAttendanceUncheckedUpdateWithoutMeetingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type LiqoAttendanceUncheckedUpdateManyWithoutMeetingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumAttendanceStatusFieldUpdateOperationsInput | $Enums.AttendanceStatus
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+
+
+  /**
+   * Batch Payload for updateMany & deleteMany & createMany
+   */
+
+  export type BatchPayload = {
+    count: number
+  }
+
+  /**
+   * DMMF
+   */
+  export const dmmf: runtime.BaseDMMF
+}

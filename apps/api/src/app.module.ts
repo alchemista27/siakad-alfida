@@ -12,6 +12,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { SecretariatModule } from './secretariat/secretariat.module';
 import { InventoryModule } from './sarpras/inventory/inventory.module';
 import { CommonModule } from './common/common.module';
+import { InternalModule } from './internal/internal.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CommonModule } from './common/common.module';
     SecretariatModule,
     InventoryModule,
     CommonModule,
+    InternalModule,
   ],
 })
 export class AppModule {}

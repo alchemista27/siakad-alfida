@@ -1,34 +1,56 @@
-# Panduan Deployment ke Production (Vercel + Supabase)
+# Panduan Operasional Produksi (Production SOP)
 
-Dokumen ini berisi langkah-langkah rilis proyek **SIAKAD Alfida** ke lingkungan produksi.
+Dokumen ini berisi prosedur standar operasional (SOP) untuk rilis dan pemeliharaan lingkungan produksi **SIM-Alfida** di VPS Coolify.
 
-## 1. Persiapan Database (Supabase)
-1. Buat _project_ baru di [Supabase Dashboard](https://supabase.com).
-2. Salin *Database URL* (Mode Transaction Pooler) dan masukkan ke `.env` lokal Anda sebagai `DATABASE_URL`.
-3. Salin juga *Direct URL* (Session Mode) untuk keperluan migrasi, masukkan sebagai `DIRECT_URL`.
-4. Lakukan pendorongan skema (*schema push*) awal:
+---
+
+## 1. Checklist Pra-Rilis (Pre-Deployment Checklist)
+
+Sebelum melakukan deployment versi baru ke lingkungan produksi:
+
+1. **Uji Kompilasi Lokal**:
+   Pastikan seluruh monorepo lulus build dan typecheck:
    ```bash
-   pnpm prisma migrate deploy
+   pnpm turbo run build
+   pnpm turbo run typecheck
    ```
-5. *(Opsional)* Lakukan pendorongan data master awal melalui berkas *seed* jika ada (`pnpm prisma db seed`).
+2. **Audit Variabel Lingkungan**:
+   - Pastikan `JWT_SECRET` yang digunakan di seluruh microservice identik agar token SSO dapat divalidasi silang.
+   - Pastikan `COOKIE_DOMAIN` diset ke `.alfida.or.id` (dengan titik di awal).
+   - Pastikan `INTERNAL_SERVICE_SECRET` terpasang pada service SPMB dan Monolit Legacy untuk komunikasi handoff.
+3. **Backup Database PostgreSQL**:
+   Lakukan backup snapshot database di Coolify sebelum menjalankan migrasi skema tabel:
+   ```bash
+   pg_dump -U postgres -d <nama_database> > backup_<nama_database>_$(date +%Y%m%d).sql
+   ```
 
-## 2. Persiapan Storage (Cloudinary)
-Sistem absensi, berkas cuti, dan logo yayasan memerlukan penampungan CDN independen.
-1. Salin `CLOUDINARY_URL` dari dasbor Cloudinary Anda.
-2. Siapkan _folder_ khusus (contoh: `sim_alfida_prod`) agar tidak tercampur dengan _environment_ _staging_.
+---
 
-## 3. Konfigurasi Vercel
-1. Hubungkan repositori GitHub ini ke [Vercel](https://vercel.com).
-2. Pada pengaturan _Project Settings_ -> _Environment Variables_, masukkan:
-   - `DATABASE_URL`
-   - `DIRECT_URL`
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `CLOUDINARY_URL`
-3. Pastikan *Build Command* diset ke `pnpm build` atau `next build`.
-4. Jalankan siklus *Deployment*.
+## 2. Checklist Pasca-Rilis (Post-Deployment Verification)
 
-## 4. Keamanan Pasca-Rilis
-- Lakukan pengecekan akun *Super Admin* default, lalu ubah *password* seketika.
-- Nonaktifkan akun _dummy/tester_ jika sebelumnya ikut terunggah pada *seed script*.
-- Validasi fungsionalitas RLS (Row Level Security) bawaan Supabase jika dikombinasikan dengan Prisma.
+Setelah kontainer aktif di Coolify:
+
+1. **Health Check Port & HTTP**:
+   - Buka `https://auth.alfida.or.id/login` dan pastikan halaman login terbuka sempurna.
+   - Buka `https://spmb.alfida.or.id` dan pastikan daftar gelombang aktif muncul.
+   - Buka `https://simakin.alfida.or.id` dan periksa koneksi data proker.
+   - Buka `https://simpeg.alfida.or.id` dan pastikan perizinan geolokasi browser berfungsi.
+2. **Verifikasi SSO Lintas Subdomain**:
+   - Lakukan login di `auth.alfida.or.id`.
+   - Buka tab baru ke `spmb.alfida.or.id/admin` atau `simakin.alfida.or.id`.
+   - Pastikan sesi login langsung terdeteksi tanpa meminta login ulang.
+3. **Pemeriksaan Penggunaan Memori Server**:
+   Jalankan perintah monitoring di terminal VPS:
+   ```bash
+   docker stats --no-stream
+   ```
+   Pastikan tidak ada kontainer yang mendekati batas memori atau mengalami siklus restart (*crash loop*).
+
+---
+
+## 3. Prosedur Rollback Cepat
+
+Jika ditemukan anomali kritis pada rilis terbaru:
+1. Masuk ke dasbor **Coolify** -> pilih **Application**.
+2. Pada kolom **Docker Image**, ubah tag `:latest` menjadi tag SHA commit sebelumnya (contoh: `ghcr.io/<owner>/<repo>/spmb:<commit_sha_sebelumnya>`).
+3. Klik **Redeploy**. Kontainer akan kembali ke versi stabil sebelumnya dalam waktu kurang dari 1 menit.

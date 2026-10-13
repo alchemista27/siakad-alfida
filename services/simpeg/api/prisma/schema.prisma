@@ -1,0 +1,252 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+enum GpsAttendanceStatus {
+  present
+  late
+  absent
+  leave
+}
+
+enum LeaveType {
+  cuti
+  sakit
+  izin
+}
+
+enum LeaveStatus {
+  pending
+  approved
+  rejected
+}
+
+enum DayOfWeek {
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+  saturday
+}
+
+enum AttendanceStatus {
+  present
+  sick
+  permitted
+  absent
+}
+
+model User {
+  id         String   @id @default(uuid()) @db.Uuid
+  fullName   String   @map("full_name") @db.VarChar(200)
+  username   String?  @unique @db.VarChar(100)
+  email      String   @unique @db.VarChar(255)
+  phone      String?  @db.VarChar(30)
+  avatarUrl  String?  @map("avatar_url") @db.Text
+  leaveQuota Int      @default(12) @map("leave_quota")
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  profile             EmployeeProfile?
+  unitAssignments     EmployeeUnitAssignment[]
+  gpsAttendances      GpsAttendance[]
+  leaveRequests       LeaveRequest[]           @relation("UserLeaveRequests")
+  approvedLeaves      LeaveRequest[]           @relation("ApprovedLeaves")
+  liqoGroupsAsMurobbi LiqoGroup[]
+  liqoMemberships     LiqoMember[]
+  liqoAttendances     LiqoAttendance[]
+  mutabaahRecords     MutabaahRecord[]
+
+  @@map("users")
+}
+
+model EmployeeProfile {
+  id           String    @id @default(uuid()) @db.Uuid
+  userId       String    @unique @map("user_id") @db.Uuid
+  nip          String?   @unique @db.VarChar(50)
+  position     String?   @db.VarChar(100)
+  employeeType String    @default("tetap") @map("employee_type") @db.VarChar(50) // "tetap", "kontrak", "honorer"
+  joinDate     DateTime? @map("join_date") @db.Date
+  notes        String?   @db.Text
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("employee_profiles")
+}
+
+model EmployeeUnitAssignment {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  unitId    String    @map("unit_id") @db.Uuid
+  unitName  String    @map("unit_name") @db.VarChar(150)
+  role      String    @db.VarChar(50) // "guru_kelas", "guru_mapel", "staff_tu", "kepala_unit"
+  isPrimary Boolean   @default(true) @map("is_primary")
+  startDate DateTime  @map("start_date") @db.Date
+  endDate   DateTime? @map("end_date") @db.Date
+  skNumber  String?   @map("sk_number") @db.VarChar(100)
+  notes     String?   @db.Text
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([unitId])
+  @@map("employee_unit_assignments")
+}
+
+model GpsAttendanceConfig {
+  id           String   @id @default(uuid()) @db.Uuid
+  unitId       String   @unique @map("unit_id") @db.Uuid
+  latitude     Float
+  longitude    Float
+  radiusMeters Int      @default(50) @map("radius_meters")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("gps_attendance_config")
+}
+
+model GpsAttendance {
+  id           String              @id @default(uuid()) @db.Uuid
+  userId       String              @map("user_id") @db.Uuid
+  unitId       String              @map("unit_id") @db.Uuid
+  date         DateTime            @db.Date
+  checkInTime  DateTime?           @map("check_in_time") @db.Timestamptz
+  checkOutTime DateTime?           @map("check_out_time") @db.Timestamptz
+  latitude     Float?
+  longitude    Float?
+  status       GpsAttendanceStatus
+  notes        String?
+  createdAt    DateTime            @default(now()) @map("created_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([date])
+  @@index([status])
+  @@map("gps_attendances")
+}
+
+model Holiday {
+  id          String   @id @default(uuid()) @db.Uuid
+  unitId      String?  @map("unit_id") @db.Uuid
+  date        DateTime @db.Date
+  name        String   @db.VarChar(100)
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([unitId, date])
+  @@map("holidays")
+}
+
+model LeaveRequest {
+  id            String      @id @default(uuid()) @db.Uuid
+  userId        String      @map("user_id") @db.Uuid
+  type          LeaveType
+  startDate     DateTime    @map("start_date") @db.Date
+  endDate       DateTime    @map("end_date") @db.Date
+  reason        String      @db.Text
+  attachmentUrl String?     @map("attachment_url") @db.Text
+  status        LeaveStatus @default(pending)
+  approvedById  String?     @map("approved_by_id") @db.Uuid
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime?   @updatedAt @map("updated_at") @db.Timestamptz
+
+  user       User  @relation("UserLeaveRequests", fields: [userId], references: [id], onDelete: Cascade)
+  approvedBy User? @relation("ApprovedLeaves", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@map("leave_requests")
+}
+
+model LiqoGroup {
+  id               String     @id @default(uuid()) @db.Uuid
+  name             String     @db.VarChar(200)
+  murobbiId        String     @map("murobbi_id") @db.Uuid
+  description      String?
+  scheduleDay      DayOfWeek? @map("schedule_day")
+  scheduleTime     String?    @map("schedule_time") @db.VarChar(50)
+  scheduleLocation String?    @map("schedule_location") @db.VarChar(200)
+  whatsappLink     String?    @map("whatsapp_link") @db.VarChar(255)
+  createdAt        DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime?  @updatedAt @map("updated_at") @db.Timestamptz
+
+  murobbi  User          @relation(fields: [murobbiId], references: [id], onDelete: Restrict)
+  members  LiqoMember[]
+  meetings LiqoMeeting[]
+
+  @@map("liqo_groups")
+}
+
+model LiqoMember {
+  id       String   @id @default(uuid()) @db.Uuid
+  groupId  String   @map("group_id") @db.Uuid
+  userId   String   @map("user_id") @db.Uuid
+  joinedAt DateTime @default(now()) @map("joined_at") @db.Timestamptz
+
+  group LiqoGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@map("liqo_members")
+}
+
+model LiqoMeeting {
+  id            String    @id @default(uuid()) @db.Uuid
+  groupId       String    @map("group_id") @db.Uuid
+  date          DateTime  @db.Date
+  materialTitle String    @map("material_title") @db.VarChar(200)
+  summary       String?   @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+
+  group       LiqoGroup        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  attendances LiqoAttendance[]
+
+  @@map("liqo_meetings")
+}
+
+model LiqoAttendance {
+  id        String           @id @default(uuid()) @db.Uuid
+  meetingId String           @map("meeting_id") @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  status    AttendanceStatus
+  notes     String?          @db.VarChar(255)
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime?        @updatedAt @map("updated_at") @db.Timestamptz
+
+  meeting LiqoMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, userId])
+  @@map("liqo_attendances")
+}
+
+model MutabaahRecord {
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  date          DateTime  @db.Date
+  sholatJamaah  Int       @default(0) @map("sholat_jamaah")
+  sholatRawatib Int       @default(0) @map("sholat_rawatib")
+  sholatDhuha   Boolean   @default(false) @map("sholat_dhuha")
+  sholatTahajud Boolean   @default(false) @map("sholat_tahajud")
+  tilawahPages  Int       @default(0) @map("tilawah_pages")
+  puasaSunnah   Boolean   @default(false) @map("puasa_sunnah")
+  infaq         Boolean   @default(false)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([date])
+  @@map("mutabaah_records")
+}

@@ -1,14 +1,19 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
+    "db:generate": {
+      "cache": false
+    },
     "build": {
       "dependsOn": [
-        "^build"
+        "^build",
+        "^db:generate"
       ],
       "env": [
         "DATABASE_URL",
         "DIRECT_URL",
         "BETTER_AUTH_*",
+        "AUTH_*",
         "CLOUDINARY_*",
         "MINIO_*",
         "S3_*"
@@ -21,7 +26,11 @@
     },
     "lint": {},
     "test": {},
-    "typecheck": {},
+    "typecheck": {
+      "dependsOn": [
+        "^db:generate"
+      ]
+    },
     "dev": {
       "cache": false,
       "persistent": true

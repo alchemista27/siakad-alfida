@@ -1,75 +1,81 @@
-# Panduan Deployment (Turborepo + Next.js + NestJS)
+# Panduan Deployment Microservices SIM-Alfida
 
-Sistem Informasi Manajemen Alfida sekarang menggunakan arsitektur **Turborepo** yang memisahkan Frontend (Next.js) dan Backend (NestJS). Dokumen ini berisi panduan *deployment* untuk arsitektur terpisah ini.
+Sistem Informasi Manajemen Yayasan Alfida (SIM-Alfida) menggunakan arsitektur **Turborepo Monorepo Microservices**. Seluruh layanan dideploy ke server mandiri menggunakan **Coolify VPS**.
 
-## Arsitektur Deployment
-- **Frontend (Web)**: Vercel / Netlify
-- **Backend (API)**: Railway / Render / DigitalOcean App Platform
-- **Database**: PostgreSQL (Supabase / Neon / AWS RDS)
-- **Auth**: Supabase Auth
-
----
-
-## 1. Deploy Frontend (Next.js) ke Vercel
-
-Karena kita menggunakan Turborepo, Vercel secara otomatis akan mendeteksi `turbo` dan melakukan *caching* dengan optimal.
-
-### Konfigurasi di Dashboard Vercel:
-1. **Framework Preset**: Next.js
-2. **Root Directory**: `apps/web` (Atau biarkan kosong dan Vercel akan otomatis mengenali workspace `@sim/web`).
-3. **Build Command**: `pnpm build` (atau biarkan default Vercel yang akan membaca `turbo run build`).
-4. **Install Command**: `pnpm install`
-
-### Environment Variables (Vercel):
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://[YOUR_PROJECT_ID].supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=[YOUR_ANON_KEY]
-# URL Publik dari backend NestJS yang sudah di-deploy
-NEXT_PUBLIC_API_URL=https://api.simalfida.com 
-# URL Internal untuk Server Components jika di platform yang sama
-API_URL=https://api.simalfida.com 
-```
+> [!IMPORTANT]
+> **Panduan Deployment Coolify**:
+> - **Koneksi Git & Otomatisasi Webhook (Direkomendasikan)**: 👉 [`docs/deployment/coolify-git-webhook-guide.md`](./deployment/coolify-git-webhook-guide.md)
+> - **Topologi & Konfigurasi Variabel Lingkungan**: 👉 [`docs/deployment/coolify-microservices.md`](./deployment/coolify-microservices.md)
 
 ---
 
-## 2. Deploy Backend (NestJS) ke Railway / Render
+## 1. Topologi Deployment Produksi
 
-NestJS berjalan sebagai layanan Node.js (*long-running process*) dan memerlukan *environment* yang mendukung *Docker* atau Node.js murni.
+- **Platform Host**: VPS Mandiri dengan Coolify Engine (2 vCPU, 8 GB RAM, 100 GB Storage).
+- **Reverse Proxy**: Traefik (bawaan Coolify) dengan otomatisasi SSL wildcard / sertifikat Let's Encrypt untuk `*.alfida.or.id`.
+- **Image Registry**: GitHub Container Registry (`ghcr.io`).
+- **Database Engine**: PostgreSQL 16 terpusat pada server Coolify dengan basis data terisolasi per layanan.
+- **Object Storage**: MinIO S3-compatible lokal via Docker.
 
-### Opsi A: Deployment via Docker (Rekomendasi)
-Di platform seperti Railway atau Render, Anda dapat mendeploy menggunakan Dockerfile.
-1. Pastikan `Dockerfile` Anda sudah mendukung Turborepo *prune* untuk package `@sim/api`.
-2. **Environment Variables**:
-   ```env
-   NODE_ENV=production
-   PORT=3001
-   DATABASE_URL=postgresql://user:password@host:port/db?schema=public
-   SUPABASE_JWT_SECRET=[SECRET_DARI_DASHBOARD_SUPABASE]
+### Daftar Layanan & Port:
+
+| Layanan | Subdomain Resmi | Port Kontainer | Basis Data | Image GHCR |
+|---|---|---|---|---|
+| **Auth** | `https://auth.alfida.or.id` | 3000 (Web), 3001 (API) | `alfida_auth` | `ghcr.io/<owner>/<repo>/auth:latest` |
+| **SIMAKIN** | `https://simakin.alfida.or.id` | 3000 (Web), 3001 (API) | `alfida_simakin` | `ghcr.io/<owner>/<repo>/simakin:latest` |
+| **SIMPEG** | `https://simpeg.alfida.or.id` | 3000 (Web), 3001 (API) | `alfida_simpeg` | `ghcr.io/<owner>/<repo>/simpeg:latest` |
+| **SPMB** | `https://spmb.alfida.or.id` | 3000 (Web), 3001 (API) | `alfida_spmb` | `ghcr.io/<owner>/<repo>/spmb:latest` |
+| **SIYAUM** | `https://siyaum.alfida.or.id` | 3000 (Web), 3001 (API) | `alfida_siyaum` | `ghcr.io/<owner>/<repo>/siyaum:latest` |
+| **Monolit** | `https://sim.alfida.or.id` | 3000 (Web), 3001 (API) | `simalfida` | Menampung SIAKAD, SISKEU, SISARPRAS |
+
+---
+
+## 2. Otomatisasi CI/CD (GitHub Actions)
+
+Setiap *push* ke branch `main` pada repositori akan otomatis memicu GitHub Actions ([`.github/workflows/deploy-services.yml`](../.github/workflows/deploy-services.yml)) yang menjalankan proses:
+1. Menyiapkan Docker Buildx.
+2. Login ke GitHub Container Registry (`ghcr.io`).
+3. Membangun multi-stage build untuk setiap service yang mengalami perubahan.
+4. Menerbitkan image bertag `:latest` dan `:${{ github.sha }}` ke GHCR.
+
+---
+
+## 3. Langkah Rilis Cepat di Dashboard Coolify
+
+1. **Persiapan Database Terpusat**:
+   Eksekusi pembuatan basis data di terminal PostgreSQL Coolify:
+   ```sql
+   CREATE DATABASE alfida_auth;
+   CREATE DATABASE alfida_simakin;
+   CREATE DATABASE alfida_simpeg;
+   CREATE DATABASE alfida_siyaum;
+   CREATE DATABASE alfida_spmb;
    ```
 
-### Opsi B: Deployment via Node.js Build Pack
-1. **Build Command**: `pnpm install && pnpm --filter @sim/api build`
-2. **Start Command**: `pnpm --filter @sim/api start:prod`
-   *(Catatan: Anda mungkin memerlukan `corepack enable` jika platform tidak mendukung pnpm secara native).*
+2. **Migrasi Skema Tabel (Prisma)**:
+   Jalankan pendorongan skema dari repositori lokal atau runner:
+   ```bash
+   pnpm --filter auth-api exec prisma db push
+   pnpm --filter @alfida/simakin-api exec prisma db push
+   pnpm --filter simpeg-api exec prisma db push
+   pnpm --filter siyaum-api exec prisma db push
+   pnpm --filter spmb-api exec prisma db push
+   ```
 
----
+3. **Buat Application di Coolify**:
+   - **Opsi A (Rekomendasi - Git Source + Webhook)**:
+     - Pilih tipe: **Public/Private Git Repository**.
+     - Base Directory: `/` (Root Monorepo).
+     - Dockerfile Location: `/services/<service>/Dockerfile` (atau `/Dockerfile` untuk monolit).
+     - Port: `3000`.
+     - Watch Paths: Tentukan path sesuai modul (misal: `services/spmb/**\npackages/**\npnpm-lock.yaml`).
+     - Panduan detail: [`docs/deployment/coolify-git-webhook-guide.md`](./deployment/coolify-git-webhook-guide.md).
+   - **Opsi B (Docker Image via GHCR)**:
+     - Pilih tipe: **Docker Image**.
+     - Masukkan tag image dari GHCR (contoh: `ghcr.io/<owner>/<repo>/spmb:latest`).
+     - Port: `3000`.
+   - Tentukan FQDN domain (contoh: `https://spmb.alfida.or.id`).
+   - Masukkan variabel lingkungan standar (`NODE_ENV=production`, `DATABASE_URL=...`, `JWT_SECRET=...`, `COOKIE_DOMAIN=.alfida.or.id`).
 
-## 3. Deployment Database & Prisma
-
-### Migrasi Skema Database
-Sangat penting untuk menjalankan migrasi database **sebelum** backend NestJS siap melayani *request*.
-Tambahkan *Release Command* di platform hosting backend (Render/Railway):
-```bash
-pnpm --filter @sim/database prisma db push --accept-data-loss
-# atau
-pnpm --filter @sim/database prisma migrate deploy
-```
-
-### Prisma Client
-Setiap proses `build` (baik di Vercel maupun Railway) secara otomatis akan memicu `prisma generate` berkat konfigurasi _workspace_ `@sim/database` milik kita. Tidak ada konfigurasi tambahan yang dibutuhkan!
-
----
-
-## Tips & Troubleshooting
-- **CORS Error**: Jika Frontend di-deploy di `https://simalfida.com` dan API di `https://api.simalfida.com`, pastikan `app.enableCors()` di `apps/api/src/main.ts` telah diizinkan untuk origin frontend Anda.
-- **Unauthorized 401**: Jika API menolak request, pastikan Next.js mengirimkan cookie yang valid melalui `apps/web/src/lib/api.ts` dan `SUPABASE_JWT_SECRET` di backend sudah sinkron dengan yang ada di Supabase Dashboard (Settings > API > JWT Secret).
+4. **Deploy & Verifikasi**:
+   Klik tombol **Deploy** di Coolify. Traefik akan otomatis mengarahkan trafik HTTPS ke kontainer.

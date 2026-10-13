@@ -326,3 +326,20 @@
 - Mengatasi kegagalan _build_ (Exit Code 1) saat _deployment_ di Coolify akibat galat _Type error_ pada komponen `meetings/client.tsx`.
 - Memperbaiki urutan argumen pada pemanggilan fungsi `createExecutionMeeting`, di mana _token_ JWT seharusnya dikirimkan sebagai argumen pertama sebelum _payload_ data. Perbaikan ini memungkinkan aplikasi melewati fase kompilasi TypeScript dengan sukses.
   **commit message:** fix: resolve argument order in createExecutionMeeting to fix production build failure
+
+**tanggal:** 13 Oktober 2026
+**progress:**
+
+- Menyelesaikan inisiatif perombakan total arsitektur sistem SIM-Alfida dari monolit menjadi **Monorepo Microservices Terpadu (Turborepo)** untuk memisahkan domain masing-masing bidang di bawah subdomain tersendiri (`*.alfida.or.id`).
+- Merilis **Service Auth (`auth.alfida.or.id`)**: Penyedia identitas terpusat berbasis Better Auth dengan session cookie wildcard domain `.alfida.or.id`.
+- Merilis **Service SIMAKIN (`simakin.alfida.or.id`)**: Pengelolaan program kerja biro/bidang, monitoring 113 indikator KPI yayasan, pelaporan aktivitas mingguan/bulanan, dan dashboard eksekutif BPH.
+- Merilis **Service SIMPEG (`simpeg.alfida.or.id`)**: Master kepegawaian, penugasan unit, presensi kehadiran berbasis geolokasi GPS browser riil pada radius sekolah, alur pengajuan dan persetujuan cuti berjenjang.
+- Merilis **Service SIYAUM (`siyaum.alfida.or.id`)**: Pemantauan Yaum Ma'al Quran (YMQ) guru & karyawan, manajemen halaqah, pencatatan tilawah harian, dan verifikasi setoran berotorisasi musyrif.
+- Merilis **Service SPMB (`spmb.alfida.or.id`)**: Penerimaan peserta didik baru online mandiri, entri offline walk-in panitia sekolah dengan kemampuan backfill status, impor batch CSV dengan pratinjau validasi, generator tautan klaim akun via WhatsApp (`wa.me`), seleksi observasi & ranking, serta serah-terima pendaftar diterima ke SIAKAD monolit (`POST /api/internal/spmb-handoff`).
+- Membangun paket pustaka bersama: `@alfida/contracts` (DTO bersama), `@alfida/auth-sdk` (Guard JWT SSO terdistribusi), dan `@alfida/ui` (komponen UI design system Yayasan Alfida dengan dukungan empty/loading/error state).
+- Mengonfigurasi otomatisasi CI/CD GitHub Actions multi-stage build menuju GitHub Container Registry (`ghcr.io`) dan pola hemat memori 1 kontainer gabungan (Next.js + NestJS) per service untuk Coolify VPS (2 vCPU, 8 GB RAM).
+- Melakukan verifikasi kompilasi dan pemeriksaan tipe menyeluruh di seluruh ruang kerja: 17 task build sukses dan 15 task typecheck 100% bebas dari galat.
+- Menyelaraskan seluruh dokumen teknis di direktori `docs/` (`PRD.md`, `TDD.md`, `DB-SCHEMA.md`, `SPRINT-PLAN.md`, `DEPLOYMENT.md`, `PRODUCTION.md`, `accounts.md`).
+  **commit message:** feat: complete microservices transformation (auth, simakin, simpeg, spmb, siyaum) and align documentation
+
+---
