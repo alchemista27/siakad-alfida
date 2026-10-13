@@ -327,6 +327,8 @@
 - Memperbaiki urutan argumen pada pemanggilan fungsi `createExecutionMeeting`, di mana _token_ JWT seharusnya dikirimkan sebagai argumen pertama sebelum _payload_ data. Perbaikan ini memungkinkan aplikasi melewati fase kompilasi TypeScript dengan sukses.
   **commit message:** fix: resolve argument order in createExecutionMeeting to fix production build failure
 
+---
+
 **tanggal:** 13 Oktober 2026
 **progress:**
 
@@ -341,5 +343,19 @@
 - Melakukan verifikasi kompilasi dan pemeriksaan tipe menyeluruh di seluruh ruang kerja: 17 task build sukses dan 15 task typecheck 100% bebas dari galat.
 - Menyelaraskan seluruh dokumen teknis di direktori `docs/` (`PRD.md`, `TDD.md`, `DB-SCHEMA.md`, `SPRINT-PLAN.md`, `DEPLOYMENT.md`, `PRODUCTION.md`, `accounts.md`).
   **commit message:** feat: complete microservices transformation (auth, simakin, simpeg, spmb, siyaum) and align documentation
+
+---
+
+**tanggal:** 13 Oktober 2026 (Sesi 2)
+**progress:**
+
+- Menyusun panduan komprehensif deployment microservices di Coolify berbasis koneksi Git Repository langsung & otomatisasi Webhook (`docs/deployment/coolify-git-webhook-guide.md`), merinci konfigurasi Base Directory (`/`), Dockerfile Location per modul, Exposed Port 3000, serta pembatasan beban komputasi CPU melalui *Watch Paths*.
+- Melakukan audit dan eksekusi pembuatan 5 database fisik mandiri untuk microservices pada instance PostgreSQL aktif di server Coolify (`alfida_auth`, `alfida_simakin`, `alfida_simpeg`, `alfida_siyaum`, dan `alfida_spmb`).
+- Mendorong skema tabel dan relasi secara penuh via Prisma (`prisma db push`) ke masing-masing database microservices (5 tabel di auth, 15 tabel di simakin, 12 tabel di simpeg, 5 tabel di siyaum, dan 13 tabel di spmb).
+- Menyempurnakan dan mengeksekusi skrip migrasi identitas legacy (`migrate-from-legacy.ts`) sehingga 29 pengguna lama, 29 akun kredensial password, dan 59 penugasan peran (roles) berhasil disinkronkan ke SSO `alfida_auth` tanpa mengubah atau merusak database legacy `simalfida`.
+- Menginisialisasi data periode pendaftaran SPMB tahun ajaran 2026/2027 (`seed-periods.ts`) untuk 8 unit sekolah Al-Fida (TK 1 & 2, SDIT 1, 2, 3, SMPIT, SMAIT, dan Pesantren Quran) dengan kuota dan rekening pembayaran siap pakai.
+- Membakukan tata kelola variabel lingkungan (*Environment Variables*) antara server produksi Coolify (injeksi via UI tanpa berkas `.env` di Git) dan mesin lokal pengembang.
+- Menjalankan pengetesan statis komprehensif monorepo: `pnpm turbo run typecheck` sukses 100% pada 15 package tanpa galat.
+  **commit message:** docs: record coolify git webhook deployment guide and microservices database provisioning in log
 
 ---

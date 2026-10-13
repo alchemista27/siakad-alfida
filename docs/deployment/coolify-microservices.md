@@ -123,7 +123,7 @@ Buat **Application** bertipe **Docker Image** untuk setiap subdomain:
   INTERNAL_API_URL=http://127.0.0.1:3001
   NEXT_PUBLIC_APP_URL=https://spmb.alfida.or.id
   INTERNAL_SIAKAD_API_URL=http://<monolith-container-or-host>:3001
-  INTERNAL_SERVICE_SECRET=simalfida-internal-secret-2026
+  INTERNAL_SERVICE_SECRET=<generate-strong-random-secret>
   ```
 
 ---

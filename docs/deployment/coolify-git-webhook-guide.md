@@ -113,7 +113,7 @@ Buka menu **Environment Variables** pada masing-masing Application di dasbor Coo
 NODE_ENV=production
 PORT=3000
 DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/alfida_auth?schema=public
-JWT_SECRET=super-secret-jwt-key-alfida-sso-2026-min-32-chars-long
+JWT_SECRET=<generate-via-openssl-rand-hex-32>
 COOKIE_DOMAIN=.alfida.or.id
 NEXT_PUBLIC_APP_URL=https://auth.alfida.or.id
 ```
@@ -123,7 +123,7 @@ NEXT_PUBLIC_APP_URL=https://auth.alfida.or.id
 NODE_ENV=production
 PORT=3000
 DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/alfida_simakin?schema=public
-JWT_SECRET=super-secret-jwt-key-alfida-sso-2026-min-32-chars-long
+JWT_SECRET=<generate-via-openssl-rand-hex-32>
 COOKIE_DOMAIN=.alfida.or.id
 INTERNAL_API_URL=http://127.0.0.1:3001
 NEXT_PUBLIC_APP_URL=https://simakin.alfida.or.id
@@ -135,17 +135,17 @@ NEXT_PUBLIC_AUTH_URL=https://auth.alfida.or.id
 NODE_ENV=production
 PORT=3000
 DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/alfida_simpeg?schema=public
-JWT_SECRET=super-secret-jwt-key-alfida-sso-2026-min-32-chars-long
+JWT_SECRET=<generate-via-openssl-rand-hex-32>
 COOKIE_DOMAIN=.alfida.or.id
 INTERNAL_API_URL=http://127.0.0.1:3001
 NEXT_PUBLIC_APP_URL=https://simpeg.alfida.or.id
 NEXT_PUBLIC_AUTH_URL=https://auth.alfida.or.id
 # MinIO S3 Storage untuk unggah berkas SK & foto pegawai
-S3_ENDPOINT=minio.alfida.or.id
+S3_ENDPOINT=<s3-endpoint-host>
 S3_PORT=443
 S3_USE_SSL=true
-S3_ACCESS_KEY=minioadmin
-S3_SECRET_KEY=minioadmin_secret
+S3_ACCESS_KEY=<your-s3-access-key>
+S3_SECRET_KEY=<your-s3-secret-key>
 S3_BUCKET=alfida-simpeg
 ```
 
@@ -154,7 +154,7 @@ S3_BUCKET=alfida-simpeg
 NODE_ENV=production
 PORT=3000
 DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/alfida_siyaum?schema=public
-JWT_SECRET=super-secret-jwt-key-alfida-sso-2026-min-32-chars-long
+JWT_SECRET=<generate-via-openssl-rand-hex-32>
 COOKIE_DOMAIN=.alfida.or.id
 INTERNAL_API_URL=http://127.0.0.1:3001
 NEXT_PUBLIC_APP_URL=https://siyaum.alfida.or.id
@@ -166,20 +166,20 @@ NEXT_PUBLIC_AUTH_URL=https://auth.alfida.or.id
 NODE_ENV=production
 PORT=3000
 DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/alfida_spmb?schema=public
-JWT_SECRET=super-secret-jwt-key-alfida-sso-2026-min-32-chars-long
+JWT_SECRET=<generate-via-openssl-rand-hex-32>
 COOKIE_DOMAIN=.alfida.or.id
 INTERNAL_API_URL=http://127.0.0.1:3001
 NEXT_PUBLIC_APP_URL=https://spmb.alfida.or.id
 NEXT_PUBLIC_AUTH_URL=https://auth.alfida.or.id
 # Integrasi Handoff Siswa Baru ke SIAKAD
 INTERNAL_SIAKAD_API_URL=http://<monolith-container-or-host>:3001
-INTERNAL_SERVICE_SECRET=simalfida-internal-secret-2026
+INTERNAL_SERVICE_SECRET=<generate-strong-random-secret>
 # MinIO S3 Storage untuk unggah Akta, KK, Foto Calon Siswa
-S3_ENDPOINT=minio.alfida.or.id
+S3_ENDPOINT=<s3-endpoint-host>
 S3_PORT=443
 S3_USE_SSL=true
-S3_ACCESS_KEY=minioadmin
-S3_SECRET_KEY=minioadmin_secret
+S3_ACCESS_KEY=<your-s3-access-key>
+S3_SECRET_KEY=<your-s3-secret-key>
 S3_BUCKET=alfida-spmb
 ```
 
@@ -188,10 +188,10 @@ S3_BUCKET=alfida-spmb
 NODE_ENV=production
 PORT=3000
 DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/simalfida?schema=public
-BETTER_AUTH_SECRET=super-secret-jwt-key-alfida-sso-2026-min-32-chars-long
-JWT_SECRET=super-secret-jwt-key-alfida-sso-2026-min-32-chars-long
+BETTER_AUTH_SECRET=<generate-via-openssl-rand-hex-32>
+JWT_SECRET=<generate-via-openssl-rand-hex-32>
 COOKIE_DOMAIN=.alfida.or.id
-INTERNAL_SERVICE_SECRET=simalfida-internal-secret-2026
+INTERNAL_SERVICE_SECRET=<generate-strong-random-secret>
 NEXT_PUBLIC_APP_URL=https://sim.alfida.or.id
 NEXT_PUBLIC_AUTH_URL=https://auth.alfida.or.id
 ```

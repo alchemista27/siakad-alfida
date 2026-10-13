@@ -6,8 +6,15 @@ async function runMigration() {
   const isDryRun = process.argv.includes("--dry-run");
   console.log(`=== Memulai Migrasi Identitas Legacy ke Auth Service ${isDryRun ? "(DRY RUN)" : ""} ===`);
 
-  const authPrisma = new AuthPrisma();
-  const legacyPrisma = new LegacyPrisma();
+  const authDbUrl = process.env.AUTH_DATABASE_URL || process.env.DATABASE_URL;
+  const legacyDbUrl = process.env.LEGACY_DATABASE_URL;
+
+  const authPrisma = new AuthPrisma(
+    authDbUrl ? { datasources: { db: { url: authDbUrl } } } : undefined
+  );
+  const legacyPrisma = new LegacyPrisma(
+    legacyDbUrl ? { datasources: { db: { url: legacyDbUrl } } } : undefined
+  );
 
   try {
     const legacyUsers = await legacyPrisma.user.findMany({
@@ -126,26 +133,29 @@ async function runMigration() {
         }
 
         for (const target of targetRoles) {
-          await authPrisma.roleAssignment.upsert({
+          const existing = await authPrisma.roleAssignment.findFirst({
             where: {
-              userId_app_role_unitId_departmentId: {
-                userId: u.id,
-                app: target.app,
-                role: target.role,
-                unitId: target.unitId || null as any,
-                departmentId: null as any,
-              },
-            },
-            update: {},
-            create: {
-              id: randomUUID(),
               userId: u.id,
               app: target.app,
               role: target.role,
               unitId: target.unitId || null,
+              departmentId: null,
             },
           });
-          migratedRolesCount++;
+
+          if (!existing) {
+            await authPrisma.roleAssignment.create({
+              data: {
+                id: randomUUID(),
+                userId: u.id,
+                app: target.app,
+                role: target.role,
+                unitId: target.unitId || null,
+                departmentId: null,
+              },
+            });
+            migratedRolesCount++;
+          }
         }
       }
 
