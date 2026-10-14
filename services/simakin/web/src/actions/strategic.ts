@@ -197,6 +197,11 @@ export async function getTrafficLightDashboard() {
   return apiFetch("/strategic/dashboard/traffic-light", { method: "GET" });
 }
 
+export async function getProgressPerDepartment(academicYearId?: string) {
+  const query = academicYearId ? `?academicYearId=${academicYearId}` : "";
+  return apiFetch(`/strategic/dashboard/progress${query}`, { method: "GET" });
+}
+
 export async function getKpiStats(departmentId?: string) {
   const query = departmentId ? `?departmentId=${departmentId}` : "";
   return apiFetch(`/strategic/dashboard/kpi${query}`, { method: "GET" });

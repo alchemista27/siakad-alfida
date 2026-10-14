@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { SimakinShell } from "@/components/simakin-shell";
 import { getEvidences, createEvidence } from "@/actions/strategic";
 import { Badge, EmptyState, LoadingState, ErrorState } from "@alfida/ui";
+import { CloudinaryUploadButton } from "@/components/cloudinary-upload-button";
 
 interface EvidenceItem {
   id: string;
@@ -238,18 +239,32 @@ export default function EvidencePage() {
 
                 <div>
                   <label className="block text-xs font-semibold text-primary mb-1">
-                    Tautan URL Berkas (Cloudinary / MinIO S3) *
+                    Unggah Berkas Bukti (Cloudinary) *
                   </label>
-                  <input
-                    type="url"
-                    required
-                    value={form.url}
-                    onChange={(e) => setForm({ ...form, url: e.target.value })}
-                    placeholder="https://..."
-                    className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d]"
-                  />
+                  <div className="space-y-2">
+                    <CloudinaryUploadButton
+                      onUploadSuccess={(url, fileName) => {
+                        setForm((prev) => ({
+                          ...prev,
+                          url,
+                          title: prev.title || fileName || "",
+                        }));
+                      }}
+                      buttonText="Pilih File & Unggah ke Cloudinary"
+                    />
+                    <div className="relative">
+                      <input
+                        type="url"
+                        required
+                        value={form.url}
+                        onChange={(e) => setForm({ ...form, url: e.target.value })}
+                        placeholder="https://res.cloudinary.com/..."
+                        className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d] bg-gray-50/50"
+                      />
+                    </div>
+                  </div>
                   <p className="text-[10px] text-gray-400 mt-1">
-                    Masukkan URL file yang telah diunggah ke MinIO S3 atau Cloudinary.
+                    Seluruh dokumen rutin, foto kegiatan, dan PDF laporan disimpan langsung pada penyimpanan Cloudinary.
                   </p>
                 </div>
 

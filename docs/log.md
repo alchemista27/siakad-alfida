@@ -1,6 +1,22 @@
 **tanggal:** 14 Oktober 2026
 **progress:**
 
+- Menyempurnakan Dasbor Eksekutif SIMAKIN (`services/simakin/web/src/app/executive/page.tsx`):
+  - Memperbaiki bug format tipe data respon API `getTrafficLightDashboard()` dan menggabungkan 3 endpoint analitik (`/summary`, `/progress`, dan `/traffic-light`).
+  - Menampilkan ringkasan menyeluruh: Kartu Total Proker & Tingkat Penyelesaian, Evaluasi Indikator KPI Hijau/Kuning/Merah, Disiplin Kehadiran Rapat Kinerja, serta Jumlah Masalah Kritis (*Top Critical Issues*).
+  - Menampilkan visualisasi *Progress Bar* capaian proker per bidang/biro (Departments Aggregation) dan tabel isu prioritas berisiko tinggi.
+  - Menyediakan filter interaktif performa KPI Traffic Light (Semua, Hijau, Kuning, Merah).
+- Menstandardisasi alur unggah berkas rutin operasional kinerja ke Cloudinary:
+  - Membuat komponen reusable `CloudinaryUploadButton` di `services/simakin/web/src/components/cloudinary-upload-button.tsx` dengan preset unsigned `alfida_unsigned`.
+  - Mengintegrasikan tombol upload langsung pada modal tambah berkas bukti di `/evidence` sehingga file terunggah otomatis dan tautan CDN amannya tersimpan.
+- Memvalidasi seluruh kompilasi paket monorepo via `pnpm run typecheck` (17/17 lulus) dan build Next.js SIMAKIN (11/11 rute static lulus).
+  **commit message:** feat(simakin): revamp executive bph dashboard and integrate cloudinary upload for evidence
+
+---
+
+**tanggal:** 14 Oktober 2026
+**progress:**
+
 - Menyelaraskan dan menyinkronkan identitas visual terpusat (Logo Yayasan & Favicon Browser) ke seluruh antarmuka microservices:
   - Memperbarui komponen `AppShell` pada `@alfida/ui` untuk menampilkan Logo Resmi Yayasan Alfida di Topbar navigasi utama secara dinamis dengan fallback ikon yang aman.
   - Menyematkan tautan ikon browser (`<link rel="icon">`) pada berkas `layout.tsx` di seluruh 6 aplikasi web microservices (`auth`, `admin`, `simakin`, `simpeg`, `siyaum`, dan `spmb`).
