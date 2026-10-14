@@ -1,4 +1,4 @@
-import { ALFIDA_SESSION_COOKIE } from "@alfida/auth-sdk";
+export const ALFIDA_SESSION_COOKIE = "alfida_session";
 
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;

@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { AppShell, Badge, EmptyState, LoadingState, ErrorState } from "@alfida/ui";
+import Link from "next/link";
+import { Badge, EmptyState, LoadingState, ErrorState } from "@alfida/ui";
+import { SimakinShell } from "@/components/simakin-shell";
+import { getDepartments, getPrograms } from "@/actions/strategic";
 
 interface Department {
   id: string;
@@ -27,46 +30,17 @@ export default function SimakinDashboardPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [user, setUser] = useState<{ fullName: string; role: string } | null>(null);
-
-  useEffect(() => {
-    fetchInitialData();
-  }, [selectedDeptId]);
-
   const fetchInitialData = async () => {
     setLoading(true);
     setError(null);
     try {
-      // Periksa sesi dari auth endpoint
-      const meRes = await fetch("/api/auth/me").catch(() => null);
-      if (meRes && meRes.ok) {
-        const meData = await meRes.json();
-        if (meData?.user) {
-          setUser({
-            fullName: meData.user.fullName,
-            role: meData.user.roles?.[0]?.role ? meData.user.roles[0].role.replace(/_/g, " ").toUpperCase() : "PIMPINAN",
-          });
-        }
-      }
+      const [deptData, progData] = await Promise.all([
+        getDepartments().catch(() => []),
+        getPrograms(selectedDeptId || undefined).catch(() => []),
+      ]);
 
-      // Ambil data departemen
-      const deptRes = await fetch("/api/strategic/departments");
-      if (deptRes.ok) {
-        const deptData = await deptRes.json();
-        setDepartments(Array.isArray(deptData) ? deptData : []);
-      }
-
-      // Ambil program kerja
-      const url = selectedDeptId
-        ? `/api/strategic/programs?departmentId=${selectedDeptId}`
-        : "/api/strategic/programs";
-      const progRes = await fetch(url);
-      if (progRes.ok) {
-        const progData = await progRes.json();
-        setPrograms(Array.isArray(progData) ? progData : []);
-      } else {
-        setPrograms([]);
-      }
+      setDepartments(Array.isArray(deptData) ? deptData : []);
+      setPrograms(Array.isArray(progData) ? progData : []);
     } catch (err: any) {
       setError(err.message || "Gagal memuat data dari server SIMAKIN");
     } finally {
@@ -74,88 +48,16 @@ export default function SimakinDashboardPage() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await fetch("https://auth.alfida.or.id/api/auth/logout", { credentials: "include", method: "POST" });
-    } catch (e) {}
-    window.location.href = "https://auth.alfida.or.id/login";
-  };
+  useEffect(() => {
+    fetchInitialData();
+  }, [selectedDeptId]);
 
   const totalPrograms = programs.length;
   const ongoingPrograms = programs.filter((p) => p.status === "ongoing").length;
   const completedPrograms = programs.filter((p) => p.status === "completed").length;
 
-  const sidebarGroups = [
-    {
-      title: "Kinerja & Proker",
-      items: [
-        {
-          label: "Dasbor & Matriks",
-          href: "/",
-          icon: "dashboard",
-          active: true,
-        },
-        {
-          label: "Program Kerja",
-          href: "#programs",
-          icon: "assignment",
-          active: false,
-        },
-      ],
-    },
-    {
-      title: "Rapat & Hambatan",
-      items: [
-        {
-          label: "Notulensi & Aksi",
-          href: "#meetings",
-          icon: "groups",
-          active: false,
-        },
-        {
-          label: "Kendala & Masalah",
-          href: "#issues",
-          icon: "report_problem",
-          active: false,
-        },
-        {
-          label: "Bukti Dukung (Evidence)",
-          href: "#evidence",
-          icon: "verified",
-          active: false,
-        },
-      ],
-    },
-    {
-      title: "Sistem",
-      items: [
-        {
-          label: "Portal Modul",
-          href: "https://auth.alfida.or.id/modules",
-          icon: "apps",
-          active: false,
-        },
-      ],
-    },
-  ];
-
   return (
-    <AppShell
-      serviceName="SIMAKIN"
-      userName={user?.fullName || "Pimpinan Yayasan"}
-      userRole={user?.role || "ADMIN BIDANG"}
-      onLogout={handleLogout}
-      sidebarGroups={sidebarGroups}
-      topbarActions={
-        <a
-          href="https://auth.alfida.or.id/modules"
-          className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
-        >
-          <span className="material-symbols-rounded text-[16px]">apps</span>
-          <span className="hidden sm:inline">Pilih Modul</span>
-        </a>
-      }
-    >
+    <SimakinShell activePath="/">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-border gap-4">
@@ -167,7 +69,7 @@ export default function SimakinDashboardPage() {
               Pemantauan realisasi rencana kerja operasional dan target KPI unit Yayasan Alfida
             </p>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <select
               value={selectedDeptId}
               onChange={(e) => setSelectedDeptId(e.target.value)}
@@ -180,10 +82,17 @@ export default function SimakinDashboardPage() {
                 </option>
               ))}
             </select>
+            <Link
+              href="/programs"
+              className="px-3.5 py-2 bg-tertiary hover:bg-[#0b6355] text-white rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5"
+            >
+              <span className="material-symbols-rounded text-[16px]">add_circle</span>
+              <span>Kelola Program</span>
+            </Link>
           </div>
         </div>
 
-        {/* Metric Cards (Sesuai Wireframe 04-admin-dashboard.html) */}
+        {/* Metric Cards (Wireframe 04-admin-dashboard.html) */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-6">
           <div className="bg-white border border-border rounded-lg p-5 flex items-center gap-4 shadow-sm">
             <div className="w-12 h-12 rounded-lg bg-[#e6f4f1] text-tertiary flex items-center justify-center flex-shrink-0">
@@ -217,11 +126,18 @@ export default function SimakinDashboardPage() {
         </div>
 
         {/* Content Section */}
-        <div className="mt-8" id="programs">
+        <div className="mt-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-bold font-heading text-primary">
               Daftar Program Kerja & Indikator Capaian
             </h2>
+            <Link
+              href="/kpis"
+              className="text-xs text-tertiary font-semibold hover:underline flex items-center gap-1"
+            >
+              <span>Lihat Matriks Capaian KPI</span>
+              <span className="material-symbols-rounded text-[14px]">arrow_forward</span>
+            </Link>
           </div>
 
           {loading ? (
@@ -300,6 +216,6 @@ export default function SimakinDashboardPage() {
           )}
         </div>
       </div>
-    </AppShell>
+    </SimakinShell>
   );
 }
