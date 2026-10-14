@@ -10,14 +10,14 @@ Untuk pengujian di lingkungan lokal maupun staging, tersedia akun-akun bawaan ya
 
 | Peran (Role) | Email Login | Password Default | Akses Utama Layanan |
 |---|---|---|---|
-| **Super Admin** | `admin@alfida.or.id` | `Admin123!` | Seluruh subdomain dan fitur yayasan |
-| **Admin Kepegawaian** | `hr@alfida.or.id` | `Admin123!` | `simpeg.alfida.or.id` (Staf, Cuti, Absensi) |
-| **Admin Bidang / Biro** | `bidang@alfida.or.id` | `Admin123!` | `simakin.alfida.or.id` (Proker & KPI) |
-| **Admin Unit SDIT 1** | `admin.sdit1@alfida.or.id`| `Admin123!` | `spmb.alfida.or.id/admin`, `sim.alfida.or.id` |
-| **Admin Unit SMPIT** | `admin.smpit@alfida.or.id`| `Admin123!` | `spmb.alfida.or.id/admin`, `sim.alfida.or.id` |
-| **Guru / Karyawan** | `guru.budi@alfida.or.id` | `Guru123!` | `simpeg.alfida.or.id`, `siyaum.alfida.or.id` |
-| **Musyrif YMQ** | `musyrif.ahmad@alfida.or.id`| `Musyrif123!`| `siyaum.alfida.or.id` (Verifikasi Tilawah) |
-| **Orang Tua Santri** | `ortu.testing@gmail.com` | `Ortu123!` | `spmb.alfida.or.id`, `siakad.alfida.or.id` |
+| **Super Admin** | `admin@alfida.or.id` | `4dmin4lfid4` | Seluruh subdomain dan fitur yayasan |
+| **Admin Kepegawaian** | `hr@alfida.or.id` | `4dmin4lfid4` | `simpeg.alfida.or.id` (Staf, Cuti, Absensi) |
+| **Admin Bidang / Biro** | `bidang@alfida.or.id` | `4dmin4lfid4` | `simakin.alfida.or.id` (Proker & KPI) |
+| **Admin Unit SDIT 1** | `admin.sdit1@alfida.or.id`| `4dmin4lfid4` | `spmb.alfida.or.id/admin`, `sim.alfida.or.id` |
+| **Admin Unit SMPIT** | `admin.smpit@alfida.or.id`| `4dmin4lfid4` | `spmb.alfida.or.id/admin`, `sim.alfida.or.id` |
+| **Guru / Karyawan** | `guru.budi@alfida.or.id` | `4dmin4lfid4` | `simpeg.alfida.or.id`, `siyaum.alfida.or.id` |
+| **Musyrif YMQ** | `musyrif.ahmad@alfida.or.id`| `4dmin4lfid4`| `siyaum.alfida.or.id` (Verifikasi Tilawah) |
+| **Orang Tua Santri** | `ortu.testing@gmail.com` | `4dmin4lfid4` | `spmb.alfida.or.id`, `siakad.alfida.or.id` |
 
 > [!CAUTION]
 > Pada lingkungan produksi, segera ubah seluruh kata sandi akun default di atas melalui menu pengaturan profil di `auth.alfida.or.id/profile`.

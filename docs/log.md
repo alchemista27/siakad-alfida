@@ -423,5 +423,18 @@
 - Memverifikasi keberhasilan kompilasi produksi `next build` dan `pnpm run typecheck` di seluruh 18 paket monorepo dengan status 100% lulus tanpa kesalahan kompilasi.
   **commit message:** feat(microservices): integrate AppShell layout across simakin, simpeg, siyaum, and spmb web clients
 
+---
+
+**tanggal:** 14 Oktober 2026 (Sesi 6)
+**progress:**
+
+- Memperbarui kata sandi seluruh akun pengguna pada database `alfida_auth` dan `simalfida` (legacy) menjadi `4dmin4lfid4` menggunakan enkripsi hash Bcrypt (salt rounds 10) pada tabel `User.passwordHash` dan `Account.password` (provider: `credential`).
+- Menginisialisasi dan memastikan seluruh akun testing sesuai `docs/accounts.md` (`admin@alfida.or.id`, `hr@alfida.or.id`, `bidang@alfida.or.id`, `admin.sdit1@alfida.or.id`, `admin.smpit@alfida.or.id`, `guru.budi@alfida.or.id`, `musyrif.ahmad@alfida.or.id`, dan `ortu.testing@gmail.com`) tersedia dengan penugasan peran (*role assignments*) lengkap di pangkalan data identitas.
+- Menyediakan skrip otomatis `services/auth/api/scripts/update-passwords.ts` dan menambahkan perintah `pnpm --filter auth-api run db:reset-passwords` pada `package.json`.
+- Memverifikasi keberhasilan autentikasi kata sandi dengan `bcrypt.compare()` untuk seluruh akun testing dengan status 100% valid.
+- Memperbarui dokumentasi `docs/accounts.md` dengan kata sandi baru `4dmin4lfid4`.
+  **commit message:** chore(auth): update all testing passwords to 4dmin4lfid4 across auth and legacy databases
+
+
 
 
