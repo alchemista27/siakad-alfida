@@ -386,3 +386,15 @@
   **commit message:** fix(microservices): stabilize nestjs compile outputs, prisma client distribution, and runtime start guards
 
 ---
+
+**tanggal:** 14 Oktober 2026 (Sesi 3)
+**progress:**
+
+- Membangun komponen antarmuka terstandarisasi `Sidebar` dan `AppShell` di `@alfida/ui` yang mengadopsi spesifikasi desain baku `docs/wireframe` (Sidebar 250px tetap di desktop, drawer responsif dengan backdrop di mobile, indikator navigasi aktif toska `#0f7f6d` dengan border kanan `3px`, Topbar 60px dengan avatar inisial bulat, nama, peran, dan tombol logout terpadu).
+- Mengekspor `Sidebar` dan `AppShell` ke publik API `@alfida/ui` serta memvalidasi hasil kompilasi TypeScript (`packages/ui/dist`).
+- Menambahkan dependensi `@alfida/ui: workspace:*` dan langkah build Docker pada `services/auth/web` dan `services/auth/Dockerfile`.
+- Menyuntikkan stylesheet font Google `Inter` (body), `Roboto` (heading), serta ikon standar **Google Material Symbols Rounded** ke seluruh root layout web microservices (`auth`, `simakin`, `simpeg`, `siyaum`, `spmb`).
+- Menstandarisasi token desain warna (`primary`, `secondary`, `tertiary`, `surface`, `border`, `neutral`) dan tipografi pada seluruh berkas `tailwind.config.ts` di 5 web microservices.
+- Memverifikasi keberhasilan kompilasi statis `tsc --noEmit` di seluruh 5 web client tanpa galat.
+  **commit message:** feat(ui): implement AppShell and Sidebar components in @alfida/ui with wireframe design tokens
+

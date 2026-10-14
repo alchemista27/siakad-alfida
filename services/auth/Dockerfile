@@ -12,6 +12,7 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @alfida/auth-api exec prisma generate
 RUN pnpm --filter @alfida/contracts build
 RUN pnpm --filter @alfida/auth-sdk build
+RUN pnpm --filter @alfida/ui build
 RUN pnpm --filter @alfida/auth-api build
 RUN pnpm --filter @alfida/auth-web build
 RUN mkdir -p services/auth/web/.next/standalone/services/auth/web/.next \

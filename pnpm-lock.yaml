@@ -606,6 +606,9 @@ importers:
       '@alfida/contracts':
         specifier: workspace:*
         version: link:../../../packages/contracts
+      '@alfida/ui':
+        specifier: workspace:*
+        version: link:../../../packages/ui
       clsx:
         specifier: ^2.1.1
         version: 2.1.1

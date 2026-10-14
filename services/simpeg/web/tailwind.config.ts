@@ -11,13 +11,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        primary: "#454545",
+        secondary: "#06bfa2",
+        tertiary: "#0f7f6d",
+        "on-tertiary": "#F7F8F8",
+        neutral: "#F7F8F8",
+        surface: "#FFFFFF",
+        border: "#E3E8E7",
         background: "var(--background)",
         foreground: "var(--foreground)",
         emerald: {
-          600: "#059669",
-          700: "#047857",
-          800: "#065f46",
+          50: "#e6f4f1",
+          100: "#cceae4",
+          500: "#06bfa2",
+          600: "#0f7f6d",
+          700: "#0b6355",
+          800: "#08493e",
         },
+      },
+      fontFamily: {
+        heading: ["Roboto", "sans-serif"],
+        body: ["Inter", "sans-serif"],
       },
     },
   },
