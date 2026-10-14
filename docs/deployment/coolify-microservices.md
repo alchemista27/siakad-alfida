@@ -16,6 +16,7 @@ Dokumen ini menjelaskan tata cara deployment arsitektur microservices SIM-Alfida
 | Service | Subdomain | Database Terpusat | Internal Ports | Keterangan |
 |---|---|---|---|---|
 | **auth** | `auth.alfida.or.id` | `alfida_auth` | 3000 (Web), 3001 (API) | Identity Provider & SSO Cookie `.alfida.or.id` |
+| **admin** | `admin.alfida.or.id` | `alfida_auth` | 3000 (Web), 3001 (API) | Pusat Identitas Yayasan (Logo & Favicon), Rekening, & Approval User |
 | **simakin** | `simakin.alfida.or.id` | `alfida_simakin` | 3000 (Web), 3001 (API) | Perencanaan, Program Kerja, & Monitoring KPI |
 | **simpeg** | `simpeg.alfida.or.id` | `alfida_simpeg` | 3000 (Web), 3001 (API) | Kepegawaian, Penugasan Unit, Presensi GPS, Cuti, & Liqo |
 | **siyaum** | `siyaum.alfida.or.id` | `alfida_siyaum` | 3000 (Web), 3001 (API) | Program Yaum Ma'al Quran (YMQ) Guru & Karyawan |
@@ -117,13 +118,27 @@ Buat **Application** bertipe **Docker Image** untuk setiap subdomain:
 - **Environment Variables**:
   ```env
   NODE_ENV=production
-  DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/alfida_spmb?schema=public
+  DATABASE_URL=postgresql://postgres:***@<db-host>:5432/alfida_spmb?schema=public
   JWT_SECRET=<kunci-rahasia-sso-panjang-sama-dengan-auth>
   COOKIE_DOMAIN=.alfida.or.id
   INTERNAL_API_URL=http://127.0.0.1:3001
   NEXT_PUBLIC_APP_URL=https://spmb.alfida.or.id
   INTERNAL_SIAKAD_API_URL=http://<monolith-container-or-host>:3001
   INTERNAL_SERVICE_SECRET=<generate-strong-random-secret>
+  ```
+
+### F. Service Admin Yayasan (`admin.alfida.or.id`)
+- **Docker Image**: `ghcr.io/<owner>/<repo>/admin:latest` (atau Git source: `services/admin/Dockerfile`)
+- **Exposed Port**: `3000`
+- **FQDN**: `https://admin.alfida.or.id`
+- **Environment Variables**:
+  ```env
+  NODE_ENV=production
+  DATABASE_URL=postgresql://postgres:***@<db-host>:5432/alfida_auth?schema=public
+  JWT_SECRET=<kunci-rahasia-sso-panjang-sama-dengan-auth>
+  COOKIE_DOMAIN=.alfida.or.id
+  INTERNAL_API_URL=http://127.0.0.1:3001
+  NEXT_PUBLIC_APP_URL=https://admin.alfida.or.id
   ```
 
 ---

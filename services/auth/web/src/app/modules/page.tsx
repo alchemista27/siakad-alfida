@@ -71,6 +71,12 @@ export default function ModulesPage() {
         ...(isSuperAdmin
           ? [
               {
+                label: "Admin Yayasan",
+                href: "https://admin.alfida.or.id",
+                icon: "admin_panel_settings",
+                active: false,
+              },
+              {
                 label: "Manajemen Pengguna",
                 href: "/admin/users",
                 icon: "manage_accounts",
@@ -113,6 +119,20 @@ export default function ModulesPage() {
   ];
 
   const modules: ModuleItem[] = [
+    ...(isSuperAdmin
+      ? [
+          {
+            id: "admin",
+            title: "Admin Yayasan (Pusat Tata Kelola)",
+            description: "Identitas yayasan (logo & favicon), rekening pusat, persetujuan staf dan tata kelola akun.",
+            icon: "admin_panel_settings",
+            url: "https://admin.alfida.or.id",
+            isActive: true,
+            badge: "Pusat",
+            external: true,
+          },
+        ]
+      : []),
     {
       id: "spmb",
       title: "SPMB (Penerimaan Siswa Baru)",

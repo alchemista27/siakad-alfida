@@ -1,6 +1,18 @@
 **tanggal:** 14 Oktober 2026
 **progress:**
 
+- Membangun microservice mandiri `services/admin` (`admin.alfida.or.id`) sebagai pusat tata kelola Identitas Resmi Yayasan (Logo, Favicon browser, Tanda Tangan Digital Ketua, Rekening Bank Terpusat) dan Manajemen Pengguna SSO terpadu.
+- Mengembangkan backend API `services/admin/api` (NestJS): endpoint publik `GET /api/public/foundation-settings` (untuk konsumsi logo & favicon dinamis lintas microservices), endpoint kelola identitas yayasan, endpoint antrean persetujuan staf baru `GET /api/admin/users/pending` & `PATCH /api/admin/users/:id/approve`, manajemen multi-peran, reset password, dan batch import pengguna via spreadsheet Excel (`POST /api/admin/users/batch-import`).
+- Mengembangkan frontend web `services/admin/web` (Next.js Standalone): komponen `AdminShell` berbasis `@alfida/ui`, halaman `/settings` untuk kelola branding logo & favicon, halaman `/approvals` untuk antrean persetujuan satu-klik staf pendaftar baru, dan halaman `/users` dengan filter pencarian, status toggle, reset kata sandi, serta parser spreadsheet Excel.
+- Menambahkan kartu modul "Admin Yayasan" pada portal modul terpadu `services/auth/web/src/app/modules/page.tsx` khusus bagi Super Admin.
+- Menguji API secara menyeluruh melalui `services/admin/api/scripts/test-admin-api.ts` (4/4 skenario lulus) dan memverifikasi typecheck monorepo 17/17 lulus.
+  **commit message:** feat(admin): establish centralized admin service for foundation identity and user governance
+
+---
+
+**tanggal:** 14 Oktober 2026
+**progress:**
+
 - Mengimplementasikan endpoint pendaftaran mandiri pada Service Auth (`services/auth/api`): `POST /api/auth/register` untuk Orang Tua (otomatis aktif, role `spmb:orang_tua` & `siakad:orang_tua`), `POST /api/auth/register-staff` untuk Tenaga Pendidik & Kependidikan (status nonaktif/menunggu persetujuan admin dengan penetapan unit), serta `GET /api/auth/units` untuk daftar unit resmi Yayasan Alfida.
 - Mengembangkan antarmuka pendaftaran pada Service Auth Web (`services/auth/web`) mengadopsi wireframe `02-register.html` dengan *Split Screen Layout* (40% panel toska dan 60% panel form pendaftaran): `/register` untuk orang tua dan `/register-staff` untuk guru/karyawan.
 - Menambahkan komponen `PasswordMeter` (`password-meter.tsx`) untuk indikator visual kekuatan kata sandi pengguna secara langsung.

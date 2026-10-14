@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const APP_NAMES = [
+  "admin",
   "auth",
   "simakin",
   "simpeg",
@@ -16,6 +17,7 @@ export const APP_NAMES = [
 export type AppName = (typeof APP_NAMES)[number];
 
 export const APP_ROLES = {
+  admin: ["super_admin", "admin_users"],
   auth: ["super_admin", "admin_users"],
   simakin: ["admin_bidang", "admin_biro", "pengawas", "pimpinan", "pic_program"],
   simpeg: ["admin_kepegawaian", "admin_unit", "murobbi", "pegawai"],

@@ -1,0 +1,12 @@
+import { Module } from "@nestjs/common";
+import { FoundationController } from "./foundation.controller";
+import { FoundationService } from "./foundation.service";
+import { PrismaModule } from "../prisma/prisma.module";
+
+@Module({
+  imports: [PrismaModule],
+  controllers: [FoundationController],
+  providers: [FoundationService],
+  exports: [FoundationService],
+})
+export class FoundationModule {}
