@@ -398,3 +398,16 @@
 - Memverifikasi keberhasilan kompilasi statis `tsc --noEmit` di seluruh 5 web client tanpa galat.
   **commit message:** feat(ui): implement AppShell and Sidebar components in @alfida/ui with wireframe design tokens
 
+---
+
+**tanggal:** 14 Oktober 2026 (Sesi 4)
+**progress:**
+
+- Merombak total antarmuka halaman login `services/auth/web/src/app/login/page.tsx` menjadi **Split Screen Layout** sesuai spesifikasi `docs/wireframe/01-login.html` (panel kiri 40% gradien toska `#0f7f6d` ke `#06bfa2` dengan logo `hub` dan tipografi branding SIM-Alfida, panel kanan 60% form putih bersih dengan tombol intip/toggle password menggunakan ikon Google Material Symbols, input email/username, dan pemisah tautan SPMB).
+- Membangun halaman portal pemilihan modul terpadu `services/auth/web/src/app/modules/page.tsx` berbasis wireframe `docs/wireframe/03-modules.html` dan dibungkus komponen `AppShell`, menyajikan grid kartu layanan aktif (SPMB, SIMAKIN, SIMPEG, SIYAUM, SIAKAD) serta kartu status pra-rilis (SISKEU, SISARPRAS, SISURAT).
+- Menyelaraskan alur pengalihan pasca-login agar pengguna langsung diarahkan ke portal modul terpadu (`/modules`) atau `callbackUrl`.
+- Mengonversi halaman manajemen pengguna `services/auth/web/src/app/admin/users/page.tsx` ke dalam struktur `AppShell`, melengkapinya dengan sidebar navigasi, indikator inisial bulat akun, serta tombol kembali ke portal modul.
+- Menjalankan uji kompilasi produksi `next build` pada `@alfida/auth-web` dan typecheck monorepo secara penuh dengan hasil 100% sukses tanpa galat.
+  **commit message:** feat(auth): revamp login with split screen wireframe and add central modules portal
+
+
