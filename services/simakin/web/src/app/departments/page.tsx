@@ -24,6 +24,7 @@ interface Department {
 
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -57,8 +58,18 @@ export default function DepartmentsPage() {
   };
 
   useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.user) setCurrentUser(d.user);
+      })
+      .catch(() => {});
     fetchData();
   }, []);
+
+  const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === "super_admin");
+  const isAdminBidang = currentUser?.roles?.some((r: any) => r.role === "admin_bidang") || isSuperAdmin;
+  const canManageDepartments = isAdminBidang;
 
   const handleOpenAdd = () => {
     setEditingDept(null);
@@ -136,14 +147,16 @@ export default function DepartmentsPage() {
               Kelola hierarki struktur organisasi, biro pelaksana, dan penanggung jawab unit Yayasan Alfida
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleOpenAdd}
-            className="px-4 py-2 bg-tertiary hover:bg-[#0b6355] text-white rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5 self-start sm:self-auto"
-          >
-            <span className="material-symbols-rounded text-[18px]">add</span>
-            <span>+ Tambah Bidang / Biro</span>
-          </button>
+          {canManageDepartments && (
+            <button
+              type="button"
+              onClick={handleOpenAdd}
+              className="px-4 py-2 bg-tertiary hover:bg-[#0b6355] text-white rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5 self-start sm:self-auto"
+            >
+              <span className="material-symbols-rounded text-[18px]">add</span>
+              <span>+ Tambah Bidang / Biro</span>
+            </button>
+          )}
         </div>
 
         {/* Filter Search */}
@@ -217,25 +230,29 @@ export default function DepartmentsPage() {
                           {d.description || "-"}
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <div className="inline-flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => handleOpenEdit(d)}
-                              className="px-2.5 py-1 text-xs font-semibold text-tertiary hover:bg-[#e6f4f1] rounded border border-emerald-200 transition-colors"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setDeletingId(d.id);
-                                setDeletingName(d.name);
-                              }}
-                              className="px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 rounded border border-red-200 transition-colors"
-                            >
-                              Hapus
-                            </button>
-                          </div>
+                          {canManageDepartments ? (
+                            <div className="inline-flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEdit(d)}
+                                className="px-2.5 py-1 text-xs font-semibold text-tertiary hover:bg-[#e6f4f1] rounded border border-emerald-200 transition-colors"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setDeletingId(d.id);
+                                  setDeletingName(d.name);
+                                }}
+                                className="px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 rounded border border-red-200 transition-colors"
+                              >
+                                Hapus
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-[11px] text-gray-400 italic">Lihat Saja</span>
+                          )}
                         </td>
                       </tr>
                     ))}

@@ -482,6 +482,20 @@
 - Menjalankan uji kompilasi produksi `next build` pada `@alfida/simakin-web` dengan hasil 11 rute statis sukses terkompilasi, serta typecheck monorepo 100% lulus tanpa galat.
   **commit message:** feat(simakin-web): migrate full interactive strategic modules from monolith to microservice
 
+---
+
+**tanggal:** 14 Oktober 2026 (Sesi 10)
+**progress:**
+
+- Menyelaraskan navigasi dinamis dan otorisasi antarmuka berbasis peran (Role-Based Access Control) pada seluruh halaman `services/simakin/web`:
+  - `departments/page.tsx`: Membatasi visibilitas tombol "+ Tambah Bidang / Biro" serta aksi "Edit" dan "Hapus" hanya untuk peran `admin_bidang` dan `super_admin`, sedangkan peran lainnya hanya mendapatkan tampilan *read-only*.
+  - `programs/page.tsx`: Mengamankan tombol pembuatan program baru dan upload massal spreadsheet Excel hanya untuk `admin_bidang` dan `admin_biro`, serta mengunci aksi hapus program khusus untuk `admin_bidang`.
+  - `kpis/page.tsx`: Mengunci modal dan tombol "Verifikasi Baseline" khusus untuk `admin_bidang` (dan `super_admin`), tombol "Ajukan Baseline" untuk `admin_biro` / `pic_program`, serta membatasi pembuatan/penghapusan KPI hanya untuk `admin_bidang`.
+  - `components/simakin-shell.tsx`: Membaca identitas pengguna via `/api/auth/me` dan menyajikan menu sidebar evaluasi eksekutif (`/executive`) secara dinamis khusus untuk `pimpinan`, `pengawas`, dan `super_admin`.
+- Memvalidasi keberhasilan kompilasi produksi `next build` dan `pnpm run typecheck` di seluruh monorepo dengan hasil 100% lulus tanpa kesalahan.
+  **commit message:** feat(simakin-web): enforce role-based UI permissions and dynamic navigation across strategic pages
+
+
 
 
 

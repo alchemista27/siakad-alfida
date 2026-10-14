@@ -32,6 +32,7 @@ interface ProgramItem {
 export default function ProgramsPage() {
   const [programs, setPrograms] = useState<ProgramItem[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,8 +77,20 @@ export default function ProgramsPage() {
   };
 
   useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.user) setCurrentUser(d.user);
+      })
+      .catch(() => {});
     fetchData();
   }, [selectedDept]);
+
+  const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === "super_admin");
+  const isAdminBidang = currentUser?.roles?.some((r: any) => r.role === "admin_bidang") || isSuperAdmin;
+  const isAdminBiro = currentUser?.roles?.some((r: any) => r.role === "admin_biro");
+  const canCreateOrEdit = isAdminBidang || isAdminBiro;
+  const canDelete = isAdminBidang;
 
   const handleOpenAdd = () => {
     setEditingProg(null);
@@ -159,24 +172,26 @@ export default function ProgramsPage() {
               Rencana kerja tahunan (RKT) dan rencana strategis jangka menengah (RKJM) unit kerja Yayasan Alfida
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => setIsUploadOpen(true)}
-              className="px-3.5 py-2 bg-white border border-border hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5"
-            >
-              <span className="material-symbols-rounded text-tertiary text-[18px]">upload_file</span>
-              <span>Unggah Spreadsheet Excel</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleOpenAdd}
-              className="px-3.5 py-2 bg-tertiary hover:bg-[#0b6355] text-white rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5"
-            >
-              <span className="material-symbols-rounded text-[18px]">add</span>
-              <span>+ Tambah Program</span>
-            </button>
-          </div>
+          {canCreateOrEdit && (
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsUploadOpen(true)}
+                className="px-3.5 py-2 bg-white border border-border hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5"
+              >
+                <span className="material-symbols-rounded text-tertiary text-[18px]">upload_file</span>
+                <span>Unggah Spreadsheet Excel</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenAdd}
+                className="px-3.5 py-2 bg-tertiary hover:bg-[#0b6355] text-white rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5"
+              >
+                <span className="material-symbols-rounded text-[18px]">add</span>
+                <span>+ Tambah Program</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Filter Controls */}
@@ -311,23 +326,27 @@ export default function ProgramsPage() {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="inline-flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => handleOpenEdit(prog)}
-                              className="px-2.5 py-1 text-xs font-semibold text-tertiary hover:bg-[#e6f4f1] rounded border border-emerald-200 transition-colors"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setDeletingId(prog.id);
-                                setDeletingTitle(prog.title);
-                              }}
-                              className="px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 rounded border border-red-200 transition-colors"
-                            >
-                              Hapus
-                            </button>
+                            {canCreateOrEdit && (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEdit(prog)}
+                                className="px-2.5 py-1 text-xs font-semibold text-tertiary hover:bg-[#e6f4f1] rounded border border-emerald-200 transition-colors"
+                              >
+                                Edit
+                              </button>
+                            )}
+                            {canDelete && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setDeletingId(prog.id);
+                                  setDeletingTitle(prog.title);
+                                }}
+                                className="px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 rounded border border-red-200 transition-colors"
+                              >
+                                Hapus
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

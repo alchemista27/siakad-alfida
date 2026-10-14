@@ -41,6 +41,7 @@ interface ProgramOption {
 export default function KpisPage() {
   const [kpis, setKpis] = useState<KPIItem[]>([]);
   const [programs, setPrograms] = useState<ProgramOption[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -96,8 +97,19 @@ export default function KpisPage() {
   };
 
   useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.user) setCurrentUser(d.user);
+      })
+      .catch(() => {});
     fetchData();
   }, [selectedProgram]);
+
+  const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === "super_admin");
+  const isAdminBidang = currentUser?.roles?.some((r: any) => r.role === "admin_bidang") || isSuperAdmin;
+  const canVerifyBaseline = isAdminBidang;
+  const canManageKpi = isAdminBidang;
 
   const handleOpenAdd = () => {
     setEditingKpi(null);
@@ -224,24 +236,26 @@ export default function KpisPage() {
               Pengukuran target numerik, verifikasi baseline, dan pemantauan realisasi program kerja yayasan
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => setIsUploadOpen(true)}
-              className="px-3.5 py-2 bg-white border border-border hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5"
-            >
-              <span className="material-symbols-rounded text-tertiary text-[18px]">upload_file</span>
-              <span>Unggah Spreadsheet KPI</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleOpenAdd}
-              className="px-3.5 py-2 bg-tertiary hover:bg-[#0b6355] text-white rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5"
-            >
-              <span className="material-symbols-rounded text-[18px]">add</span>
-              <span>+ Tambah KPI Baru</span>
-            </button>
-          </div>
+          {canManageKpi && (
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsUploadOpen(true)}
+                className="px-3.5 py-2 bg-white border border-border hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5"
+              >
+                <span className="material-symbols-rounded text-tertiary text-[18px]">upload_file</span>
+                <span>Unggah Spreadsheet KPI</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenAdd}
+                className="px-3.5 py-2 bg-tertiary hover:bg-[#0b6355] text-white rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5"
+              >
+                <span className="material-symbols-rounded text-[18px]">add</span>
+                <span>+ Tambah KPI Baru</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Filters */}
@@ -377,7 +391,7 @@ export default function KpisPage() {
                                 </button>
                               ) : null}
 
-                              {kpi.baselineStatus === "submitted" ? (
+                              {kpi.baselineStatus === "submitted" && canVerifyBaseline ? (
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -392,23 +406,27 @@ export default function KpisPage() {
                                 </button>
                               ) : null}
 
-                              <button
-                                type="button"
-                                onClick={() => handleOpenEdit(kpi)}
-                                className="px-2 py-1 text-[11px] font-semibold text-tertiary hover:bg-[#e6f4f1] rounded border border-emerald-200"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setDeletingId(kpi.id);
-                                  setDeletingName(kpi.name);
-                                }}
-                                className="px-2 py-1 text-[11px] font-semibold text-red-600 hover:bg-red-50 rounded border border-red-200"
-                              >
-                                Hapus
-                              </button>
+                              {canManageKpi && (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenEdit(kpi)}
+                                    className="px-2 py-1 text-[11px] font-semibold text-tertiary hover:bg-[#e6f4f1] rounded border border-emerald-200"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setDeletingId(kpi.id);
+                                      setDeletingName(kpi.name);
+                                    }}
+                                    className="px-2 py-1 text-[11px] font-semibold text-red-600 hover:bg-red-50 rounded border border-red-200"
+                                  >
+                                    Hapus
+                                  </button>
+                                </>
+                              )}
                             </div>
                           </td>
                         </tr>
