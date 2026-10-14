@@ -1,6 +1,17 @@
 **tanggal:** 14 Oktober 2026
 **progress:**
 
+- Menyelaraskan dan menyinkronkan identitas visual terpusat (Logo Yayasan & Favicon Browser) ke seluruh antarmuka microservices:
+  - Memperbarui komponen `AppShell` pada `@alfida/ui` untuk menampilkan Logo Resmi Yayasan Alfida di Topbar navigasi utama secara dinamis dengan fallback ikon yang aman.
+  - Menyematkan tautan ikon browser (`<link rel="icon">`) pada berkas `layout.tsx` di seluruh 6 aplikasi web microservices (`auth`, `admin`, `simakin`, `simpeg`, `siyaum`, dan `spmb`).
+- Memvalidasi seluruh kompilasi paket monorepo melalui `pnpm run typecheck` (17/17 lulus).
+  **commit message:** feat(ui): synchronize foundation logo and browser favicon across all microservice layouts
+
+---
+
+**tanggal:** 14 Oktober 2026
+**progress:**
+
 - Membangun microservice mandiri `services/admin` (`admin.alfida.or.id`) sebagai pusat tata kelola Identitas Resmi Yayasan (Logo, Favicon browser, Tanda Tangan Digital Ketua, Rekening Bank Terpusat) dan Manajemen Pengguna SSO terpadu.
 - Mengembangkan backend API `services/admin/api` (NestJS): endpoint publik `GET /api/public/foundation-settings` (untuk konsumsi logo & favicon dinamis lintas microservices), endpoint kelola identitas yayasan, endpoint antrean persetujuan staf baru `GET /api/admin/users/pending` & `PATCH /api/admin/users/:id/approve`, manajemen multi-peran, reset password, dan batch import pengguna via spreadsheet Excel (`POST /api/admin/users/batch-import`).
 - Mengembangkan frontend web `services/admin/web` (Next.js Standalone): komponen `AdminShell` berbasis `@alfida/ui`, halaman `/settings` untuk kelola branding logo & favicon, halaman `/approvals` untuk antrean persetujuan satu-klik staf pendaftar baru, dan halaman `/users` dengan filter pencarian, status toggle, reset kata sandi, serta parser spreadsheet Excel.

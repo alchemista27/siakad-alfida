@@ -8,6 +8,8 @@ export interface AppShellProps {
   serviceName: string;
   userName?: string;
   userRole?: string;
+  logoUrl?: string;
+  foundationName?: string;
   onLogout?: () => void;
   sidebarGroups?: NavGroup[];
   children: React.ReactNode;
@@ -19,6 +21,8 @@ export const AppShell: React.FC<AppShellProps> = ({
   serviceName,
   userName = "Pengguna",
   userRole,
+  logoUrl = "https://s3.alfida.or.id/sim-alfida/sim-alfida/foundation/logo-1790054535826",
+  foundationName = "SIM-Alfida",
   onLogout,
   sidebarGroups = [],
   children,
@@ -26,6 +30,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   topbarActions,
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   // Ambil inisial huruf dari nama pengguna
   const initials = userName
@@ -59,10 +64,19 @@ export const AppShell: React.FC<AppShellProps> = ({
             href="https://auth.alfida.or.id/modules"
             className="flex items-center gap-2 text-[#0f7f6d] font-bold text-lg font-heading"
           >
-            <span className="material-symbols-rounded text-[#0f7f6d] text-[24px]">
-              hub
-            </span>
-            <span>SIM-Alfida</span>
+            {logoUrl && !imgError ? (
+              <img
+                src={logoUrl}
+                alt={foundationName}
+                onError={() => setImgError(true)}
+                className="h-8 w-auto max-w-[120px] object-contain"
+              />
+            ) : (
+              <span className="material-symbols-rounded text-[#0f7f6d] text-[24px]">
+                hub
+              </span>
+            )}
+            <span>{foundationName}</span>
           </a>
           <span className="text-gray-300 hidden sm:inline">|</span>
           <span className="text-xs font-semibold px-2 py-0.5 rounded bg-[#e6f4f1] text-[#0f7f6d] hidden sm:inline">

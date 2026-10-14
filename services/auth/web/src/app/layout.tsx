@@ -14,6 +14,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <head>
+        <link rel="icon" type="image/png" href="https://s3.alfida.or.id/sim-alfida/sim-alfida/foundation/logo-1790054535826" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
