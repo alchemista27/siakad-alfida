@@ -1,6 +1,18 @@
 **tanggal:** 14 Oktober 2026
 **progress:**
 
+- Menerapkan arsitektur Role-Based Access Control (RBAC) granular pada seluruh backend API SPMB (`services/spmb/api`):
+  - Membuat guard `SpmbRolesGuard` dan decorator `@SpmbRoles` di `services/spmb/api/src/common/guards/spmb-roles.guard.ts` untuk memvalidasi peran pengguna pada aplikasi SPMB (`admin_unit`, `tim_ppdb`, `observer`, `orang_tua`) dengan otorisasi wildcard otomatis bagi `super_admin`.
+  - Mengunci seluruh 8 controller API SPMB (`periods`, `registrations`, `documents`, `observations`, `decisions`, `handoff`, `imports`, `invites`) sesuai wewenang matriks peran masing-masing, mencegah eksploitasi otorisasi oleh pengguna tanpa hak akses.
+  - Membangun suite pengujian otomatis `services/spmb/api/scripts/test-rbac.ts` dan memverifikasi 7 skenario pengujian RBAC (7/7 lulus).
+- Memvalidasi kompilasi backend API dan typecheck monorepo 17/17 lulus tanpa kesalahan.
+  **commit message:** feat(spmb): enforce role-based access control with SpmbRolesGuard across all 8 api controllers
+
+---
+
+**tanggal:** 14 Oktober 2026
+**progress:**
+
 - Menyempurnakan Dasbor Eksekutif SIMAKIN (`services/simakin/web/src/app/executive/page.tsx`):
   - Memperbaiki bug format tipe data respon API `getTrafficLightDashboard()` dan menggabungkan 3 endpoint analitik (`/summary`, `/progress`, dan `/traffic-light`).
   - Menampilkan ringkasan menyeluruh: Kartu Total Proker & Tingkat Penyelesaian, Evaluasi Indikator KPI Hijau/Kuning/Merah, Disiplin Kehadiran Rapat Kinerja, serta Jumlah Masalah Kritis (*Top Critical Issues*).

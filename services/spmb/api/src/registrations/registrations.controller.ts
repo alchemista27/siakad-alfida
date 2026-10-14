@@ -6,7 +6,6 @@ import {
   Param,
   Query,
   UseGuards,
-  ForbiddenException,
   Req,
 } from "@nestjs/common";
 import { RegistrationsService } from "./registrations.service";
@@ -19,6 +18,7 @@ import {
   VerifyPaymentDto,
 } from "./registrations.dto";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
+import { SpmbRolesGuard, SpmbRoles } from "../common/guards";
 import { RegistrationSource, RegistrationStatus } from "../generated/prisma";
 
 @Controller("registrations")
@@ -33,19 +33,22 @@ export class RegistrationsController {
 
   // ================= ORANG TUA =================
   @Get("parent/active")
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("orang_tua")
   async getActiveRegistration(@Req() req: any) {
     return this.registrationsService.getActiveRegistrationForParent(req.user.id);
   }
 
   @Post("online")
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("orang_tua")
   async createOnline(@Req() req: any, @Body() dto: CreateOnlineRegistrationDto) {
     return this.registrationsService.createOnline(req.user.id, dto);
   }
 
   @Post(":id/student")
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("orang_tua")
   async submitStudent(
     @Param("id") id: string,
     @Req() req: any,
@@ -55,7 +58,8 @@ export class RegistrationsController {
   }
 
   @Post(":id/parent")
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("orang_tua")
   async submitParent(
     @Param("id") id: string,
     @Req() req: any,
@@ -65,7 +69,8 @@ export class RegistrationsController {
   }
 
   @Post(":id/payment")
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("orang_tua")
   async uploadPayment(
     @Param("id") id: string,
     @Req() req: any,
@@ -74,59 +79,41 @@ export class RegistrationsController {
     return this.registrationsService.uploadPayment(id, req.user.id, dto);
   }
 
-  // ================= ADMIN UNIT =================
+  // ================= ADMIN UNIT / TIM PPDB =================
   @Get()
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit", "tim_ppdb")
   async findAll(
-    @Req() req: any,
     @Query("periodId") periodId?: string,
     @Query("status") status?: RegistrationStatus,
     @Query("source") source?: RegistrationSource,
     @Query("search") search?: string
   ) {
-    const roles = req.user?.roles || [];
-    const isAuthorized = roles.some((r: any) =>
-      r.role === "super_admin" || r.role === "admin_unit" || r.role === "tim_ppdb"
-    );
-    if (!isAuthorized) {
-      throw new ForbiddenException("Hanya admin unit yang dapat melihat seluruh pendaftar.");
-    }
     return this.registrationsService.findAll({ periodId, status, source, search });
   }
 
   @Get(":id")
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit", "tim_ppdb")
   async findOne(@Param("id") id: string) {
     return this.registrationsService.findOne(id);
   }
 
   @Post("offline")
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit", "tim_ppdb")
   async createOffline(@Req() req: any, @Body() dto: CreateOfflineRegistrationDto) {
-    const roles = req.user?.roles || [];
-    const isAuthorized = roles.some((r: any) =>
-      r.role === "super_admin" || r.role === "admin_unit" || r.role === "tim_ppdb"
-    );
-    if (!isAuthorized) {
-      throw new ForbiddenException("Hanya admin unit yang dapat melakukan entri manual luring.");
-    }
     return this.registrationsService.createOffline(req.user.id, dto);
   }
 
   @Post(":id/verify-payment")
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit", "tim_ppdb")
   async verifyPayment(
     @Param("id") id: string,
     @Req() req: any,
     @Body() dto: VerifyPaymentDto
   ) {
-    const roles = req.user?.roles || [];
-    const isAuthorized = roles.some((r: any) =>
-      r.role === "super_admin" || r.role === "admin_unit" || r.role === "tim_ppdb"
-    );
-    if (!isAuthorized) {
-      throw new ForbiddenException("Hanya admin unit yang dapat memverifikasi pembayaran.");
-    }
     return this.registrationsService.verifyPayment(id, req.user.id, dto);
   }
 }

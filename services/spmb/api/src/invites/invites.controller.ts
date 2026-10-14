@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import { InvitesService } from "./invites.service";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
+import { SpmbRolesGuard, SpmbRoles } from "../common/guards";
 
 @Controller("invites")
 export class InvitesController {
@@ -19,13 +20,15 @@ export class InvitesController {
   }
 
   @Post(":token/claim")
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("orang_tua")
   async claim(@Param("token") token: string, @Req() req: any) {
     return this.invitesService.claimInvite(token, req.user.id);
   }
 
   @Get("share/:registrationId")
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit", "tim_ppdb")
   async getWhatsAppLink(@Param("registrationId") registrationId: string) {
     return this.invitesService.getWhatsAppShareLink(registrationId);
   }

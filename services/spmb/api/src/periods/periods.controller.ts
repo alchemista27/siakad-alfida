@@ -7,12 +7,11 @@ import {
   Param,
   Query,
   UseGuards,
-  ForbiddenException,
-  Req,
 } from "@nestjs/common";
 import { PeriodsService } from "./periods.service";
 import { CreatePeriodDto, UpdatePeriodDto } from "./periods.dto";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
+import { SpmbRolesGuard, SpmbRoles } from "../common/guards";
 
 @Controller("periods")
 export class PeriodsController {
@@ -24,44 +23,33 @@ export class PeriodsController {
   }
 
   @Get()
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit", "tim_ppdb", "orang_tua", "observer")
   async findAll(@Query("unitId") unitId?: string) {
     return this.periodsService.findAll(unitId);
   }
 
   @Get(":id")
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit", "tim_ppdb", "orang_tua", "observer")
   async findOne(@Param("id") id: string) {
     return this.periodsService.findOne(id);
   }
 
   @Post()
-  @UseGuards(ServiceJwtAuthGuard)
-  async create(@Req() req: any, @Body() dto: CreatePeriodDto) {
-    const roles = req.user?.roles || [];
-    const isAuthorized = roles.some((r: any) =>
-      r.role === "super_admin" || r.role === "admin_unit"
-    );
-    if (!isAuthorized) {
-      throw new ForbiddenException("Hanya admin unit atau super admin yang dapat membuat periode PPDB.");
-    }
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit", "tim_ppdb")
+  async create(@Body() dto: CreatePeriodDto) {
     return this.periodsService.create(dto);
   }
 
   @Put(":id")
-  @UseGuards(ServiceJwtAuthGuard)
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit", "tim_ppdb")
   async update(
-    @Req() req: any,
     @Param("id") id: string,
     @Body() dto: UpdatePeriodDto
   ) {
-    const roles = req.user?.roles || [];
-    const isAuthorized = roles.some((r: any) =>
-      r.role === "super_admin" || r.role === "admin_unit"
-    );
-    if (!isAuthorized) {
-      throw new ForbiddenException("Hanya admin unit atau super admin yang dapat mengubah periode PPDB.");
-    }
     return this.periodsService.update(id, dto);
   }
 }
