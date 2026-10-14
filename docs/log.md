@@ -410,4 +410,18 @@
 - Menjalankan uji kompilasi produksi `next build` pada `@alfida/auth-web` dan typecheck monorepo secara penuh dengan hasil 100% sukses tanpa galat.
   **commit message:** feat(auth): revamp login with split screen wireframe and add central modules portal
 
+---
+
+**tanggal:** 14 Oktober 2026 (Sesi 5)
+**progress:**
+
+- Mengintegrasikan kerangka layout `AppShell` dan navigasi `Sidebar` terstandarisasi wireframe ke seluruh 4 layanan web microservices:
+  - **SIMAKIN (`services/simakin/web/src/app/page.tsx`)**: Menerapkan menu sidebar Kinerja & Proker (Dasbor, Program Kerja), Rapat & Hambatan (Notulensi, Issues, Evidence), serta kartu metrik KPI dan tabel aktivitas sesuai `docs/wireframe/04-admin-dashboard.html`.
+  - **SIMPEG (`services/simpeg/web/src/app/page.tsx`)**: Mengonversi navigasi tab ke sidebar AppShell mencakup Penugasan Unit, Presensi GPS, Cuti/Perizinan, dan Bina Pribadi Islam (Liqo).
+  - **SIYAUM (`services/siyaum/web/src/app/page.tsx`)**: Mengonversi navigasi tab ke sidebar AppShell mencakup Input Setoran Tilawah, Riwayat Bacaan, Verifikasi Musyrif, dan Grup Halaqah.
+  - **SPMB (`services/spmb/web/src/app/admin/page.tsx`)**: Menerapkan AppShell pada portal admin panitia seleksi dengan navigasi pendaftar, entri offline, impor CSV massal, dan tautan kembali ke portal modul.
+- Memverifikasi keberhasilan kompilasi produksi `next build` dan `pnpm run typecheck` di seluruh 18 paket monorepo dengan status 100% lulus tanpa kesalahan kompilasi.
+  **commit message:** feat(microservices): integrate AppShell layout across simakin, simpeg, siyaum, and spmb web clients
+
+
 

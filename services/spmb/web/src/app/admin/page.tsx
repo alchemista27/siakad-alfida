@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useTransition } from "react";
-import { SpmbNavbar } from "@/components/SpmbNavbar";
+import { AppShell } from "@alfida/ui";
 
 interface Registration {
   id: string;
@@ -374,11 +374,77 @@ export default function SpmbAdminPage() {
   const acceptedCount = registrations.filter((r) => r.status === "accepted").length;
   const handedOffCount = registrations.filter((r) => r.handoffStatus === "done").length;
 
-  return (
-    <div className="min-h-screen flex flex-col bg-[#F7F8F8]">
-      <SpmbNavbar />
+  const sidebarGroups = [
+    {
+      title: "Penerimaan Siswa",
+      items: [
+        {
+          label: "Pendaftar & Seleksi",
+          href: "/admin",
+          icon: "school",
+          active: true,
+        },
+        {
+          label: "Entri Offline",
+          href: "#offline",
+          icon: "person_add",
+          onClick: () => setShowOfflineModal(true),
+        },
+        {
+          label: "Impor CSV",
+          href: "#import",
+          icon: "upload_file",
+          onClick: () => setShowImportModal(true),
+        },
+      ],
+    },
+    {
+      title: "Portal Publik",
+      items: [
+        {
+          label: "Form Registrasi",
+          href: "/register",
+          icon: "how_to_reg",
+        },
+        {
+          label: "Cek Status",
+          href: "/status",
+          icon: "manage_search",
+        },
+      ],
+    },
+    {
+      title: "Sistem",
+      items: [
+        {
+          label: "Portal Modul",
+          href: "https://auth.alfida.or.id/modules",
+          icon: "apps",
+        },
+      ],
+    },
+  ];
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  return (
+    <AppShell
+      serviceName="SPMB"
+      userName="Panitia SPMB"
+      userRole="TIM PPDB / ADMIN"
+      sidebarGroups={sidebarGroups}
+      onLogout={() => {
+        window.location.href = "https://auth.alfida.or.id/login";
+      }}
+      topbarActions={
+        <a
+          href="https://auth.alfida.or.id/modules"
+          className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
+        >
+          <span className="material-symbols-rounded text-[16px]">apps</span>
+          <span className="hidden sm:inline">Pilih Modul</span>
+        </a>
+      }
+    >
+      <div className="max-w-7xl w-full mx-auto space-y-6">
         {/* Top Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
@@ -669,7 +735,7 @@ export default function SpmbAdminPage() {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* MODAL 1: Entri Pendaftar Offline (Walk-in) */}
       {showOfflineModal && (
@@ -1047,6 +1113,6 @@ export default function SpmbAdminPage() {
           </div>
         </div>
       )}
-    </div>
+    </AppShell>
   );
 }

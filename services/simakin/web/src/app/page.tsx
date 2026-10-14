@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Navbar, Card, Badge, Button, EmptyState, LoadingState, ErrorState } from "@alfida/ui";
+import { AppShell, Badge, EmptyState, LoadingState, ErrorState } from "@alfida/ui";
 
 interface Department {
   id: string;
@@ -44,7 +44,7 @@ export default function SimakinDashboardPage() {
         if (meData?.user) {
           setUser({
             fullName: meData.user.fullName,
-            role: meData.user.roles?.[0]?.role || "Pengguna",
+            role: meData.user.roles?.[0]?.role ? meData.user.roles[0].role.replace(/_/g, " ").toUpperCase() : "PIMPINAN",
           });
         }
       }
@@ -85,33 +85,95 @@ export default function SimakinDashboardPage() {
   const ongoingPrograms = programs.filter((p) => p.status === "ongoing").length;
   const completedPrograms = programs.filter((p) => p.status === "completed").length;
 
-  return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <Navbar
-        serviceName="SIMAKIN (Kinerja & Program Kerja)"
-        userName={user?.fullName || "Ahmad Fauzi"}
-        userRole={user?.role || "PIC Program"}
-        onLogout={handleLogout}
-      />
+  const sidebarGroups = [
+    {
+      title: "Kinerja & Proker",
+      items: [
+        {
+          label: "Dasbor & Matriks",
+          href: "/",
+          icon: "dashboard",
+          active: true,
+        },
+        {
+          label: "Program Kerja",
+          href: "#programs",
+          icon: "assignment",
+          active: false,
+        },
+      ],
+    },
+    {
+      title: "Rapat & Hambatan",
+      items: [
+        {
+          label: "Notulensi & Aksi",
+          href: "#meetings",
+          icon: "groups",
+          active: false,
+        },
+        {
+          label: "Kendala & Masalah",
+          href: "#issues",
+          icon: "report_problem",
+          active: false,
+        },
+        {
+          label: "Bukti Dukung (Evidence)",
+          href: "#evidence",
+          icon: "verified",
+          active: false,
+        },
+      ],
+    },
+    {
+      title: "Sistem",
+      items: [
+        {
+          label: "Portal Modul",
+          href: "https://auth.alfida.or.id/modules",
+          icon: "apps",
+          active: false,
+        },
+      ],
+    },
+  ];
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+  return (
+    <AppShell
+      serviceName="SIMAKIN"
+      userName={user?.fullName || "Pimpinan Yayasan"}
+      userRole={user?.role || "ADMIN BIDANG"}
+      onLogout={handleLogout}
+      sidebarGroups={sidebarGroups}
+      topbarActions={
+        <a
+          href="https://auth.alfida.or.id/modules"
+          className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
+        >
+          <span className="material-symbols-rounded text-[16px]">apps</span>
+          <span className="hidden sm:inline">Pilih Modul</span>
+        </a>
+      }
+    >
+      <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-gray-200 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-border gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Dashboard Program Kerja dan Capaian KPI
+            <h1 className="text-2xl font-bold font-heading text-primary">
+              Monitoring Kinerja & Program Kerja
             </h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Pemantauan realisasi rencana kerja operasional dan strategis Yayasan Alfida
+            <p className="text-xs text-gray-500 mt-1">
+              Pemantauan realisasi rencana kerja operasional dan target KPI unit Yayasan Alfida
             </p>
           </div>
           <div className="flex items-center space-x-3">
             <select
               value={selectedDeptId}
               onChange={(e) => setSelectedDeptId(e.target.value)}
-              className="px-3.5 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-gray-700"
+              className="px-3.5 py-2 border border-border rounded text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0f7f6d] font-medium text-primary shadow-sm"
             >
-              <option value="">Semua Bidang / Biro</option>
+              <option value="">Semua Bidang / Departemen</option>
               {departments.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.name}
@@ -121,35 +183,45 @@ export default function SimakinDashboardPage() {
           </div>
         </div>
 
-        {/* Metric Cards */}
+        {/* Metric Cards (Sesuai Wireframe 04-admin-dashboard.html) */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-6">
-          <Card className="border-emerald-100 bg-white">
-            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Total Program Kerja
+          <div className="bg-white border border-border rounded-lg p-5 flex items-center gap-4 shadow-sm">
+            <div className="w-12 h-12 rounded-lg bg-[#e6f4f1] text-tertiary flex items-center justify-center flex-shrink-0">
+              <span className="material-symbols-rounded text-[26px]">assignment</span>
             </div>
-            <div className="mt-2 text-3xl font-bold text-gray-900">{totalPrograms}</div>
-            <div className="mt-1 text-xs text-gray-500">Terdaftar di seluruh unit yayasan</div>
-          </Card>
-          <Card className="border-blue-100 bg-white">
-            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Sedang Berjalan
+            <div>
+              <div className="text-2xl font-bold font-heading text-primary">{totalPrograms}</div>
+              <div className="text-xs text-gray-500 mt-0.5">Total Program Kerja</div>
             </div>
-            <div className="mt-2 text-3xl font-bold text-blue-700">{ongoingPrograms}</div>
-            <div className="mt-1 text-xs text-gray-500">Program dalam tahap eksekusi</div>
-          </Card>
-          <Card className="border-teal-100 bg-white">
-            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Telah Tuntas
+          </div>
+
+          <div className="bg-white border border-border rounded-lg p-5 flex items-center gap-4 shadow-sm">
+            <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+              <span className="material-symbols-rounded text-[26px]">pending_actions</span>
             </div>
-            <div className="mt-2 text-3xl font-bold text-emerald-700">{completedPrograms}</div>
-            <div className="mt-1 text-xs text-gray-500">Laporan realisasi selesai</div>
-          </Card>
+            <div>
+              <div className="text-2xl font-bold font-heading text-blue-700">{ongoingPrograms}</div>
+              <div className="text-xs text-gray-500 mt-0.5">Sedang Berjalan</div>
+            </div>
+          </div>
+
+          <div className="bg-white border border-border rounded-lg p-5 flex items-center gap-4 shadow-sm">
+            <div className="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+              <span className="material-symbols-rounded text-[26px]">check_circle</span>
+            </div>
+            <div>
+              <div className="text-2xl font-bold font-heading text-emerald-700">{completedPrograms}</div>
+              <div className="text-xs text-gray-500 mt-0.5">Telah Tuntas</div>
+            </div>
+          </div>
         </div>
 
         {/* Content Section */}
-        <div className="mt-8">
+        <div className="mt-8" id="programs">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-gray-900">Daftar Program Kerja</h2>
+            <h2 className="text-base font-bold font-heading text-primary">
+              Daftar Program Kerja & Indikator Capaian
+            </h2>
           </div>
 
           {loading ? (
@@ -166,10 +238,10 @@ export default function SimakinDashboardPage() {
               description="Belum ada program kerja yang terdaftar untuk filter bidang yang dipilih."
             />
           ) : (
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <div className="bg-white border border-border rounded-lg overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 text-sm text-left">
-                  <thead className="bg-gray-50 text-gray-700 font-medium">
+                <table className="min-w-full divide-y divide-border text-xs text-left">
+                  <thead className="bg-[#F7F8F8] text-gray-600 font-semibold uppercase tracking-wider text-[11px]">
                     <tr>
                       <th scope="col" className="px-6 py-3.5">Nama Program</th>
                       <th scope="col" className="px-6 py-3.5">Bidang / Departemen</th>
@@ -178,13 +250,13 @@ export default function SimakinDashboardPage() {
                       <th scope="col" className="px-6 py-3.5 text-right">Indikator KPI</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-border">
                     {programs.map((prog) => (
-                      <tr key={prog.id} className="hover:bg-gray-50/60 transition-colors">
+                      <tr key={prog.id} className="hover:bg-[#fafbfb] transition-colors">
                         <td className="px-6 py-4">
-                          <div className="font-semibold text-gray-900">{prog.title}</div>
+                          <div className="font-semibold text-primary">{prog.title}</div>
                           {prog.description && (
-                            <div className="text-xs text-gray-500 line-clamp-1 mt-0.5">
+                            <div className="text-[11px] text-gray-400 line-clamp-1 mt-0.5">
                               {prog.description}
                             </div>
                           )}
@@ -193,7 +265,7 @@ export default function SimakinDashboardPage() {
                           {prog.department?.name || "Yayasan Alfida"}
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-xs font-medium text-gray-700 capitalize">
+                          <span className="text-[11px] font-medium text-gray-600 capitalize px-2 py-0.5 rounded bg-gray-100">
                             {prog.priority}
                           </span>
                         </td>
@@ -215,7 +287,7 @@ export default function SimakinDashboardPage() {
                           </Badge>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <span className="text-xs text-gray-600 font-medium">
+                          <span className="text-[11px] text-tertiary font-semibold bg-[#e6f4f1] px-2.5 py-0.5 rounded-full">
                             {prog.kpis?.length || 0} Indikator
                           </span>
                         </td>
@@ -228,6 +300,6 @@ export default function SimakinDashboardPage() {
           )}
         </div>
       </div>
-    </div>
+    </AppShell>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Navbar, Card, Badge, Button, EmptyState, LoadingState, ErrorState } from "@alfida/ui";
+import { AppShell, Card, Badge, Button, EmptyState, LoadingState, ErrorState } from "@alfida/ui";
 
 interface Assignment {
   id: string;
@@ -261,36 +261,77 @@ export default function SimpegDashboard() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar
-        serviceName="SIMPEG"
-        userName="Pegawai Alfida"
-        userRole="Staff Kepegawaian"
-      >
-        <div className="hidden md:flex items-center space-x-2 text-xs">
-          <a
-            href="https://simakin.alfida.or.id"
-            className="px-2 py-1 text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded"
-          >
-            SIMAKIN
-          </a>
-          <a
-            href="https://siyaum.alfida.or.id"
-            className="px-2 py-1 text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded"
-          >
-            SIYAUM
-          </a>
-          <a
-            href="https://auth.alfida.or.id"
-            className="px-2 py-1 text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded"
-          >
-            Auth
-          </a>
-        </div>
-      </Navbar>
+  const sidebarGroups = [
+    {
+      title: "Kepegawaian",
+      items: [
+        {
+          label: "Penugasan Unit",
+          href: "#assignments",
+          icon: "badge",
+          active: activeTab === "assignments",
+          onClick: () => setActiveTab("assignments"),
+        },
+        {
+          label: "Presensi GPS",
+          href: "#attendance",
+          icon: "location_on",
+          active: activeTab === "attendance",
+          onClick: () => setActiveTab("attendance"),
+        },
+      ],
+    },
+    {
+      title: "Layanan Mandiri",
+      items: [
+        {
+          label: "Cuti & Perizinan",
+          href: "#leaves",
+          icon: "event_busy",
+          active: activeTab === "leaves",
+          onClick: () => setActiveTab("leaves"),
+        },
+        {
+          label: "Bina Pribadi (Liqo)",
+          href: "#liqo",
+          icon: "diversity_3",
+          active: activeTab === "liqo",
+          onClick: () => setActiveTab("liqo"),
+        },
+      ],
+    },
+    {
+      title: "Sistem",
+      items: [
+        {
+          label: "Portal Modul",
+          href: "https://auth.alfida.or.id/modules",
+          icon: "apps",
+        },
+      ],
+    },
+  ];
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8 space-y-6">
+  return (
+    <AppShell
+      serviceName="SIMPEG"
+      userName="Pegawai Alfida"
+      userRole="ADMIN KEPEGAWAIAN"
+      sidebarGroups={sidebarGroups}
+      onLogout={() => {
+        window.location.href = "https://auth.alfida.or.id/login";
+      }}
+      topbarActions={
+        <a
+          href="https://auth.alfida.or.id/modules"
+          className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
+        >
+          <span className="material-symbols-rounded text-[16px]">apps</span>
+          <span className="hidden sm:inline">Pilih Modul</span>
+        </a>
+      }
+    >
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
           <div>
@@ -833,7 +874,7 @@ export default function SimpegDashboard() {
             </div>
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }
