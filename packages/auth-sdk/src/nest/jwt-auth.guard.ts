@@ -15,6 +15,7 @@ export class ServiceJwtAuthGuard implements CanActivate {
     this.secretOrJwksUrl =
       process.env.AUTH_SECRET ||
       process.env.BETTER_AUTH_SECRET ||
+      process.env.JWT_SECRET ||
       process.env.JWKS_URL ||
       "alfida-sso-secret-key-32-chars-long!!";
   }

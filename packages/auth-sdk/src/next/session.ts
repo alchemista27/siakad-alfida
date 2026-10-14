@@ -13,6 +13,7 @@ export async function getNextServerSession(
     secretOrJwksUrl ||
     process.env.AUTH_SECRET ||
     process.env.BETTER_AUTH_SECRET ||
+    process.env.JWT_SECRET ||
     "alfida-sso-secret-key-32-chars-long!!";
 
   const sessionCookie =

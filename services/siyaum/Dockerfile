@@ -15,6 +15,9 @@ RUN pnpm --filter @alfida/auth-sdk build
 RUN pnpm --filter @alfida/ui build
 RUN pnpm --filter siyaum-api build
 RUN pnpm --filter @alfida/siyaum-web build
+RUN mkdir -p services/siyaum/web/.next/standalone/services/siyaum/web/.next \
+  && cp -r services/siyaum/web/.next/static services/siyaum/web/.next/standalone/services/siyaum/web/.next/ \
+  && if [ -d services/siyaum/web/public ]; then cp -r services/siyaum/web/public services/siyaum/web/.next/standalone/services/siyaum/web/; fi
 
 FROM base AS runner
 WORKDIR /app

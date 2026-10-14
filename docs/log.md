@@ -359,3 +359,16 @@
   **commit message:** docs: record coolify git webhook deployment guide and microservices database provisioning in log
 
 ---
+
+**tanggal:** 14 Oktober 2026
+**progress:**
+
+- Memperbaiki isu styling CSS 404 (file CSS tidak dapat dimuat) pada mode Next.js Standalone di lingkungan produksi Coolify dengan menambahkan instruksi penyalinan folder `.next/static` dan `public` ke direktori standalone pada 5 Dockerfile microservices (`auth`, `simakin`, `simpeg`, `siyaum`, dan `spmb`), serta menyertakan *runtime fallback guard* di masing-masing skrip `start.sh`.
+- Mengoreksi jalur pencarian Tailwind CSS (`tailwind.config.ts`) pada seluruh microservices web dari `../../packages/ui` menjadi `../../../packages/ui` agar utilitas styling dari paket `@alfida/ui` tidak terhapus (*purged*) saat build produksi.
+- Menyelaraskan integrasi storage untuk layanan SIMAKIN (MinIO S3 untuk dokumen program kerja dan notulensi rapat, Cloudinary untuk bukti foto kegiatan/KPI) dan Auth (Cloudinary untuk foto profil/avatar SSO).
+- Menjelaskan arsitektur routing API Next.js Rewrites (`INTERNAL_API_URL=http://127.0.0.1:3001`) yang bertindak sebagai reverse-proxy internal menuju NestJS API pada container yang sama, mengeliminasi kebutuhan variabel `NEXT_PUBLIC_API_URL`, mencegah isu CORS browser, dan menjamin cookie sesi SSO `.alfida.or.id` terkirim secara transparan.
+- Memperbarui berkas privat lokal `.env.production.local` dengan hostname database internal jaringan Docker Coolify (`bkoopidoln9uolhwy3zillrd:5432`), token autentikasi seragam 32-karakter, dan konfigurasi MinIO/Cloudinary siap pakai untuk pengujian di Coolify VPS.
+- Melakukan verifikasi kompilasi statis `pnpm turbo run typecheck` di seluruh monorepo dengan hasil 15 task lulus 100% tanpa galat.
+  **commit message:** fix: resolve standalone static assets copy, tailwind paths, and coolify production env config
+
+---

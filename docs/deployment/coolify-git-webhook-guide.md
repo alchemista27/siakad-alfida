@@ -112,35 +112,63 @@ Buka menu **Environment Variables** pada masing-masing Application di dasbor Coo
 ```env
 NODE_ENV=production
 PORT=3000
-DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/alfida_auth?schema=public
+DATABASE_URL=postgresql://postgres:<password>@<db-container-name>:5432/alfida_auth?schema=public
+AUTH_SECRET=<generate-via-openssl-rand-hex-32>
+BETTER_AUTH_SECRET=<generate-via-openssl-rand-hex-32>
 JWT_SECRET=<generate-via-openssl-rand-hex-32>
 COOKIE_DOMAIN=.alfida.or.id
+INTERNAL_API_URL=http://127.0.0.1:3001
 NEXT_PUBLIC_APP_URL=https://auth.alfida.or.id
+BETTER_AUTH_URL=https://auth.alfida.or.id
+
+# Cloudinary untuk Avatar Pengguna
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=<your-cloud-name>
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=<your-preset>
 ```
 
 ### B. alfida-simakin (`https://simakin.alfida.or.id`)
 ```env
 NODE_ENV=production
 PORT=3000
-DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/alfida_simakin?schema=public
+DATABASE_URL=postgresql://postgres:<password>@<db-container-name>:5432/alfida_simakin?schema=public
+AUTH_SECRET=<generate-via-openssl-rand-hex-32>
+BETTER_AUTH_SECRET=<generate-via-openssl-rand-hex-32>
 JWT_SECRET=<generate-via-openssl-rand-hex-32>
 COOKIE_DOMAIN=.alfida.or.id
 INTERNAL_API_URL=http://127.0.0.1:3001
 NEXT_PUBLIC_APP_URL=https://simakin.alfida.or.id
 NEXT_PUBLIC_AUTH_URL=https://auth.alfida.or.id
+
+# MinIO S3 Storage untuk Dokumen Bukti Eviden (PDF)
+S3_ENDPOINT=<s3-endpoint-host>
+S3_PORT=443
+S3_USE_SSL=true
+S3_ACCESS_KEY=<your-s3-access-key>
+S3_SECRET_KEY=<your-s3-secret-key>
+S3_BUCKET=alfida-simakin
+
+# Cloudinary untuk Foto Bukti Kegiatan
+CLOUDINARY_CLOUD_NAME=<your-cloud-name>
+CLOUDINARY_API_KEY=<your-api-key>
+CLOUDINARY_API_SECRET=<your-api-secret>
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=<your-cloud-name>
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=<your-preset>
 ```
 
 ### C. alfida-simpeg (`https://simpeg.alfida.or.id`)
 ```env
 NODE_ENV=production
 PORT=3000
-DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/alfida_simpeg?schema=public
+DATABASE_URL=postgresql://postgres:<password>@<db-container-name>:5432/alfida_simpeg?schema=public
+AUTH_SECRET=<generate-via-openssl-rand-hex-32>
+BETTER_AUTH_SECRET=<generate-via-openssl-rand-hex-32>
 JWT_SECRET=<generate-via-openssl-rand-hex-32>
 COOKIE_DOMAIN=.alfida.or.id
 INTERNAL_API_URL=http://127.0.0.1:3001
 NEXT_PUBLIC_APP_URL=https://simpeg.alfida.or.id
 NEXT_PUBLIC_AUTH_URL=https://auth.alfida.or.id
-# MinIO S3 Storage untuk unggah berkas SK & foto pegawai
+
+# MinIO S3 Storage untuk berkas SK & foto pegawai
 S3_ENDPOINT=<s3-endpoint-host>
 S3_PORT=443
 S3_USE_SSL=true
@@ -153,7 +181,9 @@ S3_BUCKET=alfida-simpeg
 ```env
 NODE_ENV=production
 PORT=3000
-DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/alfida_siyaum?schema=public
+DATABASE_URL=postgresql://postgres:<password>@<db-container-name>:5432/alfida_siyaum?schema=public
+AUTH_SECRET=<generate-via-openssl-rand-hex-32>
+BETTER_AUTH_SECRET=<generate-via-openssl-rand-hex-32>
 JWT_SECRET=<generate-via-openssl-rand-hex-32>
 COOKIE_DOMAIN=.alfida.or.id
 INTERNAL_API_URL=http://127.0.0.1:3001
@@ -165,15 +195,19 @@ NEXT_PUBLIC_AUTH_URL=https://auth.alfida.or.id
 ```env
 NODE_ENV=production
 PORT=3000
-DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/alfida_spmb?schema=public
+DATABASE_URL=postgresql://postgres:<password>@<db-container-name>:5432/alfida_spmb?schema=public
+AUTH_SECRET=<generate-via-openssl-rand-hex-32>
+BETTER_AUTH_SECRET=<generate-via-openssl-rand-hex-32>
 JWT_SECRET=<generate-via-openssl-rand-hex-32>
 COOKIE_DOMAIN=.alfida.or.id
 INTERNAL_API_URL=http://127.0.0.1:3001
 NEXT_PUBLIC_APP_URL=https://spmb.alfida.or.id
 NEXT_PUBLIC_AUTH_URL=https://auth.alfida.or.id
+
 # Integrasi Handoff Siswa Baru ke SIAKAD
 INTERNAL_SIAKAD_API_URL=http://<monolith-container-or-host>:3001
 INTERNAL_SERVICE_SECRET=<generate-strong-random-secret>
+
 # MinIO S3 Storage untuk unggah Akta, KK, Foto Calon Siswa
 S3_ENDPOINT=<s3-endpoint-host>
 S3_PORT=443
@@ -187,7 +221,8 @@ S3_BUCKET=alfida-spmb
 ```env
 NODE_ENV=production
 PORT=3000
-DATABASE_URL=postgresql://postgres:<password>@<db-host>:5432/simalfida?schema=public
+DATABASE_URL=postgresql://postgres:<password>@<db-container-name>:5432/simalfida?schema=public
+AUTH_SECRET=<generate-via-openssl-rand-hex-32>
 BETTER_AUTH_SECRET=<generate-via-openssl-rand-hex-32>
 JWT_SECRET=<generate-via-openssl-rand-hex-32>
 COOKIE_DOMAIN=.alfida.or.id

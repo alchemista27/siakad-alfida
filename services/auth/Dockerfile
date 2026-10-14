@@ -14,6 +14,9 @@ RUN pnpm --filter @alfida/contracts build
 RUN pnpm --filter @alfida/auth-sdk build
 RUN pnpm --filter @alfida/auth-api build
 RUN pnpm --filter @alfida/auth-web build
+RUN mkdir -p services/auth/web/.next/standalone/services/auth/web/.next \
+  && cp -r services/auth/web/.next/static services/auth/web/.next/standalone/services/auth/web/.next/ \
+  && if [ -d services/auth/web/public ]; then cp -r services/auth/web/public services/auth/web/.next/standalone/services/auth/web/; fi
 
 FROM base AS runner
 WORKDIR /app

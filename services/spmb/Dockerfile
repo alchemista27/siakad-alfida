@@ -15,6 +15,9 @@ RUN pnpm --filter @alfida/auth-sdk build
 RUN pnpm --filter @alfida/ui build
 RUN pnpm --filter @alfida/spmb-api build
 RUN pnpm --filter @alfida/spmb-web build
+RUN mkdir -p services/spmb/web/.next/standalone/services/spmb/web/.next \
+  && cp -r services/spmb/web/.next/static services/spmb/web/.next/standalone/services/spmb/web/.next/ \
+  && if [ -d services/spmb/web/public ]; then cp -r services/spmb/web/public services/spmb/web/.next/standalone/services/spmb/web/; fi
 
 FROM base AS runner
 WORKDIR /app

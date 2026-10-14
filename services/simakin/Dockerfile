@@ -15,6 +15,9 @@ RUN pnpm --filter @alfida/auth-sdk build
 RUN pnpm --filter @alfida/ui build
 RUN pnpm --filter @alfida/simakin-api build
 RUN pnpm --filter @alfida/simakin-web build
+RUN mkdir -p services/simakin/web/.next/standalone/services/simakin/web/.next \
+  && cp -r services/simakin/web/.next/static services/simakin/web/.next/standalone/services/simakin/web/.next/ \
+  && if [ -d services/simakin/web/public ]; then cp -r services/simakin/web/public services/simakin/web/.next/standalone/services/simakin/web/; fi
 
 FROM base AS runner
 WORKDIR /app

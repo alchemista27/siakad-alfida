@@ -1,5 +1,13 @@
 #!/bin/sh
 set -e
+# Pastikan static assets dan public folder tersedia di folder standalone Next.js
+if [ -d "services/siyaum/web/.next/static" ] && [ ! -d "services/siyaum/web/.next/standalone/services/siyaum/web/.next/static" ]; then
+  mkdir -p services/siyaum/web/.next/standalone/services/siyaum/web/.next
+  cp -r services/siyaum/web/.next/static services/siyaum/web/.next/standalone/services/siyaum/web/.next/
+fi
+if [ -d "services/siyaum/web/public" ] && [ ! -d "services/siyaum/web/.next/standalone/services/siyaum/web/public" ]; then
+  cp -r services/siyaum/web/public services/siyaum/web/.next/standalone/services/siyaum/web/public
+fi
 
 echo "Memulai SIYAUM API (NestJS) pada port 3001..."
 PORT=3001 node services/siyaum/api/dist/main.js &
