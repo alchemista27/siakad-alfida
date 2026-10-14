@@ -1,9 +1,11 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ExecutionDashboardService } from './execution-dashboard.service';
 import { ServiceJwtAuthGuard } from '@alfida/auth-sdk';
+import { SimakinRolesGuard, SimakinRoles } from '../../common/guards';
 
 @Controller('strategic/dashboard')
-@UseGuards(ServiceJwtAuthGuard)
+@UseGuards(ServiceJwtAuthGuard, SimakinRolesGuard)
+@SimakinRoles('admin_bidang', 'admin_biro', 'pimpinan', 'pengawas', 'pic_program')
 export class ExecutionDashboardController {
   constructor(private readonly service: ExecutionDashboardService) {}
 

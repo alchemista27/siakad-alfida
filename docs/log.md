@@ -435,6 +435,22 @@
 - Memperbarui dokumentasi `docs/accounts.md` dengan kata sandi baru `4dmin4lfid4`.
   **commit message:** chore(auth): update all testing passwords to 4dmin4lfid4 across auth and legacy databases
 
+---
+
+**tanggal:** 14 Oktober 2026 (Sesi 7)
+**progress:**
+
+- Mengimplementasikan sistem otorisasi Role-Based Access Control (RBAC) pada backend API SIMAKIN (`services/simakin/api`) dengan membuat guard kustom `SimakinRolesGuard` dan decorator `@SimakinRoles` di `services/simakin/api/src/common/guards/simakin-roles.guard.ts`.
+- Menerapkan pengetatan hak akses peran pada seluruh 12 controller di `services/simakin/api/src/strategic/`:
+  - `strategic-department.controller.ts`: Mutasi struktur hierarki bidang/biro dan anggota dibatasi ketat untuk `admin_bidang` (dan `super_admin`).
+  - `execution-program.controller.ts`: Akses baca untuk seluruh staf SIMAKIN, mutasi program kerja dibatasi untuk `admin_bidang` dan `admin_biro`.
+  - `execution-kpi.controller.ts`: Pengajuan baseline KPI oleh `admin_biro` / `pic_program`, verifikasi/persetujuan baseline KPI dikunci khusus untuk `admin_bidang`.
+  - `execution-meeting.controller.ts`, `execution-action-item.controller.ts`, `execution-evidence.controller.ts`, `execution-issue.controller.ts`, `execution-log.controller.ts`, `execution-task.controller.ts`, `execution-milestone.controller.ts`, `execution-dashboard.controller.ts`, dan `execution-report.controller.ts`.
+- Menyusun dan menjalankan suite pengujian otomatis RBAC (`scripts/test-rbac.ts`) dengan hasil 6 dari 6 pengujian lolos 100% (termasuk verifikasi penolakan HTTP 403 Forbidden untuk peran luar seperti `orang_tua` dan pengujian wildcard `super_admin`).
+- Memverifikasi keberhasilan kompilasi produksi `nest build` dan `pnpm run typecheck` di seluruh monorepo dengan status 0 error.
+  **commit message:** feat(simakin): enforce granular RBAC guards across all 12 strategic controllers
+
+
 
 
 
