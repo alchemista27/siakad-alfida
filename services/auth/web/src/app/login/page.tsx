@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -209,16 +210,21 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="text-center space-y-3">
-            <a
-              href="https://spmb.alfida.or.id/register"
-              className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1"
-            >
-              <span>Pendaftaran Murid Baru (SPMB)</span>
-              <span className="material-symbols-rounded text-[14px]">arrow_forward</span>
-            </a>
+          <div className="text-center space-y-2.5">
+            <div>
+              <Link
+                href="/register"
+                className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1"
+              >
+                <span>Daftar Akun Orang Tua / Wali Santri</span>
+                <span className="material-symbols-rounded text-[14px]">arrow_forward</span>
+              </Link>
+            </div>
             <div className="text-[11px] text-gray-400">
-              Karyawan atau Guru belum memiliki akun? Hubungi Admin Kepegawaian.
+              Guru atau Staf Karyawan baru?{" "}
+              <Link href="/register-staff" className="text-gray-600 font-semibold hover:underline">
+                Daftar Akun Staf di sini
+              </Link>
             </div>
           </div>
         </div>

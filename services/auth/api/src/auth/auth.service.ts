@@ -8,6 +8,19 @@ import * as bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { createAuthToken, AuthUser } from "@alfida/auth-sdk";
 import { UserRoleScope } from "@alfida/contracts";
+import { RegisterParentDto, RegisterStaffDto } from "./dto/register.dto";
+
+export const ALFIDA_UNITS = [
+  { id: "0f3505db-ba0b-48e3-a500-2de9790bdd63", name: "TK Islam Terpadu Auladuna 1", slug: "tk-auladuna-1" },
+  { id: "9fe99902-40e0-48dd-9275-d73531584365", name: "TK Islam Terpadu Auladuna 2", slug: "tk-auladuna-2" },
+  { id: "dcaa14b2-b20c-416a-ba90-9367016ce295", name: "SD Islam Terpadu Iqra 1", slug: "sd-iqra-1" },
+  { id: "c09fb430-b5d3-4ae2-a6cc-2220430da453", name: "SD Islam Terpadu Iqra 2", slug: "sd-iqra-2" },
+  { id: "5edd8be0-86ac-406b-b23c-418b3e387528", name: "SD Islam Terpadu Iqra 3", slug: "sd-iqra-3" },
+  { id: "a09edaf4-c656-4632-abf1-4c0a25150c98", name: "SMP Islam Terpadu Iqra", slug: "smp-iqra" },
+  { id: "28225003-d1d3-4276-901c-f9a42a7cac69", name: "SMA Islam Terpadu Iqra", slug: "sma-iqra" },
+  { id: "e8d2e825-7b58-45e0-8260-84523b6920f7", name: "Pesantren Quran Alfida", slug: "pesantren-quran" },
+  { id: "11111111-1111-1111-1111-111111111111", name: "Kantor Pusat Yayasan Alfida", slug: "kantor-pusat" },
+];
 
 @Injectable()
 export class AuthService {
@@ -18,6 +31,107 @@ export class AuthService {
       process.env.AUTH_SECRET ||
       process.env.BETTER_AUTH_SECRET ||
       "alfida-sso-secret-key-32-chars-long!!";
+  }
+
+  async getUnits() {
+    return ALFIDA_UNITS;
+  }
+
+  async registerParent(dto: RegisterParentDto) {
+    const email = dto.email.toLowerCase().trim();
+    const existing = await this.prisma.user.findFirst({
+      where: { email },
+    });
+    if (existing) {
+      throw new BadRequestException("Email sudah terdaftar. Silakan masuk dengan akun Anda.");
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const userId = randomUUID();
+
+    const user = await this.prisma.user.create({
+      data: {
+        id: userId,
+        email,
+        fullName: dto.fullName.trim(),
+        phone: dto.phone.trim(),
+        passwordHash,
+        isActive: true, // Orang tua langsung aktif
+        accounts: {
+          create: {
+            id: randomUUID(),
+            providerId: "credential",
+            accountId: userId,
+            password: passwordHash,
+          },
+        },
+        roles: {
+          create: [
+            { id: randomUUID(), app: "spmb", role: "orang_tua" },
+            { id: randomUUID(), app: "siakad", role: "orang_tua" },
+          ],
+        },
+      },
+    });
+
+    return {
+      success: true,
+      message: "Registrasi akun orang tua berhasil.",
+      userId: user.id,
+    };
+  }
+
+  async registerStaff(dto: RegisterStaffDto) {
+    const email = dto.email.toLowerCase().trim();
+    const existing = await this.prisma.user.findFirst({
+      where: { email },
+    });
+    if (existing) {
+      throw new BadRequestException("Email sudah terdaftar. Silakan gunakan email lain atau hubungi admin.");
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const userId = randomUUID();
+
+    const rolesData =
+      dto.role === "guru"
+        ? [
+            { id: randomUUID(), app: "simpeg", role: "pegawai", unitId: dto.unitId },
+            { id: randomUUID(), app: "siakad", role: "guru", unitId: dto.unitId },
+            { id: randomUUID(), app: "siyaum", role: "peserta" },
+          ]
+        : [
+            { id: randomUUID(), app: "simpeg", role: "pegawai", unitId: dto.unitId },
+            { id: randomUUID(), app: "siyaum", role: "peserta" },
+          ];
+
+    const user = await this.prisma.user.create({
+      data: {
+        id: userId,
+        email,
+        fullName: dto.fullName.trim(),
+        phone: dto.phone.trim(),
+        passwordHash,
+        isActive: false, // Menunggu verifikasi admin kepegawaian
+        accounts: {
+          create: {
+            id: randomUUID(),
+            providerId: "credential",
+            accountId: userId,
+            password: passwordHash,
+          },
+        },
+        roles: {
+          create: rolesData,
+        },
+      },
+    });
+
+    return {
+      success: true,
+      message: "Registrasi berhasil. Akun Anda sedang menunggu verifikasi dan persetujuan Administrator Kepegawaian.",
+      userId: user.id,
+    };
   }
 
   async login(emailOrUsername: string, password: string) {
@@ -43,7 +157,7 @@ export class AuthService {
     }
 
     if (!user.isActive) {
-      throw new UnauthorizedException("Akun Anda telah dinonaktifkan");
+      throw new UnauthorizedException("Akun Anda telah dinonaktifkan atau belum disetujui administrator.");
     }
 
     // Periksa password dari account atau passwordHash user

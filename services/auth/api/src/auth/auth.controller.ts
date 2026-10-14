@@ -16,10 +16,28 @@ import {
   CurrentUser,
   ALFIDA_SESSION_COOKIE,
 } from "@alfida/auth-sdk";
+import { RegisterParentDto, RegisterStaffDto } from "./dto/register.dto";
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Get("units")
+  async getUnits() {
+    return this.authService.getUnits();
+  }
+
+  @Post("register")
+  @HttpCode(HttpStatus.CREATED)
+  async registerParent(@Body() body: RegisterParentDto) {
+    return this.authService.registerParent(body);
+  }
+
+  @Post("register-staff")
+  @HttpCode(HttpStatus.CREATED)
+  async registerStaff(@Body() body: RegisterStaffDto) {
+    return this.authService.registerStaff(body);
+  }
 
   @Post("login")
   @HttpCode(HttpStatus.OK)

@@ -1,3 +1,15 @@
+**tanggal:** 14 Oktober 2026
+**progress:**
+
+- Mengimplementasikan endpoint pendaftaran mandiri pada Service Auth (`services/auth/api`): `POST /api/auth/register` untuk Orang Tua (otomatis aktif, role `spmb:orang_tua` & `siakad:orang_tua`), `POST /api/auth/register-staff` untuk Tenaga Pendidik & Kependidikan (status nonaktif/menunggu persetujuan admin dengan penetapan unit), serta `GET /api/auth/units` untuk daftar unit resmi Yayasan Alfida.
+- Mengembangkan antarmuka pendaftaran pada Service Auth Web (`services/auth/web`) mengadopsi wireframe `02-register.html` dengan *Split Screen Layout* (40% panel toska dan 60% panel form pendaftaran): `/register` untuk orang tua dan `/register-staff` untuk guru/karyawan.
+- Menambahkan komponen `PasswordMeter` (`password-meter.tsx`) untuk indikator visual kekuatan kata sandi pengguna secara langsung.
+- Memperbarui tautan footer pada halaman `/login` agar terhubung ke form pendaftaran orang tua dan form pendaftaran staf.
+- Memvalidasi seluruh skenario registrasi melalui skrip pengujian otomatis `services/auth/api/scripts/test-registration.ts` (4/4 lulus) dan memverifikasi typecheck monorepo 15/15 lulus.
+  **commit message:** feat(auth): implement parent and staff registration endpoints and split-screen web views
+
+---
+
 **tanggal:** 07 Oktober 2026
 **progress:**
 
