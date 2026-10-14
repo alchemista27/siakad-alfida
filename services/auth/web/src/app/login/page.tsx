@@ -34,10 +34,19 @@ export default function LoginPage() {
         body: JSON.stringify({ email: emailOrUsername, password }),
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get("content-type") || "";
+      let data: any = null;
+
+      if (contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        if (!res.ok) {
+          throw new Error("Layanan backend sedang tidak dapat diakses atau sedang memulai ulang. Silakan coba beberapa saat lagi.");
+        }
+      }
 
       if (!res.ok) {
-        throw new Error(data.message || "Email atau password tidak cocok");
+        throw new Error(data?.message || "Email atau password tidak cocok");
       }
 
       // Periksa parameter redirect

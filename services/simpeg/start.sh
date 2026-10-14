@@ -9,6 +9,12 @@ if [ -d "services/simpeg/web/public" ] && [ ! -d "services/simpeg/web/.next/stan
   cp -r services/simpeg/web/public services/simpeg/web/.next/standalone/services/simpeg/web/public
 fi
 
+# Proteksi runtime: pastikan prisma generated client tersedia di folder dist
+if [ -d "services/simpeg/api/src/generated" ] && [ ! -d "services/simpeg/api/dist/generated" ]; then
+  mkdir -p services/simpeg/api/dist
+  cp -r services/simpeg/api/src/generated services/simpeg/api/dist/
+fi
+
 echo "Memulai SIMPEG API (NestJS) pada port 3001..."
 PORT=3001 node services/simpeg/api/dist/main.js &
 

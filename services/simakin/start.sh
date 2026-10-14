@@ -9,6 +9,12 @@ if [ -d "services/simakin/web/public" ] && [ ! -d "services/simakin/web/.next/st
   cp -r services/simakin/web/public services/simakin/web/.next/standalone/services/simakin/web/public
 fi
 
+# Proteksi runtime: pastikan prisma generated client tersedia di folder dist
+if [ -d "services/simakin/api/src/generated" ] && [ ! -d "services/simakin/api/dist/generated" ]; then
+  mkdir -p services/simakin/api/dist
+  cp -r services/simakin/api/src/generated services/simakin/api/dist/
+fi
+
 echo "Memulai SIMAKIN API (NestJS) pada port 3001..."
 PORT=3001 node services/simakin/api/dist/main.js &
 

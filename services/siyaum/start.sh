@@ -9,6 +9,12 @@ if [ -d "services/siyaum/web/public" ] && [ ! -d "services/siyaum/web/.next/stan
   cp -r services/siyaum/web/public services/siyaum/web/.next/standalone/services/siyaum/web/public
 fi
 
+# Proteksi runtime: pastikan prisma generated client tersedia di folder dist
+if [ -d "services/siyaum/api/src/generated" ] && [ ! -d "services/siyaum/api/dist/generated" ]; then
+  mkdir -p services/siyaum/api/dist
+  cp -r services/siyaum/api/src/generated services/siyaum/api/dist/
+fi
+
 echo "Memulai SIYAUM API (NestJS) pada port 3001..."
 PORT=3001 node services/siyaum/api/dist/main.js &
 

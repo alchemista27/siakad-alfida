@@ -372,3 +372,17 @@
   **commit message:** fix: resolve standalone static assets copy, tailwind paths, and coolify production env config
 
 ---
+
+**tanggal:** 14 Oktober 2026 (Sesi 2)
+**progress:**
+
+- Menyelaraskan konfigurasi kompilasi TypeScript (`tsconfig.json`) di seluruh 5 backend microservices (`auth/api`, `simakin/api`, `simpeg/api`, `siyaum/api`, `spmb/api`) dengan menyetel `"rootDir": "src"`, `"esModuleInterop": true`, dan mengecualikan folder `scripts` agar titik pangkal kompilasi tidak bergeser ke root monorepo dan fungsi `cookie-parser` CommonJS berjalan normal tanpa crash `(0, cookie_parser_1.default) is not a function`.
+- Mengisolasi berkas skrip migrasi dan seeding (`migrate-from-legacy.ts` dan `seed-periods.ts`) keluar dari folder `src/` ke root service `scripts/` untuk mencegah kontaminasi cakupan kompilasi NestJS `dist/main.js`.
+- Memperbarui skrip build di seluruh `package.json` backend microservices (`"build": "nest build && cp -r src/generated dist/"`) sehingga Prisma Generated Client selalu tersedia di dalam direktori `dist/` saat dijalankan via `node dist/main.js`.
+- Menambahkan *runtime guard* pada skrip `start.sh` di kelima microservices yang secara otomatis memeriksa dan menyalin `src/generated` ke `dist/generated` sebelum menjalankan proses Node.js di port 3001 sebagai proteksi lapis ganda terhadap cache build Docker lama.
+- Memperbaiki filter target package pada `services/spmb/Dockerfile` dari `@alfida/spmb-api` menjadi `spmb-api` agar selaras dengan nama paket di `package.json`.
+- Memperkuat penanganan respon pada frontend `services/auth/web/src/app/login/page.tsx` dengan memeriksa header `content-type` JSON sebelum memanggil `res.json()`, mencegah error parsing sintaks browser `Unexpected token 'I'` dan menyajikan pesan kesalahan yang ramah pengguna apabila backend sedang mengalami restart.
+- Menjalankan kompilasi statis dan uji build di seluruh 5 service backend dengan hasil 100% lulus, memverifikasi ketersediaan `dist/main.js` dan `dist/generated/prisma` secara tepat.
+  **commit message:** fix(microservices): stabilize nestjs compile outputs, prisma client distribution, and runtime start guards
+
+---

@@ -9,6 +9,12 @@ if [ -d "services/auth/web/public" ] && [ ! -d "services/auth/web/.next/standalo
   cp -r services/auth/web/public services/auth/web/.next/standalone/services/auth/web/
 fi
 
+# Proteksi runtime: pastikan prisma generated client tersedia di folder dist
+if [ -d "services/auth/api/src/generated" ] && [ ! -d "services/auth/api/dist/generated" ]; then
+  mkdir -p services/auth/api/dist
+  cp -r services/auth/api/src/generated services/auth/api/dist/
+fi
+
 echo "Memulai Alfida Auth API (NestJS) pada port 3001..."
 PORT=3001 node services/auth/api/dist/main.js &
 

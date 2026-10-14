@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "nest build",
+    "build": "nest build && cp -r src/generated dist/",
     "start": "nest start",
     "dev": "nest start --watch",
     "start:prod": "node dist/main",
     "typecheck": "tsc --noEmit",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "migrate:legacy": "tsx src/scripts/migrate-from-legacy.ts"
+    "migrate:legacy": "tsx scripts/migrate-from-legacy.ts"
   },
   "dependencies": {
     "@alfida/auth-sdk": "workspace:*",

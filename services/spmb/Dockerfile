@@ -9,11 +9,11 @@ FROM base AS builder
 WORKDIR /app
 COPY . .
 RUN pnpm install --frozen-lockfile
-RUN pnpm --filter @alfida/spmb-api exec prisma generate
+RUN pnpm --filter spmb-api exec prisma generate
 RUN pnpm --filter @alfida/contracts build
 RUN pnpm --filter @alfida/auth-sdk build
 RUN pnpm --filter @alfida/ui build
-RUN pnpm --filter @alfida/spmb-api build
+RUN pnpm --filter spmb-api build
 RUN pnpm --filter @alfida/spmb-web build
 RUN mkdir -p services/spmb/web/.next/standalone/services/spmb/web/.next \
   && cp -r services/spmb/web/.next/static services/spmb/web/.next/standalone/services/spmb/web/.next/ \

@@ -1,5 +1,5 @@
-import { PrismaClient as AuthPrisma } from "../generated/prisma";
-import { PrismaClient as LegacyPrisma } from "../../../../../packages/database/src";
+import { PrismaClient as AuthPrisma } from "../src/generated/prisma";
+import { PrismaClient as LegacyPrisma } from "../../../../packages/database/src";
 import { randomUUID } from "crypto";
 
 async function runMigration() {
