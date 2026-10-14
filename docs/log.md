@@ -450,6 +450,21 @@
 - Memverifikasi keberhasilan kompilasi produksi `nest build` dan `pnpm run typecheck` di seluruh monorepo dengan status 0 error.
   **commit message:** feat(simakin): enforce granular RBAC guards across all 12 strategic controllers
 
+---
+
+**tanggal:** 14 Oktober 2026 (Sesi 8)
+**progress:**
+
+- Memasang pustaka `xlsx` pada dependensi `services/simakin/web/package.json` untuk menopang kebutuhan import dan parsing spreadsheet program kerja dan indikator capaian KPI.
+- Membangun utilitas client data fetcher `services/simakin/web/src/lib/api.ts` dan modul pemanggil API terpadu `services/simakin/web/src/actions/strategic.ts` yang secara transparan menyertakan cookie sesi SSO `.alfida.or.id` (mendukung pemanggilan dari Server Components maupun Client Components).
+- Menyediakan komponen modal reusable interaktif:
+  - `services/simakin/web/src/components/program-upload-modal.tsx`: Impor spreadsheet Excel massal untuk program kerja serta fungsi download template format resmi.
+  - `services/simakin/web/src/components/kpi-upload-modal.tsx`: Impor spreadsheet Excel massal untuk indikator KPI dan download template resmi.
+  - `services/simakin/web/src/components/confirm-modal.tsx`: Dialog konfirmasi aksi penting dan penghapusan data.
+- Menjalankan uji kompilasi statis `tsc --noEmit` dan `next build` pada web client SIMAKIN dengan hasil 100% lulus tanpa galat.
+  **commit message:** feat(simakin-web): set up data layer, xlsx support, and reusable upload modals
+
+
 
 
 
