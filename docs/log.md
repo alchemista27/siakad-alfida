@@ -1,6 +1,18 @@
 **tanggal:** 14 Oktober 2026
 **progress:**
 
+- Menyelaraskan alur kerja antarmuka SPMB Web (`services/spmb/web`):
+  - Membangun portal terisolasi khusus guru penguji seleksi (`/observer`) di `services/spmb/web/src/app/observer/page.tsx` dengan pemilih gelombang aktif, daftar peserta observasi, modal input skor tes (0-100), catatan deskriptif rekomendasi, serta rekapitulasi peringkat seleksi (*rankings*).
+  - Melakukan modularisasi antarmuka dasbor panitia `/admin` ke dalam 5 tab terstruktur: (1) Overview & Gelombang Kuota, (2) Pendaftar & Pembayaran, (3) Verifikasi Berkas, (4) Jadwal & Hasil Observasi, (5) Keputusan Kelulusan & Handoff SIAKAD.
+  - Menambahkan tautan langsung ke Portal Observer pada Topbar navigasi.
+- Memvalidasi seluruh kompilasi paket monorepo via `pnpm run typecheck` (17/17 lulus) dan build Next.js SPMB Web (8/8 rute lulus).
+  **commit message:** feat(spmb): implement dedicated observer portal and modular 5-tab admin dashboard
+
+---
+
+**tanggal:** 14 Oktober 2026
+**progress:**
+
 - Menerapkan arsitektur Role-Based Access Control (RBAC) granular pada seluruh backend API SPMB (`services/spmb/api`):
   - Membuat guard `SpmbRolesGuard` dan decorator `@SpmbRoles` di `services/spmb/api/src/common/guards/spmb-roles.guard.ts` untuk memvalidasi peran pengguna pada aplikasi SPMB (`admin_unit`, `tim_ppdb`, `observer`, `orang_tua`) dengan otorisasi wildcard otomatis bagi `super_admin`.
   - Mengunci seluruh 8 controller API SPMB (`periods`, `registrations`, `documents`, `observations`, `decisions`, `handoff`, `imports`, `invites`) sesuai wewenang matriks peran masing-masing, mencegah eksploitasi otorisasi oleh pengguna tanpa hak akses.

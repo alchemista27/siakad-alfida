@@ -55,6 +55,7 @@ export default function SpmbAdminPage() {
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [filterSource, setFilterSource] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [adminTab, setAdminTab] = useState<"overview" | "registrations" | "verification" | "observations" | "decisions">("registrations");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -435,13 +436,22 @@ export default function SpmbAdminPage() {
         window.location.href = "https://auth.alfida.or.id/login";
       }}
       topbarActions={
-        <a
-          href="https://auth.alfida.or.id/modules"
-          className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
-        >
-          <span className="material-symbols-rounded text-[16px]">apps</span>
-          <span className="hidden sm:inline">Pilih Modul</span>
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href="/observer"
+            className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 inline-flex items-center gap-1 px-2.5 py-1 rounded transition-colors"
+          >
+            <span className="material-symbols-rounded text-[16px]">assignment_turned_in</span>
+            <span className="hidden sm:inline">Portal Observer</span>
+          </a>
+          <a
+            href="https://auth.alfida.or.id/modules"
+            className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
+          >
+            <span className="material-symbols-rounded text-[16px]">apps</span>
+            <span className="hidden sm:inline">Pilih Modul</span>
+          </a>
+        </div>
       }
     >
       <div className="max-w-7xl w-full mx-auto space-y-6">
@@ -505,6 +515,138 @@ export default function SpmbAdminPage() {
             <span className="text-2xl font-black text-[#0f7f6d]">{handedOffCount}</span>
           </div>
         </div>
+
+        {/* Tab Navigasi SPMB Admin */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 pb-1 text-xs font-semibold">
+          <button
+            onClick={() => { setAdminTab("overview"); setFilterStatus(""); }}
+            className={`pb-2.5 px-3 border-b-2 flex items-center gap-1.5 transition-all ${
+              adminTab === "overview"
+                ? "border-[#0f7f6d] text-[#0f7f6d] font-bold"
+                : "border-transparent text-gray-500 hover:text-gray-900"
+            }`}
+          >
+            <span className="material-symbols-rounded text-[18px]">dashboard</span>
+            <span>1. Overview & Gelombang</span>
+          </button>
+
+          <button
+            onClick={() => { setAdminTab("registrations"); setFilterStatus(""); }}
+            className={`pb-2.5 px-3 border-b-2 flex items-center gap-1.5 transition-all ${
+              adminTab === "registrations"
+                ? "border-[#0f7f6d] text-[#0f7f6d] font-bold"
+                : "border-transparent text-gray-500 hover:text-gray-900"
+            }`}
+          >
+            <span className="material-symbols-rounded text-[18px]">payments</span>
+            <span>2. Pendaftar & Pembayaran</span>
+          </button>
+
+          <button
+            onClick={() => { setAdminTab("verification"); setFilterStatus("documents_uploaded"); }}
+            className={`pb-2.5 px-3 border-b-2 flex items-center gap-1.5 transition-all ${
+              adminTab === "verification"
+                ? "border-[#0f7f6d] text-[#0f7f6d] font-bold"
+                : "border-transparent text-gray-500 hover:text-gray-900"
+            }`}
+          >
+            <span className="material-symbols-rounded text-[18px]">folder_shared</span>
+            <span>3. Verifikasi Berkas</span>
+          </button>
+
+          <button
+            onClick={() => { setAdminTab("observations"); setFilterStatus("observation_scheduled"); }}
+            className={`pb-2.5 px-3 border-b-2 flex items-center gap-1.5 transition-all ${
+              adminTab === "observations"
+                ? "border-[#0f7f6d] text-[#0f7f6d] font-bold"
+                : "border-transparent text-gray-500 hover:text-gray-900"
+            }`}
+          >
+            <span className="material-symbols-rounded text-[18px]">event_note</span>
+            <span>4. Jadwal & Hasil Observasi</span>
+          </button>
+
+          <button
+            onClick={() => { setAdminTab("decisions"); setFilterStatus("observation_done"); }}
+            className={`pb-2.5 px-3 border-b-2 flex items-center gap-1.5 transition-all ${
+              adminTab === "decisions"
+                ? "border-[#0f7f6d] text-[#0f7f6d] font-bold"
+                : "border-transparent text-gray-500 hover:text-gray-900"
+            }`}
+          >
+            <span className="material-symbols-rounded text-[18px]">how_to_reg</span>
+            <span>5. Kelulusan & Handoff SIAKAD</span>
+          </button>
+        </div>
+
+        {/* Tab 1: Overview & Gelombang Table */}
+        {adminTab === "overview" && (
+          <div className="bg-white rounded-xl border border-border p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div>
+                <h3 className="text-base font-bold font-heading text-primary flex items-center gap-2">
+                  <span className="material-symbols-rounded text-tertiary text-[20px]">calendar_month</span>
+                  <span>Gelombang Penerimaan & Kuota Unit Sekolah</span>
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Daftar periode pendaftaran aktif, kuota daya tampung, dan status buka/tutup pendaftaran.
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-[#F7F8F8] border-b border-border text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                    <th className="py-3 px-4">Nama Unit Sekolah</th>
+                    <th className="py-3 px-4">Label Gelombang</th>
+                    <th className="py-3 px-4 text-center">Daya Tampung (Kuota)</th>
+                    <th className="py-3 px-4 text-center">Pendaftar Terisi</th>
+                    <th className="py-3 px-4 text-center">Status</th>
+                    <th className="py-3 px-4 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {periods.map((p) => {
+                    const pRegs = registrations.filter((r) => r.periodId === p.id);
+                    return (
+                      <tr key={p.id} className="hover:bg-gray-50/70 transition-colors">
+                        <td className="py-3.5 px-4 font-bold text-primary">{p.unitName}</td>
+                        <td className="py-3.5 px-4 font-medium text-gray-700">{p.label}</td>
+                        <td className="py-3.5 px-4 text-center font-mono font-semibold">{p.quota} Kursi</td>
+                        <td className="py-3.5 px-4 text-center font-mono font-bold text-tertiary">
+                          {pRegs.length} ({Math.round((pRegs.length / (p.quota || 1)) * 100)}%)
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                              p.isOpen
+                                ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                                : "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {p.isOpen ? "Dibuka" : "Ditutup"}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <button
+                            onClick={() => {
+                              setSelectedPeriodId(p.id);
+                              setAdminTab("registrations");
+                            }}
+                            className="px-3 py-1 rounded bg-[#e6f4f1] text-tertiary hover:bg-[#d0ece6] font-semibold text-xs"
+                          >
+                            Lihat Pendaftar →
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* Filter Bar */}
         <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-6 flex flex-wrap items-center justify-between gap-3">
