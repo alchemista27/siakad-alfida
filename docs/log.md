@@ -582,6 +582,19 @@
   - Menjalankan pengetesan kompilasi statis monorepo: `pnpm turbo run typecheck` sukses 100% pada 15 task tanpa galat.
   **commit message:** fix(microservices): disable incremental ts build to guarantee fresh compile outputs across all APIs
 
+---
+
+**tanggal:** 15 Oktober 2026
+**progress:**
+
+- Menyelesaikan investigasi dan perbaikan menyeluruh atas kegagalan deployment Coolify dan masalah kehabisan ruang disk VPS (laporan pada `docs/laporan-error.md`):
+  - Mengisolasi proses build Docker pada seluruh 6 microservices (`services/*/Dockerfile`) dengan menambahkan flag `--ignore-scripts` pada perintah `pnpm install` guna mencegah eksekusi skrip root `postinstall` (`@sim/database generate` legacy) yang menyebabkan kegagalan build di Alpine Linux.
+  - Mengonfigurasi variabel `HOSTNAME=0.0.0.0` pada seluruh berkas runtime startup `services/*/start.sh` agar server Next.js standalone dapat melayani lalu lintas jaringan dari Traefik proxy dan internal container.
+  - Mengonfigurasi `watch_paths` pada basis data Coolify (`coolify-db`) untuk aplikasi `auth-alfida` (`services/auth/**`, `packages/**`), `simakin-alfida` (`services/simakin/**`, `packages/**`), `simpeg-alfida` (`services/simpeg/**`, `packages/**`), dan `siakad-alfida` (`apps/**`, `packages/**`) guna menghentikan pemicuan 4 buildx simultan yang sebelumnya memenuhi disk 96 GB.
+  - Memperbaiki hostname `DATABASE_URL` pada aplikasi `auth-alfida` dan `simakin-alfida` di Coolify dari IP gateway `172.17.0.1:5432` menjadi nama kontainer internal PostgreSQL `bkoopidoln9uolhwy3zillrd:5432`, menyelesaikan crash runtime NestJS `P1001: Can't reach database server`.
+  - Melakukan pembersihan build cache Docker (`0B reclaimable`) dan memulihkan service NestJS API pada kontainer aktif sehingga seluruh layanan (`auth`, `simakin`, `simpeg`, `siakad`) berhasil merespons normal dengan sisa kapasitas disk aman (55 GB bebas / 44% terpakai).
+  **commit message:** fix(deployment): isolate docker build scripts, set standalone hostname, and stabilize coolify deployment
+
 
 
 

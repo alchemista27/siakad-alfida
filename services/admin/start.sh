@@ -19,4 +19,4 @@ echo "Memulai Alfida Admin API (NestJS) pada port 3001..."
 PORT=3001 node services/admin/api/dist/main.js &
 
 echo "Memulai Alfida Admin Web (Next.js) pada port 3000..."
-PORT=3000 node services/admin/web/.next/standalone/services/admin/web/server.js
+HOSTNAME=0.0.0.0 PORT=3000 node services/admin/web/.next/standalone/services/admin/web/server.js

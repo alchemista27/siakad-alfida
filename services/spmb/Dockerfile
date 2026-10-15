@@ -8,7 +8,7 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
 FROM base AS builder
 WORKDIR /app
 COPY . .
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 RUN pnpm --filter spmb-api exec prisma generate
 RUN pnpm --filter @alfida/contracts build
 RUN pnpm --filter @alfida/auth-sdk build
