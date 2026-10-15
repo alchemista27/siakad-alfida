@@ -46,9 +46,9 @@ export const AppShell: React.FC<AppShellProps> = ({
   const hasSidebar = sidebarGroups.length > 0;
 
   return (
-    <div className="min-h-screen bg-[#F7F8F8] text-[#454545] flex flex-col font-sans">
-      {/* Topbar Tetap (Tinggi 60px) */}
-      <header className="h-[60px] bg-white border-b border-[#E3E8E7] sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6">
+    <div className="min-h-screen bg-[#F7F8F8] text-[#454545] flex flex-col font-body">
+      {/* Topbar Tetap (Tinggi 56px / h-14 sesuai standar Monolith) */}
+      <header className="h-14 bg-white border-b border-[#E3E8E7] sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-3">
           {hasSidebar && (
             <button
@@ -57,7 +57,7 @@ export const AppShell: React.FC<AppShellProps> = ({
               className="p-1.5 rounded text-gray-600 hover:bg-gray-100 md:hidden"
               aria-label="Toggle Navigation"
             >
-              <span className="material-symbols-rounded text-[24px]">menu</span>
+              <span className="material-symbols-rounded text-[22px]">menu</span>
             </button>
           )}
           <a
@@ -72,11 +72,11 @@ export const AppShell: React.FC<AppShellProps> = ({
                 className="h-8 w-auto max-w-[120px] object-contain"
               />
             ) : (
-              <span className="material-symbols-rounded text-[#0f7f6d] text-[24px]">
+              <span className="material-symbols-rounded text-[#0f7f6d] text-[22px]">
                 hub
               </span>
             )}
-            <span>{foundationName}</span>
+            <span className="font-heading tracking-tight">{foundationName}</span>
           </a>
           <span className="text-gray-300 hidden sm:inline">|</span>
           <span className="text-xs font-semibold px-2 py-0.5 rounded bg-[#e6f4f1] text-[#0f7f6d] hidden sm:inline">
@@ -88,11 +88,11 @@ export const AppShell: React.FC<AppShellProps> = ({
           {topbarActions}
 
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-[#0f7f6d] text-white flex items-center justify-center font-semibold text-xs shadow-sm select-none">
+            <div className="w-8 h-8 rounded-full bg-[#0f7f6d] text-[#F7F8F8] flex items-center justify-center font-semibold text-xs shadow-xs select-none">
               {initials}
             </div>
             <div className="hidden sm:block text-left">
-              <div className="text-xs font-semibold text-gray-800 leading-tight">
+              <div className="text-xs font-semibold text-[#454545] leading-tight">
                 {userName}
               </div>
               {userRole && (
@@ -130,7 +130,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         <main
           className={cn(
             "flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto",
-            hasSidebar && "md:ml-[250px]",
+            hasSidebar && "md:ml-60",
             className
           )}
         >

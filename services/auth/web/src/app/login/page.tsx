@@ -103,12 +103,19 @@ export default function LoginPage() {
           {errorMessage && (
             <div
               role="alert"
-              className="mb-5 p-3.5 rounded bg-red-50 border border-red-200 text-xs text-red-700 flex items-start space-x-2"
+              className="mb-5 p-3.5 rounded bg-red-50 border border-red-200 text-xs text-red-700 flex flex-col gap-1.5"
             >
-              <span className="material-symbols-rounded text-red-600 text-[18px] flex-shrink-0">
-                error
-              </span>
-              <span>{errorMessage}</span>
+              <div className="flex items-start space-x-2">
+                <span className="material-symbols-rounded text-red-600 text-[18px] flex-shrink-0">
+                  error
+                </span>
+                <span className="font-medium">{errorMessage}</span>
+              </div>
+              {errorMessage.includes("belum disetujui") && (
+                <div className="text-[11px] text-amber-800 bg-amber-50 p-2 rounded border border-amber-200 mt-1">
+                  Hubungi Administrator Yayasan di kantor kesekretariatan atau Super Admin untuk mengaktifkan status akun staf Anda.
+                </div>
+              )}
             </div>
           )}
 

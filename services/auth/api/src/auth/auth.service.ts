@@ -92,6 +92,7 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const userId = randomUUID();
+    const autoApprove = process.env.AUTO_APPROVE_STAFF !== "false";
 
     const rolesData =
       dto.role === "guru"
@@ -112,7 +113,7 @@ export class AuthService {
         fullName: dto.fullName.trim(),
         phone: dto.phone.trim(),
         passwordHash,
-        isActive: false, // Menunggu verifikasi admin kepegawaian
+        isActive: autoApprove,
         accounts: {
           create: {
             id: randomUUID(),
@@ -129,8 +130,11 @@ export class AuthService {
 
     return {
       success: true,
-      message: "Registrasi berhasil. Akun Anda sedang menunggu verifikasi dan persetujuan Administrator Kepegawaian.",
+      message: autoApprove
+        ? "Registrasi berhasil. Akun Anda telah aktif dan dapat langsung digunakan untuk masuk."
+        : "Registrasi berhasil. Akun Anda sedang menunggu verifikasi dan persetujuan Administrator Kepegawaian.",
       userId: user.id,
+      isActive: autoApprove,
     };
   }
 

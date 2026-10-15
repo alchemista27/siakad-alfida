@@ -104,6 +104,15 @@ export default function ProgramsPage() {
     setIsFormOpen(true);
   };
 
+  useEffect(() => {
+    if (departments.length > 0 && typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("new") === "true") {
+        handleOpenAdd();
+      }
+    }
+  }, [departments]);
+
   const handleOpenEdit = (prog: ProgramItem) => {
     setEditingProg(prog);
     setFormData({

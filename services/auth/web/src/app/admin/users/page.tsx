@@ -58,9 +58,11 @@ export default function AdminUsersPage() {
         if (res.ok) {
           const data = await res.json();
           setCurrentUser(data.user);
+        } else {
+          window.location.href = "/login?return_to=/admin/users";
         }
       } catch (e) {
-        // Abaikan jika gagal
+        window.location.href = "/login?return_to=/admin/users";
       }
     }
     loadCurrentUser();

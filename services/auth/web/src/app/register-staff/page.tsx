@@ -36,6 +36,7 @@ export default function RegisterStaffPage() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [success, setSuccess] = useState(false);
+  const [isAccountActive, setIsAccountActive] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/units")
@@ -96,6 +97,7 @@ export default function RegisterStaffPage() {
         throw new Error(data?.message || data?.error || "Gagal memproses pendaftaran staf.");
       }
 
+      setIsAccountActive(!!data?.isActive);
       setSuccess(true);
     } catch (err: any) {
       setErrorMessage(err.message || "Terjadi kesalahan jaringan saat pendaftaran.");
@@ -134,30 +136,57 @@ export default function RegisterStaffPage() {
           </div>
 
           {success ? (
-            <div className="p-6 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl space-y-3 shadow-sm">
-              <span className="material-symbols-rounded text-amber-600 text-[48px] block mx-auto text-center">
-                pending_actions
-              </span>
-              <h4 className="font-bold text-lg font-heading text-amber-950 text-center">
-                Pendaftaran Telah Diterima!
-              </h4>
-              <p className="text-xs text-amber-900 leading-relaxed text-center">
-                Akun Anda telah berhasil dibuat namun saat ini berstatus <strong>Menunggu Persetujuan</strong> oleh Administrator Kepegawaian Yayasan Alfida sebelum dapat digunakan untuk masuk.
-              </p>
-              <div className="bg-white/80 p-3 rounded border border-amber-200/60 text-[11px] text-gray-600 space-y-1">
-                <div><strong>Nama:</strong> {fullName}</div>
-                <div><strong>Email:</strong> {email}</div>
-                <div><strong>Penugasan:</strong> {role === "guru" ? "Tenaga Pengajar (Guru)" : "Staf Karyawan"}</div>
+            isAccountActive ? (
+              <div className="p-6 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl space-y-3 shadow-sm">
+                <span className="material-symbols-rounded text-[#0f7f6d] text-[48px] block mx-auto text-center">
+                  check_circle
+                </span>
+                <h4 className="font-bold text-lg font-heading text-emerald-950 text-center">
+                  Pendaftaran Berhasil & Akun Aktif!
+                </h4>
+                <p className="text-xs text-emerald-900 leading-relaxed text-center">
+                  Akun Anda telah aktif dan dapat langsung digunakan untuk masuk ke seluruh sistem Yayasan Alfida.
+                </p>
+                <div className="bg-white/90 p-3 rounded border border-emerald-200/60 text-[11px] text-gray-700 space-y-1">
+                  <div><strong>Nama:</strong> {fullName}</div>
+                  <div><strong>Email:</strong> {email}</div>
+                  <div><strong>Penugasan:</strong> {role === "guru" ? "Tenaga Pengajar (Guru)" : "Staf Karyawan"}</div>
+                </div>
+                <div className="pt-3 text-center">
+                  <Link
+                    href="/login"
+                    className="px-5 py-2.5 bg-tertiary text-white rounded text-xs font-semibold inline-block hover:bg-[#0b6355] shadow-xs"
+                  >
+                    Masuk ke SIM-Alfida Sekarang
+                  </Link>
+                </div>
               </div>
-              <div className="pt-3 text-center">
-                <Link
-                  href="/login"
-                  className="px-4 py-2 bg-tertiary text-white rounded text-xs font-semibold inline-block hover:bg-[#0b6355]"
-                >
-                  Kembali ke Halaman Masuk
-                </Link>
+            ) : (
+              <div className="p-6 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl space-y-3 shadow-sm">
+                <span className="material-symbols-rounded text-amber-600 text-[48px] block mx-auto text-center">
+                  pending_actions
+                </span>
+                <h4 className="font-bold text-lg font-heading text-amber-950 text-center">
+                  Pendaftaran Telah Diterima!
+                </h4>
+                <p className="text-xs text-amber-900 leading-relaxed text-center">
+                  Akun Anda telah berhasil dibuat namun saat ini berstatus <strong>Menunggu Persetujuan</strong> oleh Administrator Kepegawaian Yayasan Alfida sebelum dapat digunakan untuk masuk.
+                </p>
+                <div className="bg-white/80 p-3 rounded border border-amber-200/60 text-[11px] text-gray-600 space-y-1">
+                  <div><strong>Nama:</strong> {fullName}</div>
+                  <div><strong>Email:</strong> {email}</div>
+                  <div><strong>Penugasan:</strong> {role === "guru" ? "Tenaga Pengajar (Guru)" : "Staf Karyawan"}</div>
+                </div>
+                <div className="pt-3 text-center">
+                  <Link
+                    href="/login"
+                    className="px-4 py-2 bg-tertiary text-white rounded text-xs font-semibold inline-block hover:bg-[#0b6355]"
+                  >
+                    Kembali ke Halaman Masuk
+                  </Link>
+                </div>
               </div>
-            </div>
+            )
           ) : (
             <>
               {errorMessage && (

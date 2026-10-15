@@ -44,6 +44,7 @@ export default function SiyaumDashboard() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string } | null>(null);
 
   // Form State
   const [form, setForm] = useState({
@@ -80,6 +81,27 @@ export default function SiyaumDashboard() {
   };
 
   useEffect(() => {
+    async function loadUser() {
+      try {
+        const res = await fetch("https://auth.alfida.or.id/api/auth/me", {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user) {
+            const primaryRole = data.user.roles?.[0]?.role
+              ? data.user.roles[0].role.replace(/_/g, " ").toUpperCase()
+              : "PESERTA";
+            setCurrentUser({
+              fullName: data.user.fullName,
+              role: primaryRole,
+            });
+            return;
+          }
+        }
+      } catch (e) {}
+    }
+    loadUser();
     fetchData();
   }, []);
 
@@ -188,8 +210,8 @@ export default function SiyaumDashboard() {
   return (
     <AppShell
       serviceName="SIYAUM"
-      userName="Peserta YMQ"
-      userRole="PESERTA / MUSYRIF"
+      userName={currentUser?.fullName || "Memuat..."}
+      userRole={currentUser?.role || ""}
       sidebarGroups={sidebarGroups}
       onLogout={() => {
         window.location.href = "https://auth.alfida.or.id/login";

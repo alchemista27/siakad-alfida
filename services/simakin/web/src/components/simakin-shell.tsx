@@ -15,6 +15,7 @@ export function SimakinShell({
   topbarActions,
 }: SimakinShellProps) {
   const [user, setUser] = useState<{ fullName: string; role: string; roles?: any[] } | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     async function fetchMe() {
@@ -31,9 +32,17 @@ export function SimakinShell({
               role: primaryRole,
               roles: data.user.roles || [],
             });
+            setAuthLoading(false);
+            return;
           }
         }
-      } catch (e) {}
+        // Jika 401 Unauthorized atau user tidak ditemukan, arahkan ke login SSO
+        const authUrl = "https://auth.alfida.or.id/login";
+        window.location.href = `${authUrl}?return_to=${encodeURIComponent(window.location.href)}`;
+      } catch (e) {
+        const authUrl = "https://auth.alfida.or.id/login";
+        window.location.href = `${authUrl}?return_to=${encodeURIComponent(window.location.href)}`;
+      }
     }
     fetchMe();
   }, []);
@@ -135,8 +144,8 @@ export function SimakinShell({
   return (
     <AppShell
       serviceName="SIMAKIN"
-      userName={user?.fullName || "Pimpinan / Admin Bidang"}
-      userRole={user?.role || "ADMIN BIDANG"}
+      userName={user?.fullName || "Memuat..."}
+      userRole={user?.role || ""}
       onLogout={handleLogout}
       sidebarGroups={sidebarGroups}
       topbarActions={
@@ -151,7 +160,16 @@ export function SimakinShell({
         )
       }
     >
-      {children}
+      {authLoading && !user ? (
+        <div className="min-h-[50vh] flex flex-col items-center justify-center text-center p-8">
+          <span className="material-symbols-rounded animate-spin text-[36px] text-tertiary mb-3">
+            progress_activity
+          </span>
+          <p className="text-xs text-gray-500 font-medium">Memverifikasi sesi SSO Yayasan Alfida...</p>
+        </div>
+      ) : (
+        children
+      )}
     </AppShell>
   );
 }

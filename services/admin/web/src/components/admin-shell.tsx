@@ -14,11 +14,9 @@ export function AdminShell({
   activePath = "/settings",
   topbarActions,
 }: AdminShellProps) {
-  const [user, setUser] = useState<{ fullName: string; role: string } | null>({
-    fullName: "Administrator Yayasan",
-    role: "SUPER ADMIN",
-  });
+  const [user, setUser] = useState<{ fullName: string; role: string } | null>(null);
   const [pendingCount, setPendingCount] = useState<number>(0);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     async function loadInfo() {
@@ -29,13 +27,33 @@ export function AdminShell({
         if (res.ok) {
           const data = await res.json();
           if (data?.user) {
+            const isSuperAdmin = data.user.roles?.some(
+              (r: any) => r.role === "super_admin"
+            );
+
+            if (!isSuperAdmin) {
+              alert("Akses ditolak: Portal ini hanya diperuntukkan bagi Super Admin Yayasan.");
+              window.location.href = "https://auth.alfida.or.id/modules";
+              return;
+            }
+
             setUser({
               fullName: data.user.fullName,
               role: "SUPER ADMIN",
             });
+            setAuthLoading(false);
+          } else {
+            window.location.href = `https://auth.alfida.or.id/login?return_to=${encodeURIComponent(window.location.href)}`;
+            return;
           }
+        } else {
+          window.location.href = `https://auth.alfida.or.id/login?return_to=${encodeURIComponent(window.location.href)}`;
+          return;
         }
-      } catch (e) {}
+      } catch (e) {
+        window.location.href = `https://auth.alfida.or.id/login?return_to=${encodeURIComponent(window.location.href)}`;
+        return;
+      }
 
       try {
         const res = await fetch("/api/admin/users/pending");
@@ -104,13 +122,22 @@ export function AdminShell({
   return (
     <AppShell
       serviceName="Admin Yayasan"
-      userName={user?.fullName || "Administrator"}
-      userRole={user?.role || "SUPER ADMIN"}
+      userName={user?.fullName || "Memuat..."}
+      userRole={user?.role || ""}
       sidebarGroups={sidebarGroups}
       topbarActions={topbarActions}
       onLogout={handleLogout}
     >
-      <div className="p-6 md:p-8 max-w-7xl mx-auto">{children}</div>
+      {authLoading && !user ? (
+        <div className="min-h-[50vh] flex flex-col items-center justify-center text-center p-8">
+          <span className="material-symbols-rounded animate-spin text-[36px] text-tertiary mb-3">
+            progress_activity
+          </span>
+          <p className="text-xs text-gray-500 font-medium">Memverifikasi wewenang Super Admin...</p>
+        </div>
+      ) : (
+        <div className="p-6 md:p-8 max-w-7xl mx-auto">{children}</div>
+      )}
     </AppShell>
   );
 }

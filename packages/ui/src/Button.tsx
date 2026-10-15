@@ -20,20 +20,21 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    // Sesuai DESIGN.md: rounded.sm = 4px, background tertiary (#0f7f6d), text on-tertiary (#F7F8F8)
     const baseStyles =
-      "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed";
+      "inline-flex items-center justify-center font-medium rounded transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed";
 
     const variantStyles = {
-      primary: "bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500",
-      secondary: "bg-gray-100 text-gray-800 hover:bg-gray-200 focus:ring-gray-400",
-      outline: "border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-emerald-500 bg-white",
+      primary: "bg-[#0f7f6d] text-[#F7F8F8] hover:bg-[#0b6355] focus:ring-[#0f7f6d]",
+      secondary: "bg-transparent text-[#0f7f6d] border border-[#0f7f6d] hover:bg-[#e6f4f1] focus:ring-[#0f7f6d]",
+      outline: "border border-[#E3E8E7] text-[#454545] hover:bg-[#F7F8F8] bg-white focus:ring-[#0f7f6d]",
       danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
     };
 
     const sizeStyles = {
-      sm: "px-3 py-1.5 text-xs min-h-[36px]",
-      md: "px-4 py-2 text-sm min-h-[44px]", // Minimum tap target 44px
-      lg: "px-5 py-2.5 text-base min-h-[48px]",
+      sm: "px-3 py-1.5 text-xs min-h-[32px]",
+      md: "px-4 py-2 text-sm min-h-[40px]",
+      lg: "px-5 py-2.5 text-base min-h-[46px]",
     };
 
     return (

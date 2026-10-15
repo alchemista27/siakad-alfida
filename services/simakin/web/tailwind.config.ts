@@ -30,7 +30,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        heading: ["Roboto", "sans-serif"],
+        heading: ["Lora", "serif"],
         body: ["Inter", "sans-serif"],
       },
     },

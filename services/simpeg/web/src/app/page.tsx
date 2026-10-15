@@ -68,6 +68,7 @@ export default function SimpegDashboard() {
   });
 
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string } | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -94,6 +95,27 @@ export default function SimpegDashboard() {
   };
 
   useEffect(() => {
+    async function loadUser() {
+      try {
+        const res = await fetch("https://auth.alfida.or.id/api/auth/me", {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user) {
+            const primaryRole = data.user.roles?.[0]?.role
+              ? data.user.roles[0].role.replace(/_/g, " ").toUpperCase()
+              : "PEGAWAI";
+            setCurrentUser({
+              fullName: data.user.fullName,
+              role: primaryRole,
+            });
+            return;
+          }
+        }
+      } catch (e) {}
+    }
+    loadUser();
     fetchData();
   }, []);
 
@@ -315,8 +337,8 @@ export default function SimpegDashboard() {
   return (
     <AppShell
       serviceName="SIMPEG"
-      userName="Pegawai Alfida"
-      userRole="ADMIN KEPEGAWAIAN"
+      userName={currentUser?.fullName || "Memuat..."}
+      userRole={currentUser?.role || ""}
       sidebarGroups={sidebarGroups}
       onLogout={() => {
         window.location.href = "https://auth.alfida.or.id/login";

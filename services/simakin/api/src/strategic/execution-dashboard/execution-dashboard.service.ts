@@ -149,4 +149,76 @@ export class ExecutionDashboardService {
       details
     };
   }
+
+  async getBureauRankings(academicYearId?: string) {
+    const departments = await this.prisma.department.findMany({
+      include: {
+        parent: { select: { id: true, name: true } },
+        workPrograms: {
+          where: academicYearId ? { academicYearId } : undefined,
+          include: {
+            kpis: true,
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+
+    const rankings = departments.map((dept) => {
+      let greenCount = 0;
+      let yellowCount = 0;
+      let redCount = 0;
+      let totalScore = 0;
+      let kpiCount = 0;
+
+      dept.workPrograms.forEach((p) => {
+        p.kpis.forEach((kpi) => {
+          let percent: number;
+          if (kpi.direction === 'higher_is_better') {
+            percent = kpi.target > 0 ? (kpi.realization / kpi.target) * 100 : 0;
+          } else {
+            if (kpi.target === 0) {
+              percent = kpi.realization === 0 ? 100 : 0;
+            } else {
+              percent =
+                kpi.realization <= kpi.target
+                  ? 100
+                  : Math.max(0, 100 - ((kpi.realization - kpi.target) / kpi.target) * 100);
+            }
+          }
+          const score = Math.round(percent);
+          totalScore += score;
+          kpiCount++;
+
+          if (score >= 95) greenCount++;
+          else if (score >= 75) yellowCount++;
+          else redCount++;
+        });
+      });
+
+      const averageProgress = kpiCount > 0 ? Math.round(totalScore / kpiCount) : 0;
+      const greenRate = kpiCount > 0 ? Math.round((greenCount / kpiCount) * 100) : 0;
+
+      return {
+        departmentId: dept.id,
+        departmentName: dept.name,
+        parentName: dept.parent?.name || null,
+        isSubDepartment: !!dept.parentId,
+        totalPrograms: dept.workPrograms.length,
+        totalKpis: kpiCount,
+        greenCount,
+        yellowCount,
+        redCount,
+        greenRate,
+        averageProgress,
+      };
+    });
+
+    // Urutkan dari jumlah KPI Hijau terbanyak sampai paling sedikit
+    return rankings.sort((a, b) => {
+      if (b.greenCount !== a.greenCount) return b.greenCount - a.greenCount;
+      if (b.greenRate !== a.greenRate) return b.greenRate - a.greenRate;
+      return b.averageProgress - a.averageProgress;
+    });
+  }
 }

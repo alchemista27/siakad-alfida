@@ -77,6 +77,15 @@ export default function DepartmentsPage() {
     setIsModalOpen(true);
   };
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("new") === "true") {
+        handleOpenAdd();
+      }
+    }
+  }, []);
+
   const handleOpenEdit = (dept: Department) => {
     setEditingDept(dept);
     setFormData({

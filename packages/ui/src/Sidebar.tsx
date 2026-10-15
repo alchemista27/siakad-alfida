@@ -43,16 +43,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <aside
         className={cn(
-          "fixed top-[60px] left-0 bottom-0 z-40 w-[250px] bg-white border-r border-[#E3E8E7] overflow-y-auto transition-transform duration-200 md:translate-x-0",
+          "fixed top-14 left-0 bottom-0 z-40 w-60 bg-white border-r border-[#E3E8E7] overflow-y-auto transition-transform duration-200 md:translate-x-0",
           isOpenMobile ? "translate-x-0" : "-translate-x-full md:translate-x-0",
           className
         )}
       >
         <div className="py-4">
           {groups.map((group, idx) => (
-            <div key={idx} className="mb-4">
+            <div key={idx} className="mb-4 px-3">
               {group.title && (
-                <div className="px-5 py-2 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                <div className="px-3 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
                   {group.title}
                 </div>
               )}
@@ -63,20 +63,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     href={item.href}
                     onClick={item.onClick}
                     className={cn(
-                      "flex items-center gap-3 px-5 py-2.5 text-sm transition-colors",
+                      "flex items-center gap-2.5 px-3 py-2 text-xs rounded transition-colors",
                       item.active
-                        ? "bg-[#e6f4f1] text-[#0f7f6d] font-semibold border-r-[3px] border-[#0f7f6d]"
-                        : "text-[#454545] hover:bg-[#F7F8F8] font-normal"
+                        ? "bg-[#e6f4f1] text-[#0f7f6d] font-semibold border-r-2 border-[#0f7f6d]"
+                        : "text-[#454545] hover:bg-[#F7F8F8] hover:text-[#0f7f6d] font-normal"
                     )}
                   >
                     {item.icon && (
-                      <span className="material-symbols-rounded text-[20px] select-none">
+                      <span className="material-symbols-rounded text-[18px] select-none flex-shrink-0">
                         {item.icon}
                       </span>
                     )}
                     <span className="flex-1 truncate">{item.label}</span>
                     {item.badge && (
-                      <span className="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-emerald-100 text-[#0f7f6d]">
+                      <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-[#e6f4f1] text-[#0f7f6d]">
                         {item.badge}
                       </span>
                     )}

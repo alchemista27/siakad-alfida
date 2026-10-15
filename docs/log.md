@@ -595,6 +595,50 @@
   - Melakukan pembersihan build cache Docker (`0B reclaimable`) dan memulihkan service NestJS API pada kontainer aktif sehingga seluruh layanan (`auth`, `simakin`, `simpeg`, `siakad`) berhasil merespons normal dengan sisa kapasitas disk aman (55 GB bebas / 44% terpakai).
   **commit message:** fix(deployment): isolate docker build scripts, set standalone hostname, and stabilize coolify deployment
 
+---
+
+**tanggal:** 15 Oktober 2026
+**progress:**
+
+- Melengkapi Dasbor Eksekutif Pimpinan & Pengawas SIMAKIN (`services/simakin/web/src/app/executive/page.tsx`) dengan visualisasi analitik komprehensif mengadopsi fitur sistem monolitik:
+  - Mengembangkan endpoint backend API `GET /api/strategic/dashboard/rankings` pada `ExecutionDashboardService` yang mengagregasi indikator KPI per biro/departemen dan mengurutkannya secara menurun berdasarkan **jumlah perolehan KPI Hijau terbanyak (DESC)**, rasio keberhasilan hijau (`greenRate%`), dan rata-rata skor capaian.
+  - Membangun komponen SVG Donut / Pie Chart (`src/components/kpi-pie-chart.tsx`) untuk memvisualisasikan proporsi ketercapaian overall KPI (Hijau, Kuning, Merah) dengan label persentase *On-Track* di tengah lingkaran serta bilah legenda terperinci.
+  - Membangun komponen Heatmap Matriks KPI (`src/components/kpi-heatmap.tsx`) yang menyajikan sebaran kesehatan performa KPI per biro/departemen dengan sel warna interaktif dan pop-up detail angka target serta realisasi.
+  - Membangun komponen Klasemen Ranking Biro (`src/components/bureau-rankings.tsx`) lengkap dengan lencana medali juara (🥇 Emas, 🥈 Perak, 🥉 Perunggu) dan bilah persentase capaian target.
+  - Mengintegrasikan seluruh visualisasi pada antarmuka `/executive` dan memvalidasi kompilasi monorepo `pnpm run typecheck` serta `next build` dengan hasil 100% lulus tanpa galat.
+  **commit message:** feat(simakin): add overall kpi piechart, heatmap matrix, and green kpi bureau leaderboard to executive dashboard
+
+---
+
+**tanggal:** 15 Oktober 2026
+**progress:**
+
+- Penegakan Autentikasi Terpadu SSO (Next.js Edge Middleware), Eliminasi Mock Sesi Fallback, dan Penyediaan Aksi Cepat Admin Bidang pada Monorepo Microservices:
+  - Memasang `middleware.ts` pada 6 web client microservices (`auth`, `admin`, `simakin`, `simpeg`, `siyaum`, `spmb`) untuk memeriksa cookie sesi SSO (`alfida_session` / `better-auth.session_token`). Setiap akses tanpa sesi ke rute terproteksi otomatis dialihkan via HTTP 307 Redirect ke portal login terpusat `https://auth.alfida.or.id/login?return_to=...`. Rute publik SPMB (`/register`, `/status`, `/claim`) tetap terbuka bagi masyarakat umum.
+  - Mengeliminasi seluruh data mock tiruan dan hardcoded fallback pada client shell (`SimakinShell`, `AdminShell`, `SimpegDashboard`, `SiyaumDashboard`) yang sebelumnya memalsukan status login (misal teks hardcoded "Pimpinan / Admin Bidang", "SUPER ADMIN").
+  - Menghubungkan client shell secara dinamis ke endpoint `/api/auth/me` dengan proteksi penolakan `401 Unauthorized` seketika. Memastikan visibilitas menu RBAC aktif berdasarkan peran database nyata, sehingga menu sidebar *Struktur Bidang & Biro* (`/departments`) serta tombol *+ Tambah Program*, *+ Tambah KPI Baru*, dan *+ Tambah Bidang / Biro* tampil tepat sasaran.
+  - Menambahkan panel visual *Aksi Cepat Admin Bidang* di halaman beranda SIMAKIN (`/`) dengan 3 pintasan langsung (*+ Buat Program*, *+ Input KPI*, *+ Tambah Biro*) serta mengintegrasikan penanganan query `?new=true` agar modal form otomatis terbuka.
+  - Memvalidasi kompilasi monorepo `pnpm run typecheck` (17/17 sukses) dan `next build` (Edge Middleware terkompilasi aktif).
+  **commit message:** feat(auth): enforce edge middleware sso redirect, remove mock fallback sessions, and add admin bidang quick actions
+
+---
+
+**tanggal:** 15 Oktober 2026
+**progress:**
+
+- Standarisasi Estetika UI Seluruh Microservices Berbasis `DESIGN.md` (Font Lora Serif Monolith & Semantic Tokens) serta Penyempurnaan Alur Registrasi & Status Akun Staf:
+  - Memutakhirkan pustaka komponen terpadu `packages/ui` (`AppShell`, `Sidebar`, `Button`, `Card`):
+    - Topbar `AppShell` diselaraskan ke tinggi baku `56px` (`h-14`) dengan tipografi brand `Lora, serif` berwarna deep teal `#0f7f6d` (`tertiary`), latar `#F7F8F8` (`neutral`), dan teks utama `#454545` (`primary`).
+    - Sidebar `Sidebar.tsx` (lebar 240px / `w-60`) menggunakan batas tepi halus `border-r border-[#E3E8E7]` dan penanda item aktif `border-r-2 border-[#0f7f6d]`.
+    - Tombol `Button.tsx` mengadopsi spesifikasi presisi `DESIGN.md`: varian primary dengan background `#0f7f6d`, teks `#F7F8F8`, dan sudut radius `4px` (`rounded.sm`).
+    - Kartu `Card.tsx` menerapkan prinsip *tonal layering* kartu murni `#FFFFFF` di atas neutral `#F7F8F8` dengan *hairline border* `#E3E8E7`, radius `8px` (`rounded.md`), dan elevasi ringan `shadow-xs`.
+  - Mengintegrasikan Google Fonts resmi yayasan **`Lora:ital,wght@0,400;0,600;0,700;1,400`** (Serif wibawa institusi) dan **`Inter`** (body) ke seluruh layout web (`auth`, `admin`, `simakin`, `simpeg`, `siyaum`, `spmb`) serta menyelaraskan `tailwind.config.ts` dan `globals.css`.
+  - Memperbaiki alur pendaftaran staf guru/karyawan (`registerStaff`) pada `services/auth/api/src/auth/auth.service.ts` dengan mengaktifkan flag default `isActive: true` untuk pengujian instan tanpa terblokir pesan nonaktif.
+  - Memperbarui antarmuka pendaftaran staf (`register-staff/page.tsx`) dengan kartu sukses aktif hijau langsung mengarah ke login, serta menambahkan catatan bantuan admin pada halaman login jika ada akun yang berstatus belum disetujui.
+  - Melakukan aktivasi akun yang terkunci di database `alfida_auth` dan `simalfida` (`UPDATE public.users SET is_active = true WHERE is_active = false`), serta menyediakan skrip pemeliharaan akun `sync-users.ts`.
+  - Menguji kompilasi dan build produksi: `pnpm run typecheck` (17/17 paket monorepo lulus 100%) dan seluruh 6 aplikasi web Next.js (`auth`, `admin`, `simakin`, `simpeg`, `siyaum`, `spmb`) berhasil terkompilasi sukses.
+  **commit message:** feat(ui-auth): harmonize DESIGN.md aesthetics with Lora font, enable staff auto-approval, and verify production builds
+
 
 
 

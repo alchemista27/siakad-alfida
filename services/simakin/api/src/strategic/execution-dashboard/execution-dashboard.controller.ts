@@ -28,4 +28,9 @@ export class ExecutionDashboardController {
   getTrafficLightDashboard(@Query('academicYearId') academicYearId?: string) {
     return this.service.getTrafficLightDashboard(academicYearId);
   }
+
+  @Get('rankings')
+  getBureauRankings(@Query('academicYearId') academicYearId?: string) {
+    return this.service.getBureauRankings(academicYearId);
+  }
 }

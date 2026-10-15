@@ -6,8 +6,12 @@ import {
   getTrafficLightDashboard,
   getDashboardSummary,
   getProgressPerDepartment,
+  getBureauRankings,
 } from "@/actions/strategic";
 import { EmptyState, LoadingState, ErrorState } from "@alfida/ui";
+import { KpiPieChart } from "@/components/kpi-pie-chart";
+import { KpiHeatmap, KpiHeatmapItem } from "@/components/kpi-heatmap";
+import { BureauRankings, BureauRankItem } from "@/components/bureau-rankings";
 
 interface DepartmentProgress {
   departmentId: string;
@@ -15,23 +19,6 @@ interface DepartmentProgress {
   totalPrograms: number;
   completedPrograms: number;
   averageProgress: number;
-}
-
-interface KpiDetail {
-  id: string;
-  name: string;
-  target: number;
-  realization: number;
-  unit: string;
-  achievementPercent: number;
-  color: "green" | "yellow" | "red";
-  program?: {
-    id: string;
-    title: string;
-    department?: {
-      name: string;
-    };
-  };
 }
 
 interface CriticalIssue {
@@ -48,13 +35,14 @@ interface CriticalIssue {
 export default function ExecutiveDashboardPage() {
   const [summary, setSummary] = useState<any>(null);
   const [deptProgress, setDeptProgress] = useState<DepartmentProgress[]>([]);
+  const [rankings, setRankings] = useState<BureauRankItem[]>([]);
   const [trafficSummary, setTrafficSummary] = useState<{
     total: number;
     green: number;
     yellow: number;
     red: number;
   }>({ total: 0, green: 0, yellow: 0, red: 0 });
-  const [kpiDetails, setKpiDetails] = useState<KpiDetail[]>([]);
+  const [kpiDetails, setKpiDetails] = useState<KpiHeatmapItem[]>([]);
   const [kpiFilter, setKpiFilter] = useState<"all" | "green" | "yellow" | "red">("all");
 
   const [loading, setLoading] = useState(true);
@@ -64,14 +52,16 @@ export default function ExecutiveDashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const [sumRes, progressRes, trafficRes] = await Promise.all([
+      const [sumRes, progressRes, trafficRes, rankRes] = await Promise.all([
         getDashboardSummary().catch(() => null),
         getProgressPerDepartment().catch(() => []),
         getTrafficLightDashboard().catch(() => null),
+        getBureauRankings().catch(() => []),
       ]);
 
       setSummary(sumRes);
       setDeptProgress(Array.isArray(progressRes) ? progressRes : []);
+      setRankings(Array.isArray(rankRes) ? rankRes : []);
 
       if (trafficRes?.summary) {
         setTrafficSummary(trafficRes.summary);
@@ -112,7 +102,7 @@ export default function ExecutiveDashboardPage() {
               Dasbor Rekapitulasi Eksekutif Yayasan
             </h1>
             <p className="text-xs text-gray-500 mt-1">
-              Pemantauan menyeluruh capaian kinerja program kerja, progres agregat per bidang, isu kritis, dan matriks Traffic Light KPI.
+              Pemantauan menyeluruh capaian kinerja program kerja, visualisasi pie chart KPI, heatmap matriks, dan klasemen ranking biro.
             </p>
           </div>
           <button
@@ -199,7 +189,70 @@ export default function ExecutiveDashboardPage() {
               </div>
             </div>
 
-            {/* Grid 2 Kolom: Progres per Bidang + Top Critical Issues */}
+            {/* SECTION 1: Pie Chart Ketercapaian Overall KPI & Ringkasan Eksekutif */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-bold font-heading text-primary flex items-center gap-2">
+                  <span className="material-symbols-rounded text-tertiary text-[20px]">
+                    pie_chart
+                  </span>
+                  <span>Proporsi Ketercapaian Overall Indikator KPI</span>
+                </h2>
+                <span className="text-xs text-gray-400">Tingkat Kesehatan Kinerja</span>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <KpiPieChart
+                    green={trafficSummary.green}
+                    yellow={trafficSummary.yellow}
+                    red={trafficSummary.red}
+                    total={trafficSummary.total}
+                  />
+                </div>
+
+                <div className="bg-white border border-border rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+                  <div>
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-gray-400 mb-2">
+                      Panduan Standar Evaluasi BPH
+                    </h4>
+                    <ul className="space-y-2 text-xs text-gray-600">
+                      <li className="flex items-start gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1 flex-shrink-0" />
+                        <span>
+                          <strong>Hijau (&ge; 95%)</strong>: Sasaran tercapai atau melampaui target. Dapat dipertahankan.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 mt-1 flex-shrink-0" />
+                        <span>
+                          <strong>Kuning (75% - 94%)</strong>: Memerlukan perhatian berkala dan percepatan aksi operasional.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-2 h-2 rounded-full bg-rose-500 mt-1 flex-shrink-0" />
+                        <span>
+                          <strong>Merah (&lt; 75%)</strong>: Indikator kritis yang memerlukan intervensi langsung pimpinan yayasan.
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="p-3 bg-amber-50 rounded-lg border border-amber-200/80 text-[11px] text-amber-900 flex items-center gap-2">
+                    <span className="material-symbols-rounded text-amber-700 text-[18px]">info</span>
+                    <span>Pembaruan data KPI dilakukan otomatis setiap kali realisasi disahkan di SIMAKIN.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SECTION 2: Klasemen Ranking Biro (Diurutkan dari KPI Hijau Terbanyak) */}
+            <BureauRankings rankings={rankings} />
+
+            {/* SECTION 3: Heatmap Matriks Sebaran KPI per Biro/Departemen */}
+            <KpiHeatmap kpis={kpiDetails} />
+
+            {/* SECTION 4: Grid 2 Kolom Progres per Bidang + Top Critical Issues */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Kolom Kiri: Progress per Bidang / Biro */}
               <div className="bg-white border border-border rounded-xl p-6 shadow-sm space-y-4">
@@ -304,7 +357,7 @@ export default function ExecutiveDashboardPage() {
               </div>
             </div>
 
-            {/* Section Bawah: Rincian Matriks Traffic Light KPI */}
+            {/* SECTION 5: Rincian Tabel Traffic Light KPI */}
             <div className="bg-white border border-border rounded-xl p-6 shadow-sm space-y-5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
                 <div>

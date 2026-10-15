@@ -128,6 +128,15 @@ export default function KpisPage() {
     setIsFormOpen(true);
   };
 
+  useEffect(() => {
+    if (programs.length > 0 && typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("new") === "true") {
+        handleOpenAdd();
+      }
+    }
+  }, [programs]);
+
   const handleOpenEdit = (kpi: KPIItem) => {
     setEditingKpi(kpi);
     setFormData({

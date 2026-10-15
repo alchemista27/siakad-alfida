@@ -26,6 +26,7 @@ interface ProgramItem {
 export default function SimakinDashboardPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [programs, setPrograms] = useState<ProgramItem[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [selectedDeptId, setSelectedDeptId] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,8 +50,24 @@ export default function SimakinDashboardPage() {
   };
 
   useEffect(() => {
+    async function loadUser() {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentUser(data.user);
+        }
+      } catch (e) {}
+    }
+    loadUser();
+  }, []);
+
+  useEffect(() => {
     fetchInitialData();
   }, [selectedDeptId]);
+
+  const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === "super_admin");
+  const isAdminBidang = currentUser?.roles?.some((r: any) => r.role === "admin_bidang") || isSuperAdmin;
 
   const totalPrograms = programs.length;
   const ongoingPrograms = programs.filter((p) => p.status === "ongoing").length;
@@ -91,6 +108,49 @@ export default function SimakinDashboardPage() {
             </Link>
           </div>
         </div>
+
+        {/* Panel Pintasan / Aksi Cepat Khusus Admin Bidang & Super Admin */}
+        {isAdminBidang && (
+          <div className="mt-6 p-4 bg-gradient-to-r from-emerald-50/80 via-[#f0f9f7] to-white border border-[#0f7f6d]/25 rounded-xl shadow-xs">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-rounded text-[#0f7f6d] text-[20px]">bolt</span>
+                  <h3 className="text-sm font-bold font-heading text-primary">Aksi Cepat Admin Bidang</h3>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0f7f6d]/10 text-[#0f7f6d] uppercase tracking-wider">
+                    Pintasan Langsung
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Daftarkan program kerja baru, buat indikator KPI capaian, atau kelola struktur biro unit Anda.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <Link
+                  href="/programs?new=true"
+                  className="px-3 py-1.5 bg-[#0f7f6d] hover:bg-[#0b6355] text-white rounded-lg text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-rounded text-[16px]">add_circle</span>
+                  <span>+ Buat Program</span>
+                </Link>
+                <Link
+                  href="/kpis?new=true"
+                  className="px-3 py-1.5 bg-white border border-[#0f7f6d]/40 hover:bg-[#0f7f6d]/5 text-[#0f7f6d] rounded-lg text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-rounded text-[16px]">monitoring</span>
+                  <span>+ Input KPI</span>
+                </Link>
+                <Link
+                  href="/departments?new=true"
+                  className="px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-rounded text-[16px]">account_tree</span>
+                  <span>+ Tambah Biro</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Metric Cards (Wireframe 04-admin-dashboard.html) */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-6">

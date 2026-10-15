@@ -55,6 +55,7 @@ export default function SpmbAdminPage() {
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [filterSource, setFilterSource] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string } | null>(null);
   const [adminTab, setAdminTab] = useState<"overview" | "registrations" | "verification" | "observations" | "decisions">("registrations");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -144,6 +145,27 @@ export default function SpmbAdminPage() {
   };
 
   useEffect(() => {
+    async function loadUser() {
+      try {
+        const res = await fetch("https://auth.alfida.or.id/api/auth/me", {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user) {
+            const primaryRole = data.user.roles?.[0]?.role
+              ? data.user.roles[0].role.replace(/_/g, " ").toUpperCase()
+              : "PANITIA";
+            setCurrentUser({
+              fullName: data.user.fullName,
+              role: primaryRole,
+            });
+            return;
+          }
+        }
+      } catch (e) {}
+    }
+    loadUser();
     fetchPeriods();
   }, []);
 
@@ -429,8 +451,8 @@ export default function SpmbAdminPage() {
   return (
     <AppShell
       serviceName="SPMB"
-      userName="Panitia SPMB"
-      userRole="TIM PPDB / ADMIN"
+      userName={currentUser?.fullName || "Memuat..."}
+      userRole={currentUser?.role || ""}
       sidebarGroups={sidebarGroups}
       onLogout={() => {
         window.location.href = "https://auth.alfida.or.id/login";
