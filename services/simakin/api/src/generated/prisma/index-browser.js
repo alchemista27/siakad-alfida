@@ -128,25 +128,35 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   avatarUrl: 'avatarUrl',
   isActive: 'isActive',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  syncedAt: 'syncedAt'
 };
 
 exports.Prisma.DepartmentScalarFieldEnum = {
   id: 'id',
   unitId: 'unitId',
   name: 'name',
+  code: 'code',
   description: 'description',
   notes: 'notes',
   isActive: 'isActive',
   createdAt: 'createdAt',
   parentId: 'parentId',
-  leaderId: 'leaderId'
+  leaderId: 'leaderId',
+  source: 'source',
+  sourceUpdatedAt: 'sourceUpdatedAt',
+  archivedAt: 'archivedAt'
 };
 
 exports.Prisma.DepartmentAdminScalarFieldEnum = {
   id: 'id',
   departmentId: 'departmentId',
   userId: 'userId',
+  authAssignmentId: 'authAssignmentId',
+  assignedById: 'assignedById',
+  assignedAt: 'assignedAt',
+  revokedAt: 'revokedAt',
+  revokedById: 'revokedById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -180,7 +190,11 @@ exports.Prisma.WorkProgramScalarFieldEnum = {
   manualProgress: 'manualProgress',
   status: 'status',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  workflowStatus: 'workflowStatus',
+  submittedAt: 'submittedAt',
+  reviewDueAt: 'reviewDueAt',
+  lastReviewedAt: 'lastReviewedAt'
 };
 
 exports.Prisma.ActivityReportScalarFieldEnum = {
@@ -213,7 +227,11 @@ exports.Prisma.ExecutionKPIScalarFieldEnum = {
   picId: 'picId',
   notes: 'notes',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  workflowStatus: 'workflowStatus',
+  submittedAt: 'submittedAt',
+  reviewDueAt: 'reviewDueAt',
+  lastReviewedAt: 'lastReviewedAt'
 };
 
 exports.Prisma.ExecutionMilestoneScalarFieldEnum = {
@@ -262,6 +280,8 @@ exports.Prisma.ExecutionTaskScalarFieldEnum = {
 exports.Prisma.ExecutionRealizationLogScalarFieldEnum = {
   id: 'id',
   programId: 'programId',
+  departmentId: 'departmentId',
+  taskId: 'taskId',
   milestoneId: 'milestoneId',
   kpiId: 'kpiId',
   activityDate: 'activityDate',
@@ -276,12 +296,17 @@ exports.Prisma.ExecutionRealizationLogScalarFieldEnum = {
   documentationLink: 'documentationLink',
   issueId: 'issueId',
   notes: 'notes',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  workflowStatus: 'workflowStatus',
+  submittedAt: 'submittedAt',
+  reviewDueAt: 'reviewDueAt',
+  lastReviewedAt: 'lastReviewedAt'
 };
 
 exports.Prisma.ExecutionEvidenceScalarFieldEnum = {
   id: 'id',
   programId: 'programId',
+  departmentId: 'departmentId',
   milestoneId: 'milestoneId',
   taskId: 'taskId',
   kpiId: 'kpiId',
@@ -302,12 +327,18 @@ exports.Prisma.ExecutionEvidenceScalarFieldEnum = {
   repairNeeded: 'repairNeeded',
   notes: 'notes',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  workflowStatus: 'workflowStatus',
+  submittedAt: 'submittedAt',
+  reviewDueAt: 'reviewDueAt',
+  lastReviewedAt: 'lastReviewedAt'
 };
 
 exports.Prisma.ExecutionIssueScalarFieldEnum = {
   id: 'id',
   programId: 'programId',
+  departmentId: 'departmentId',
+  taskId: 'taskId',
   milestoneId: 'milestoneId',
   title: 'title',
   description: 'description',
@@ -321,7 +352,11 @@ exports.Prisma.ExecutionIssueScalarFieldEnum = {
   reporterId: 'reporterId',
   assigneeId: 'assigneeId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  workflowStatus: 'workflowStatus',
+  submittedAt: 'submittedAt',
+  reviewDueAt: 'reviewDueAt',
+  lastReviewedAt: 'lastReviewedAt'
 };
 
 exports.Prisma.ExecutionMeetingScalarFieldEnum = {
@@ -359,6 +394,44 @@ exports.Prisma.ExecutionActionItemScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.StrategicWorkflowEventScalarFieldEnum = {
+  id: 'id',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  departmentId: 'departmentId',
+  action: 'action',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  notes: 'notes',
+  actorId: 'actorId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ExecutiveInterventionScalarFieldEnum = {
+  id: 'id',
+  departmentId: 'departmentId',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  recipientId: 'recipientId',
+  issuedById: 'issuedById',
+  message: 'message',
+  status: 'status',
+  acknowledgedAt: 'acknowledgedAt',
+  resolvedAt: 'resolvedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.StrategicNotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  title: 'title',
+  body: 'body',
+  href: 'href',
+  readAt: 'readAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -373,6 +446,11 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.DepartmentSource = exports.$Enums.DepartmentSource = {
+  simpeg: 'simpeg',
+  simakin_legacy: 'simakin_legacy'
+};
+
 exports.ExecutionPriority = exports.$Enums.ExecutionPriority = {
   critical: 'critical',
   high: 'high',
@@ -384,6 +462,16 @@ exports.WorkProgramStatus = exports.$Enums.WorkProgramStatus = {
   planned: 'planned',
   ongoing: 'ongoing',
   completed: 'completed'
+};
+
+exports.StrategicWorkflowStatus = exports.$Enums.StrategicWorkflowStatus = {
+  draft: 'draft',
+  submitted_to_biro: 'submitted_to_biro',
+  revision_requested_by_biro: 'revision_requested_by_biro',
+  accepted_by_biro: 'accepted_by_biro',
+  submitted_to_bidang: 'submitted_to_bidang',
+  revision_requested_by_bidang: 'revision_requested_by_bidang',
+  approved_by_bidang: 'approved_by_bidang'
 };
 
 exports.ReportType = exports.$Enums.ReportType = {
@@ -453,6 +541,29 @@ exports.AttendanceStatus = exports.$Enums.AttendanceStatus = {
   absent: 'absent'
 };
 
+exports.StrategicResourceType = exports.$Enums.StrategicResourceType = {
+  work_program: 'work_program',
+  kpi: 'kpi',
+  realization_log: 'realization_log',
+  evidence: 'evidence',
+  issue: 'issue'
+};
+
+exports.StrategicWorkflowAction = exports.$Enums.StrategicWorkflowAction = {
+  created: 'created',
+  submitted: 'submitted',
+  accepted: 'accepted',
+  approved: 'approved',
+  revision_requested: 'revision_requested',
+  resubmitted: 'resubmitted'
+};
+
+exports.ExecutiveInterventionStatus = exports.$Enums.ExecutiveInterventionStatus = {
+  open: 'open',
+  acknowledged: 'acknowledged',
+  resolved: 'resolved'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Department: 'Department',
@@ -468,7 +579,10 @@ exports.Prisma.ModelName = {
   ExecutionIssue: 'ExecutionIssue',
   ExecutionMeeting: 'ExecutionMeeting',
   MeetingAttendance: 'MeetingAttendance',
-  ExecutionActionItem: 'ExecutionActionItem'
+  ExecutionActionItem: 'ExecutionActionItem',
+  StrategicWorkflowEvent: 'StrategicWorkflowEvent',
+  ExecutiveIntervention: 'ExecutiveIntervention',
+  StrategicNotification: 'StrategicNotification'
 };
 
 /**

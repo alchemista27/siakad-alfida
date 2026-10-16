@@ -1,11 +1,15 @@
 
-import { Injectable } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateDepartmentDto, UpdateDepartmentDto } from '../dto/department.dto';
+import { CreateBureauDto } from '../dto/bureau.dto';
+import { StrategicAuthorizationService } from '../workflow/strategic-authorization.service';
+import { AuthOrganizationRoleClient } from '../organization-role-broker/auth-organization-role.client';
+import { BureauAdminRoleLifecycle } from '../organization-role-broker/bureau-admin-role-lifecycle';
 
 @Injectable()
 export class StrategicDepartmentService {
-  constructor(private prisma: PrismaService) {}
+  private readonly bureauAdminLifecycle = new BureauAdminRoleLifecycle();
+  constructor(private prisma: PrismaService, private readonly authorization: StrategicAuthorizationService, private readonly authRoles: AuthOrganizationRoleClient) {}
 
   async findAll() {
     return this.prisma.department.findMany({
@@ -19,18 +23,6 @@ export class StrategicDepartmentService {
       where: { id },
       include: { children: true, leader: true, parent: true }
     });
-  }
-
-  async create(data: CreateDepartmentDto) {
-    return this.prisma.department.create({ data: data as any });
-  }
-
-  async update(id: string, data: UpdateDepartmentDto) {
-    return this.prisma.department.update({ where: { id }, data: data as any });
-  }
-
-  async remove(id: string) {
-    return this.prisma.department.delete({ where: { id } });
   }
 
   async getDepartmentOverview() {
@@ -85,37 +77,55 @@ export class StrategicDepartmentService {
     });
   }
 
-  async createSubdepartment(data: { name: string; description?: string; parentId?: string; adminUserId?: string }, user: any) {
-    let targetParentId = data.parentId;
-    if (!targetParentId) {
-      const myDept = await this.prisma.departmentAdmin.findFirst({
-        where: { userId: user.id }
-      });
-      if (!myDept) throw new Error("Pengguna tidak memiliki departemen induk yang dikelola.");
-      targetParentId = myDept.departmentId;
+  async createBureau(bidangId: string, data: CreateBureauDto, user: any) {
+    await this.authorization.assertBidangCanManageBureau(user, bidangId);
+    const parent = await (this.prisma as any).department.findUnique({ where: { id: bidangId } });
+    if (!parent || parent.parentId || parent.source !== "simpeg" || !parent.isActive) throw new BadRequestException("Biro harus berada di bawah Bidang aktif yang tersinkron dari SIMPEG.");
+    const admin = await this.prisma.user.findUnique({ where: { id: data.adminUserId }, select: { id: true, isActive: true } });
+    if (!admin?.isActive) throw new BadRequestException("Admin Biro harus merupakan user proyeksi aktif.");
+    const bureau = await (this.prisma as any).department.create({ data: { name: data.name, code: data.code.trim().toUpperCase(), description: data.description ?? null, parentId: bidangId, source: "simakin_legacy", isActive: true } });
+    try {
+      await this.assignBureauAdmin(bureau.id, data.adminUserId, user);
+      return bureau;
+    } catch (error) {
+      await (this.prisma as any).department.delete({ where: { id: bureau.id } });
+      throw error;
     }
+  }
 
-    const isSuperAdmin = user.roles?.some((r: any) => r.role === 'super_admin');
-    const isAdmin = await this.prisma.departmentAdmin.findUnique({
-      where: { departmentId_userId: { departmentId: targetParentId, userId: user.id } }
-    });
-    if (!isAdmin && !isSuperAdmin) throw new Error("Unauthorized to create subdepartment for this department");
-
-    const dept = await this.prisma.department.create({
-      data: {
-        name: data.name,
-        description: data.description,
-        parentId: targetParentId,
-      }
-    });
-
-    if (data.adminUserId) {
-      await this.prisma.departmentAdmin.create({
-        data: { departmentId: dept.id, userId: data.adminUserId }
+  async assignBureauAdmin(biroId: string, userId: string, user: any) {
+    const bureau = await this.prisma.department.findUnique({ where: { id: biroId } });
+    if (!bureau?.parentId) throw new BadRequestException("Admin Biro hanya dapat ditetapkan pada Biro.");
+    await this.authorization.assertBidangCanManageBureau(user, bureau.parentId);
+    const member = await this.prisma.user.findUnique({ where: { id: userId }, select: { id: true, isActive: true } });
+    if (!member?.isActive) throw new BadRequestException("Admin Biro harus merupakan user proyeksi aktif.");
+    const existing = await (this.prisma as any).departmentAdmin.findUnique({ where: { departmentId_userId: { departmentId: biroId, userId } } });
+    try {
+      await this.bureauAdminLifecycle.assign({
+        createLocal: async () => { await (this.prisma as any).departmentAdmin.upsert({ where: { departmentId_userId: { departmentId: biroId, userId } }, create: { departmentId: biroId, userId, assignedById: user.id, assignedAt: new Date(), revokedAt: null, revokedById: null }, update: { assignedById: user.id, assignedAt: new Date(), revokedAt: null, revokedById: null } }); },
+        removeLocal: async () => { if (!existing) await (this.prisma as any).departmentAdmin.delete({ where: { departmentId_userId: { departmentId: biroId, userId } } }); },
+        grantAuth: () => this.authRoles.grant(userId, biroId),
+        revokeAuth: async () => { await this.authRoles.revoke(userId, biroId); },
+        persistAuthAssignment: async (authAssignmentId) => { await (this.prisma as any).departmentAdmin.update({ where: { departmentId_userId: { departmentId: biroId, userId } }, data: { authAssignmentId } }); },
       });
+    } catch {
+      throw new BadGatewayException("Penetapan Admin Biro di layanan autentikasi gagal.");
     }
+    return (this.prisma as any).departmentAdmin.findUnique({ where: { departmentId_userId: { departmentId: biroId, userId } } });
+  }
 
-    return dept;
+  async removeBureauAdmin(biroId: string, userId: string, user: any) {
+    const bureau = await this.prisma.department.findUnique({ where: { id: biroId } });
+    if (!bureau?.parentId) throw new BadRequestException("Admin Biro hanya berlaku pada Biro.");
+    await this.authorization.assertBidangCanManageBureau(user, bureau.parentId);
+    const relation = await (this.prisma as any).departmentAdmin.findUnique({ where: { departmentId_userId: { departmentId: biroId, userId } } });
+    if (!relation) throw new NotFoundException("Penugasan Admin Biro tidak ditemukan.");
+    try {
+      await this.bureauAdminLifecycle.revoke({ revokeAuth: () => this.authRoles.revoke(userId, biroId), removeLocal: async () => { await (this.prisma as any).departmentAdmin.delete({ where: { departmentId_userId: { departmentId: biroId, userId } } }); } });
+    } catch {
+      throw new BadGatewayException("Pencabutan Admin Biro di layanan autentikasi gagal.");
+    }
+    return { deleted: true };
   }
 
   private async checkAdminAccess(departmentId: string, user: any) {

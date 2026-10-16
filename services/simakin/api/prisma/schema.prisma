@@ -88,6 +88,44 @@ enum ReportType {
   monthly
 }
 
+enum DepartmentSource {
+  simpeg
+  simakin_legacy
+}
+
+enum StrategicWorkflowStatus {
+  draft
+  submitted_to_biro
+  revision_requested_by_biro
+  accepted_by_biro
+  submitted_to_bidang
+  revision_requested_by_bidang
+  approved_by_bidang
+}
+
+enum StrategicResourceType {
+  work_program
+  kpi
+  realization_log
+  evidence
+  issue
+}
+
+enum StrategicWorkflowAction {
+  created
+  submitted
+  accepted
+  approved
+  revision_requested
+  resubmitted
+}
+
+enum ExecutiveInterventionStatus {
+  open
+  acknowledged
+  resolved
+}
+
 model User {
   id        String   @id @default(uuid()) @db.Uuid
   fullName  String   @map("full_name") @db.VarChar(200)
@@ -96,6 +134,7 @@ model User {
   avatarUrl String?  @map("avatar_url") @db.Text
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  syncedAt  DateTime? @map("synced_at") @db.Timestamptz
 
   departmentAdmins    DepartmentAdmin[]
   departmentMembers   DepartmentMember[]
@@ -123,12 +162,16 @@ model Department {
   id          String   @id @default(uuid()) @db.Uuid
   unitId      String?  @map("unit_id") @db.Uuid
   name        String   @db.VarChar(100)
+  code        String?  @unique @db.VarChar(50)
   description String?
   notes       String?  @db.Text
   isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
   parentId    String?  @map("parent_id") @db.Uuid
   leaderId    String?  @map("leader_id") @db.Uuid
+  source      DepartmentSource @default(simakin_legacy)
+  sourceUpdatedAt DateTime? @map("source_updated_at") @db.Timestamptz
+  archivedAt  DateTime? @map("archived_at") @db.Timestamptz
 
   parent          Department?        @relation("DepartmentToDepartment", fields: [parentId], references: [id], onDelete: SetNull)
   children        Department[]       @relation("DepartmentToDepartment")
@@ -145,6 +188,11 @@ model DepartmentAdmin {
   id           String   @id @default(uuid()) @db.Uuid
   departmentId String   @map("department_id") @db.Uuid
   userId       String   @map("user_id") @db.Uuid
+  authAssignmentId String? @map("auth_assignment_id") @db.Uuid
+  assignedById String? @map("assigned_by_id") @db.Uuid
+  assignedAt DateTime @default(now()) @map("assigned_at") @db.Timestamptz
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz
+  revokedById String? @map("revoked_by_id") @db.Uuid
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
@@ -191,6 +239,10 @@ model WorkProgram {
   status          WorkProgramStatus @default(planned)
   createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime?         @updatedAt @map("updated_at") @db.Timestamptz
+  workflowStatus  StrategicWorkflowStatus @default(draft) @map("workflow_status")
+  submittedAt     DateTime?         @map("submitted_at") @db.Timestamptz
+  reviewDueAt     DateTime?         @map("review_due_at") @db.Timestamptz
+  lastReviewedAt  DateTime?         @map("last_reviewed_at") @db.Timestamptz
 
   department      Department                @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   user            User?                     @relation("WorkProgramsPIC", fields: [userId], references: [id], onDelete: SetNull)
@@ -240,6 +292,10 @@ model ExecutionKPI {
   notes           String?            @db.Text
   createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime?          @updatedAt @map("updated_at") @db.Timestamptz
+  workflowStatus  StrategicWorkflowStatus @default(draft) @map("workflow_status")
+  submittedAt     DateTime?          @map("submitted_at") @db.Timestamptz
+  reviewDueAt     DateTime?          @map("review_due_at") @db.Timestamptz
+  lastReviewedAt  DateTime?          @map("last_reviewed_at") @db.Timestamptz
 
   program         WorkProgram               @relation(fields: [programId], references: [id], onDelete: Cascade)
   pic             User?                     @relation("ExecutionKPIPIC", fields: [picId], references: [id], onDelete: SetNull)
@@ -307,6 +363,8 @@ model ExecutionTask {
   assignee  User?               @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
   verifier  User?               @relation("TaskVerifier", fields: [verifierId], references: [id], onDelete: SetNull)
   evidence  ExecutionEvidence[]
+  logs      ExecutionRealizationLog[]
+  issues    ExecutionIssue[]
 
   @@map("execution_tasks")
 }
@@ -314,6 +372,8 @@ model ExecutionTask {
 model ExecutionRealizationLog {
   id                String   @id @default(uuid()) @db.Uuid
   programId         String   @map("program_id") @db.Uuid
+  departmentId      String   @map("department_id") @db.Uuid
+  taskId            String?  @map("task_id") @db.Uuid
   milestoneId       String?  @map("milestone_id") @db.Uuid
   kpiId             String?  @map("kpi_id") @db.Uuid
   activityDate      DateTime @map("activity_date") @db.Date
@@ -329,8 +389,13 @@ model ExecutionRealizationLog {
   issueId           String?  @map("issue_id") @db.Uuid
   notes             String?  @db.Text
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+  workflowStatus    StrategicWorkflowStatus @default(draft) @map("workflow_status")
+  submittedAt       DateTime? @map("submitted_at") @db.Timestamptz
+  reviewDueAt       DateTime? @map("review_due_at") @db.Timestamptz
+  lastReviewedAt    DateTime? @map("last_reviewed_at") @db.Timestamptz
 
   program   WorkProgram         @relation(fields: [programId], references: [id], onDelete: Cascade)
+  task      ExecutionTask?      @relation(fields: [taskId], references: [id], onDelete: SetNull)
   milestone ExecutionMilestone? @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
   kpi       ExecutionKPI?       @relation(fields: [kpiId], references: [id], onDelete: Cascade)
   pic       User?               @relation("RealizationPIC", fields: [picId], references: [id], onDelete: SetNull)
@@ -342,6 +407,7 @@ model ExecutionRealizationLog {
 model ExecutionEvidence {
   id                 String             @id @default(uuid()) @db.Uuid
   programId          String             @map("program_id") @db.Uuid
+  departmentId       String             @map("department_id") @db.Uuid
   milestoneId        String?            @map("milestone_id") @db.Uuid
   taskId             String?            @map("task_id") @db.Uuid
   kpiId              String?            @map("kpi_id") @db.Uuid
@@ -363,6 +429,10 @@ model ExecutionEvidence {
   notes              String?            @db.Text
   createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz
   updatedAt          DateTime?          @updatedAt @map("updated_at") @db.Timestamptz
+  workflowStatus     StrategicWorkflowStatus @default(draft) @map("workflow_status")
+  submittedAt        DateTime?          @map("submitted_at") @db.Timestamptz
+  reviewDueAt        DateTime?          @map("review_due_at") @db.Timestamptz
+  lastReviewedAt     DateTime?          @map("last_reviewed_at") @db.Timestamptz
 
   program        WorkProgram              @relation(fields: [programId], references: [id], onDelete: Cascade)
   milestone      ExecutionMilestone?      @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
@@ -378,6 +448,8 @@ model ExecutionEvidence {
 model ExecutionIssue {
   id               String            @id @default(uuid()) @db.Uuid
   programId        String            @map("program_id") @db.Uuid
+  departmentId     String            @map("department_id") @db.Uuid
+  taskId           String?           @map("task_id") @db.Uuid
   milestoneId      String?           @map("milestone_id") @db.Uuid
   title            String            @db.VarChar(255)
   description      String            @db.Text
@@ -392,9 +464,14 @@ model ExecutionIssue {
   assigneeId       String?           @map("assignee_id") @db.Uuid
   createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz
   updatedAt        DateTime?         @updatedAt @map("updated_at") @db.Timestamptz
+  workflowStatus   StrategicWorkflowStatus @default(draft) @map("workflow_status")
+  submittedAt      DateTime?         @map("submitted_at") @db.Timestamptz
+  reviewDueAt      DateTime?         @map("review_due_at") @db.Timestamptz
+  lastReviewedAt   DateTime?         @map("last_reviewed_at") @db.Timestamptz
 
   reporter    User?                 @relation("IssueReporter", fields: [reporterId], references: [id], onDelete: SetNull)
   assignee    User?                 @relation("IssueAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  task        ExecutionTask?        @relation(fields: [taskId], references: [id], onDelete: SetNull)
   actionItems ExecutionActionItem[]
 
   @@map("execution_issues")
@@ -450,4 +527,53 @@ model ExecutionActionItem {
   pic     User?             @relation("ActionItemPIC", fields: [picId], references: [id], onDelete: SetNull)
 
   @@map("execution_action_items")
+}
+
+model StrategicWorkflowEvent {
+  id           String                  @id @default(uuid()) @db.Uuid
+  resourceType StrategicResourceType   @map("resource_type")
+  resourceId   String                  @map("resource_id") @db.Uuid
+  departmentId String                  @map("department_id") @db.Uuid
+  action       StrategicWorkflowAction
+  fromStatus   StrategicWorkflowStatus? @map("from_status")
+  toStatus     StrategicWorkflowStatus @map("to_status")
+  notes        String?                 @db.Text
+  actorId      String                  @map("actor_id") @db.Uuid
+  createdAt    DateTime                @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([resourceType, resourceId, createdAt])
+  @@index([departmentId, toStatus])
+  @@map("strategic_workflow_events")
+}
+
+model ExecutiveIntervention {
+  id             String                       @id @default(uuid()) @db.Uuid
+  departmentId   String                       @map("department_id") @db.Uuid
+  resourceType   StrategicResourceType?       @map("resource_type")
+  resourceId     String?                      @map("resource_id") @db.Uuid
+  recipientId    String                       @map("recipient_id") @db.Uuid
+  issuedById     String                       @map("issued_by_id") @db.Uuid
+  message        String                       @db.Text
+  status         ExecutiveInterventionStatus  @default(open)
+  acknowledgedAt DateTime?                    @map("acknowledged_at") @db.Timestamptz
+  resolvedAt     DateTime?                    @map("resolved_at") @db.Timestamptz
+  createdAt      DateTime                     @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([recipientId, status])
+  @@index([departmentId, status])
+  @@map("executive_interventions")
+}
+
+model StrategicNotification {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  type      String    @db.VarChar(80)
+  title     String    @db.VarChar(255)
+  body      String    @db.Text
+  href      String?   @db.Text
+  readAt    DateTime? @map("read_at") @db.Timestamptz
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([userId, readAt, createdAt])
+  @@map("strategic_notifications")
 }

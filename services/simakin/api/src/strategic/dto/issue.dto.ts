@@ -7,6 +7,10 @@ export class CreateExecutionIssueDto {
 
   @IsOptional()
   @IsUUID()
+  taskId?: string;
+
+  @IsOptional()
+  @IsUUID()
   milestoneId?: string;
 
   @IsString()

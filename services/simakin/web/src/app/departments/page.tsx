@@ -1,388 +1,163 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { SimakinShell } from "@/components/simakin-shell";
 import { ConfirmModal } from "@/components/confirm-modal";
 import {
+  assignBureauAdmin,
+  createBureau,
   getDepartments,
-  createDepartment,
-  updateDepartment,
-  deleteDepartment,
+  getMyMembers,
+  getMySubdepartments,
+  removeBureauAdmin,
+  type DepartmentMember,
+  type ScopedBureau,
 } from "@/actions/strategic";
-import { EmptyState, LoadingState, ErrorState } from "@alfida/ui";
+import { EmptyState, ErrorState, LoadingState } from "@alfida/ui";
 
-interface Department {
-  id: string;
-  name: string;
-  code: string | null;
-  description: string | null;
-  leaderId: string | null;
-  parentId: string | null;
-  leader?: { id: string; fullName: string; email: string } | null;
-  parent?: { id: string; name: string } | null;
-}
+interface AuthRole { role?: string; departmentId?: string | null; }
+interface AuthUser { roles?: AuthRole[]; }
+interface Department { id: string; name: string; code?: string | null; description?: string | null; parentId?: string | null; parent?: { id: string; name: string } | null; }
+
+const emptyBureau = { name: "", code: "", description: "", adminUserId: "" };
 
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [bureaus, setBureaus] = useState<ScopedBureau[]>([]);
+  const [members, setMembers] = useState<DepartmentMember[]>([]);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-
-  // Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingDept, setEditingDept] = useState<Department | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    code: "",
-    description: "",
-    parentId: "",
-  });
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [managingBureau, setManagingBureau] = useState<ScopedBureau | null>(null);
+  const [bureauForm, setBureauForm] = useState(emptyBureau);
+  const [selectedBidangId, setSelectedBidangId] = useState("");
+  const [newAdminId, setNewAdminId] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [removingAdmin, setRemovingAdmin] = useState<{ biroId: string; userId: string; name: string } | null>(null);
 
-  // Delete State
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [deletingName, setDeletingName] = useState<string>("");
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getDepartments();
-      setDepartments(Array.isArray(data) ? data : []);
-    } catch (err: any) {
-      setError(err.message || "Gagal memuat data struktur bidang/biro");
+      const [departmentData, bureauData, memberData] = await Promise.all([
+        getDepartments(),
+        getMySubdepartments().catch(() => []),
+        getMyMembers().catch(() => []),
+      ]);
+      setDepartments(Array.isArray(departmentData) ? departmentData as Department[] : []);
+      setBureaus(Array.isArray(bureauData) ? bureauData : []);
+      setMembers(Array.isArray(memberData) ? memberData : []);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Gagal memuat struktur Bidang dan Biro.");
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetch("/api/auth/me")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (d?.user) setCurrentUser(d.user);
-      })
-      .catch(() => {});
-    fetchData();
   }, []);
 
-  const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === "super_admin");
-  const isAdminBidang = currentUser?.roles?.some((r: any) => r.role === "admin_bidang") || isSuperAdmin;
-  const canManageDepartments = isAdminBidang;
+  useEffect(() => {
+    fetch("https://auth.alfida.or.id/api/auth/me", { credentials: "include" })
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => setUser(data?.user || null))
+      .catch(() => setUser(null));
+    void fetchData();
+  }, [fetchData]);
 
-  const handleOpenAdd = () => {
-    setEditingDept(null);
-    setFormData({ name: "", code: "", description: "", parentId: "" });
-    setIsModalOpen(true);
+  const roleNames = user?.roles?.map((role) => role.role).filter((role): role is string => Boolean(role)) || [];
+  const isSuperAdmin = roleNames.includes("super_admin");
+  const isAdminBidang = isSuperAdmin || roleNames.includes("admin_bidang");
+  const isReadOnly = roleNames.includes("pimpinan") || roleNames.includes("pengawas");
+  const assignedBidangIds = useMemo(() => user?.roles?.filter((role) => role.role === "admin_bidang" && role.departmentId).map((role) => role.departmentId as string) || [], [user]);
+  const bidang = useMemo(() => departments.filter((department) => !department.parentId && (isSuperAdmin || assignedBidangIds.includes(department.id))), [assignedBidangIds, departments, isSuperAdmin]);
+  const visibleBidang = useMemo(() => bidang.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()) || (item.code || "").toLowerCase().includes(search.toLowerCase())), [bidang, search]);
+  const employeeOptions = useMemo(() => {
+    const seen = new Set<string>();
+    return members.filter((member) => member.user?.id && !seen.has(member.user.id) && Boolean(seen.add(member.user.id)));
+  }, [members]);
+
+  const openCreate = (bidangId?: string) => {
+    setSelectedBidangId(bidangId || bidang[0]?.id || "");
+    setBureauForm(emptyBureau);
+    setFeedback(null);
+    setIsCreateOpen(true);
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("new") === "true") {
-        handleOpenAdd();
-      }
+  const create = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!selectedBidangId || !bureauForm.name.trim() || !bureauForm.code.trim() || !bureauForm.adminUserId) {
+      setFeedback("Nama, kode, Bidang induk, dan Admin Biro awal wajib diisi.");
+      return;
     }
-  }, []);
-
-  const handleOpenEdit = (dept: Department) => {
-    setEditingDept(dept);
-    setFormData({
-      name: dept.name,
-      code: dept.code || "",
-      description: dept.description || "",
-      parentId: dept.parentId || "",
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name.trim()) return;
-
     setSubmitting(true);
+    setFeedback(null);
     try {
-      const payload: any = {
-        name: formData.name.trim(),
-        code: formData.code.trim() || undefined,
-        description: formData.description.trim() || undefined,
-        parentId: formData.parentId || undefined,
-      };
-
-      if (editingDept) {
-        await updateDepartment(editingDept.id, payload);
-      } else {
-        await createDepartment(payload);
-      }
-      setIsModalOpen(false);
-      fetchData();
-    } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal menyimpan bidang"));
+      await createBureau(selectedBidangId, { name: bureauForm.name.trim(), code: bureauForm.code.trim(), description: bureauForm.description.trim() || undefined, adminUserId: bureauForm.adminUserId });
+      setIsCreateOpen(false);
+      setFeedback("Biro dan Admin Biro awal berhasil ditetapkan.");
+      await fetchData();
+    } catch (caught) {
+      setFeedback(caught instanceof Error ? caught.message : "Biro belum dapat dibuat.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!deletingId) return;
+  const addAdmin = async () => {
+    if (!managingBureau || !newAdminId) return;
     setSubmitting(true);
+    setFeedback(null);
     try {
-      await deleteDepartment(deletingId);
-      setDeletingId(null);
-      fetchData();
-    } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal menghapus bidang"));
+      await assignBureauAdmin(managingBureau.id, newAdminId);
+      setNewAdminId("");
+      setFeedback("Admin Biro ditambahkan.");
+      await fetchData();
+      const updated = (await getMySubdepartments()).find((bureau) => bureau.id === managingBureau.id) || null;
+      setManagingBureau(updated);
+    } catch (caught) {
+      setFeedback(caught instanceof Error ? caught.message : "Admin Biro belum dapat ditambahkan.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const filteredDepts = departments.filter((d) =>
-    d.name.toLowerCase().includes(search.toLowerCase()) ||
-    (d.code && d.code.toLowerCase().includes(search.toLowerCase()))
-  );
+  const removeAdmin = async () => {
+    if (!removingAdmin) return;
+    setSubmitting(true);
+    setFeedback(null);
+    try {
+      await removeBureauAdmin(removingAdmin.biroId, removingAdmin.userId);
+      setRemovingAdmin(null);
+      setFeedback("Penetapan Admin Biro dicabut.");
+      await fetchData();
+      setManagingBureau((current) => current ? { ...current, admins: current.admins?.filter((admin) => admin.user.id !== removingAdmin.userId) } : current);
+    } catch (caught) {
+      setFeedback(caught instanceof Error ? caught.message : "Admin Biro belum dapat dihapus.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <SimakinShell activePath="/departments">
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-border gap-4">
-          <div>
-            <h1 className="text-2xl font-bold font-heading text-primary">
-              Struktur Organisasi Bidang & Biro
-            </h1>
-            <p className="text-xs text-gray-500 mt-1">
-              Kelola hierarki struktur organisasi, biro pelaksana, dan penanggung jawab unit Yayasan Alfida
-            </p>
-          </div>
-          {canManageDepartments && (
-            <button
-              type="button"
-              onClick={handleOpenAdd}
-              className="px-4 py-2 bg-tertiary hover:bg-[#0b6355] text-white rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5 self-start sm:self-auto"
-            >
-              <span className="material-symbols-rounded text-[18px]">add</span>
-              <span>+ Tambah Bidang / Biro</span>
-            </button>
-          )}
+      <div className="mx-auto max-w-7xl">
+        <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-start sm:justify-between">
+          <div><h1 className="font-heading text-2xl font-bold text-primary">Struktur Bidang & Biro</h1><p className="mt-1 text-xs text-gray-500">Bidang berasal dari SIMPEG dan bersifat baca saja. Admin Bidang hanya mengelola Biro di dalam scope penugasannya.</p></div>
+          {isAdminBidang && <button type="button" onClick={() => openCreate()} className="inline-flex items-center gap-1.5 self-start rounded-sm bg-tertiary px-4 py-2 text-xs font-semibold text-on-tertiary hover:bg-emerald-700"><span className="material-symbols-rounded text-[18px]">add</span>Tambah Biro</button>}
         </div>
-
-        {/* Filter Search */}
-        <div className="mt-6 flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-rounded text-gray-400 text-[18px]">
-              search
-            </span>
-            <input
-              type="text"
-              placeholder="Cari nama bidang, biro, atau kode unit..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d] bg-white text-primary"
-            />
-          </div>
-        </div>
-
-        {/* Content Table */}
+        <div className="mt-5"><label className="sr-only" htmlFor="search-structure">Cari Bidang</label><input id="search-structure" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Cari Bidang atau kode…" className="w-full max-w-md rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary outline-none focus:ring-2 focus:ring-tertiary" /></div>
+        {feedback && <p className="mt-4 rounded-sm border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900" role="status">{feedback}</p>}
         <div className="mt-6">
-          {loading ? (
-            <LoadingState message="Memuat hierarki bidang dan biro..." />
-          ) : error ? (
-            <ErrorState
-              title="Gagal Memuat Struktur"
-              message={error}
-              onRetry={fetchData}
-            />
-          ) : filteredDepts.length === 0 ? (
-            <EmptyState
-              title="Belum Ada Bidang Terdaftar"
-              description="Belum ada bidang atau biro yang sesuai dengan pencarian Anda."
-            />
-          ) : (
-            <div className="bg-white border border-border rounded-lg overflow-hidden shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-border text-xs text-left">
-                  <thead className="bg-[#F7F8F8] text-gray-600 font-semibold uppercase tracking-wider text-[11px]">
-                    <tr>
-                      <th scope="col" className="px-6 py-3.5">Nama Bidang / Biro</th>
-                      <th scope="col" className="px-6 py-3.5">Kode</th>
-                      <th scope="col" className="px-6 py-3.5">Induk (Parent)</th>
-                      <th scope="col" className="px-6 py-3.5">Deskripsi</th>
-                      <th scope="col" className="px-6 py-3.5 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {filteredDepts.map((d) => (
-                      <tr key={d.id} className="hover:bg-[#fafbfb] transition-colors">
-                        <td className="px-6 py-4">
-                          <div className="font-semibold text-primary flex items-center gap-2">
-                            <span className="material-symbols-rounded text-tertiary text-[18px]">
-                              {d.parentId ? "subdirectory_arrow_right" : "domain"}
-                            </span>
-                            <span>{d.name}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="font-mono text-gray-600 bg-gray-100 px-2 py-0.5 rounded text-[11px]">
-                            {d.code || "-"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-gray-700">
-                          {d.parent ? (
-                            <span className="text-tertiary font-medium">{d.parent.name}</span>
-                          ) : (
-                            <span className="text-gray-400 italic">Pusat Yayasan</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-gray-500 max-w-xs truncate">
-                          {d.description || "-"}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          {canManageDepartments ? (
-                            <div className="inline-flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => handleOpenEdit(d)}
-                                className="px-2.5 py-1 text-xs font-semibold text-tertiary hover:bg-[#e6f4f1] rounded border border-emerald-200 transition-colors"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setDeletingId(d.id);
-                                  setDeletingName(d.name);
-                                }}
-                                className="px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 rounded border border-red-200 transition-colors"
-                              >
-                                Hapus
-                              </button>
-                            </div>
-                          ) : (
-                            <span className="text-[11px] text-gray-400 italic">Lihat Saja</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+          {loading ? <LoadingState message="Memuat struktur Bidang dan Biro..." /> : error ? <ErrorState title="Gagal Memuat Struktur" message={error} onRetry={fetchData} /> : visibleBidang.length === 0 ? <EmptyState title={isReadOnly ? "Tidak Ada Struktur untuk Ditampilkan" : "Tidak Ada Bidang Dalam Scope Anda"} description="Struktur Bidang ditampilkan sesuai scope peran Anda." /> : <div className="grid gap-4 lg:grid-cols-2">{visibleBidang.map((item) => {
+            const childBureaus = bureaus.filter((bureau) => bureau.parentId === item.id);
+            return <section key={item.id} className="rounded-lg border border-border bg-surface p-5"><div className="flex items-start justify-between gap-3 border-b border-border pb-3"><div><div className="flex items-center gap-2"><span className="material-symbols-rounded text-tertiary">domain</span><h2 className="font-heading text-lg font-bold text-primary">{item.name}</h2></div><p className="mt-1 text-xs text-gray-500">{item.code || "Tanpa kode"} · Bidang SIMPEG (baca saja)</p></div>{isAdminBidang && <button type="button" onClick={() => openCreate(item.id)} className="rounded-sm border border-border px-3 py-1.5 text-xs font-semibold text-tertiary hover:bg-neutral">Tambah Biro</button>}</div><p className="mt-3 text-xs text-gray-600">{item.description || "Tidak ada deskripsi Bidang."}</p><div className="mt-4 space-y-2">{childBureaus.length === 0 ? <p className="rounded-sm border border-dashed border-border bg-neutral p-3 text-xs text-gray-500">Belum ada Biro di bawah Bidang ini.</p> : childBureaus.map((bureau) => <div key={bureau.id} className="rounded-sm border border-border bg-neutral p-3"><div className="flex items-start justify-between gap-3"><div><p className="font-semibold text-primary">{bureau.name}</p><p className="mt-0.5 text-[11px] text-gray-500">{bureau.code || "Tanpa kode"} · {bureau.admins?.length || 0} Admin Biro</p></div>{isAdminBidang && <button type="button" onClick={() => setManagingBureau(bureau)} className="rounded-sm border border-border px-2.5 py-1 text-[11px] font-semibold text-tertiary hover:bg-surface">Kelola admin</button>}</div><p className="mt-2 text-[11px] text-gray-600">{bureau.description || "Tidak ada deskripsi Biro."}</p></div>)}</div></section>;
+          })}</div>}
         </div>
-
-        {/* Modal Tambah / Edit Departemen */}
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl border border-border">
-              <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
-                <h3 className="text-base font-bold font-heading text-primary">
-                  {editingDept ? "Edit Bidang / Biro" : "Tambah Bidang / Biro Baru"}
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <span className="material-symbols-rounded text-[20px]">close</span>
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-primary mb-1">
-                    Nama Bidang / Biro *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Contoh: Bidang Pendidikan atau Biro SDM"
-                    className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-primary mb-1">
-                    Kode Singkatan (Opsional)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.code}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                    placeholder="Contoh: DIK atau SDM"
-                    className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-primary mb-1">
-                    Induk Bidang (Parent Hierarchy)
-                  </label>
-                  <select
-                    value={formData.parentId}
-                    onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
-                    className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d] bg-white text-primary"
-                  >
-                    <option value="">Pusat Yayasan (Tingkat Utama)</option>
-                    {departments
-                      .filter((dep) => !editingDept || dep.id !== editingDept.id)
-                      .map((dep) => (
-                        <option key={dep.id} value={dep.id}>
-                          {dep.name}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-primary mb-1">
-                    Deskripsi Tugas & Fungsi
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Jelaskan ruang lingkup dan tanggung jawab unit ini..."
-                    className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d]"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    disabled={submitting}
-                    className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded border border-border"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="px-4 py-2 text-xs font-semibold text-white bg-tertiary hover:bg-[#0b6355] rounded shadow-sm disabled:opacity-50"
-                  >
-                    {submitting ? "Menyimpan..." : "Simpan Data"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Konfirmasi Hapus */}
-        <ConfirmModal
-          isOpen={!!deletingId}
-          title="Konfirmasi Hapus Bidang"
-          message={`Yakin ingin menghapus bidang "${deletingName}"? Seluruh program kerja di bawah bidang ini dapat terdampak.`}
-          confirmLabel="Hapus Bidang"
-          loading={submitting}
-          onConfirm={handleDeleteConfirm}
-          onCancel={() => setDeletingId(null)}
-        />
       </div>
+      {isCreateOpen && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true"><form onSubmit={create} className="w-full max-w-md rounded-lg border border-border bg-surface p-5"><div className="flex items-start justify-between border-b border-border pb-3"><div><h2 className="font-heading text-base font-bold text-primary">Tambah Biro</h2><p className="mt-1 text-xs text-gray-500">Biro wajib memiliki Admin Biro awal.</p></div><button type="button" onClick={() => setIsCreateOpen(false)} className="text-gray-500"><span className="material-symbols-rounded">close</span></button></div><div className="mt-4 space-y-3"><select required value={selectedBidangId} onChange={(event) => setSelectedBidangId(event.target.value)} className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary"><option value="">Pilih Bidang</option>{bidang.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select><input required value={bureauForm.name} onChange={(event) => setBureauForm({ ...bureauForm, name: event.target.value })} placeholder="Nama Biro" className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary" /><input required value={bureauForm.code} onChange={(event) => setBureauForm({ ...bureauForm, code: event.target.value.toUpperCase() })} placeholder="Kode Biro" className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary" /><textarea value={bureauForm.description} onChange={(event) => setBureauForm({ ...bureauForm, description: event.target.value })} rows={3} placeholder="Deskripsi (opsional)" className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary" /><select required value={bureauForm.adminUserId} onChange={(event) => setBureauForm({ ...bureauForm, adminUserId: event.target.value })} className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary"><option value="">Pilih Admin Biro awal</option>{employeeOptions.map((member) => <option key={member.user.id} value={member.user.id}>{member.user.fullName} {member.user.email ? `(${member.user.email})` : ""}</option>)}</select>{employeeOptions.length === 0 && <p className="text-[11px] text-amber-800">Tidak ada pegawai dalam scope yang dapat dipilih. Tambahkan anggota melalui proses yang berwenang terlebih dahulu.</p>}</div><div className="mt-5 flex justify-end gap-2 border-t border-border pt-4"><button type="button" onClick={() => setIsCreateOpen(false)} disabled={submitting} className="rounded-sm border border-border px-4 py-2 text-xs font-semibold text-primary">Batal</button><button type="submit" disabled={submitting} className="rounded-sm bg-tertiary px-4 py-2 text-xs font-semibold text-on-tertiary disabled:opacity-50">{submitting ? "Menyimpan..." : "Buat Biro"}</button></div></form></div>}
+      {managingBureau && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true"><div className="w-full max-w-lg rounded-lg border border-border bg-surface p-5"><div className="flex items-start justify-between border-b border-border pb-3"><div><h2 className="font-heading text-base font-bold text-primary">Admin Biro: {managingBureau.name}</h2><p className="mt-1 text-xs text-gray-500">Riwayat waktu ditampilkan jika tersedia dari API.</p></div><button type="button" onClick={() => setManagingBureau(null)} className="text-gray-500"><span className="material-symbols-rounded">close</span></button></div><div className="mt-4 space-y-2">{managingBureau.admins?.length ? managingBureau.admins.map((admin) => <div key={admin.user.id} className="flex items-center justify-between rounded-sm border border-border bg-neutral p-3"><div><p className="text-xs font-semibold text-primary">{admin.user.fullName}</p><p className="text-[11px] text-gray-500">{admin.user.email || ""} · Audit: {admin.createdAt ? new Date(admin.createdAt).toLocaleString("id-ID") : "tidak tersedia"}</p></div><button type="button" onClick={() => setRemovingAdmin({ biroId: managingBureau.id, userId: admin.user.id, name: admin.user.fullName })} className="rounded-sm border border-rose-200 px-2 py-1 text-[11px] font-semibold text-rose-800 hover:bg-rose-50">Cabut</button></div>) : <p className="text-xs text-gray-500">Belum ada Admin Biro.</p>}</div><div className="mt-4 border-t border-border pt-4"><label className="text-xs font-semibold text-primary" htmlFor="new-bureau-admin">Tambah Admin Biro</label><div className="mt-2 flex gap-2"><select id="new-bureau-admin" value={newAdminId} onChange={(event) => setNewAdminId(event.target.value)} className="min-w-0 flex-1 rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary"><option value="">Pilih pegawai</option>{employeeOptions.map((member) => <option key={member.user.id} value={member.user.id}>{member.user.fullName}</option>)}</select><button type="button" disabled={!newAdminId || submitting} onClick={() => void addAdmin()} className="rounded-sm bg-tertiary px-3 py-2 text-xs font-semibold text-on-tertiary disabled:opacity-50">Tambah</button></div></div></div></div>}
+      <ConfirmModal isOpen={Boolean(removingAdmin)} title="Cabut Admin Biro" message={`Cabut penetapan ${removingAdmin?.name || "Admin Biro"} dari Biro ini?`} confirmLabel="Cabut penetapan" loading={submitting} onCancel={() => setRemovingAdmin(null)} onConfirm={() => void removeAdmin()} />
     </SimakinShell>
   );
 }

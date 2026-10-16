@@ -118,7 +118,6 @@ export function ProgramUploadModal({ isOpen, onClose, onSuccess, departments }: 
 
       const res = await batchImportProgramsAction(data);
       if (res && res.success) {
-        alert(`Berhasil mengimpor ${res.count} program kerja!`);
         onSuccess();
         onClose();
       } else {

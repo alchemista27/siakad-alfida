@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { StrategicDepartmentService } from './strategic-department.service';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
-import { CreateDepartmentSchema, UpdateDepartmentSchema, CreateDepartmentDto, UpdateDepartmentDto } from '../dto/department.dto';
+import { CreateBureauDto, CreateBureauSchema } from '../dto/bureau.dto';
 import { ServiceJwtAuthGuard } from '@alfida/auth-sdk';
 import { SimakinRolesGuard, SimakinRoles } from '../../common/guards';
 
@@ -26,11 +26,17 @@ export class StrategicDepartmentController {
     return this.service.getMySubdepartments(req.user);
   }
 
-  @Post('subdepartment')
-  @SimakinRoles('admin_bidang', 'admin_biro')
-  createSubdepartment(@Body() data: any, @Req() req: any) {
-    return this.service.createSubdepartment(data, req.user);
-  }
+  @Post(':bidangId/bureaus')
+  @SimakinRoles('admin_bidang')
+  createBureau(@Param('bidangId') bidangId: string, @Body(new ZodValidationPipe(CreateBureauSchema)) dto: CreateBureauDto, @Req() req: any) { return this.service.createBureau(bidangId, dto, req.user); }
+
+  @Post(':biroId/admins')
+  @SimakinRoles('admin_bidang')
+  assignBureauAdmin(@Param('biroId') biroId: string, @Body() body: { userId: string }, @Req() req: any) { return this.service.assignBureauAdmin(biroId, body.userId, req.user); }
+
+  @Delete(':biroId/admins/:userId')
+  @SimakinRoles('admin_bidang')
+  removeBureauAdmin(@Param('biroId') biroId: string, @Param('userId') userId: string, @Req() req: any) { return this.service.removeBureauAdmin(biroId, userId, req.user); }
 
   @Post(':id/members')
   @SimakinRoles('admin_bidang')
@@ -52,19 +58,4 @@ export class StrategicDepartmentController {
   @SimakinRoles('admin_bidang', 'admin_biro', 'pimpinan', 'pengawas', 'pic_program')
   findOne(@Param('id') id: string) { return this.service.findOne(id); }
 
-  @Post()
-  @SimakinRoles('admin_bidang')
-  create(@Body(new ZodValidationPipe(CreateDepartmentSchema)) dto: CreateDepartmentDto) {
-    return this.service.create(dto);
-  }
-
-  @Put(':id')
-  @SimakinRoles('admin_bidang')
-  update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateDepartmentSchema)) dto: UpdateDepartmentDto) {
-    return this.service.update(id, dto);
-  }
-
-  @Delete(':id')
-  @SimakinRoles('admin_bidang')
-  remove(@Param('id') id: string) { return this.service.remove(id); }
 }

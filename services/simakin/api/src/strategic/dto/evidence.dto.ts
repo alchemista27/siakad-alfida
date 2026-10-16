@@ -1,6 +1,7 @@
 
 import { z } from 'zod';
 import { EvidenceType, EvidenceNature, VerificationStatus } from '../../generated/prisma';
+import { isAllowedEvidenceUrl } from '../execution-evidence/cloudinary-evidence.policy';
 
 export const CreateExecutionEvidenceSchema = z.object({
   programId: z.string().uuid(),
@@ -11,7 +12,7 @@ export const CreateExecutionEvidenceSchema = z.object({
   nature: z.nativeEnum(EvidenceNature).optional(),
   ownerId: z.string().uuid().optional().nullable(),
   physicalLocation: z.string().optional().nullable(),
-  digitalLink: z.string().optional().nullable(),
+  digitalLink: z.string().refine(isAllowedEvidenceUrl, "Tautan bukti harus berasal dari Cloudinary Alfida.").optional(),
   availabilityStatus: z.string().optional().nullable(),
   documentDate: z.string().datetime().optional().nullable(),
   version: z.string().optional().nullable(),

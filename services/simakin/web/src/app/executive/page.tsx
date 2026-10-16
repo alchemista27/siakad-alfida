@@ -12,6 +12,7 @@ import { EmptyState, LoadingState, ErrorState } from "@alfida/ui";
 import { KpiPieChart } from "@/components/kpi-pie-chart";
 import { KpiHeatmap, KpiHeatmapItem } from "@/components/kpi-heatmap";
 import { BureauRankings, BureauRankItem } from "@/components/bureau-rankings";
+import { AttentionQueue } from "@/components/strategic/attention-queue";
 
 interface DepartmentProgress {
   departmentId: string;
@@ -33,6 +34,7 @@ interface CriticalIssue {
 }
 
 export default function ExecutiveDashboardPage() {
+  const [roles, setRoles] = useState<string[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [deptProgress, setDeptProgress] = useState<DepartmentProgress[]>([]);
   const [rankings, setRankings] = useState<BureauRankItem[]>([]);
@@ -78,6 +80,15 @@ export default function ExecutiveDashboardPage() {
 
   useEffect(() => {
     fetchData();
+    fetch("https://auth.alfida.or.id/api/auth/me", { credentials: "include" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        const roleNames = Array.isArray(data?.user?.roles)
+          ? data.user.roles.map((role: { role?: string }) => role.role).filter(Boolean)
+          : [];
+        setRoles(roleNames);
+      })
+      .catch(() => setRoles([]));
   }, []);
 
   const programStats = summary?.programStats || { total: 0, completed: 0, progressPercent: 0 };
@@ -88,6 +99,7 @@ export default function ExecutiveDashboardPage() {
     if (kpiFilter === "all") return true;
     return kpi.color === kpiFilter;
   });
+  const canIntervene = roles.includes("pimpinan") || roles.includes("super_admin");
 
   return (
     <SimakinShell activePath="/executive">
@@ -124,7 +136,7 @@ export default function ExecutiveDashboardPage() {
             {/* Top Metric Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Total Program Kerja */}
-              <div className="bg-white border border-border rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <div className="bg-surface border border-border rounded-lg p-5 flex flex-col justify-between">
                 <div>
                   <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                     Total Program Kerja
@@ -142,7 +154,7 @@ export default function ExecutiveDashboardPage() {
               </div>
 
               {/* Matriks Traffic Light KPI Summary */}
-              <div className="bg-white border border-border rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <div className="bg-surface border border-border rounded-lg p-5 flex flex-col justify-between">
                 <div>
                   <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                     Evaluasi Traffic Light KPI
@@ -159,7 +171,7 @@ export default function ExecutiveDashboardPage() {
               </div>
 
               {/* Tingkat Kehadiran Rapat */}
-              <div className="bg-white border border-border rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <div className="bg-surface border border-border rounded-lg p-5 flex flex-col justify-between">
                 <div>
                   <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                     Disiplin Rapat Kinerja
@@ -174,7 +186,7 @@ export default function ExecutiveDashboardPage() {
               </div>
 
               {/* Isu Kritis */}
-              <div className="bg-white border border-border rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <div className="bg-surface border border-border rounded-lg p-5 flex flex-col justify-between">
                 <div>
                   <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                     Kendala Kritis (Issues)
@@ -188,6 +200,8 @@ export default function ExecutiveDashboardPage() {
                 </div>
               </div>
             </div>
+
+            <AttentionQueue canIntervene={canIntervene} />
 
             {/* SECTION 1: Pie Chart Ketercapaian Overall KPI & Ringkasan Eksekutif */}
             <div className="space-y-4">
@@ -211,7 +225,7 @@ export default function ExecutiveDashboardPage() {
                   />
                 </div>
 
-                <div className="bg-white border border-border rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+                <div className="bg-surface border border-border rounded-lg p-6 flex flex-col justify-between space-y-4">
                   <div>
                     <h4 className="font-bold text-xs uppercase tracking-wider text-gray-400 mb-2">
                       Panduan Standar Evaluasi BPH
@@ -255,7 +269,7 @@ export default function ExecutiveDashboardPage() {
             {/* SECTION 4: Grid 2 Kolom Progres per Bidang + Top Critical Issues */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Kolom Kiri: Progress per Bidang / Biro */}
-              <div className="bg-white border border-border rounded-xl p-6 shadow-sm space-y-4">
+              <div className="bg-surface border border-border rounded-lg p-6 space-y-4">
                 <div className="flex items-center justify-between border-b border-border pb-3">
                   <h3 className="text-base font-bold font-heading text-primary flex items-center gap-2">
                     <span className="material-symbols-rounded text-tertiary text-[20px]">
@@ -304,7 +318,7 @@ export default function ExecutiveDashboardPage() {
               </div>
 
               {/* Kolom Kanan: Top Critical Issues */}
-              <div className="bg-white border border-border rounded-xl p-6 shadow-sm space-y-4">
+              <div className="bg-surface border border-border rounded-lg p-6 space-y-4">
                 <div className="flex items-center justify-between border-b border-border pb-3">
                   <h3 className="text-base font-bold font-heading text-primary flex items-center gap-2">
                     <span className="material-symbols-rounded text-red-600 text-[20px]">
@@ -358,7 +372,7 @@ export default function ExecutiveDashboardPage() {
             </div>
 
             {/* SECTION 5: Rincian Tabel Traffic Light KPI */}
-            <div className="bg-white border border-border rounded-xl p-6 shadow-sm space-y-5">
+            <div className="bg-surface border border-border rounded-lg p-6 space-y-5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
                 <div>
                   <h3 className="text-base font-bold font-heading text-primary flex items-center gap-2">

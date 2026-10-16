@@ -12,7 +12,10 @@ import {
   deleteKPI,
   submitKPIBaseline,
   verifyKPIBaseline,
+  transitionWorkflow,
+  type WorkflowStatus,
 } from "@/actions/strategic";
+import { WorkflowStatusBadge } from "@/components/strategic/workflow-status-badge";
 import { Badge, EmptyState, LoadingState, ErrorState } from "@alfida/ui";
 
 interface KPIItem {
@@ -30,12 +33,16 @@ interface KPIItem {
   unit: string;
   weight: number;
   updateFrequency: string;
-  program?: { id: string; title: string };
+  program?: { id: string; title: string; departmentId?: string; department?: { id: string; name: string } };
+  workflowStatus?: WorkflowStatus;
+  submittedAt?: string | null;
+  lastReviewedAt?: string | null;
 }
 
 interface ProgramOption {
   id: string;
   title: string;
+  departmentId?: string;
 }
 
 export default function KpisPage() {
@@ -69,6 +76,9 @@ export default function KpisPage() {
     updateFrequency: "monthly",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [baselineKpi, setBaselineKpi] = useState<KPIItem | null>(null);
+  const [baselineEvidenceId, setBaselineEvidenceId] = useState("");
 
   // Verification Modal State
   const [verifyingKpi, setVerifyingKpi] = useState<KPIItem | null>(null);
@@ -97,7 +107,7 @@ export default function KpisPage() {
   };
 
   useEffect(() => {
-    fetch("/api/auth/me")
+    fetch("https://auth.alfida.or.id/api/auth/me", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.user) setCurrentUser(d.user);
@@ -108,13 +118,17 @@ export default function KpisPage() {
 
   const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === "super_admin");
   const isAdminBidang = currentUser?.roles?.some((r: any) => r.role === "admin_bidang") || isSuperAdmin;
+  const isAdminBiro = currentUser?.roles?.some((r: any) => r.role === "admin_biro");
+  const biroScopeIds = currentUser?.roles?.filter((r: any) => r.role === "admin_biro" && r.departmentId).map((r: any) => r.departmentId) || [];
+  const manageableProgramIds = programs.filter((program) => biroScopeIds.includes(program.departmentId || "")).map((program) => program.id);
   const canVerifyBaseline = isAdminBidang;
-  const canManageKpi = isAdminBidang;
+  const canManageKpi = isAdminBiro && manageableProgramIds.length > 0;
+  const canEditKpi = (kpi: KPIItem) => canManageKpi && manageableProgramIds.includes(kpi.programId) && ["draft", "revision_requested_by_biro", "revision_requested_by_bidang"].includes(kpi.workflowStatus || "draft");
 
   const handleOpenAdd = () => {
     setEditingKpi(null);
     setFormData({
-      programId: programs[0]?.id || "",
+      programId: programs.find((program) => manageableProgramIds.includes(program.id))?.id || "",
       name: "",
       code: "",
       indicatorType: "output",
@@ -175,20 +189,22 @@ export default function KpisPage() {
       setIsFormOpen(false);
       fetchData();
     } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal menyimpan KPI"));
+      setFeedback(err.message || "Gagal menyimpan KPI");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleSubmitBaseline = async (id: string) => {
-    const evidenceId = prompt("Masukkan ID bukti dukung pendukung baseline (atau kosongkan untuk dokumen default):") || "";
+  const handleSubmitBaseline = async () => {
+    if (!baselineKpi) return;
     try {
-      await submitKPIBaseline(id, evidenceId);
-      alert("Baseline KPI berhasil diajukan untuk verifikasi!");
+      await submitKPIBaseline(baselineKpi.id, baselineEvidenceId.trim());
+      setBaselineKpi(null);
+      setBaselineEvidenceId("");
+      setFeedback("Baseline KPI berhasil diajukan untuk verifikasi.");
       fetchData();
     } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal mengajukan baseline"));
+      setFeedback(err.message || "Gagal mengajukan baseline");
     }
   };
 
@@ -201,10 +217,10 @@ export default function KpisPage() {
       await verifyKPIBaseline(verifyingKpi.id, verifyStatus, verifyNotes);
       setVerifyingKpi(null);
       setVerifyNotes("");
-      alert(`Baseline KPI berhasil ditandai sebagai: ${verifyStatus === "approved" ? "Disetujui" : "Perlu Revisi"}`);
+      setFeedback(`Baseline KPI berhasil ditandai sebagai: ${verifyStatus === "approved" ? "Disetujui" : "Perlu Revisi"}`);
       fetchData();
     } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal memverifikasi baseline"));
+      setFeedback(err.message || "Gagal memverifikasi baseline");
     } finally {
       setSubmitting(false);
     }
@@ -218,7 +234,22 @@ export default function KpisPage() {
       setDeletingId(null);
       fetchData();
     } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal menghapus KPI"));
+      setFeedback(err.message || "Gagal menghapus KPI");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleWorkflowSubmit = async (kpi: KPIItem) => {
+    setSubmitting(true);
+    setFeedback(null);
+    try {
+      const target = kpi.workflowStatus === "revision_requested_by_biro" ? "submitted_to_biro" : "submitted_to_bidang";
+      await transitionWorkflow("kpi", kpi.id, target);
+      setFeedback(target === "submitted_to_biro" ? "KPI diajukan ulang untuk review Biro." : "KPI diajukan ke Bidang.");
+      await fetchData();
+    } catch (err: any) {
+      setFeedback(err.message || "KPI belum dapat diajukan.");
     } finally {
       setSubmitting(false);
     }
@@ -266,6 +297,7 @@ export default function KpisPage() {
             </div>
           )}
         </div>
+        {feedback && <p className="mt-4 rounded-sm border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900" role="status">{feedback}</p>}
 
         {/* Filters */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -335,6 +367,7 @@ export default function KpisPage() {
                       <th scope="col" className="px-5 py-3.5 text-center">Target</th>
                       <th scope="col" className="px-5 py-3.5 text-center">Realisasi</th>
                       <th scope="col" className="px-5 py-3.5 text-center">Status Baseline</th>
+                      <th scope="col" className="px-5 py-3.5 text-center">Workflow</th>
                       <th scope="col" className="px-5 py-3.5 text-right">Aksi</th>
                     </tr>
                   </thead>
@@ -387,12 +420,16 @@ export default function KpisPage() {
                                 : "Draft"}
                             </Badge>
                           </td>
+                          <td className="px-5 py-4 text-center">
+                            <WorkflowStatusBadge status={kpi.workflowStatus} />
+                            <p className="mt-1 text-[10px] text-gray-400">{kpi.lastReviewedAt || kpi.submittedAt ? new Date(kpi.lastReviewedAt || kpi.submittedAt || "").toLocaleDateString("id-ID") : "Belum diajukan"}</p>
+                          </td>
                           <td className="px-5 py-4 text-right">
                             <div className="inline-flex items-center gap-1.5">
-                              {kpi.baselineStatus === "draft" || kpi.baselineStatus === "revision_needed" ? (
+                              {canEditKpi(kpi) && (kpi.baselineStatus === "draft" || kpi.baselineStatus === "revision_needed") ? (
                                 <button
                                   type="button"
-                                  onClick={() => handleSubmitBaseline(kpi.id)}
+                                  onClick={() => { setBaselineKpi(kpi); setBaselineEvidenceId(""); }}
                                   className="px-2 py-1 text-[11px] font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200"
                                   title="Ajukan baseline ke Admin Bidang"
                                 >
@@ -415,8 +452,16 @@ export default function KpisPage() {
                                 </button>
                               ) : null}
 
-                              {canManageKpi && (
+                              {canEditKpi(kpi) && (
                                 <>
+                                  <button
+                                    type="button"
+                                    disabled={submitting}
+                                    onClick={() => void handleWorkflowSubmit(kpi)}
+                                    className="px-2 py-1 text-[11px] font-semibold text-white bg-tertiary hover:bg-emerald-700 rounded-sm disabled:opacity-50"
+                                  >
+                                    Ajukan
+                                  </button>
                                   <button
                                     type="button"
                                     onClick={() => handleOpenEdit(kpi)}
@@ -448,10 +493,23 @@ export default function KpisPage() {
           )}
         </div>
 
+        {/* Modal baseline evidence */}
+        {baselineKpi && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
+            <div className="w-full max-w-md rounded-lg border border-border bg-surface p-5">
+              <h3 className="font-heading text-base font-bold text-primary">Ajukan baseline KPI</h3>
+              <p className="mt-1 text-xs text-gray-500">{baselineKpi.name}. Tambahkan ID bukti jika baseline memerlukan bukti pendukung.</p>
+              <label className="mt-4 block text-xs font-semibold text-primary" htmlFor="baseline-evidence-id">ID bukti dukung</label>
+              <input id="baseline-evidence-id" value={baselineEvidenceId} onChange={(event) => setBaselineEvidenceId(event.target.value)} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary" placeholder="Opsional" />
+              <div className="mt-5 flex justify-end gap-2"><button type="button" onClick={() => setBaselineKpi(null)} className="rounded-sm border border-border px-3 py-2 text-xs font-semibold text-primary">Batal</button><button type="button" onClick={() => void handleSubmitBaseline()} className="rounded-sm bg-tertiary px-3 py-2 text-xs font-semibold text-on-tertiary">Ajukan baseline</button></div>
+            </div>
+          </div>
+        )}
+
         {/* Modal Form Tambah / Edit KPI */}
         {isFormOpen && (
           <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl border border-border">
+            <div className="bg-surface rounded-lg max-w-lg w-full p-6 border border-border">
               <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
                 <h3 className="text-base font-bold font-heading text-primary">
                   {editingKpi ? "Edit Indikator KPI" : "Tambah KPI Baru"}
@@ -477,7 +535,7 @@ export default function KpisPage() {
                     className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d] bg-white text-primary"
                   >
                     <option value="">Pilih Program Kerja</option>
-                    {programs.map((p) => (
+                    {programs.filter((program) => manageableProgramIds.includes(program.id)).map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.title}
                       </option>
@@ -598,7 +656,7 @@ export default function KpisPage() {
         {/* Modal Verifikasi Baseline (Khusus Admin Bidang) */}
         {verifyingKpi && (
           <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl border border-border">
+            <div className="bg-surface rounded-lg max-w-md w-full p-6 border border-border">
               <h3 className="text-base font-bold font-heading text-primary mb-1">
                 Verifikasi Baseline KPI
               </h3>

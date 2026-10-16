@@ -2,151 +2,126 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateExecutionKPIDto, UpdateExecutionKPIDto } from '../dto/kpi.dto';
+import { StrategicAuthorizationService } from '../workflow/strategic-authorization.service';
+import { StrategicAccessQueryService } from '../workflow/strategic-access-query.service';
 
 import * as ExcelJS from 'exceljs';
 import { Response } from 'express';
 
 @Injectable()
 export class ExecutionKpiService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private readonly authorization: StrategicAuthorizationService, private readonly access: StrategicAccessQueryService) {}
 
-  async findAll(user?: any) {
-    let whereClause = {};
-    if (user && !user.roles?.some((r: any) => r.role === 'super_admin')) {
-      const myDepts = await this.prisma.departmentAdmin.findMany({
-        where: { userId: user.id },
-        select: { departmentId: true }
-      });
-      const deptIds = myDepts.map(d => d.departmentId);
-      whereClause = { program: { departmentId: { in: deptIds } } };
-    }
-
+  async findAll(user: any) {
     return this.prisma.executionKPI.findMany({
-      where: whereClause,
+      where: { program: (await this.access.forPrograms(user)).where } as any,
       include: { program: true, pic: true, realizationLogs: true, evidences: true },
     });
   }
 
-  async findByProgram(programId: string) {
+  async findByProgram(programId: string, user: any) {
+    await this.access.assertCanReadProgram(user, programId);
     return this.prisma.executionKPI.findMany({
       where: { programId },
       include: { pic: true, realizationLogs: true, evidences: true },
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, user: any) {
+    const kpi = await this.prisma.executionKPI.findUnique({ where: { id }, select: { programId: true } });
+    if (!kpi) throw new BadRequestException("KPI tidak ditemukan.");
+    await this.access.assertCanReadProgram(user, kpi.programId);
     return this.prisma.executionKPI.findUnique({
       where: { id },
       include: { program: true, pic: true, realizationLogs: true, evidences: true }
     });
   }
 
-  async create(data: CreateExecutionKPIDto) {
-    return this.prisma.executionKPI.create({ data: data as any });
+  async create(data: CreateExecutionKPIDto, user: any) {
+    const program = await this.prisma.workProgram.findUnique({ where: { id: data.programId } });
+    if (!program) throw new BadRequestException("Program kerja tidak ditemukan.");
+    await this.authorization.assertBiroCanManage(user, program.departmentId);
+    const { baselineStatus, workflowStatus, verificationStatus, verificationNotes, ...safe } = data as any;
+    return (this.prisma as any).executionKPI.create({ data: { ...safe, baselineStatus: "draft", workflowStatus: "draft" } });
   }
 
-  async update(id: string, data: UpdateExecutionKPIDto) {
-    return this.prisma.executionKPI.update({ where: { id }, data: data as any });
+  async update(id: string, data: UpdateExecutionKPIDto, user: any) {
+    const kpi = await this.prisma.executionKPI.findUnique({ where: { id }, include: { program: true } });
+    if (!kpi) throw new BadRequestException("KPI tidak ditemukan.");
+    if ((kpi as any).workflowStatus === "approved_by_bidang") throw new BadRequestException("KPI yang disetujui tidak dapat diubah.");
+    await this.authorization.assertBiroCanManage(user, kpi.program.departmentId);
+    const { programId, realization, baselineStatus, ...allowed } = data as any;
+    if (programId && programId !== kpi.programId) throw new BadRequestException("KPI tidak dapat dipindahkan ke program lain.");
+    return this.prisma.executionKPI.update({ where: { id }, data: allowed });
   }
 
-  async submitBaseline(id: string, evidenceId: string) {
+  async submitBaseline(id: string, evidenceId: string, user: any) {
+    const kpi = await this.findKpiWithProgram(id);
+    if (kpi.picId !== user.id) await this.authorization.assertBiroCanManage(user, kpi.program.departmentId);
+    await this.access.assertCanReadArtifact(user, 'evidence', evidenceId);
+    const evidence = await this.prisma.executionEvidence.findUnique({ where: { id: evidenceId } });
+    if (!evidence || evidence.programId !== kpi.programId || (evidence.kpiId && evidence.kpiId !== id)) throw new BadRequestException('Bukti baseline harus berasal dari program KPI yang sama.');
     return this.prisma.$transaction(async (tx) => {
-      const kpi = await tx.executionKPI.update({
-        where: { id },
-        data: { baselineStatus: 'submitted' }
-      });
-      await tx.executionEvidence.update({
-        where: { id: evidenceId },
-        data: { kpiId: id, availabilityStatus: 'submitted' }
-      });
-      return kpi;
+      const scopedKpi = await tx.executionKPI.findUnique({ where: { id }, select: { id: true, programId: true } });
+      const scopedEvidence = await tx.executionEvidence.findUnique({ where: { id: evidenceId }, select: { id: true, programId: true, kpiId: true } });
+      if (!scopedKpi || !scopedEvidence || scopedEvidence.programId !== scopedKpi.programId || (scopedEvidence.kpiId && scopedEvidence.kpiId !== id)) throw new BadRequestException('Bukti baseline tidak lagi sesuai dengan KPI.');
+      const updated = await tx.executionKPI.update({ where: { id }, data: { baselineStatus: 'submitted' } });
+      await tx.executionEvidence.update({ where: { id: evidenceId }, data: { kpiId: id, availabilityStatus: 'submitted' } });
+      return updated;
     });
   }
 
-  async verifyBaseline(id: string, verifierId: string, status: any, notes: string | null = null) {
-    return this.prisma.executionKPI.update({
-      where: { id },
-      data: { baselineStatus: status, notes: notes || undefined }
-    });
+  async verifyBaseline(id: string, user: any, status: any, notes: string | null = null) {
+    const kpi = await this.findKpiWithProgram(id);
+    await this.authorization.assertBidangCanReview(user, kpi.program.departmentId);
+    if (status === 'approved') {
+      const evidence = await (this.prisma as any).executionEvidence.findFirst({ where: { kpiId: id, programId: kpi.programId, departmentId: kpi.program.departmentId } });
+      if (!evidence || evidence.kpiId !== id || evidence.programId !== kpi.programId || evidence.departmentId !== kpi.program.departmentId) throw new BadRequestException('Persetujuan baseline memerlukan bukti dari program dan Biro KPI yang sama.');
+    }
+    return this.prisma.executionKPI.update({ where: { id }, data: { baselineStatus: status, notes: notes || undefined } });
   }
 
-  async remove(id: string) {
+  async remove(id: string, user: any) {
+    const kpi = await this.findKpiWithProgram(id);
+    await this.authorization.assertBidangCanReview(user, kpi.program.departmentId);
     return this.prisma.executionKPI.delete({ where: { id } });
   }
 
   async batchImport(items: any[], user: any) {
-    if (!items || items.length === 0) throw new BadRequestException("Data KPI kosong.");
-
-    const programs = await this.prisma.workProgram.findMany({ select: { id: true, title: true } });
-    const programMap = new Map(programs.map(p => [p.title.toLowerCase().trim(), p.id]));
-
+    if (!items?.length) throw new BadRequestException("Data KPI kosong.");
+    const scope = await this.access.forPrograms(user);
+    const programs = await this.prisma.workProgram.findMany({ where: scope.where as any, select: { id: true, title: true, departmentId: true } });
+    const programMap = new Map(programs.map((program) => [program.title.toLowerCase().trim(), program]));
     const users = await this.prisma.user.findMany({ select: { id: true, email: true } });
-    const userEmailMap = new Map(users.map(u => [u.email.toLowerCase().trim(), u.id]));
-
-    let successCount = 0;
-    
-    // Type mapping helpers
-    const freqMap: Record<string, any> = { "mingguan": "weekly", "bulanan": "monthly", "kuartalan": "quarterly", "semester": "semester", "tahunan": "yearly" };
-    const dirMap: Record<string, any> = { "lebih tinggi lebih baik": "higher_is_better", "lebih rendah lebih baik": "lower_is_better", "tepat": "exact_match" };
-    const typeMap: Record<string, any> = { "input": "input", "proses": "process", "output": "output", "outcome": "outcome" };
-
-    for (const row of items) {
+    const userEmailMap = new Map(users.map((candidate) => [candidate.email.toLowerCase().trim(), candidate.id]));
+    const freqMap: Record<string, any> = { mingguan: "weekly", bulanan: "monthly", kuartalan: "quarterly", semester: "semester", tahunan: "yearly" };
+    const dirMap: Record<string, any> = { "lebih tinggi lebih baik": "higher_is_better", "lebih rendah lebih baik": "lower_is_better", tepat: "exact_match" };
+    const typeMap: Record<string, any> = { input: "input", proses: "process", output: "output", outcome: "outcome" };
+    const prepared = items.map((row, index) => {
       const programTitle = row.programTitle || row.program || row['Program Induk'];
-      if (!programTitle) continue;
-      
-      const programId = programMap.get(String(programTitle).toLowerCase().trim());
-      if (!programId) continue;
-
       const name = row.name || row.indicator || row['Nama Indikator'] || row['Indikator KPI'];
-      if (!name) continue;
-
+      if (!programTitle || !name) throw new BadRequestException(`Baris ${index + 1}: Program dan indikator KPI wajib diisi.`);
+      const program = programMap.get(String(programTitle).toLowerCase().trim());
+      if (!program) throw new BadRequestException(`Baris ${index + 1}: Program '${programTitle}' tidak ditemukan atau di luar scope Anda.`);
       const picEmail = row.picEmail || row['Email Koordinator / PIC'] || row['Email PIC'];
-      let picId = null;
-      if (picEmail) {
-        picId = userEmailMap.get(String(picEmail).toLowerCase().trim()) || null;
-      }
-
+      const picId = picEmail ? userEmailMap.get(String(picEmail).toLowerCase().trim()) : null;
+      if (picEmail && !picId) throw new BadRequestException(`Baris ${index + 1}: PIC '${picEmail}' tidak ditemukan.`);
       const freqKey = String(row.updateFrequency || row['Frekuensi Update'] || 'Bulanan').toLowerCase().trim();
       const dirKey = String(row.direction || row['Arah Target'] || 'Lebih Tinggi Lebih Baik').toLowerCase().trim();
       const typeKey = String(row.indicatorType || row['Tipe Indikator'] || 'Output').toLowerCase().trim();
-
-      const updateFrequency = freqMap[freqKey] || 'monthly';
-      const direction = dirMap[dirKey] || 'higher_is_better';
-      const indicatorType = typeMap[typeKey] || 'output';
-
-      const target = parseFloat(row.target || row['Target Angka'] || 0) || 0;
-      const weight = parseFloat(row.weight || row['Bobot'] || 0) || 0;
-      const unit = String(row.unit || row['Satuan'] || '');
-
-      await this.prisma.executionKPI.create({
-        data: {
-          programId,
-          name,
-          indicatorType,
-          direction,
-          target,
-          unit,
-          weight,
-          updateFrequency,
-          picId,
-          baseline: 0
-        }
-      });
-      
-      successCount++;
-    }
-
-    return { success: true, count: successCount };
+      return { program, data: { programId: program.id, name, indicatorType: typeMap[typeKey] || 'output', direction: dirMap[dirKey] || 'higher_is_better', target: Number.parseFloat(row.target || row['Target Angka'] || 0) || 0, unit: String(row.unit || row['Satuan'] || ''), weight: Number.parseFloat(row.weight || row['Bobot'] || 0) || 0, updateFrequency: freqMap[freqKey] || 'monthly', picId, baseline: 0 } };
+    });
+    for (const row of prepared) await this.authorization.assertBiroCanManage(user, row.program.departmentId);
+    await this.prisma.$transaction(async (tx) => Promise.all(prepared.map((row) => tx.executionKPI.create({ data: row.data }))));
+    return { success: true, count: prepared.length };
   }
 
-  async exportExcelByDepartment(departmentId: string, res: Response) {
-    let whereClause = {};
-    if (departmentId && departmentId.trim() !== '') {
-      whereClause = { program: { departmentId } };
-    }
+  async exportExcelByDepartment(departmentId: string | undefined, user: any, res: Response) {
+    const scope = await this.access.forPrograms(user);
+    const programWhere = departmentId?.trim() ? { AND: [scope.where, { departmentId }] } : scope.where;
 
     const kpis = await this.prisma.executionKPI.findMany({
-      where: whereClause,
+      where: { program: programWhere } as any,
       include: {
         program: { include: { department: true } },
         pic: true,
@@ -233,5 +208,11 @@ export class ExecutionKpiService {
 
     await workbook.xlsx.write(res);
     res.end();
+  }
+
+  private async findKpiWithProgram(id: string) {
+    const kpi = await this.prisma.executionKPI.findUnique({ where: { id }, include: { program: true } });
+    if (!kpi) throw new BadRequestException("KPI tidak ditemukan.");
+    return kpi;
   }
 }

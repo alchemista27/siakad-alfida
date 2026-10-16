@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 export const CreateExecutionLogSchema = z.object({
   programId: z.string().uuid(),
+  taskId: z.string().uuid().optional().nullable(),
   milestoneId: z.string().uuid().optional().nullable(),
   kpiId: z.string().uuid().optional().nullable(),
   evidenceId: z.string().uuid().optional().nullable(),

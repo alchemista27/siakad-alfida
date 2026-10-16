@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Req } from '@nestjs/common';
 import { ExecutionMilestoneService } from './execution-milestone.service';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { CreateExecutionMilestoneSchema, UpdateExecutionMilestoneSchema, CreateExecutionMilestoneDto, UpdateExecutionMilestoneDto } from '../dto/milestone.dto';
@@ -12,25 +12,25 @@ export class ExecutionMilestoneController {
 
   @Get()
   @SimakinRoles('admin_bidang', 'admin_biro', 'pimpinan', 'pengawas', 'pic_program')
-  findAll() { return this.service.findAll(); }
+  findAll(@Req() req: any) { return this.service.findAll(req.user); }
 
   @Get(':id')
   @SimakinRoles('admin_bidang', 'admin_biro', 'pimpinan', 'pengawas', 'pic_program')
-  findOne(@Param('id') id: string) { return this.service.findOne(id); }
+  findOne(@Param('id') id: string, @Req() req: any) { return this.service.findOne(id, req.user); }
 
   @Post()
-  @SimakinRoles('admin_bidang', 'admin_biro', 'pic_program')
-  create(@Body(new ZodValidationPipe(CreateExecutionMilestoneSchema)) dto: CreateExecutionMilestoneDto) {
-    return this.service.create(dto);
+  @SimakinRoles('admin_biro')
+  create(@Body(new ZodValidationPipe(CreateExecutionMilestoneSchema)) dto: CreateExecutionMilestoneDto, @Req() req: any) {
+    return this.service.create(dto, req.user);
   }
 
   @Put(':id')
-  @SimakinRoles('admin_bidang', 'admin_biro', 'pic_program')
-  update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateExecutionMilestoneSchema)) dto: UpdateExecutionMilestoneDto) {
-    return this.service.update(id, dto);
+  @SimakinRoles('admin_biro')
+  update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateExecutionMilestoneSchema)) dto: UpdateExecutionMilestoneDto, @Req() req: any) {
+    return this.service.update(id, dto, req.user);
   }
 
   @Delete(':id')
   @SimakinRoles('admin_bidang', 'admin_biro')
-  remove(@Param('id') id: string) { return this.service.remove(id); }
+  remove(@Param('id') id: string, @Req() req: any) { return this.service.remove(id, req.user); }
 }

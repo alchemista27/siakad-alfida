@@ -1,7 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@alfida/ui";
+import { NotificationBell } from "@/components/strategic/notification-bell";
+
+interface AuthRole {
+  role?: string;
+  departmentId?: string | null;
+}
+
+interface AuthUser {
+  fullName: string;
+  roles?: AuthRole[];
+}
 
 interface SimakinShellProps {
   children: React.ReactNode;
@@ -9,163 +20,83 @@ interface SimakinShellProps {
   topbarActions?: React.ReactNode;
 }
 
-export function SimakinShell({
-  children,
-  activePath = "/",
-  topbarActions,
-}: SimakinShellProps) {
-  const [user, setUser] = useState<{ fullName: string; role: string; roles?: any[] } | null>(null);
+export function SimakinShell({ children, activePath = "/", topbarActions }: SimakinShellProps) {
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     async function fetchMe() {
       try {
-        const res = await fetch("/api/auth/me");
-        if (res.ok) {
-          const data = await res.json();
+        const response = await fetch("https://auth.alfida.or.id/api/auth/me", { credentials: "include" });
+        if (response.ok) {
+          const data = await response.json();
           if (data?.user) {
-            const primaryRole = data.user.roles?.[0]?.role
-              ? data.user.roles[0].role.replace(/_/g, " ").toUpperCase()
-              : "STAFF";
-            setUser({
-              fullName: data.user.fullName,
-              role: primaryRole,
-              roles: data.user.roles || [],
-            });
+            setUser(data.user as AuthUser);
             setAuthLoading(false);
             return;
           }
         }
-        // Jika 401 Unauthorized atau user tidak ditemukan, arahkan ke login SSO
-        const authUrl = "https://auth.alfida.or.id/login";
-        window.location.href = `${authUrl}?return_to=${encodeURIComponent(window.location.href)}`;
-      } catch (e) {
-        const authUrl = "https://auth.alfida.or.id/login";
-        window.location.href = `${authUrl}?return_to=${encodeURIComponent(window.location.href)}`;
+      } catch {
+        // Redirect below keeps failed SSO sessions out of protected content.
       }
+      window.location.href = `https://auth.alfida.or.id/login?return_to=${encodeURIComponent(window.location.href)}`;
     }
-    fetchMe();
+    void fetchMe();
   }, []);
 
   const handleLogout = async () => {
     try {
-      await fetch("https://auth.alfida.or.id/api/auth/logout", {
-        credentials: "include",
-        method: "POST",
-      });
-    } catch (e) {}
+      await fetch("https://auth.alfida.or.id/api/auth/logout", { credentials: "include", method: "POST" });
+    } catch {
+      // The central login redirect still clears the local application state.
+    }
     window.location.href = "https://auth.alfida.or.id/login";
   };
 
-  const isSuperAdmin = user?.roles?.some((r: any) => r.role === "super_admin");
-  const isAdminBidang = user?.roles?.some((r: any) => r.role === "admin_bidang") || isSuperAdmin;
-  const isExecutive = user?.roles?.some((r: any) => r.role === "pimpinan" || r.role === "pengawas") || isSuperAdmin;
+  const roleNames = useMemo(() => user?.roles?.map((role) => role.role).filter((role): role is string => Boolean(role)) || [], [user]);
+  const hasRole = (role: string) => roleNames.includes(role) || roleNames.includes("super_admin");
+  const isExecutive = hasRole("pimpinan") || hasRole("pengawas");
+  const canManageBidang = hasRole("admin_bidang");
+  const isPic = hasRole("pic_program") || hasRole("staff");
+  const primaryRole = roleNames[0]?.replace(/_/g, " ").toUpperCase() || "STAFF";
 
   const sidebarGroups = [
     {
-      title: "Kinerja & Proker",
+      title: "Kinerja & Workflow",
       items: [
-        {
-          label: "Dasbor & Matriks",
-          href: "/",
-          icon: "dashboard",
-          active: activePath === "/",
-        },
-        ...(isExecutive
-          ? [
-              {
-                label: "Evaluasi Eksekutif (BPH)",
-                href: "/executive",
-                icon: "traffic",
-                active: activePath === "/executive",
-              },
-            ]
-          : []),
-        {
-          label: "Program Kerja",
-          href: "/programs",
-          icon: "assignment",
-          active: activePath === "/programs",
-        },
-        {
-          label: "Indikator Capaian KPI",
-          href: "/kpis",
-          icon: "monitoring",
-          active: activePath === "/kpis",
-        },
-        ...(isAdminBidang
-          ? [
-              {
-                label: "Struktur Bidang & Biro",
-                href: "/departments",
-                icon: "account_tree",
-                active: activePath === "/departments",
-              },
-            ]
-          : []),
+        { label: "Dasbor & Matriks", href: "/", icon: "dashboard", active: activePath === "/" },
+        { label: "Kotak Masuk", href: "/inbox", icon: "inbox", active: activePath === "/inbox" },
+        ...(isPic ? [{ label: "Tugas Saya", href: "/my-tasks", icon: "assignment_ind", active: activePath === "/my-tasks" }] : []),
+        ...(isExecutive ? [{ label: "Evaluasi Eksekutif (BPH)", href: "/executive", icon: "traffic", active: activePath === "/executive" }] : []),
+        { label: "Program Kerja", href: "/programs", icon: "assignment", active: activePath === "/programs" },
+        { label: "Indikator Capaian KPI", href: "/kpis", icon: "monitoring", active: activePath === "/kpis" },
+        { label: "Struktur Bidang & Biro", href: "/departments", icon: "account_tree", active: activePath === "/departments" },
       ],
     },
     {
       title: "Rapat & Hambatan",
       items: [
-        {
-          label: "Notulensi & Aksi",
-          href: "/meetings",
-          icon: "groups",
-          active: activePath === "/meetings",
-        },
-        {
-          label: "Kendala & Masalah",
-          href: "/issues",
-          icon: "report_problem",
-          active: activePath === "/issues",
-        },
-        {
-          label: "Bukti Dukung (Evidence)",
-          href: "/evidence",
-          icon: "verified",
-          active: activePath === "/evidence",
-        },
+        { label: "Notulensi & Aksi", href: "/meetings", icon: "groups", active: activePath === "/meetings" },
+        { label: "Kendala & Masalah", href: "/issues", icon: "report_problem", active: activePath === "/issues" },
+        { label: "Bukti Dukung (Evidence)", href: "/evidence", icon: "verified", active: activePath === "/evidence" },
       ],
     },
-    {
-      title: "Sistem",
-      items: [
-        {
-          label: "Portal Modul",
-          href: "https://auth.alfida.or.id/modules",
-          icon: "apps",
-          active: false,
-        },
-      ],
-    },
+    { title: "Sistem", items: [{ label: "Portal Modul", href: "https://auth.alfida.or.id/modules", icon: "apps", active: false }] },
   ];
 
   return (
     <AppShell
       serviceName="SIMAKIN"
       userName={user?.fullName || "Memuat..."}
-      userRole={user?.role || ""}
+      userRole={primaryRole}
       onLogout={handleLogout}
       sidebarGroups={sidebarGroups}
-      topbarActions={
-        topbarActions || (
-          <a
-            href="https://auth.alfida.or.id/modules"
-            className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
-          >
-            <span className="material-symbols-rounded text-[16px]">apps</span>
-            <span className="hidden sm:inline">Pilih Modul</span>
-          </a>
-        )
-      }
+      topbarActions={topbarActions || <div className="flex items-center gap-2"><NotificationBell /><a href="https://auth.alfida.or.id/modules" className="inline-flex items-center gap-1 rounded-sm border border-border bg-surface px-2.5 py-1.5 text-xs font-semibold text-tertiary hover:bg-neutral"><span className="material-symbols-rounded text-[16px]">apps</span><span className="hidden sm:inline">Pilih Modul</span></a></div>}
     >
       {authLoading && !user ? (
-        <div className="min-h-[50vh] flex flex-col items-center justify-center text-center p-8">
-          <span className="material-symbols-rounded animate-spin text-[36px] text-tertiary mb-3">
-            progress_activity
-          </span>
-          <p className="text-xs text-gray-500 font-medium">Memverifikasi sesi SSO Yayasan Alfida...</p>
+        <div className="flex min-h-[50vh] flex-col items-center justify-center p-8 text-center">
+          <span className="material-symbols-rounded mb-3 animate-spin text-[36px] text-tertiary">progress_activity</span>
+          <p className="text-xs font-medium text-gray-500">Memverifikasi sesi SSO Yayasan Alfida...</p>
         </div>
       ) : (
         children

@@ -55,6 +55,7 @@ export default function MeetingsPage() {
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchData = async () => {
@@ -91,7 +92,7 @@ export default function MeetingsPage() {
       });
       fetchData();
     } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal membuat rapat"));
+      setFeedback(err.message || "Gagal membuat rapat");
     } finally {
       setSubmitting(false);
     }
@@ -115,7 +116,7 @@ export default function MeetingsPage() {
       });
       fetchData();
     } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal menambahkan tindak lanjut"));
+      setFeedback(err.message || "Gagal menambahkan tindak lanjut");
     } finally {
       setSubmitting(false);
     }
@@ -127,7 +128,7 @@ export default function MeetingsPage() {
       await updateActionItemStatus(item.id, { status: nextStatus });
       fetchData();
     } catch (err: any) {
-      alert("Gagal memperbarui status tindak lanjut: " + err.message);
+      setFeedback(err.message || "Gagal memperbarui status tindak lanjut");
     }
   };
 
@@ -139,7 +140,7 @@ export default function MeetingsPage() {
       setDeletingId(null);
       fetchData();
     } catch (err: any) {
-      alert("Gagal menghapus rapat: " + err.message);
+      setFeedback(err.message || "Gagal menghapus rapat");
     } finally {
       setSubmitting(false);
     }
@@ -167,6 +168,7 @@ export default function MeetingsPage() {
             <span>+ Catat Rapat Baru</span>
           </button>
         </div>
+        {feedback && <p className="mt-4 rounded-sm border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900" role="status">{feedback}</p>}
 
         {/* Content */}
         <div className="mt-6">
@@ -188,7 +190,7 @@ export default function MeetingsPage() {
               {meetings.map((m) => (
                 <div
                   key={m.id}
-                  className="bg-white border border-border rounded-xl p-5 shadow-sm hover:border-emerald-200 transition-colors"
+                  className="bg-surface border border-border rounded-lg p-5 hover:border-emerald-200 transition-colors"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
                     <div>
@@ -314,7 +316,7 @@ export default function MeetingsPage() {
         {/* Modal Catat Rapat Baru */}
         {isMeetingModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl border border-border">
+            <div className="bg-surface rounded-lg max-w-lg w-full p-6 border border-border">
               <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
                 <h3 className="text-base font-bold font-heading text-primary">
                   Catat Agenda & Notulensi Rapat
@@ -409,7 +411,7 @@ export default function MeetingsPage() {
         {/* Modal Tambah Action Item */}
         {activeMeetingIdForAction && (
           <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl border border-border">
+            <div className="bg-surface rounded-lg max-w-md w-full p-6 border border-border">
               <h3 className="text-base font-bold font-heading text-primary mb-1">
                 Tambah Tindak Lanjut (Action Item)
               </h3>

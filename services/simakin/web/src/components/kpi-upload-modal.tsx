@@ -115,7 +115,6 @@ export function KpiUploadModal({ isOpen, onClose, onSuccess, programs }: KpiUplo
 
       const res = await batchImportKpisAction(data);
       if (res && res.success) {
-        alert(`Berhasil mengimpor ${res.count} KPI!`);
         onSuccess();
         onClose();
       } else {

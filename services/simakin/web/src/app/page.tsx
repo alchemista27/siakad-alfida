@@ -52,7 +52,9 @@ export default function SimakinDashboardPage() {
   useEffect(() => {
     async function loadUser() {
       try {
-        const res = await fetch("/api/auth/me");
+        const res = await fetch("https://auth.alfida.or.id/api/auth/me", {
+          credentials: "include",
+        });
         if (res.ok) {
           const data = await res.json();
           setCurrentUser(data.user);

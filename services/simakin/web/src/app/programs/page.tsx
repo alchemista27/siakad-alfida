@@ -10,7 +10,10 @@ import {
   createProgram,
   updateProgram,
   deleteProgram,
+  transitionWorkflow,
+  type WorkflowStatus,
 } from "@/actions/strategic";
+import { WorkflowStatusBadge } from "@/components/strategic/workflow-status-badge";
 import { Badge, EmptyState, LoadingState, ErrorState } from "@alfida/ui";
 
 interface Department {
@@ -26,7 +29,11 @@ interface ProgramItem {
   status: "planned" | "ongoing" | "completed";
   priority: "critical" | "high" | "medium" | "low";
   department?: Department;
-  kpis?: any[];
+  kpis?: Array<{ id: string }>;
+  workflowStatus?: WorkflowStatus;
+  submittedAt?: string | null;
+  lastReviewedAt?: string | null;
+  notes?: string | null;
 }
 
 export default function ProgramsPage() {
@@ -54,6 +61,7 @@ export default function ProgramsPage() {
     status: "planned" as "planned" | "ongoing" | "completed",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   // Delete State
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -77,7 +85,7 @@ export default function ProgramsPage() {
   };
 
   useEffect(() => {
-    fetch("/api/auth/me")
+    fetch("https://auth.alfida.or.id/api/auth/me", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.user) setCurrentUser(d.user);
@@ -89,13 +97,17 @@ export default function ProgramsPage() {
   const isSuperAdmin = currentUser?.roles?.some((r: any) => r.role === "super_admin");
   const isAdminBidang = currentUser?.roles?.some((r: any) => r.role === "admin_bidang") || isSuperAdmin;
   const isAdminBiro = currentUser?.roles?.some((r: any) => r.role === "admin_biro");
-  const canCreateOrEdit = isAdminBidang || isAdminBiro;
-  const canDelete = isAdminBidang;
+  const biroScopeIds = currentUser?.roles?.filter((r: any) => r.role === "admin_biro" && r.departmentId).map((r: any) => r.departmentId) || [];
+  const writableStatuses: WorkflowStatus[] = ["draft", "revision_requested_by_biro", "revision_requested_by_bidang"];
+  const manageableDepartments = isAdminBiro ? departments.filter((department) => biroScopeIds.includes(department.id)) : [];
+  const canCreateOrEdit = isAdminBiro && manageableDepartments.length > 0;
+  const canEditProgram = (program: ProgramItem) => isAdminBiro && biroScopeIds.includes(program.departmentId) && writableStatuses.includes(program.workflowStatus || "draft");
+  const canDelete = (program: ProgramItem) => canEditProgram(program) && program.workflowStatus === "draft";
 
   const handleOpenAdd = () => {
     setEditingProg(null);
     setFormData({
-      departmentId: departments[0]?.id || "",
+      departmentId: manageableDepartments[0]?.id || "",
       title: "",
       description: "",
       priority: "medium",
@@ -139,7 +151,7 @@ export default function ProgramsPage() {
       setIsFormOpen(false);
       fetchData();
     } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal menyimpan program kerja"));
+      setFeedback(err.message || "Gagal menyimpan program kerja");
     } finally {
       setSubmitting(false);
     }
@@ -153,7 +165,30 @@ export default function ProgramsPage() {
       setDeletingId(null);
       fetchData();
     } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal menghapus program kerja"));
+      setFeedback(err.message || "Gagal menghapus program kerja");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleWorkflowSubmit = async (program: ProgramItem) => {
+    const missing: string[] = [];
+    if (!program.title.trim()) missing.push("nama program");
+    if (!program.description?.trim()) missing.push("deskripsi dan sasaran");
+    if (!program.kpis?.length) missing.push("minimal satu KPI");
+    if (missing.length) {
+      setFeedback(`Program belum dapat diajukan: lengkapi ${missing.join(", ")}.`);
+      return;
+    }
+    setSubmitting(true);
+    setFeedback(null);
+    try {
+      const target = program.workflowStatus === "revision_requested_by_biro" ? "submitted_to_biro" : "submitted_to_bidang";
+      await transitionWorkflow("work_program", program.id, target);
+      setFeedback(target === "submitted_to_biro" ? "Program diajukan ulang untuk review Biro." : "Program diajukan ke Bidang.");
+      await fetchData();
+    } catch (err: any) {
+      setFeedback(err.message || "Program belum dapat diajukan.");
     } finally {
       setSubmitting(false);
     }
@@ -202,6 +237,7 @@ export default function ProgramsPage() {
             </div>
           )}
         </div>
+        {feedback && <p className="mt-4 rounded-sm border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900" role="status">{feedback}</p>}
 
         {/* Filter Controls */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-4 gap-3">
@@ -279,7 +315,8 @@ export default function ProgramsPage() {
                       <th scope="col" className="px-6 py-3.5">Nama Program</th>
                       <th scope="col" className="px-6 py-3.5">Bidang / Departemen</th>
                       <th scope="col" className="px-6 py-3.5">Prioritas</th>
-                      <th scope="col" className="px-6 py-3.5">Status</th>
+                      <th scope="col" className="px-6 py-3.5">Status Pelaksanaan</th>
+                      <th scope="col" className="px-6 py-3.5">Status Workflow</th>
                       <th scope="col" className="px-6 py-3.5">Indikator KPI</th>
                       <th scope="col" className="px-6 py-3.5 text-right">Aksi</th>
                     </tr>
@@ -329,22 +366,39 @@ export default function ProgramsPage() {
                           </Badge>
                         </td>
                         <td className="px-6 py-4">
+                          <WorkflowStatusBadge status={prog.workflowStatus} />
+                          <p className="mt-1 text-[10px] text-gray-400">
+                            {prog.lastReviewedAt || prog.submittedAt ? new Date(prog.lastReviewedAt || prog.submittedAt || "").toLocaleDateString("id-ID") : "Belum diajukan"}
+                          </p>
+                          {prog.notes && <p className="mt-1 max-w-40 truncate text-[10px] text-amber-800" title={prog.notes}>{prog.notes}</p>}
+                        </td>
+                        <td className="px-6 py-4">
                           <span className="text-[11px] text-tertiary font-semibold bg-[#e6f4f1] px-2 py-0.5 rounded-full">
                             {prog.kpis?.length || 0} KPI
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="inline-flex items-center gap-2">
-                            {canCreateOrEdit && (
-                              <button
-                                type="button"
-                                onClick={() => handleOpenEdit(prog)}
-                                className="px-2.5 py-1 text-xs font-semibold text-tertiary hover:bg-[#e6f4f1] rounded border border-emerald-200 transition-colors"
-                              >
-                                Edit
-                              </button>
+                            {canEditProgram(prog) && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenEdit(prog)}
+                                  className="px-2.5 py-1 text-xs font-semibold text-tertiary hover:bg-[#e6f4f1] rounded-sm border border-emerald-200 transition-colors"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={submitting}
+                                  onClick={() => void handleWorkflowSubmit(prog)}
+                                  className="px-2.5 py-1 text-xs font-semibold text-white bg-tertiary hover:bg-[#0b6355] rounded-sm disabled:opacity-50"
+                                >
+                                  Ajukan
+                                </button>
+                              </>
                             )}
-                            {canDelete && (
+                            {canDelete(prog) && (
                               <button
                                 type="button"
                                 onClick={() => {
@@ -370,7 +424,7 @@ export default function ProgramsPage() {
         {/* Modal Form Tambah / Edit */}
         {isFormOpen && (
           <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl border border-border">
+            <div className="bg-surface rounded-lg max-w-lg w-full p-6 border border-border">
               <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
                 <h3 className="text-base font-bold font-heading text-primary">
                   {editingProg ? "Edit Program Kerja" : "Tambah Program Kerja Baru"}
@@ -396,7 +450,7 @@ export default function ProgramsPage() {
                     className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d] bg-white text-primary"
                   >
                     <option value="">Pilih Bidang / Biro</option>
-                    {departments.map((d) => (
+                    {manageableDepartments.map((d) => (
                       <option key={d.id} value={d.id}>
                         {d.name}
                       </option>

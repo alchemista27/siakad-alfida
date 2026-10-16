@@ -8,7 +8,7 @@ export const CreateExecutionKPISchema = z.object({
   indicatorType: z.nativeEnum(KPIIndicatorType),
   direction: z.nativeEnum(KPIDirection).optional(),
   baseline: z.number().optional(),
-  baselineStatus: z.nativeEnum(BaselineStatus).optional(),
+
   target: z.number().optional(),
   realization: z.number().optional(),
   unit: z.string().min(1),

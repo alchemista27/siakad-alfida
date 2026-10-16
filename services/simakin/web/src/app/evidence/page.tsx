@@ -1,295 +1,68 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SimakinShell } from "@/components/simakin-shell";
-import { getEvidences, createEvidence } from "@/actions/strategic";
-import { Badge, EmptyState, LoadingState, ErrorState } from "@alfida/ui";
 import { CloudinaryUploadButton } from "@/components/cloudinary-upload-button";
+import { createEvidence, getEvidences, getPrograms, transitionWorkflow, type WorkflowStatus } from "@/actions/strategic";
+import { WorkflowStatusBadge } from "@/components/strategic/workflow-status-badge";
+import { EmptyState, ErrorState, LoadingState } from "@alfida/ui";
 
-interface EvidenceItem {
-  id: string;
-  departmentId?: string | null;
-  title: string;
-  type: "document" | "photo" | "link";
-  url: string;
-  nature: "mandatory" | "supporting";
-  verificationStatus: "unverified" | "verified" | "needs_revision";
-  createdAt: string;
-  user?: { fullName: string };
-  department?: { name: string };
-}
+interface Program { id: string; title: string; }
+interface EvidenceItem { id: string; name: string; type?: string; nature?: string; digitalLink?: string | null; createdAt: string; workflowStatus?: WorkflowStatus; program?: Program | null; task?: { description?: string } | null; notes?: string | null; }
 
 export default function EvidencePage() {
   const [evidences, setEvidences] = useState<EvidenceItem[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Modal State
+  const [feedback, setFeedback] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form, setForm] = useState({
-    title: "",
-    type: "document" as "document" | "photo" | "link",
-    url: "",
-    nature: "supporting" as "mandatory" | "supporting",
-  });
+  const [form, setForm] = useState({ programId: "", name: "", type: "document", nature: "supporting", digitalLink: "", notes: "" });
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getEvidences();
-      setEvidences(Array.isArray(data) ? data : []);
-    } catch (err: any) {
-      setError(err.message || "Gagal memuat bukti dukung");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
+      const [evidenceData, programData] = await Promise.all([getEvidences(), getPrograms()]);
+      setEvidences(Array.isArray(evidenceData) ? evidenceData as EvidenceItem[] : []);
+      setPrograms(Array.isArray(programData) ? programData as Program[] : []);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Gagal memuat bukti dukung.");
+    } finally { setLoading(false); }
   }, []);
 
-  const handleCreateEvidence = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.title.trim() || !form.url.trim()) return;
+  useEffect(() => { void fetchData(); }, [fetchData]);
 
+  const openCreate = () => {
+    setForm({ programId: programs[0]?.id || "", name: "", type: "document", nature: "supporting", digitalLink: "", notes: "" });
+    setIsModalOpen(true);
+  };
+
+  const saveEvidence = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!form.programId || !form.name.trim() || !form.digitalLink.trim()) return;
     setSubmitting(true);
+    setFeedback(null);
     try {
-      await createEvidence(form);
+      const evidence = await createEvidence({ programId: form.programId, name: form.name.trim(), type: form.type, nature: form.nature, digitalLink: form.digitalLink.trim(), notes: form.notes.trim() || undefined }) as { id: string };
+      await transitionWorkflow("evidence", evidence.id, "submitted_to_biro");
       setIsModalOpen(false);
-      setForm({
-        title: "",
-        type: "document",
-        url: "",
-        nature: "supporting",
-      });
-      fetchData();
-    } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal menyimpan bukti dukung"));
-    } finally {
-      setSubmitting(false);
-    }
+      setFeedback("Bukti dikirim dengan status Menunggu review Biro.");
+      await fetchData();
+    } catch (caught) {
+      setFeedback(caught instanceof Error ? caught.message : "Bukti belum dapat disimpan.");
+    } finally { setSubmitting(false); }
   };
 
   return (
     <SimakinShell activePath="/evidence">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-border gap-4">
-          <div>
-            <h1 className="text-2xl font-bold font-heading text-primary">
-              Bukti Dukung Kegiatan & Capaian (Evidence)
-            </h1>
-            <p className="text-xs text-gray-500 mt-1">
-              Repositori dokumen silabus, sertifikat, tautan publikasi, dan foto kegiatan penopang realisasi KPI
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 bg-tertiary hover:bg-[#0b6355] text-white rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5 self-start sm:self-auto"
-          >
-            <span className="material-symbols-rounded text-[18px]">cloud_upload</span>
-            <span>+ Unggah Bukti Dukung</span>
-          </button>
-        </div>
-
-        {/* Content Grid */}
-        <div className="mt-6">
-          {loading ? (
-            <LoadingState message="Memuat repositori bukti dukung..." />
-          ) : error ? (
-            <ErrorState
-              title="Gagal Memuat Bukti"
-              message={error}
-              onRetry={fetchData}
-            />
-          ) : evidences.length === 0 ? (
-            <EmptyState
-              title="Belum Ada Bukti Dukung"
-              description="Belum ada dokumen atau foto kegiatan yang diunggah untuk verifikasi capaian."
-            />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {evidences.map((ev) => (
-                <div
-                  key={ev.id}
-                  className="bg-white border border-border rounded-xl p-5 shadow-sm hover:border-emerald-200 transition-colors flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="w-9 h-9 rounded-lg bg-[#e6f4f1] text-tertiary flex items-center justify-center">
-                        <span className="material-symbols-rounded text-[20px]">
-                          {ev.type === "photo"
-                            ? "image"
-                            : ev.type === "link"
-                            ? "link"
-                            : "description"}
-                        </span>
-                      </div>
-                      <Badge
-                        variant={
-                          ev.verificationStatus === "verified"
-                            ? "success"
-                            : ev.verificationStatus === "needs_revision"
-                            ? "danger"
-                            : "neutral"
-                        }
-                      >
-                        {ev.verificationStatus === "verified"
-                          ? "Terverifikasi"
-                          : ev.verificationStatus === "needs_revision"
-                          ? "Perlu Revisi"
-                          : "Menunggu Review"}
-                      </Badge>
-                    </div>
-
-                    <h4 className="text-sm font-bold font-heading text-primary line-clamp-2">
-                      {ev.title}
-                    </h4>
-                    <div className="text-[11px] text-gray-400 mt-1">
-                      {new Date(ev.createdAt).toLocaleDateString("id-ID")}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-                      {ev.nature === "mandatory" ? "Wajib" : "Pendukung"}
-                    </span>
-                    <a
-                      href={ev.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-tertiary hover:underline"
-                    >
-                      <span>Buka Bukti</span>
-                      <span className="material-symbols-rounded text-[14px]">open_in_new</span>
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Modal Unggah Bukti */}
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl border border-border">
-              <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
-                <h3 className="text-base font-bold font-heading text-primary">
-                  Unggah Bukti Dukung Baru
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <span className="material-symbols-rounded text-[20px]">close</span>
-                </button>
-              </div>
-
-              <form onSubmit={handleCreateEvidence} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-primary mb-1">
-                    Nama / Judul Bukti Dukung *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    placeholder="Contoh: Dokumen Silabus Kurikulum Al-Quran"
-                    className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-primary mb-1">
-                      Jenis Bukti
-                    </label>
-                    <select
-                      value={form.type}
-                      onChange={(e) => setForm({ ...form, type: e.target.value as any })}
-                      className="w-full px-3 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d] bg-white text-primary"
-                    >
-                      <option value="document">Dokumen / PDF</option>
-                      <option value="photo">Foto / Gambar</option>
-                      <option value="link">Tautan Luar / Link</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-primary mb-1">
-                      Sifat Berkas
-                    </label>
-                    <select
-                      value={form.nature}
-                      onChange={(e) => setForm({ ...form, nature: e.target.value as any })}
-                      className="w-full px-3 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d] bg-white text-primary"
-                    >
-                      <option value="supporting">Pendukung</option>
-                      <option value="mandatory">Wajib (Mandatory)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-primary mb-1">
-                    Unggah Berkas Bukti (Cloudinary) *
-                  </label>
-                  <div className="space-y-2">
-                    <CloudinaryUploadButton
-                      onUploadSuccess={(url, fileName) => {
-                        setForm((prev) => ({
-                          ...prev,
-                          url,
-                          title: prev.title || fileName || "",
-                        }));
-                      }}
-                      buttonText="Pilih File & Unggah ke Cloudinary"
-                    />
-                    <div className="relative">
-                      <input
-                        type="url"
-                        required
-                        value={form.url}
-                        onChange={(e) => setForm({ ...form, url: e.target.value })}
-                        placeholder="https://res.cloudinary.com/..."
-                        className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d] bg-gray-50/50"
-                      />
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-gray-400 mt-1">
-                    Seluruh dokumen rutin, foto kegiatan, dan PDF laporan disimpan langsung pada penyimpanan Cloudinary.
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    disabled={submitting}
-                    className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded border border-border"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="px-4 py-2 text-xs font-semibold text-white bg-tertiary hover:bg-[#0b6355] rounded shadow-sm disabled:opacity-50"
-                  >
-                    {submitting ? "Menyimpan..." : "Simpan Bukti"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+      <div className="mx-auto max-w-7xl">
+        <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-start sm:justify-between"><div><h1 className="font-heading text-2xl font-bold text-primary">Bukti Dukung</h1><p className="mt-1 text-xs text-gray-500">Dokumen dan foto operasional dikirim melalui Cloudinary lalu direview Biro.</p></div><button type="button" onClick={openCreate} className="inline-flex items-center gap-1.5 self-start rounded-sm bg-tertiary px-4 py-2 text-xs font-semibold text-on-tertiary hover:bg-emerald-700"><span className="material-symbols-rounded text-[18px]">cloud_upload</span>Unggah bukti</button></div>
+        {feedback && <p className="mt-4 rounded-sm border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900" role="status">{feedback}</p>}
+        <div className="mt-6">{loading ? <LoadingState message="Memuat repositori bukti dukung..." /> : error ? <ErrorState title="Gagal Memuat Bukti" message={error} onRetry={fetchData} /> : evidences.length === 0 ? <EmptyState title="Belum Ada Bukti Dukung" description="Belum ada bukti yang diunggah untuk review." /> : <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{evidences.map((evidence) => <article key={evidence.id} className="flex min-h-48 flex-col justify-between rounded-lg border border-border bg-surface p-5"><div><div className="flex items-start justify-between gap-3"><span className="material-symbols-rounded text-tertiary">{evidence.type === "photo" ? "image" : "description"}</span><WorkflowStatusBadge status={evidence.workflowStatus} /></div><h2 className="mt-4 font-heading text-base font-bold text-primary">{evidence.name}</h2><p className="mt-1 text-xs text-gray-500">{evidence.program?.title || "Program tidak tersedia"}</p>{evidence.notes && <p className="mt-3 text-xs text-gray-600">{evidence.notes}</p>}</div><div className="mt-4 border-t border-border pt-3"><p className="text-[10px] text-gray-400">{new Date(evidence.createdAt).toLocaleDateString("id-ID")}</p>{evidence.digitalLink && <a href={evidence.digitalLink} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-tertiary hover:underline">Buka bukti <span className="material-symbols-rounded text-[14px]">open_in_new</span></a>}</div></article>)}</div>}</div>
       </div>
+      {isModalOpen && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true"><form onSubmit={saveEvidence} className="w-full max-w-lg rounded-lg border border-border bg-surface p-5"><div className="flex items-start justify-between border-b border-border pb-3"><div><h2 className="font-heading text-base font-bold text-primary">Unggah bukti dukung</h2><p className="mt-1 text-xs text-gray-500">Gunakan Cloudinary untuk bukti operasional.</p></div><button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-500"><span className="material-symbols-rounded">close</span></button></div><div className="mt-4 space-y-3"><select required value={form.programId} onChange={(event) => setForm({ ...form, programId: event.target.value })} className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary"><option value="">Pilih program kerja</option>{programs.map((program) => <option key={program.id} value={program.id}>{program.title}</option>)}</select><input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Nama bukti" className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary" /><div className="grid grid-cols-2 gap-3"><select value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })} className="rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary"><option value="document">Dokumen</option><option value="photo">Foto</option><option value="link">Tautan</option></select><select value={form.nature} onChange={(event) => setForm({ ...form, nature: event.target.value })} className="rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary"><option value="supporting">Pendukung</option><option value="mandatory">Wajib</option></select></div><CloudinaryUploadButton onUploadSuccess={(url, fileName) => setForm((current) => ({ ...current, digitalLink: url, name: current.name || fileName || "" }))} buttonText="Pilih file & unggah ke Cloudinary" /><input required type="url" value={form.digitalLink} onChange={(event) => setForm({ ...form, digitalLink: event.target.value })} placeholder="Tautan Cloudinary" className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary" /><textarea rows={3} value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Catatan bukti (opsional)" className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary" /></div><div className="mt-5 flex justify-end gap-2 border-t border-border pt-4"><button type="button" onClick={() => setIsModalOpen(false)} className="rounded-sm border border-border px-4 py-2 text-xs font-semibold text-primary">Batal</button><button type="submit" disabled={submitting} className="rounded-sm bg-tertiary px-4 py-2 text-xs font-semibold text-on-tertiary disabled:opacity-50">{submitting ? "Menyimpan..." : "Kirim ke Biro"}</button></div></form></div>}
     </SimakinShell>
   );
 }

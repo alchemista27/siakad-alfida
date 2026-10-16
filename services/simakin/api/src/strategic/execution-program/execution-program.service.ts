@@ -1,53 +1,33 @@
 
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateExecutionProgramDto, UpdateExecutionProgramDto } from '../dto/program.dto';
+import { StrategicAuthorizationService } from '../workflow/strategic-authorization.service';
+import { StrategicAccessQueryService } from '../workflow/strategic-access-query.service';
 
 @Injectable()
 export class ExecutionProgramService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private readonly authorization: StrategicAuthorizationService, private readonly access: StrategicAccessQueryService) {}
 
-  async findAll(user?: any) {
-    let whereClause = {};
-    if (user && !user.roles?.some((r: any) => r.role === 'super_admin')) {
-      const myDepts = await this.prisma.departmentAdmin.findMany({
-        where: { userId: user.id },
-        select: { departmentId: true }
-      });
-      const deptIds = myDepts.map(d => d.departmentId);
-
-      // Ambil juga anak-anak biro di bawah departemen ini
-      const childDepts = await this.prisma.department.findMany({
-        where: { parentId: { in: deptIds } },
-        select: { id: true }
-      });
-      const allAccessibleDeptIds = [...new Set([...deptIds, ...childDepts.map(c => c.id)])];
-
-      whereClause = {
-        OR: [
-          { departmentId: { in: allAccessibleDeptIds } },
-          { coordinatorId: user.id },
-          { userId: user.id }
-        ]
-      };
-    }
-
+  async findAll(user: any) {
     return this.prisma.workProgram.findMany({
-      where: whereClause,
+      where: (await this.access.forPrograms(user)).where as any,
       include: { department: true, user: true, coordinator: true, kpis: true },
       orderBy: { createdAt: 'desc' }
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, user: any) {
+    await this.access.assertCanReadProgram(user, id);
     return this.prisma.workProgram.findUnique({
       where: { id },
       include: { department: true, user: true, coordinator: true, kpis: true }
     });
   }
 
-  async create(data: CreateExecutionProgramDto) {
-    return this.prisma.workProgram.create({ data: data as any });
+  async create(data: CreateExecutionProgramDto, user: any) {
+    await this.authorization.assertBiroCanManage(user, data.departmentId);
+    return (this.prisma as any).workProgram.create({ data: { ...data, workflowStatus: "draft" } });
   }
 
   async batchImport(items: any[], user: any) {
@@ -63,14 +43,15 @@ export class ExecutionProgramService {
     for (const row of items) {
       // Handle various case permutations
       const title = row.title || row.Title || row['Nama Program'] || row['nama_program'];
-      if (!title) continue;
+      if (!title) throw new BadRequestException(`Baris ${items.indexOf(row) + 1}: nama program wajib diisi.`);
 
       const deptName = row.departmentName || row.department || row.Department || row['Nama Bidang / Biro'] || row['Bidang / Biro'] || row['bidang'] || row['biro'];
       let deptId = row.departmentId || row.department_id;
       if (!deptId && deptName) {
         deptId = deptMap.get(String(deptName).toLowerCase().trim());
       }
-      if (!deptId) continue;
+      if (!deptId) throw new BadRequestException(`Baris ${items.indexOf(row) + 1}: Biro tidak ditemukan.`);
+      await this.authorization.assertBiroCanManage(user, deptId);
 
       const coordEmail = row.coordinatorEmail || row.coordinator_email || row['Email Koordinator / PIC'] || row['Email PIC'] || row['email_pic'];
       let coordId = row.coordinatorId || row.coordinator_id;
@@ -104,18 +85,25 @@ export class ExecutionProgramService {
       throw new BadRequestException("Tidak ada data program kerja valid yang dapat diimpor. Pastikan nama program dan bidang/biro sudah sesuai.");
     }
 
-    const created = await this.prisma.workProgram.createMany({
-      data: validPrograms as any,
-    });
+    const created = await this.prisma.$transaction((tx) => tx.workProgram.createMany({ data: validPrograms as any }));
 
     return { success: true, count: created.count };
   }
 
-  async update(id: string, data: UpdateExecutionProgramDto) {
-    return this.prisma.workProgram.update({ where: { id }, data: data as any });
+  async update(id: string, data: UpdateExecutionProgramDto, user: any) {
+    const program = await this.prisma.workProgram.findUnique({ where: { id } });
+    if (!program) throw new BadRequestException("Program kerja tidak ditemukan.");
+    if ((program as any).workflowStatus === "approved_by_bidang") throw new BadRequestException("Program yang disetujui tidak dapat diubah.");
+    await this.authorization.assertBiroCanManage(user, program.departmentId);
+    const { departmentId, ...allowed } = data;
+    if (departmentId && departmentId !== program.departmentId) throw new BadRequestException("Biro program kerja tidak dapat dipindahkan.");
+    return this.prisma.workProgram.update({ where: { id }, data: allowed as any });
   }
 
-  async remove(id: string) {
+  async remove(id: string, user: any) {
+    const program = await this.prisma.workProgram.findUnique({ where: { id } });
+    if (!program) throw new BadRequestException("Program kerja tidak ditemukan.");
+    await this.authorization.assertBiroCanManage(user, program.departmentId);
     return this.prisma.workProgram.delete({ where: { id } });
   }
 }

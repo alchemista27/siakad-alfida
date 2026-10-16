@@ -17,6 +17,7 @@ export function CloudinaryUploadButton({
 }: CloudinaryUploadButtonProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "hb1ropwm";
   const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "alfida_unsigned";
@@ -26,12 +27,13 @@ export function CloudinaryUploadButton({
     if (!file) return;
 
     if (file.size > 15 * 1024 * 1024) {
-      alert("Ukuran file maksimal 15MB!");
+      setError("Ukuran file maksimal 15MB.");
       e.target.value = "";
       return;
     }
 
     setUploading(true);
+    setError(null);
 
     try {
       const formData = new FormData();
@@ -52,7 +54,7 @@ export function CloudinaryUploadButton({
       setUploadedUrl(secureUrl);
       onUploadSuccess(secureUrl, file.name);
     } catch (err: any) {
-      alert("Error upload: " + err.message);
+      setError(err.message || "Gagal mengunggah berkas ke Cloudinary.");
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -84,6 +86,7 @@ export function CloudinaryUploadButton({
           <span className="truncate">Tersimpan: {uploadedUrl}</span>
         </div>
       )}
+      {error && <p className="rounded-sm border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] text-rose-800" role="alert">{error}</p>}
     </div>
   );
 }

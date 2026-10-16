@@ -1,382 +1,83 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SimakinShell } from "@/components/simakin-shell";
 import { ConfirmModal } from "@/components/confirm-modal";
-import {
-  getIssues,
-  createIssue,
-  updateIssue,
-  deleteIssue,
-} from "@/actions/strategic";
-import { Badge, EmptyState, LoadingState, ErrorState } from "@alfida/ui";
+import { createIssue, deleteIssue, getIssues, getPrograms, transitionWorkflow, type WorkflowStatus } from "@/actions/strategic";
+import { WorkflowStatusBadge } from "@/components/strategic/workflow-status-badge";
+import { EmptyState, ErrorState, LoadingState } from "@alfida/ui";
 
-interface IssueItem {
-  id: string;
-  departmentId?: string | null;
-  title: string;
-  description: string;
-  severity: "critical" | "high" | "medium" | "low";
-  status: "open" | "resolved" | "in_progress";
-  resolution?: string | null;
-  createdAt: string;
-  reporter?: { fullName: string };
-  department?: { name: string };
-}
+interface Program { id: string; title: string; }
+interface IssueItem { id: string; programId: string; title: string; description: string; impactScore?: number | null; probabilityScore?: number | null; mitigationPlan?: string | null; workflowStatus?: WorkflowStatus; createdAt: string; program?: Program; }
 
 export default function IssuesPage() {
   const [issues, setIssues] = useState<IssueItem[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Modal Create
+  const [feedback, setFeedback] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [issueForm, setIssueForm] = useState({
-    title: "",
-    description: "",
-    severity: "medium" as "critical" | "high" | "medium" | "low",
-  });
-
-  // Modal Resolve
-  const [resolvingIssue, setResolvingIssue] = useState<IssueItem | null>(null);
-  const [resolutionText, setResolutionText] = useState("");
-
+  const [issueForm, setIssueForm] = useState({ programId: "", title: "", description: "", impactScore: 3, probabilityScore: 3, mitigationPlan: "" });
   const [submitting, setSubmitting] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<IssueItem | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getIssues();
-      setIssues(Array.isArray(data) ? data : []);
-    } catch (err: any) {
-      setError(err.message || "Gagal memuat daftar kendala");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
+      const [issueData, programData] = await Promise.all([getIssues(), getPrograms()]);
+      setIssues(Array.isArray(issueData) ? issueData as IssueItem[] : []);
+      setPrograms(Array.isArray(programData) ? programData as Program[] : []);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Gagal memuat daftar kendala.");
+    } finally { setLoading(false); }
   }, []);
 
-  const handleCreateIssue = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!issueForm.title.trim()) return;
+  useEffect(() => { void fetchData(); }, [fetchData]);
 
+  const openCreate = () => {
+    setIssueForm({ programId: programs[0]?.id || "", title: "", description: "", impactScore: 3, probabilityScore: 3, mitigationPlan: "" });
+    setIsModalOpen(true);
+  };
+
+  const submitIssue = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!issueForm.programId || !issueForm.title.trim() || !issueForm.description.trim()) return;
     setSubmitting(true);
+    setFeedback(null);
     try {
-      await createIssue(issueForm);
+      const issue = await createIssue({ ...issueForm, title: issueForm.title.trim(), description: issueForm.description.trim(), mitigationPlan: issueForm.mitigationPlan.trim() || undefined }) as { id: string };
+      await transitionWorkflow("issue", issue.id, "submitted_to_biro");
       setIsModalOpen(false);
-      setIssueForm({ title: "", description: "", severity: "medium" });
-      fetchData();
-    } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal mencatat kendala"));
-    } finally {
-      setSubmitting(false);
-    }
+      setFeedback("Kendala dikirim dengan status Menunggu review Biro.");
+      await fetchData();
+    } catch (caught) {
+      setFeedback(caught instanceof Error ? caught.message : "Kendala belum dapat dikirim.");
+    } finally { setSubmitting(false); }
   };
 
-  const handleResolveSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!resolvingIssue || !resolutionText.trim()) return;
-
+  const remove = async () => {
+    if (!deleting) return;
     setSubmitting(true);
     try {
-      await updateIssue(resolvingIssue.id, {
-        status: "resolved",
-        resolution: resolutionText.trim(),
-      });
-      setResolvingIssue(null);
-      setResolutionText("");
-      fetchData();
-    } catch (err: any) {
-      alert("Error: " + (err.message || "Gagal menyelesaikan kendala"));
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!deletingId) return;
-    setSubmitting(true);
-    try {
-      await deleteIssue(deletingId);
-      setDeletingId(null);
-      fetchData();
-    } catch (err: any) {
-      alert("Gagal menghapus kendala: " + err.message);
-    } finally {
-      setSubmitting(false);
-    }
+      await deleteIssue(deleting.id);
+      setDeleting(null);
+      setFeedback("Kendala draft dihapus.");
+      await fetchData();
+    } catch (caught) {
+      setFeedback(caught instanceof Error ? caught.message : "Kendala belum dapat dihapus.");
+    } finally { setSubmitting(false); }
   };
 
   return (
     <SimakinShell activePath="/issues">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-border gap-4">
-          <div>
-            <h1 className="text-2xl font-bold font-heading text-primary">
-              Pelaporan Kendala & Eskalasi Masalah (Issues)
-            </h1>
-            <p className="text-xs text-gray-500 mt-1">
-              Pencatatan hambatan operasional, mitigasi resiko capaian target, dan solusi tindak lanjut pimpinan
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5 self-start sm:self-auto"
-          >
-            <span className="material-symbols-rounded text-[18px]">report_problem</span>
-            <span>+ Laporkan Kendala</span>
-          </button>
-        </div>
-
-        {/* Content Table */}
-        <div className="mt-6">
-          {loading ? (
-            <LoadingState message="Memuat daftar kendala..." />
-          ) : error ? (
-            <ErrorState
-              title="Gagal Memuat Kendala"
-              message={error}
-              onRetry={fetchData}
-            />
-          ) : issues.length === 0 ? (
-            <EmptyState
-              title="Tidak Ada Kendala Aktif"
-              description="Seluruh program dan kegiatan berjalan lancar tanpa hambatan kritis yang dilaporkan."
-            />
-          ) : (
-            <div className="bg-white border border-border rounded-lg overflow-hidden shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-border text-xs text-left">
-                  <thead className="bg-[#F7F8F8] text-gray-600 font-semibold uppercase tracking-wider text-[11px]">
-                    <tr>
-                      <th scope="col" className="px-5 py-3.5">Judul Kendala</th>
-                      <th scope="col" className="px-5 py-3.5">Tingkat Keparahan</th>
-                      <th scope="col" className="px-5 py-3.5">Status</th>
-                      <th scope="col" className="px-5 py-3.5">Solusi / Mitigasi</th>
-                      <th scope="col" className="px-5 py-3.5 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {issues.map((iss) => (
-                      <tr key={iss.id} className="hover:bg-[#fafbfb] transition-colors">
-                        <td className="px-5 py-4">
-                          <div className="font-semibold text-primary">{iss.title}</div>
-                          <div className="text-[11px] text-gray-500 mt-1 whitespace-pre-wrap">
-                            {iss.description}
-                          </div>
-                          <div className="text-[10px] text-gray-400 mt-1">
-                            Dilaporkan: {new Date(iss.createdAt).toLocaleDateString("id-ID")}
-                          </div>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                              iss.severity === "critical"
-                                ? "bg-red-100 text-red-800"
-                                : iss.severity === "high"
-                                ? "bg-amber-100 text-amber-800"
-                                : "bg-gray-100 text-gray-700"
-                            }`}
-                          >
-                            {iss.severity}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <Badge variant={iss.status === "resolved" ? "success" : "danger"}>
-                            {iss.status === "resolved" ? "Selesai / Teratasi" : "Belum Terselesaikan"}
-                          </Badge>
-                        </td>
-                        <td className="px-5 py-4 max-w-xs">
-                          {iss.resolution ? (
-                            <div className="text-[11px] text-emerald-800 bg-emerald-50 p-2 rounded border border-emerald-100 whitespace-pre-wrap">
-                              {iss.resolution}
-                            </div>
-                          ) : (
-                            <span className="text-[11px] text-gray-400 italic">Belum ada catatan solusi.</span>
-                          )}
-                        </td>
-                        <td className="px-5 py-4 text-right">
-                          <div className="inline-flex items-center gap-1.5">
-                            {iss.status !== "resolved" && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setResolvingIssue(iss);
-                                  setResolutionText("");
-                                }}
-                                className="px-2 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded border border-emerald-200"
-                              >
-                                Selesaikan
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => setDeletingId(iss.id)}
-                              className="px-2 py-1 text-[11px] font-semibold text-red-600 hover:bg-red-50 rounded border border-red-200"
-                            >
-                              Hapus
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Modal Laporkan Kendala */}
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl border border-border">
-              <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
-                <h3 className="text-base font-bold font-heading text-primary">
-                  Laporkan Kendala / Masalah Operasional
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <span className="material-symbols-rounded text-[20px]">close</span>
-                </button>
-              </div>
-
-              <form onSubmit={handleCreateIssue} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-primary mb-1">
-                    Pokok Masalah / Hambatan *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={issueForm.title}
-                    onChange={(e) => setIssueForm({ ...issueForm, title: e.target.value })}
-                    placeholder="Contoh: Keterlambatan Pengiriman Modul Pembelajaran"
-                    className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-primary mb-1">
-                    Tingkat Keparahan (Severity)
-                  </label>
-                  <select
-                    value={issueForm.severity}
-                    onChange={(e) => setIssueForm({ ...issueForm, severity: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d] bg-white text-primary"
-                  >
-                    <option value="critical">Kritis (Menghentikan Operasional)</option>
-                    <option value="high">Tinggi (Berdampak pada Target KPI)</option>
-                    <option value="medium">Menengah (Dapat Dimonitor)</option>
-                    <option value="low">Rendah (Hambatan Minor)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-primary mb-1">
-                    Uraian Detail Masalah & Akar Penyebab
-                  </label>
-                  <textarea
-                    rows={4}
-                    required
-                    value={issueForm.description}
-                    onChange={(e) => setIssueForm({ ...issueForm, description: e.target.value })}
-                    placeholder="Jelaskan dampak masalah, faktor pemicu, dan kendala yang dihadapi di lapangan..."
-                    className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d]"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    disabled={submitting}
-                    className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded border border-border"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded shadow-sm disabled:opacity-50"
-                  >
-                    {submitting ? "Mengirim..." : "Laporkan Masalah"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Modal Selesaikan Kendala */}
-        {resolvingIssue && (
-          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl border border-border">
-              <h3 className="text-base font-bold font-heading text-primary mb-1">
-                Selesaikan Kendala
-              </h3>
-              <p className="text-xs text-gray-500 mb-4">
-                Catat tindakan perbaikan dan resolusi untuk <strong>{resolvingIssue.title}</strong>.
-              </p>
-
-              <form onSubmit={handleResolveSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-primary mb-1">
-                    Uraian Solusi & Tindakan yang Dilakukan *
-                  </label>
-                  <textarea
-                    rows={4}
-                    required
-                    value={resolutionText}
-                    onChange={(e) => setResolutionText(e.target.value)}
-                    placeholder="Tuliskan solusi yang telah dieksekusi untuk mengatasi masalah ini..."
-                    className="w-full px-3.5 py-2 border border-border rounded text-xs focus:outline-none focus:ring-2 focus:ring-[#0f7f6d]"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-3 border-t border-border">
-                  <button
-                    type="button"
-                    onClick={() => setResolvingIssue(null)}
-                    disabled={submitting}
-                    className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded border border-border"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded shadow-sm disabled:opacity-50"
-                  >
-                    {submitting ? "Memproses..." : "Tandai Selesai"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Modal Hapus */}
-        <ConfirmModal
-          isOpen={!!deletingId}
-          title="Konfirmasi Hapus Kendala"
-          message="Yakin ingin menghapus catatan kendala ini dari sistem?"
-          confirmLabel="Hapus Kendala"
-          loading={submitting}
-          onConfirm={handleDeleteConfirm}
-          onCancel={() => setDeletingId(null)}
-        />
+      <div className="mx-auto max-w-7xl">
+        <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-start sm:justify-between"><div><h1 className="font-heading text-2xl font-bold text-primary">Kendala & Mitigasi</h1><p className="mt-1 text-xs text-gray-500">PIC mencatat dampak, probabilitas, dan mitigasi untuk direview Biro.</p></div><button type="button" onClick={openCreate} className="inline-flex items-center gap-1.5 self-start rounded-sm bg-tertiary px-4 py-2 text-xs font-semibold text-on-tertiary hover:bg-emerald-700"><span className="material-symbols-rounded text-[18px]">report_problem</span>Laporkan kendala</button></div>
+        {feedback && <p className="mt-4 rounded-sm border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900" role="status">{feedback}</p>}
+        <div className="mt-6">{loading ? <LoadingState message="Memuat daftar kendala..." /> : error ? <ErrorState title="Gagal Memuat Kendala" message={error} onRetry={fetchData} /> : issues.length === 0 ? <EmptyState title="Tidak Ada Kendala Aktif" description="Belum ada kendala yang dicatat untuk review." /> : <div className="overflow-x-auto rounded-lg border border-border bg-surface"><table className="min-w-full divide-y divide-border text-left text-xs"><thead className="bg-neutral text-[11px] font-semibold uppercase tracking-wider text-gray-600"><tr><th className="px-5 py-3">Kendala</th><th className="px-5 py-3">Risiko</th><th className="px-5 py-3">Mitigasi</th><th className="px-5 py-3">Workflow</th><th className="px-5 py-3 text-right">Aksi</th></tr></thead><tbody className="divide-y divide-border">{issues.map((issue) => <tr key={issue.id}><td className="max-w-sm px-5 py-4"><p className="font-semibold text-primary">{issue.title}</p><p className="mt-1 text-[11px] text-gray-600">{issue.description}</p><p className="mt-1 text-[10px] text-gray-400">{issue.program?.title || "Program tidak tersedia"} · {new Date(issue.createdAt).toLocaleDateString("id-ID")}</p></td><td className="px-5 py-4 text-[11px] text-primary">Dampak {issue.impactScore || "—"}/5<br />Probabilitas {issue.probabilityScore || "—"}/5</td><td className="max-w-xs px-5 py-4 text-[11px] text-gray-600">{issue.mitigationPlan || "Belum ada mitigasi"}</td><td className="px-5 py-4"><WorkflowStatusBadge status={issue.workflowStatus} /></td><td className="px-5 py-4 text-right">{issue.workflowStatus === "draft" && <button type="button" onClick={() => setDeleting(issue)} className="rounded-sm border border-rose-200 px-2.5 py-1 text-[11px] font-semibold text-rose-800 hover:bg-rose-50">Hapus draft</button>}</td></tr>)}</tbody></table></div>}</div>
       </div>
+      {isModalOpen && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true"><form onSubmit={submitIssue} className="w-full max-w-lg rounded-lg border border-border bg-surface p-5"><div className="flex items-start justify-between border-b border-border pb-3"><div><h2 className="font-heading text-base font-bold text-primary">Laporkan kendala</h2><p className="mt-1 text-xs text-gray-500">Kendala baru otomatis dikirim ke review Biro.</p></div><button type="button" onClick={() => setIsModalOpen(false)} className="text-gray-500"><span className="material-symbols-rounded">close</span></button></div><div className="mt-4 space-y-3"><select required value={issueForm.programId} onChange={(event) => setIssueForm({ ...issueForm, programId: event.target.value })} className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary"><option value="">Pilih program kerja</option>{programs.map((program) => <option key={program.id} value={program.id}>{program.title}</option>)}</select><input required value={issueForm.title} onChange={(event) => setIssueForm({ ...issueForm, title: event.target.value })} placeholder="Pokok kendala" className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary" /><textarea required rows={4} value={issueForm.description} onChange={(event) => setIssueForm({ ...issueForm, description: event.target.value })} placeholder="Uraian masalah" className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary" /><div className="grid grid-cols-2 gap-3"><label className="text-xs font-semibold text-primary">Dampak (1–5)<input type="number" min="1" max="5" value={issueForm.impactScore} onChange={(event) => setIssueForm({ ...issueForm, impactScore: Number(event.target.value) })} className="mt-1 w-full rounded-sm border border-border px-3 py-2 text-xs" /></label><label className="text-xs font-semibold text-primary">Probabilitas (1–5)<input type="number" min="1" max="5" value={issueForm.probabilityScore} onChange={(event) => setIssueForm({ ...issueForm, probabilityScore: Number(event.target.value) })} className="mt-1 w-full rounded-sm border border-border px-3 py-2 text-xs" /></label></div><textarea rows={3} value={issueForm.mitigationPlan} onChange={(event) => setIssueForm({ ...issueForm, mitigationPlan: event.target.value })} placeholder="Rencana mitigasi" className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-xs text-primary" /></div><div className="mt-5 flex justify-end gap-2 border-t border-border pt-4"><button type="button" onClick={() => setIsModalOpen(false)} className="rounded-sm border border-border px-4 py-2 text-xs font-semibold text-primary">Batal</button><button type="submit" disabled={submitting} className="rounded-sm bg-tertiary px-4 py-2 text-xs font-semibold text-on-tertiary disabled:opacity-50">{submitting ? "Mengirim..." : "Kirim ke Biro"}</button></div></form></div>}
+      <ConfirmModal isOpen={Boolean(deleting)} title="Hapus kendala draft" message={`Hapus kendala “${deleting?.title || ""}”? Hanya draft yang dapat dihapus.`} confirmLabel="Hapus draft" loading={submitting} onCancel={() => setDeleting(null)} onConfirm={() => void remove()} />
     </SimakinShell>
   );
 }

@@ -16,12 +16,12 @@ export class ExecutionProgramController {
 
   @Get(':id')
   @SimakinRoles('admin_bidang', 'admin_biro', 'pimpinan', 'pengawas', 'pic_program')
-  findOne(@Param('id') id: string) { return this.service.findOne(id); }
+  findOne(@Param('id') id: string, @Req() req: any) { return this.service.findOne(id, req.user); }
 
   @Post()
-  @SimakinRoles('admin_bidang', 'admin_biro')
-  create(@Body(new ZodValidationPipe(CreateExecutionProgramSchema)) dto: CreateExecutionProgramDto) {
-    return this.service.create(dto);
+  @SimakinRoles('admin_biro', 'super_admin')
+  create(@Body(new ZodValidationPipe(CreateExecutionProgramSchema)) dto: CreateExecutionProgramDto, @Req() req: any) {
+    return this.service.create(dto, req.user);
   }
 
   @Post('batch-import')
@@ -32,11 +32,11 @@ export class ExecutionProgramController {
 
   @Put(':id')
   @SimakinRoles('admin_bidang', 'admin_biro')
-  update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateExecutionProgramSchema)) dto: UpdateExecutionProgramDto) {
-    return this.service.update(id, dto);
+  update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateExecutionProgramSchema)) dto: UpdateExecutionProgramDto, @Req() req: any) {
+    return this.service.update(id, dto, req.user);
   }
 
   @Delete(':id')
   @SimakinRoles('admin_bidang', 'admin_biro')
-  remove(@Param('id') id: string) { return this.service.remove(id); }
+  remove(@Param('id') id: string, @Req() req: any) { return this.service.remove(id, req.user); }
 }
