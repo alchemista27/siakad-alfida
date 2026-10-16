@@ -1,5 +1,6 @@
-import { Injectable, BadRequestException, NotFoundException } from "@nestjs/common";
+import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { canManageUnit } from "../common/organization-access.policy";
 import { GpsCheckInOutDto, UpsertGpsConfigDto, UpsertHolidayDto } from "./attendance.dto";
 import { calculateDistance } from "./attendance.utils";
 import { GpsAttendanceStatus } from "../generated/prisma";
@@ -215,25 +216,43 @@ export class AttendanceService {
   }
 
   // ================= CONFIG & HOLIDAYS =================
-  async getGpsConfigs() {
-    return this.prisma.gpsAttendanceConfig.findMany({
+  async getGpsConfigs(principal?: { roles?: unknown }) {
+    const configs = await this.prisma.gpsAttendanceConfig.findMany({
       orderBy: { createdAt: "desc" },
     });
+    const visibleConfigs = principal
+      ? configs.filter((config) => canManageUnit(principal.roles, config.unitId))
+      : configs;
+    const unitIds = [...new Set(visibleConfigs.map((config) => config.unitId))];
+    const units = unitIds.length
+      ? await this.prisma.unit.findMany({
+        where: { id: { in: unitIds } },
+        select: { id: true, name: true, code: true, category: true, isActive: true },
+      })
+      : [];
+    const unitsById = new Map(units.map((unit) => [unit.id, unit]));
+    return visibleConfigs.map((config) => ({ ...config, unit: unitsById.get(config.unitId) ?? null }));
   }
 
-  async upsertGpsConfig(dto: UpsertGpsConfigDto) {
+  async upsertGpsConfig(dto: UpsertGpsConfigDto, principal: { roles?: unknown }) {
+    if (!canManageUnit(principal?.roles, dto.unitId)) {
+      throw new ForbiddenException("Anda tidak berwenang mengatur lokasi GPS unit ini.");
+    }
+    const unit = await this.prisma.unit.findUnique({ where: { id: dto.unitId } });
+    if (!unit) throw new NotFoundException("Unit tidak ditemukan.");
+    if (!unit.isActive) throw new BadRequestException("Lokasi GPS hanya dapat diatur untuk unit aktif.");
     return this.prisma.gpsAttendanceConfig.upsert({
       where: { unitId: dto.unitId },
       update: {
         latitude: dto.latitude,
         longitude: dto.longitude,
-        radiusMeters: dto.radiusMeters ?? 50,
+        radiusMeters: dto.radiusMeters,
       },
       create: {
         unitId: dto.unitId,
         latitude: dto.latitude,
         longitude: dto.longitude,
-        radiusMeters: dto.radiusMeters ?? 50,
+        radiusMeters: dto.radiusMeters,
       },
     });
   }

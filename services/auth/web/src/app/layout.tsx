@@ -1,20 +1,24 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { getFoundationBranding } from "../lib/foundation-settings";
 
 export const metadata: Metadata = {
   title: "Alfida ID: Layanan Autentikasi Terpadu Yayasan Alfida",
   description: "Pintu masuk terpadu sistem informasi manajemen Yayasan Alfida",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const branding = await getFoundationBranding();
+  const faviconUrl = branding.faviconUrl || branding.logoUrl;
+
   return (
     <html lang="id">
       <head>
-        <link rel="icon" type="image/png" href="https://s3.alfida.or.id/sim-alfida/sim-alfida/foundation/logo-1790054535826" />
+        {faviconUrl ? <link rel="icon" type="image/png" href={faviconUrl} /> : null}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

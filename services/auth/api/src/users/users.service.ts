@@ -6,6 +6,7 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import * as bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
+import { OrganizationRoleInput, validateOrganizationRoleInput } from "./organization-roles.dto";
 
 @Injectable()
 export class UsersService {
@@ -184,5 +185,80 @@ export class UsersService {
       where: { id: userId },
       data: { isActive },
     });
+  }
+
+  async upsertOrganizationRole(input: OrganizationRoleInput): Promise<any>;
+  async upsertOrganizationRole(data: { userId: string; departmentId: string; role: "admin_bidang" | "admin_biro" }): Promise<any>;
+  async upsertOrganizationRole(data: OrganizationRoleInput | { userId: string; departmentId: string; role: "admin_bidang" | "admin_biro" }) {
+    const input = this.normalizeOrganizationRoleInput(data);
+    const user = await this.prisma.user.findUnique({ where: { id: input.userId } });
+    if (!user?.isActive) throw new NotFoundException("Pengguna aktif tidak ditemukan");
+
+    const where = this.organizationRoleWhere(input);
+    const existing = await this.prisma.roleAssignment.findFirst({ where });
+    if (existing) return existing;
+
+    try {
+      const assignment = await this.prisma.roleAssignment.create({
+        data: { id: randomUUID(), ...where },
+      });
+      await this.prisma.session.deleteMany({ where: { userId: input.userId } });
+      return assignment;
+    } catch (error: any) {
+      if (error?.code === "P2002") {
+        const concurrentAssignment = await this.prisma.roleAssignment.findFirst({ where });
+        if (concurrentAssignment) return concurrentAssignment;
+      }
+      throw error;
+    }
+  }
+
+  async removeOrganizationRole(input: OrganizationRoleInput, options?: { idempotent?: boolean }): Promise<any>;
+  async removeOrganizationRole(userId: string, departmentId: string, role: "admin_bidang" | "admin_biro", options?: { idempotent?: boolean }): Promise<any>;
+  async removeOrganizationRole(
+    inputOrUserId: OrganizationRoleInput | string,
+    departmentIdOrOptions?: string | { idempotent?: boolean },
+    role?: "admin_bidang" | "admin_biro",
+    legacyOptions: { idempotent?: boolean } = { idempotent: true },
+  ) {
+    const input = typeof inputOrUserId === "string"
+      ? this.normalizeOrganizationRoleInput({
+          userId: inputOrUserId,
+          departmentId: departmentIdOrOptions as string,
+          role: role as "admin_bidang" | "admin_biro",
+        })
+      : inputOrUserId;
+    const options = typeof inputOrUserId === "string"
+      ? legacyOptions
+      : (departmentIdOrOptions as { idempotent?: boolean } | undefined) ?? { idempotent: true };
+    const where = this.organizationRoleWhere(input);
+    const assignment = await this.prisma.roleAssignment.findFirst({ where });
+    if (!assignment && options.idempotent) return { deleted: false };
+    if (!assignment) throw new NotFoundException("Penugasan organisasi tidak ditemukan");
+
+    const deleted = await this.prisma.roleAssignment.delete({ where: { id: assignment.id } });
+    await this.prisma.session.deleteMany({ where: { userId: input.userId } });
+    return deleted;
+  }
+
+  private normalizeOrganizationRoleInput(data: OrganizationRoleInput | { userId: string; departmentId: string; role: "admin_bidang" | "admin_biro" }): OrganizationRoleInput {
+    if ("scope" in data) return data;
+    return validateOrganizationRoleInput({
+      userId: data.userId,
+      scope: "department",
+      departmentId: data.departmentId,
+      app: "simakin",
+      role: data.role,
+    });
+  }
+
+  private organizationRoleWhere(input: OrganizationRoleInput) {
+    return {
+      userId: input.userId,
+      app: input.app,
+      role: input.role,
+      unitId: input.scope === "unit" ? input.unitId : null,
+      departmentId: input.scope === "department" ? input.departmentId : null,
+    };
   }
 }

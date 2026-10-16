@@ -43,6 +43,22 @@ enum AttendanceStatus {
   absent
 }
 
+enum DepartmentAdminRole {
+  admin_bidang
+}
+
+enum OrganizationSyncAggregate {
+  department
+  user
+}
+
+enum OrganizationSyncStatus {
+  pending
+  processing
+  delivered
+  failed
+}
+
 model User {
   id         String   @id @default(uuid()) @db.Uuid
   fullName   String   @map("full_name") @db.VarChar(200)
@@ -81,6 +97,88 @@ model EmployeeProfile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("employee_profiles")
+}
+
+model Unit {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @db.VarChar(150)
+  code      String    @unique @db.VarChar(50)
+  category  String    @default("pendidikan") @db.VarChar(30) // pendidikan | nondik
+  address   String?   @db.Text
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("units")
+}
+
+model Department {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @unique @db.VarChar(150)
+  code        String    @unique @db.VarChar(50)
+  description String?   @db.Text
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("departments")
+}
+
+model DepartmentAdminAssignment {
+  id               String              @id @default(uuid()) @db.Uuid
+  departmentId     String              @map("department_id") @db.Uuid
+  userId           String              @map("user_id") @db.Uuid
+  role             DepartmentAdminRole @default(admin_bidang)
+  isActive         Boolean             @default(true) @map("is_active")
+  assignedById     String              @map("assigned_by_id") @db.Uuid
+  assignedAt       DateTime            @default(now()) @map("assigned_at") @db.Timestamptz
+  revokedAt        DateTime?           @map("revoked_at") @db.Timestamptz
+  revokedById      String?             @map("revoked_by_id") @db.Uuid
+  authAssignmentId String?             @map("auth_assignment_id") @db.Uuid
+
+  @@unique([departmentId, userId, role])
+  @@index([departmentId, isActive])
+  @@index([userId, isActive])
+  @@map("department_admin_assignments")
+}
+
+model UnitAdminAssignment {
+  id               String    @id @default(uuid()) @db.Uuid
+  unitId           String    @map("unit_id") @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  app              String    @db.VarChar(30)
+  role             String    @db.VarChar(50)
+  isActive         Boolean   @default(true) @map("is_active")
+  assignedById     String    @map("assigned_by_id") @db.Uuid
+  assignedAt       DateTime  @default(now()) @map("assigned_at") @db.Timestamptz
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz
+  revokedById      String?   @map("revoked_by_id") @db.Uuid
+  authAssignmentId String?   @map("auth_assignment_id") @db.Uuid
+
+  @@unique([unitId, userId, app, role])
+  @@index([unitId, isActive])
+  @@index([userId, isActive])
+  @@map("unit_admin_assignments")
+}
+
+model OrganizationSyncOutbox {
+  id             String                    @id @default(uuid()) @db.Uuid
+  aggregate      OrganizationSyncAggregate
+  aggregateId    String                    @map("aggregate_id") @db.Uuid
+  eventType      String                    @map("event_type") @db.VarChar(80)
+  payload        Json
+  idempotencyKey String                    @unique @map("idempotency_key") @db.VarChar(180)
+  status         OrganizationSyncStatus    @default(pending)
+  attemptCount   Int                       @default(0) @map("attempt_count")
+  lastError      String?                   @map("last_error") @db.Text
+  availableAt    DateTime                  @default(now()) @map("available_at") @db.Timestamptz
+  deliveredAt    DateTime?                 @map("delivered_at") @db.Timestamptz
+  createdAt      DateTime                  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime                  @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([status, availableAt])
+  @@index([aggregate, aggregateId])
+  @@map("organization_sync_outbox")
 }
 
 model EmployeeUnitAssignment {

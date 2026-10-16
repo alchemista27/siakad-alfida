@@ -1,3 +1,4 @@
+import { BadRequestException } from "@nestjs/common";
 import { z } from "zod";
 
 export const UpdateFoundationSchema = z.object({
@@ -12,6 +13,17 @@ export const UpdateFoundationSchema = z.object({
   address: z.string().optional().nullable().or(z.literal("")),
   phone: z.string().optional().nullable().or(z.literal("")),
   email: z.string().email("Format email tidak valid").optional().nullable().or(z.literal("")),
-});
+}).strict();
 
 export type UpdateFoundationDto = z.infer<typeof UpdateFoundationSchema>;
+
+export function parseUpdateFoundationDto(input: unknown): UpdateFoundationDto {
+  const parsed = UpdateFoundationSchema.safeParse(input);
+  if (!parsed.success) {
+    throw new BadRequestException({
+      message: "Payload pengaturan yayasan tidak valid.",
+      errors: parsed.error.flatten(),
+    });
+  }
+  return parsed.data;
+}

@@ -7,6 +7,24 @@ export type DepartmentSyncPayload = { id: string; name: string; code: string; de
 export class OrganizationSyncService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async deleteDepartment(id: string, payload: { id: string; deletedAt: string }) {
+    if (id !== payload.id) throw new BadRequestException("ID path dan body harus sama.");
+    const deletedAt = new Date(payload.deletedAt);
+    if (Number.isNaN(deletedAt.getTime())) throw new BadRequestException("deletedAt harus berupa timestamp ISO yang valid.");
+    return (this.prisma as any).department.upsert({
+      where: { id },
+      create: {
+        id,
+        name: `Deleted SIMPEG department ${id}`,
+        isActive: false,
+        archivedAt: deletedAt,
+        source: "simpeg",
+        sourceUpdatedAt: deletedAt,
+      },
+      update: { isActive: false, archivedAt: deletedAt, source: "simpeg", sourceUpdatedAt: deletedAt },
+    });
+  }
+
   async syncDepartment(id: string, payload: DepartmentSyncPayload) {
     if (id !== payload.id) throw new BadRequestException("ID path dan body harus sama.");
     const updatedAt = new Date(payload.updatedAt);

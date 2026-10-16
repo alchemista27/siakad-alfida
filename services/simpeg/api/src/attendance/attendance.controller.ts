@@ -8,10 +8,14 @@ import {
   Query,
   UseGuards,
   Req,
+  ValidationPipe,
 } from "@nestjs/common";
 import { AttendanceService } from "./attendance.service";
 import { GpsCheckInOutDto, UpsertGpsConfigDto, UpsertHolidayDto } from "./attendance.dto";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
+import { SimpegRoles, SimpegRolesGuard } from "../common/guards/simpeg-roles.guard";
+
+const HR_ADMIN_ROLES = ["super_admin", "admin_kepegawaian", "admin_bidang", "admin_unit", "admin_unit_nondik"];
 
 @Controller("attendance")
 @UseGuards(ServiceJwtAuthGuard)
@@ -45,6 +49,8 @@ export class AttendanceController {
   }
 
   @Get("recap")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles(...HR_ADMIN_ROLES)
   async getRecap(
     @Query("start") start: string,
     @Query("end") end: string,
@@ -56,26 +62,39 @@ export class AttendanceController {
   }
 
   @Get("configs")
-  async getConfigs() {
-    return this.attendanceService.getGpsConfigs();
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles(...HR_ADMIN_ROLES)
+  async getConfigs(@Req() req: any) {
+    return this.attendanceService.getGpsConfigs(req.user);
   }
 
   @Post("configs")
-  async upsertConfig(@Body() dto: UpsertGpsConfigDto) {
-    return this.attendanceService.upsertGpsConfig(dto);
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles("super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik")
+  async upsertConfig(
+    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) dto: UpsertGpsConfigDto,
+    @Req() req: any,
+  ) {
+    return this.attendanceService.upsertGpsConfig(dto, req.user);
   }
 
   @Get("holidays")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles(...HR_ADMIN_ROLES)
   async getHolidays(@Query("unitId") unitId?: string) {
     return this.attendanceService.getHolidays(unitId);
   }
 
   @Post("holidays")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles("super_admin", "admin_kepegawaian", "admin_bidang")
   async upsertHoliday(@Body() dto: UpsertHolidayDto) {
     return this.attendanceService.upsertHoliday(dto);
   }
 
   @Delete("holidays/:id")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles("super_admin", "admin_kepegawaian", "admin_bidang")
   async deleteHoliday(@Param("id") id: string) {
     return this.attendanceService.deleteHoliday(id);
   }

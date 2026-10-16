@@ -71,15 +71,9 @@ export default function ModulesPage() {
         ...(isSuperAdmin
           ? [
               {
-                label: "Admin Yayasan",
-                href: "https://admin.alfida.or.id",
+                label: "Admin Yayasan & Pengguna",
+                href: "https://admin.alfida.or.id/users",
                 icon: "admin_panel_settings",
-                active: false,
-              },
-              {
-                label: "Manajemen Pengguna",
-                href: "/admin/users",
-                icon: "manage_accounts",
                 active: false,
               },
             ]

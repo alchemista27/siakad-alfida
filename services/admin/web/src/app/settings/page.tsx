@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { AdminShell } from "@/components/admin-shell";
+import { FoundationAssetUploader } from "@/components/foundation-asset-uploader";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingAssets, setUploadingAssets] = useState<Set<string>>(new Set());
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -61,8 +63,22 @@ export default function SettingsPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleAssetUploadingChange = (kind: "logo" | "favicon" | "chairman_signature", isUploading: boolean) => {
+    setUploadingAssets((current) => {
+      const next = new Set(current);
+      if (isUploading) next.add(kind);
+      else next.delete(kind);
+      return next;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploadingAssets.size > 0) {
+      setErrorMessage("Tunggu sampai semua upload aset selesai sebelum menyimpan perubahan.");
+      return;
+    }
+
     setSaving(true);
     setSuccessMessage("");
     setErrorMessage("");
@@ -80,7 +96,7 @@ export default function SettingsPage() {
         throw new Error(data?.message || "Gagal menyimpan pengaturan.");
       }
 
-      setSuccessMessage("Pengaturan identitas yayasan, logo, dan favicon berhasil diperbarui!");
+      setSuccessMessage("Pengaturan tersimpan. Aset branding diterbitkan dari penyimpanan Yayasan.");
       setTimeout(() => setSuccessMessage(""), 5000);
     } catch (err: any) {
       setErrorMessage(err.message || "Terjadi kesalahan saat menyimpan data.");
@@ -104,7 +120,7 @@ export default function SettingsPage() {
           </div>
           <button
             onClick={handleSubmit}
-            disabled={saving || loading}
+            disabled={saving || loading || uploadingAssets.size > 0}
             className="px-5 py-2.5 rounded bg-tertiary hover:bg-[#0b6355] text-white font-semibold text-xs transition-colors flex items-center gap-2 self-start md:self-auto shadow-sm disabled:opacity-60"
           >
             <span className="material-symbols-rounded text-[18px]">
@@ -190,107 +206,38 @@ export default function SettingsPage() {
 
               {/* Grid 3 Kolom: Logo, Favicon, Tanda Tangan */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
-                {/* Logo Yayasan */}
-                <div className="border border-border rounded-lg p-4 bg-[#F7F8F8]/50 flex flex-col justify-between">
-                  <div>
-                    <label className="block text-xs font-semibold text-primary mb-1">
-                      Logo Resmi Yayasan
-                    </label>
-                    <p className="text-[11px] text-gray-400 mb-3">
-                      Gambar format PNG resolusi tinggi.
-                    </p>
-                    <div className="h-28 bg-white rounded border border-border flex items-center justify-center p-2 mb-3">
-                      {formData.logoUrl ? (
-                        <img
-                          src={formData.logoUrl}
-                          alt="Logo Yayasan"
-                          className="max-h-full max-w-full object-contain"
-                        />
-                      ) : (
-                        <span className="material-symbols-rounded text-gray-300 text-[40px]">
-                          image
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <input
-                    type="text"
-                    name="logoUrl"
-                    value={formData.logoUrl}
-                    onChange={handleChange}
-                    placeholder="https://s3.alfida.or.id/.../logo.png"
-                    className="w-full px-2.5 py-1.5 text-[11px] rounded border border-border focus:ring-2 focus:ring-[#0f7f6d] outline-none bg-white"
-                  />
-                </div>
+                <FoundationAssetUploader
+                  kind="logo"
+                  label="Logo Resmi Yayasan"
+                  hint="PNG, WebP, atau SVG; maksimal 5 MB."
+                  accept="image/png,image/webp,image/svg+xml"
+                  value={formData.logoUrl}
+                  onChange={(logoUrl) => setFormData((prev) => ({ ...prev, logoUrl }))}
+                  onRemove={() => setFormData((prev) => ({ ...prev, logoUrl: "" }))}
+                  onUploadingChange={(isUploading) => handleAssetUploadingChange("logo", isUploading)}
+                />
 
-                {/* Favicon Browser Tab */}
-                <div className="border border-border rounded-lg p-4 bg-[#F7F8F8]/50 flex flex-col justify-between">
-                  <div>
-                    <label className="block text-xs font-semibold text-primary mb-1">
-                      Favicon Browser Tab
-                    </label>
-                    <p className="text-[11px] text-gray-400 mb-3">
-                      Ikon tab browser (.ico, .png, .svg).
-                    </p>
-                    <div className="h-28 bg-white rounded border border-border flex items-center justify-center p-2 mb-3">
-                      {formData.faviconUrl ? (
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-gray-100 border border-gray-200">
-                          <img
-                            src={formData.faviconUrl}
-                            alt="Favicon"
-                            className="w-6 h-6 object-contain"
-                          />
-                          <span className="text-xs text-gray-600 font-mono">Browser Tab Preview</span>
-                        </div>
-                      ) : (
-                        <span className="material-symbols-rounded text-gray-300 text-[40px]">
-                          tab
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <input
-                    type="text"
-                    name="faviconUrl"
-                    value={formData.faviconUrl}
-                    onChange={handleChange}
-                    placeholder="https://s3.alfida.or.id/.../favicon.ico"
-                    className="w-full px-2.5 py-1.5 text-[11px] rounded border border-border focus:ring-2 focus:ring-[#0f7f6d] outline-none bg-white"
-                  />
-                </div>
+                <FoundationAssetUploader
+                  kind="favicon"
+                  label="Favicon Browser Tab"
+                  hint="ICO, PNG, atau SVG; maksimal 1 MB."
+                  accept="image/png,image/x-icon,image/vnd.microsoft.icon,image/svg+xml"
+                  value={formData.faviconUrl}
+                  onChange={(faviconUrl) => setFormData((prev) => ({ ...prev, faviconUrl }))}
+                  onRemove={() => setFormData((prev) => ({ ...prev, faviconUrl: "" }))}
+                  onUploadingChange={(isUploading) => handleAssetUploadingChange("favicon", isUploading)}
+                />
 
-                {/* Tanda Tangan Ketua */}
-                <div className="border border-border rounded-lg p-4 bg-[#F7F8F8]/50 flex flex-col justify-between">
-                  <div>
-                    <label className="block text-xs font-semibold text-primary mb-1">
-                      Tanda Tangan Digital Ketua
-                    </label>
-                    <p className="text-[11px] text-gray-400 mb-3">
-                      PNG berlatar transparan untuk PDF.
-                    </p>
-                    <div className="h-28 bg-white rounded border border-border flex items-center justify-center p-2 mb-3">
-                      {formData.chairmanSignatureUrl ? (
-                        <img
-                          src={formData.chairmanSignatureUrl}
-                          alt="Tanda Tangan"
-                          className="max-h-full max-w-full object-contain"
-                        />
-                      ) : (
-                        <span className="material-symbols-rounded text-gray-300 text-[40px]">
-                          draw
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <input
-                    type="text"
-                    name="chairmanSignatureUrl"
-                    value={formData.chairmanSignatureUrl}
-                    onChange={handleChange}
-                    placeholder="https://s3.alfida.or.id/.../ttd.png"
-                    className="w-full px-2.5 py-1.5 text-[11px] rounded border border-border focus:ring-2 focus:ring-[#0f7f6d] outline-none bg-white"
-                  />
-                </div>
+                <FoundationAssetUploader
+                  kind="chairman_signature"
+                  label="Tanda Tangan Digital Ketua"
+                  hint="PNG atau WebP berlatar transparan; maksimal 3 MB."
+                  accept="image/png,image/webp"
+                  value={formData.chairmanSignatureUrl}
+                  onChange={(chairmanSignatureUrl) => setFormData((prev) => ({ ...prev, chairmanSignatureUrl }))}
+                  onRemove={() => setFormData((prev) => ({ ...prev, chairmanSignatureUrl: "" }))}
+                  onUploadingChange={(isUploading) => handleAssetUploadingChange("chairman_signature", isUploading)}
+                />
               </div>
             </div>
 

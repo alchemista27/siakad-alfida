@@ -145,6 +145,70 @@ exports.Prisma.EmployeeProfileScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.UnitScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code',
+  category: 'category',
+  address: 'address',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DepartmentScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code',
+  description: 'description',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DepartmentAdminAssignmentScalarFieldEnum = {
+  id: 'id',
+  departmentId: 'departmentId',
+  userId: 'userId',
+  role: 'role',
+  isActive: 'isActive',
+  assignedById: 'assignedById',
+  assignedAt: 'assignedAt',
+  revokedAt: 'revokedAt',
+  revokedById: 'revokedById',
+  authAssignmentId: 'authAssignmentId'
+};
+
+exports.Prisma.UnitAdminAssignmentScalarFieldEnum = {
+  id: 'id',
+  unitId: 'unitId',
+  userId: 'userId',
+  app: 'app',
+  role: 'role',
+  isActive: 'isActive',
+  assignedById: 'assignedById',
+  assignedAt: 'assignedAt',
+  revokedAt: 'revokedAt',
+  revokedById: 'revokedById',
+  authAssignmentId: 'authAssignmentId'
+};
+
+exports.Prisma.OrganizationSyncOutboxScalarFieldEnum = {
+  id: 'id',
+  aggregate: 'aggregate',
+  aggregateId: 'aggregateId',
+  eventType: 'eventType',
+  payload: 'payload',
+  idempotencyKey: 'idempotencyKey',
+  status: 'status',
+  attemptCount: 'attemptCount',
+  lastError: 'lastError',
+  availableAt: 'availableAt',
+  deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.EmployeeUnitAssignmentScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -266,6 +330,10 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -275,6 +343,28 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+exports.DepartmentAdminRole = exports.$Enums.DepartmentAdminRole = {
+  admin_bidang: 'admin_bidang'
+};
+
+exports.OrganizationSyncAggregate = exports.$Enums.OrganizationSyncAggregate = {
+  department: 'department',
+  user: 'user'
+};
+
+exports.OrganizationSyncStatus = exports.$Enums.OrganizationSyncStatus = {
+  pending: 'pending',
+  processing: 'processing',
+  delivered: 'delivered',
+  failed: 'failed'
+};
+
 exports.GpsAttendanceStatus = exports.$Enums.GpsAttendanceStatus = {
   present: 'present',
   late: 'late',
@@ -313,6 +403,11 @@ exports.AttendanceStatus = exports.$Enums.AttendanceStatus = {
 exports.Prisma.ModelName = {
   User: 'User',
   EmployeeProfile: 'EmployeeProfile',
+  Unit: 'Unit',
+  Department: 'Department',
+  DepartmentAdminAssignment: 'DepartmentAdminAssignment',
+  UnitAdminAssignment: 'UnitAdminAssignment',
+  OrganizationSyncOutbox: 'OrganizationSyncOutbox',
   EmployeeUnitAssignment: 'EmployeeUnitAssignment',
   GpsAttendanceConfig: 'GpsAttendanceConfig',
   GpsAttendance: 'GpsAttendance',

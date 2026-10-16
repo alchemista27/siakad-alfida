@@ -8,7 +8,7 @@ import {
   HttpStatus,
 } from "@nestjs/common";
 import { FoundationService } from "./foundation.service";
-import { UpdateFoundationDto } from "./foundation.dto";
+import { parseUpdateFoundationDto } from "./foundation.dto";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 import { AdminRolesGuard, AdminRoles } from "../common/guards/admin-roles.guard";
 
@@ -36,7 +36,7 @@ export class FoundationController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(ServiceJwtAuthGuard, AdminRolesGuard)
   @AdminRoles("super_admin")
-  async updateSettings(@Body() body: UpdateFoundationDto) {
-    return this.foundationService.updateSettings(body);
+  async updateSettings(@Body() body: unknown) {
+    return this.foundationService.updateSettings(parseUpdateFoundationDto(body));
   }
 }

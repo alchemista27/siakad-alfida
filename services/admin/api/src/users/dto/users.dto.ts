@@ -1,3 +1,4 @@
+import { BadRequestException } from "@nestjs/common";
 import { z } from "zod";
 
 export const CreateUserManualSchema = z.object({
@@ -22,9 +23,20 @@ export const AddRoleSchema = z.object({
   role: z.string(),
   unitId: z.string().uuid().optional().nullable(),
   departmentId: z.string().uuid().optional().nullable(),
-});
+}).strict();
 
 export type AddRoleDto = z.infer<typeof AddRoleSchema>;
+
+export function parseAddRoleDto(input: unknown): AddRoleDto {
+  const parsed = AddRoleSchema.safeParse(input);
+  if (!parsed.success) {
+    throw new BadRequestException({
+      message: "Payload peran pengguna tidak valid.",
+      errors: parsed.error.flatten(),
+    });
+  }
+  return parsed.data;
+}
 
 export const ResetPasswordSchema = z.object({
   password: z.string().min(8, "Password baru minimal 8 karakter"),

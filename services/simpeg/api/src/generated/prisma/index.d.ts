@@ -24,6 +24,31 @@ export type User = $Result.DefaultSelection<Prisma.$UserPayload>
  */
 export type EmployeeProfile = $Result.DefaultSelection<Prisma.$EmployeeProfilePayload>
 /**
+ * Model Unit
+ * 
+ */
+export type Unit = $Result.DefaultSelection<Prisma.$UnitPayload>
+/**
+ * Model Department
+ * 
+ */
+export type Department = $Result.DefaultSelection<Prisma.$DepartmentPayload>
+/**
+ * Model DepartmentAdminAssignment
+ * 
+ */
+export type DepartmentAdminAssignment = $Result.DefaultSelection<Prisma.$DepartmentAdminAssignmentPayload>
+/**
+ * Model UnitAdminAssignment
+ * 
+ */
+export type UnitAdminAssignment = $Result.DefaultSelection<Prisma.$UnitAdminAssignmentPayload>
+/**
+ * Model OrganizationSyncOutbox
+ * 
+ */
+export type OrganizationSyncOutbox = $Result.DefaultSelection<Prisma.$OrganizationSyncOutboxPayload>
+/**
  * Model EmployeeUnitAssignment
  * 
  */
@@ -127,6 +152,31 @@ export const AttendanceStatus: {
 
 export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof AttendanceStatus]
 
+
+export const DepartmentAdminRole: {
+  admin_bidang: 'admin_bidang'
+};
+
+export type DepartmentAdminRole = (typeof DepartmentAdminRole)[keyof typeof DepartmentAdminRole]
+
+
+export const OrganizationSyncAggregate: {
+  department: 'department',
+  user: 'user'
+};
+
+export type OrganizationSyncAggregate = (typeof OrganizationSyncAggregate)[keyof typeof OrganizationSyncAggregate]
+
+
+export const OrganizationSyncStatus: {
+  pending: 'pending',
+  processing: 'processing',
+  delivered: 'delivered',
+  failed: 'failed'
+};
+
+export type OrganizationSyncStatus = (typeof OrganizationSyncStatus)[keyof typeof OrganizationSyncStatus]
+
 }
 
 export type GpsAttendanceStatus = $Enums.GpsAttendanceStatus
@@ -148,6 +198,18 @@ export const DayOfWeek: typeof $Enums.DayOfWeek
 export type AttendanceStatus = $Enums.AttendanceStatus
 
 export const AttendanceStatus: typeof $Enums.AttendanceStatus
+
+export type DepartmentAdminRole = $Enums.DepartmentAdminRole
+
+export const DepartmentAdminRole: typeof $Enums.DepartmentAdminRole
+
+export type OrganizationSyncAggregate = $Enums.OrganizationSyncAggregate
+
+export const OrganizationSyncAggregate: typeof $Enums.OrganizationSyncAggregate
+
+export type OrganizationSyncStatus = $Enums.OrganizationSyncStatus
+
+export const OrganizationSyncStatus: typeof $Enums.OrganizationSyncStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -286,6 +348,56 @@ export class PrismaClient<
     * ```
     */
   get employeeProfile(): Prisma.EmployeeProfileDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.unit`: Exposes CRUD operations for the **Unit** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Units
+    * const units = await prisma.unit.findMany()
+    * ```
+    */
+  get unit(): Prisma.UnitDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.department`: Exposes CRUD operations for the **Department** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Departments
+    * const departments = await prisma.department.findMany()
+    * ```
+    */
+  get department(): Prisma.DepartmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.departmentAdminAssignment`: Exposes CRUD operations for the **DepartmentAdminAssignment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DepartmentAdminAssignments
+    * const departmentAdminAssignments = await prisma.departmentAdminAssignment.findMany()
+    * ```
+    */
+  get departmentAdminAssignment(): Prisma.DepartmentAdminAssignmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.unitAdminAssignment`: Exposes CRUD operations for the **UnitAdminAssignment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UnitAdminAssignments
+    * const unitAdminAssignments = await prisma.unitAdminAssignment.findMany()
+    * ```
+    */
+  get unitAdminAssignment(): Prisma.UnitAdminAssignmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.organizationSyncOutbox`: Exposes CRUD operations for the **OrganizationSyncOutbox** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OrganizationSyncOutboxes
+    * const organizationSyncOutboxes = await prisma.organizationSyncOutbox.findMany()
+    * ```
+    */
+  get organizationSyncOutbox(): Prisma.OrganizationSyncOutboxDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.employeeUnitAssignment`: Exposes CRUD operations for the **EmployeeUnitAssignment** model.
@@ -829,6 +941,11 @@ export namespace Prisma {
   export const ModelName: {
     User: 'User',
     EmployeeProfile: 'EmployeeProfile',
+    Unit: 'Unit',
+    Department: 'Department',
+    DepartmentAdminAssignment: 'DepartmentAdminAssignment',
+    UnitAdminAssignment: 'UnitAdminAssignment',
+    OrganizationSyncOutbox: 'OrganizationSyncOutbox',
     EmployeeUnitAssignment: 'EmployeeUnitAssignment',
     GpsAttendanceConfig: 'GpsAttendanceConfig',
     GpsAttendance: 'GpsAttendance',
@@ -857,7 +974,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "employeeProfile" | "employeeUnitAssignment" | "gpsAttendanceConfig" | "gpsAttendance" | "holiday" | "leaveRequest" | "liqoGroup" | "liqoMember" | "liqoMeeting" | "liqoAttendance" | "mutabaahRecord"
+      modelProps: "user" | "employeeProfile" | "unit" | "department" | "departmentAdminAssignment" | "unitAdminAssignment" | "organizationSyncOutbox" | "employeeUnitAssignment" | "gpsAttendanceConfig" | "gpsAttendance" | "holiday" | "leaveRequest" | "liqoGroup" | "liqoMember" | "liqoMeeting" | "liqoAttendance" | "mutabaahRecord"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1006,6 +1123,376 @@ export namespace Prisma {
           count: {
             args: Prisma.EmployeeProfileCountArgs<ExtArgs>
             result: $Utils.Optional<EmployeeProfileCountAggregateOutputType> | number
+          }
+        }
+      }
+      Unit: {
+        payload: Prisma.$UnitPayload<ExtArgs>
+        fields: Prisma.UnitFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UnitFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UnitFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitPayload>
+          }
+          findFirst: {
+            args: Prisma.UnitFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UnitFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitPayload>
+          }
+          findMany: {
+            args: Prisma.UnitFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitPayload>[]
+          }
+          create: {
+            args: Prisma.UnitCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitPayload>
+          }
+          createMany: {
+            args: Prisma.UnitCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UnitCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitPayload>[]
+          }
+          delete: {
+            args: Prisma.UnitDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitPayload>
+          }
+          update: {
+            args: Prisma.UnitUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitPayload>
+          }
+          deleteMany: {
+            args: Prisma.UnitDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UnitUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UnitUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitPayload>[]
+          }
+          upsert: {
+            args: Prisma.UnitUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitPayload>
+          }
+          aggregate: {
+            args: Prisma.UnitAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUnit>
+          }
+          groupBy: {
+            args: Prisma.UnitGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UnitGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UnitCountArgs<ExtArgs>
+            result: $Utils.Optional<UnitCountAggregateOutputType> | number
+          }
+        }
+      }
+      Department: {
+        payload: Prisma.$DepartmentPayload<ExtArgs>
+        fields: Prisma.DepartmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DepartmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DepartmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>
+          }
+          findFirst: {
+            args: Prisma.DepartmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DepartmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>
+          }
+          findMany: {
+            args: Prisma.DepartmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>[]
+          }
+          create: {
+            args: Prisma.DepartmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>
+          }
+          createMany: {
+            args: Prisma.DepartmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DepartmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>[]
+          }
+          delete: {
+            args: Prisma.DepartmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>
+          }
+          update: {
+            args: Prisma.DepartmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.DepartmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DepartmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DepartmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.DepartmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>
+          }
+          aggregate: {
+            args: Prisma.DepartmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDepartment>
+          }
+          groupBy: {
+            args: Prisma.DepartmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DepartmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DepartmentCountArgs<ExtArgs>
+            result: $Utils.Optional<DepartmentCountAggregateOutputType> | number
+          }
+        }
+      }
+      DepartmentAdminAssignment: {
+        payload: Prisma.$DepartmentAdminAssignmentPayload<ExtArgs>
+        fields: Prisma.DepartmentAdminAssignmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DepartmentAdminAssignmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentAdminAssignmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DepartmentAdminAssignmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentAdminAssignmentPayload>
+          }
+          findFirst: {
+            args: Prisma.DepartmentAdminAssignmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentAdminAssignmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DepartmentAdminAssignmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentAdminAssignmentPayload>
+          }
+          findMany: {
+            args: Prisma.DepartmentAdminAssignmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentAdminAssignmentPayload>[]
+          }
+          create: {
+            args: Prisma.DepartmentAdminAssignmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentAdminAssignmentPayload>
+          }
+          createMany: {
+            args: Prisma.DepartmentAdminAssignmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DepartmentAdminAssignmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentAdminAssignmentPayload>[]
+          }
+          delete: {
+            args: Prisma.DepartmentAdminAssignmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentAdminAssignmentPayload>
+          }
+          update: {
+            args: Prisma.DepartmentAdminAssignmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentAdminAssignmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.DepartmentAdminAssignmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DepartmentAdminAssignmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DepartmentAdminAssignmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentAdminAssignmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.DepartmentAdminAssignmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentAdminAssignmentPayload>
+          }
+          aggregate: {
+            args: Prisma.DepartmentAdminAssignmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDepartmentAdminAssignment>
+          }
+          groupBy: {
+            args: Prisma.DepartmentAdminAssignmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DepartmentAdminAssignmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DepartmentAdminAssignmentCountArgs<ExtArgs>
+            result: $Utils.Optional<DepartmentAdminAssignmentCountAggregateOutputType> | number
+          }
+        }
+      }
+      UnitAdminAssignment: {
+        payload: Prisma.$UnitAdminAssignmentPayload<ExtArgs>
+        fields: Prisma.UnitAdminAssignmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UnitAdminAssignmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitAdminAssignmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UnitAdminAssignmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitAdminAssignmentPayload>
+          }
+          findFirst: {
+            args: Prisma.UnitAdminAssignmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitAdminAssignmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UnitAdminAssignmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitAdminAssignmentPayload>
+          }
+          findMany: {
+            args: Prisma.UnitAdminAssignmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitAdminAssignmentPayload>[]
+          }
+          create: {
+            args: Prisma.UnitAdminAssignmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitAdminAssignmentPayload>
+          }
+          createMany: {
+            args: Prisma.UnitAdminAssignmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UnitAdminAssignmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitAdminAssignmentPayload>[]
+          }
+          delete: {
+            args: Prisma.UnitAdminAssignmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitAdminAssignmentPayload>
+          }
+          update: {
+            args: Prisma.UnitAdminAssignmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitAdminAssignmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.UnitAdminAssignmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UnitAdminAssignmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UnitAdminAssignmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitAdminAssignmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.UnitAdminAssignmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UnitAdminAssignmentPayload>
+          }
+          aggregate: {
+            args: Prisma.UnitAdminAssignmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUnitAdminAssignment>
+          }
+          groupBy: {
+            args: Prisma.UnitAdminAssignmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UnitAdminAssignmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UnitAdminAssignmentCountArgs<ExtArgs>
+            result: $Utils.Optional<UnitAdminAssignmentCountAggregateOutputType> | number
+          }
+        }
+      }
+      OrganizationSyncOutbox: {
+        payload: Prisma.$OrganizationSyncOutboxPayload<ExtArgs>
+        fields: Prisma.OrganizationSyncOutboxFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OrganizationSyncOutboxFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationSyncOutboxPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OrganizationSyncOutboxFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationSyncOutboxPayload>
+          }
+          findFirst: {
+            args: Prisma.OrganizationSyncOutboxFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationSyncOutboxPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OrganizationSyncOutboxFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationSyncOutboxPayload>
+          }
+          findMany: {
+            args: Prisma.OrganizationSyncOutboxFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationSyncOutboxPayload>[]
+          }
+          create: {
+            args: Prisma.OrganizationSyncOutboxCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationSyncOutboxPayload>
+          }
+          createMany: {
+            args: Prisma.OrganizationSyncOutboxCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OrganizationSyncOutboxCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationSyncOutboxPayload>[]
+          }
+          delete: {
+            args: Prisma.OrganizationSyncOutboxDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationSyncOutboxPayload>
+          }
+          update: {
+            args: Prisma.OrganizationSyncOutboxUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationSyncOutboxPayload>
+          }
+          deleteMany: {
+            args: Prisma.OrganizationSyncOutboxDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OrganizationSyncOutboxUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OrganizationSyncOutboxUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationSyncOutboxPayload>[]
+          }
+          upsert: {
+            args: Prisma.OrganizationSyncOutboxUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationSyncOutboxPayload>
+          }
+          aggregate: {
+            args: Prisma.OrganizationSyncOutboxAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOrganizationSyncOutbox>
+          }
+          groupBy: {
+            args: Prisma.OrganizationSyncOutboxGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OrganizationSyncOutboxGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OrganizationSyncOutboxCountArgs<ExtArgs>
+            result: $Utils.Optional<OrganizationSyncOutboxCountAggregateOutputType> | number
           }
         }
       }
@@ -1847,6 +2334,11 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     user?: UserOmit
     employeeProfile?: EmployeeProfileOmit
+    unit?: UnitOmit
+    department?: DepartmentOmit
+    departmentAdminAssignment?: DepartmentAdminAssignmentOmit
+    unitAdminAssignment?: UnitAdminAssignmentOmit
+    organizationSyncOutbox?: OrganizationSyncOutboxOmit
     employeeUnitAssignment?: EmployeeUnitAssignmentOmit
     gpsAttendanceConfig?: GpsAttendanceConfigOmit
     gpsAttendance?: GpsAttendanceOmit
@@ -4583,6 +5075,5323 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: EmployeeProfileInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Unit
+   */
+
+  export type AggregateUnit = {
+    _count: UnitCountAggregateOutputType | null
+    _min: UnitMinAggregateOutputType | null
+    _max: UnitMaxAggregateOutputType | null
+  }
+
+  export type UnitMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    code: string | null
+    category: string | null
+    address: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UnitMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    code: string | null
+    category: string | null
+    address: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UnitCountAggregateOutputType = {
+    id: number
+    name: number
+    code: number
+    category: number
+    address: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type UnitMinAggregateInputType = {
+    id?: true
+    name?: true
+    code?: true
+    category?: true
+    address?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type UnitMaxAggregateInputType = {
+    id?: true
+    name?: true
+    code?: true
+    category?: true
+    address?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type UnitCountAggregateInputType = {
+    id?: true
+    name?: true
+    code?: true
+    category?: true
+    address?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type UnitAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Unit to aggregate.
+     */
+    where?: UnitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Units to fetch.
+     */
+    orderBy?: UnitOrderByWithRelationInput | UnitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UnitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Units from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Units.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Units
+    **/
+    _count?: true | UnitCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UnitMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UnitMaxAggregateInputType
+  }
+
+  export type GetUnitAggregateType<T extends UnitAggregateArgs> = {
+        [P in keyof T & keyof AggregateUnit]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUnit[P]>
+      : GetScalarType<T[P], AggregateUnit[P]>
+  }
+
+
+
+
+  export type UnitGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UnitWhereInput
+    orderBy?: UnitOrderByWithAggregationInput | UnitOrderByWithAggregationInput[]
+    by: UnitScalarFieldEnum[] | UnitScalarFieldEnum
+    having?: UnitScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UnitCountAggregateInputType | true
+    _min?: UnitMinAggregateInputType
+    _max?: UnitMaxAggregateInputType
+  }
+
+  export type UnitGroupByOutputType = {
+    id: string
+    name: string
+    code: string
+    category: string
+    address: string | null
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date | null
+    _count: UnitCountAggregateOutputType | null
+    _min: UnitMinAggregateOutputType | null
+    _max: UnitMaxAggregateOutputType | null
+  }
+
+  type GetUnitGroupByPayload<T extends UnitGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UnitGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UnitGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UnitGroupByOutputType[P]>
+            : GetScalarType<T[P], UnitGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UnitSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    code?: boolean
+    category?: boolean
+    address?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["unit"]>
+
+  export type UnitSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    code?: boolean
+    category?: boolean
+    address?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["unit"]>
+
+  export type UnitSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    code?: boolean
+    category?: boolean
+    address?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["unit"]>
+
+  export type UnitSelectScalar = {
+    id?: boolean
+    name?: boolean
+    code?: boolean
+    category?: boolean
+    address?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type UnitOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "code" | "category" | "address" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["unit"]>
+
+  export type $UnitPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Unit"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      code: string
+      category: string
+      address: string | null
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date | null
+    }, ExtArgs["result"]["unit"]>
+    composites: {}
+  }
+
+  type UnitGetPayload<S extends boolean | null | undefined | UnitDefaultArgs> = $Result.GetResult<Prisma.$UnitPayload, S>
+
+  type UnitCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UnitFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UnitCountAggregateInputType | true
+    }
+
+  export interface UnitDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Unit'], meta: { name: 'Unit' } }
+    /**
+     * Find zero or one Unit that matches the filter.
+     * @param {UnitFindUniqueArgs} args - Arguments to find a Unit
+     * @example
+     * // Get one Unit
+     * const unit = await prisma.unit.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UnitFindUniqueArgs>(args: SelectSubset<T, UnitFindUniqueArgs<ExtArgs>>): Prisma__UnitClient<$Result.GetResult<Prisma.$UnitPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Unit that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UnitFindUniqueOrThrowArgs} args - Arguments to find a Unit
+     * @example
+     * // Get one Unit
+     * const unit = await prisma.unit.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UnitFindUniqueOrThrowArgs>(args: SelectSubset<T, UnitFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UnitClient<$Result.GetResult<Prisma.$UnitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Unit that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitFindFirstArgs} args - Arguments to find a Unit
+     * @example
+     * // Get one Unit
+     * const unit = await prisma.unit.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UnitFindFirstArgs>(args?: SelectSubset<T, UnitFindFirstArgs<ExtArgs>>): Prisma__UnitClient<$Result.GetResult<Prisma.$UnitPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Unit that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitFindFirstOrThrowArgs} args - Arguments to find a Unit
+     * @example
+     * // Get one Unit
+     * const unit = await prisma.unit.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UnitFindFirstOrThrowArgs>(args?: SelectSubset<T, UnitFindFirstOrThrowArgs<ExtArgs>>): Prisma__UnitClient<$Result.GetResult<Prisma.$UnitPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Units that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Units
+     * const units = await prisma.unit.findMany()
+     * 
+     * // Get first 10 Units
+     * const units = await prisma.unit.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const unitWithIdOnly = await prisma.unit.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UnitFindManyArgs>(args?: SelectSubset<T, UnitFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UnitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Unit.
+     * @param {UnitCreateArgs} args - Arguments to create a Unit.
+     * @example
+     * // Create one Unit
+     * const Unit = await prisma.unit.create({
+     *   data: {
+     *     // ... data to create a Unit
+     *   }
+     * })
+     * 
+     */
+    create<T extends UnitCreateArgs>(args: SelectSubset<T, UnitCreateArgs<ExtArgs>>): Prisma__UnitClient<$Result.GetResult<Prisma.$UnitPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Units.
+     * @param {UnitCreateManyArgs} args - Arguments to create many Units.
+     * @example
+     * // Create many Units
+     * const unit = await prisma.unit.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UnitCreateManyArgs>(args?: SelectSubset<T, UnitCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Units and returns the data saved in the database.
+     * @param {UnitCreateManyAndReturnArgs} args - Arguments to create many Units.
+     * @example
+     * // Create many Units
+     * const unit = await prisma.unit.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Units and only return the `id`
+     * const unitWithIdOnly = await prisma.unit.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UnitCreateManyAndReturnArgs>(args?: SelectSubset<T, UnitCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UnitPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Unit.
+     * @param {UnitDeleteArgs} args - Arguments to delete one Unit.
+     * @example
+     * // Delete one Unit
+     * const Unit = await prisma.unit.delete({
+     *   where: {
+     *     // ... filter to delete one Unit
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UnitDeleteArgs>(args: SelectSubset<T, UnitDeleteArgs<ExtArgs>>): Prisma__UnitClient<$Result.GetResult<Prisma.$UnitPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Unit.
+     * @param {UnitUpdateArgs} args - Arguments to update one Unit.
+     * @example
+     * // Update one Unit
+     * const unit = await prisma.unit.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UnitUpdateArgs>(args: SelectSubset<T, UnitUpdateArgs<ExtArgs>>): Prisma__UnitClient<$Result.GetResult<Prisma.$UnitPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Units.
+     * @param {UnitDeleteManyArgs} args - Arguments to filter Units to delete.
+     * @example
+     * // Delete a few Units
+     * const { count } = await prisma.unit.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UnitDeleteManyArgs>(args?: SelectSubset<T, UnitDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Units.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Units
+     * const unit = await prisma.unit.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UnitUpdateManyArgs>(args: SelectSubset<T, UnitUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Units and returns the data updated in the database.
+     * @param {UnitUpdateManyAndReturnArgs} args - Arguments to update many Units.
+     * @example
+     * // Update many Units
+     * const unit = await prisma.unit.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Units and only return the `id`
+     * const unitWithIdOnly = await prisma.unit.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UnitUpdateManyAndReturnArgs>(args: SelectSubset<T, UnitUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UnitPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Unit.
+     * @param {UnitUpsertArgs} args - Arguments to update or create a Unit.
+     * @example
+     * // Update or create a Unit
+     * const unit = await prisma.unit.upsert({
+     *   create: {
+     *     // ... data to create a Unit
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Unit we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UnitUpsertArgs>(args: SelectSubset<T, UnitUpsertArgs<ExtArgs>>): Prisma__UnitClient<$Result.GetResult<Prisma.$UnitPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Units.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitCountArgs} args - Arguments to filter Units to count.
+     * @example
+     * // Count the number of Units
+     * const count = await prisma.unit.count({
+     *   where: {
+     *     // ... the filter for the Units we want to count
+     *   }
+     * })
+    **/
+    count<T extends UnitCountArgs>(
+      args?: Subset<T, UnitCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UnitCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Unit.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UnitAggregateArgs>(args: Subset<T, UnitAggregateArgs>): Prisma.PrismaPromise<GetUnitAggregateType<T>>
+
+    /**
+     * Group by Unit.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UnitGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UnitGroupByArgs['orderBy'] }
+        : { orderBy?: UnitGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UnitGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUnitGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Unit model
+   */
+  readonly fields: UnitFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Unit.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UnitClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Unit model
+   */
+  interface UnitFieldRefs {
+    readonly id: FieldRef<"Unit", 'String'>
+    readonly name: FieldRef<"Unit", 'String'>
+    readonly code: FieldRef<"Unit", 'String'>
+    readonly category: FieldRef<"Unit", 'String'>
+    readonly address: FieldRef<"Unit", 'String'>
+    readonly isActive: FieldRef<"Unit", 'Boolean'>
+    readonly createdAt: FieldRef<"Unit", 'DateTime'>
+    readonly updatedAt: FieldRef<"Unit", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Unit findUnique
+   */
+  export type UnitFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Unit
+     */
+    select?: UnitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Unit
+     */
+    omit?: UnitOmit<ExtArgs> | null
+    /**
+     * Filter, which Unit to fetch.
+     */
+    where: UnitWhereUniqueInput
+  }
+
+  /**
+   * Unit findUniqueOrThrow
+   */
+  export type UnitFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Unit
+     */
+    select?: UnitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Unit
+     */
+    omit?: UnitOmit<ExtArgs> | null
+    /**
+     * Filter, which Unit to fetch.
+     */
+    where: UnitWhereUniqueInput
+  }
+
+  /**
+   * Unit findFirst
+   */
+  export type UnitFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Unit
+     */
+    select?: UnitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Unit
+     */
+    omit?: UnitOmit<ExtArgs> | null
+    /**
+     * Filter, which Unit to fetch.
+     */
+    where?: UnitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Units to fetch.
+     */
+    orderBy?: UnitOrderByWithRelationInput | UnitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Units.
+     */
+    cursor?: UnitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Units from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Units.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Units.
+     */
+    distinct?: UnitScalarFieldEnum | UnitScalarFieldEnum[]
+  }
+
+  /**
+   * Unit findFirstOrThrow
+   */
+  export type UnitFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Unit
+     */
+    select?: UnitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Unit
+     */
+    omit?: UnitOmit<ExtArgs> | null
+    /**
+     * Filter, which Unit to fetch.
+     */
+    where?: UnitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Units to fetch.
+     */
+    orderBy?: UnitOrderByWithRelationInput | UnitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Units.
+     */
+    cursor?: UnitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Units from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Units.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Units.
+     */
+    distinct?: UnitScalarFieldEnum | UnitScalarFieldEnum[]
+  }
+
+  /**
+   * Unit findMany
+   */
+  export type UnitFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Unit
+     */
+    select?: UnitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Unit
+     */
+    omit?: UnitOmit<ExtArgs> | null
+    /**
+     * Filter, which Units to fetch.
+     */
+    where?: UnitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Units to fetch.
+     */
+    orderBy?: UnitOrderByWithRelationInput | UnitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Units.
+     */
+    cursor?: UnitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Units from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Units.
+     */
+    skip?: number
+    distinct?: UnitScalarFieldEnum | UnitScalarFieldEnum[]
+  }
+
+  /**
+   * Unit create
+   */
+  export type UnitCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Unit
+     */
+    select?: UnitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Unit
+     */
+    omit?: UnitOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Unit.
+     */
+    data: XOR<UnitCreateInput, UnitUncheckedCreateInput>
+  }
+
+  /**
+   * Unit createMany
+   */
+  export type UnitCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Units.
+     */
+    data: UnitCreateManyInput | UnitCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Unit createManyAndReturn
+   */
+  export type UnitCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Unit
+     */
+    select?: UnitSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Unit
+     */
+    omit?: UnitOmit<ExtArgs> | null
+    /**
+     * The data used to create many Units.
+     */
+    data: UnitCreateManyInput | UnitCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Unit update
+   */
+  export type UnitUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Unit
+     */
+    select?: UnitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Unit
+     */
+    omit?: UnitOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Unit.
+     */
+    data: XOR<UnitUpdateInput, UnitUncheckedUpdateInput>
+    /**
+     * Choose, which Unit to update.
+     */
+    where: UnitWhereUniqueInput
+  }
+
+  /**
+   * Unit updateMany
+   */
+  export type UnitUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Units.
+     */
+    data: XOR<UnitUpdateManyMutationInput, UnitUncheckedUpdateManyInput>
+    /**
+     * Filter which Units to update
+     */
+    where?: UnitWhereInput
+    /**
+     * Limit how many Units to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Unit updateManyAndReturn
+   */
+  export type UnitUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Unit
+     */
+    select?: UnitSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Unit
+     */
+    omit?: UnitOmit<ExtArgs> | null
+    /**
+     * The data used to update Units.
+     */
+    data: XOR<UnitUpdateManyMutationInput, UnitUncheckedUpdateManyInput>
+    /**
+     * Filter which Units to update
+     */
+    where?: UnitWhereInput
+    /**
+     * Limit how many Units to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Unit upsert
+   */
+  export type UnitUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Unit
+     */
+    select?: UnitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Unit
+     */
+    omit?: UnitOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Unit to update in case it exists.
+     */
+    where: UnitWhereUniqueInput
+    /**
+     * In case the Unit found by the `where` argument doesn't exist, create a new Unit with this data.
+     */
+    create: XOR<UnitCreateInput, UnitUncheckedCreateInput>
+    /**
+     * In case the Unit was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UnitUpdateInput, UnitUncheckedUpdateInput>
+  }
+
+  /**
+   * Unit delete
+   */
+  export type UnitDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Unit
+     */
+    select?: UnitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Unit
+     */
+    omit?: UnitOmit<ExtArgs> | null
+    /**
+     * Filter which Unit to delete.
+     */
+    where: UnitWhereUniqueInput
+  }
+
+  /**
+   * Unit deleteMany
+   */
+  export type UnitDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Units to delete
+     */
+    where?: UnitWhereInput
+    /**
+     * Limit how many Units to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Unit without action
+   */
+  export type UnitDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Unit
+     */
+    select?: UnitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Unit
+     */
+    omit?: UnitOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Department
+   */
+
+  export type AggregateDepartment = {
+    _count: DepartmentCountAggregateOutputType | null
+    _min: DepartmentMinAggregateOutputType | null
+    _max: DepartmentMaxAggregateOutputType | null
+  }
+
+  export type DepartmentMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    code: string | null
+    description: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DepartmentMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    code: string | null
+    description: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DepartmentCountAggregateOutputType = {
+    id: number
+    name: number
+    code: number
+    description: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DepartmentMinAggregateInputType = {
+    id?: true
+    name?: true
+    code?: true
+    description?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DepartmentMaxAggregateInputType = {
+    id?: true
+    name?: true
+    code?: true
+    description?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DepartmentCountAggregateInputType = {
+    id?: true
+    name?: true
+    code?: true
+    description?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DepartmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Department to aggregate.
+     */
+    where?: DepartmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Departments to fetch.
+     */
+    orderBy?: DepartmentOrderByWithRelationInput | DepartmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DepartmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Departments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Departments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Departments
+    **/
+    _count?: true | DepartmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DepartmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DepartmentMaxAggregateInputType
+  }
+
+  export type GetDepartmentAggregateType<T extends DepartmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateDepartment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDepartment[P]>
+      : GetScalarType<T[P], AggregateDepartment[P]>
+  }
+
+
+
+
+  export type DepartmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DepartmentWhereInput
+    orderBy?: DepartmentOrderByWithAggregationInput | DepartmentOrderByWithAggregationInput[]
+    by: DepartmentScalarFieldEnum[] | DepartmentScalarFieldEnum
+    having?: DepartmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DepartmentCountAggregateInputType | true
+    _min?: DepartmentMinAggregateInputType
+    _max?: DepartmentMaxAggregateInputType
+  }
+
+  export type DepartmentGroupByOutputType = {
+    id: string
+    name: string
+    code: string
+    description: string | null
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date | null
+    _count: DepartmentCountAggregateOutputType | null
+    _min: DepartmentMinAggregateOutputType | null
+    _max: DepartmentMaxAggregateOutputType | null
+  }
+
+  type GetDepartmentGroupByPayload<T extends DepartmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DepartmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DepartmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DepartmentGroupByOutputType[P]>
+            : GetScalarType<T[P], DepartmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DepartmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    code?: boolean
+    description?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["department"]>
+
+  export type DepartmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    code?: boolean
+    description?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["department"]>
+
+  export type DepartmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    code?: boolean
+    description?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["department"]>
+
+  export type DepartmentSelectScalar = {
+    id?: boolean
+    name?: boolean
+    code?: boolean
+    description?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "code" | "description" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["department"]>
+
+  export type $DepartmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Department"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      code: string
+      description: string | null
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date | null
+    }, ExtArgs["result"]["department"]>
+    composites: {}
+  }
+
+  type DepartmentGetPayload<S extends boolean | null | undefined | DepartmentDefaultArgs> = $Result.GetResult<Prisma.$DepartmentPayload, S>
+
+  type DepartmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DepartmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DepartmentCountAggregateInputType | true
+    }
+
+  export interface DepartmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Department'], meta: { name: 'Department' } }
+    /**
+     * Find zero or one Department that matches the filter.
+     * @param {DepartmentFindUniqueArgs} args - Arguments to find a Department
+     * @example
+     * // Get one Department
+     * const department = await prisma.department.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DepartmentFindUniqueArgs>(args: SelectSubset<T, DepartmentFindUniqueArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Department that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DepartmentFindUniqueOrThrowArgs} args - Arguments to find a Department
+     * @example
+     * // Get one Department
+     * const department = await prisma.department.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DepartmentFindUniqueOrThrowArgs>(args: SelectSubset<T, DepartmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Department that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentFindFirstArgs} args - Arguments to find a Department
+     * @example
+     * // Get one Department
+     * const department = await prisma.department.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DepartmentFindFirstArgs>(args?: SelectSubset<T, DepartmentFindFirstArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Department that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentFindFirstOrThrowArgs} args - Arguments to find a Department
+     * @example
+     * // Get one Department
+     * const department = await prisma.department.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DepartmentFindFirstOrThrowArgs>(args?: SelectSubset<T, DepartmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Departments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Departments
+     * const departments = await prisma.department.findMany()
+     * 
+     * // Get first 10 Departments
+     * const departments = await prisma.department.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const departmentWithIdOnly = await prisma.department.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DepartmentFindManyArgs>(args?: SelectSubset<T, DepartmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Department.
+     * @param {DepartmentCreateArgs} args - Arguments to create a Department.
+     * @example
+     * // Create one Department
+     * const Department = await prisma.department.create({
+     *   data: {
+     *     // ... data to create a Department
+     *   }
+     * })
+     * 
+     */
+    create<T extends DepartmentCreateArgs>(args: SelectSubset<T, DepartmentCreateArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Departments.
+     * @param {DepartmentCreateManyArgs} args - Arguments to create many Departments.
+     * @example
+     * // Create many Departments
+     * const department = await prisma.department.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DepartmentCreateManyArgs>(args?: SelectSubset<T, DepartmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Departments and returns the data saved in the database.
+     * @param {DepartmentCreateManyAndReturnArgs} args - Arguments to create many Departments.
+     * @example
+     * // Create many Departments
+     * const department = await prisma.department.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Departments and only return the `id`
+     * const departmentWithIdOnly = await prisma.department.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DepartmentCreateManyAndReturnArgs>(args?: SelectSubset<T, DepartmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Department.
+     * @param {DepartmentDeleteArgs} args - Arguments to delete one Department.
+     * @example
+     * // Delete one Department
+     * const Department = await prisma.department.delete({
+     *   where: {
+     *     // ... filter to delete one Department
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DepartmentDeleteArgs>(args: SelectSubset<T, DepartmentDeleteArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Department.
+     * @param {DepartmentUpdateArgs} args - Arguments to update one Department.
+     * @example
+     * // Update one Department
+     * const department = await prisma.department.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DepartmentUpdateArgs>(args: SelectSubset<T, DepartmentUpdateArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Departments.
+     * @param {DepartmentDeleteManyArgs} args - Arguments to filter Departments to delete.
+     * @example
+     * // Delete a few Departments
+     * const { count } = await prisma.department.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DepartmentDeleteManyArgs>(args?: SelectSubset<T, DepartmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Departments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Departments
+     * const department = await prisma.department.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DepartmentUpdateManyArgs>(args: SelectSubset<T, DepartmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Departments and returns the data updated in the database.
+     * @param {DepartmentUpdateManyAndReturnArgs} args - Arguments to update many Departments.
+     * @example
+     * // Update many Departments
+     * const department = await prisma.department.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Departments and only return the `id`
+     * const departmentWithIdOnly = await prisma.department.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DepartmentUpdateManyAndReturnArgs>(args: SelectSubset<T, DepartmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Department.
+     * @param {DepartmentUpsertArgs} args - Arguments to update or create a Department.
+     * @example
+     * // Update or create a Department
+     * const department = await prisma.department.upsert({
+     *   create: {
+     *     // ... data to create a Department
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Department we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DepartmentUpsertArgs>(args: SelectSubset<T, DepartmentUpsertArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Departments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentCountArgs} args - Arguments to filter Departments to count.
+     * @example
+     * // Count the number of Departments
+     * const count = await prisma.department.count({
+     *   where: {
+     *     // ... the filter for the Departments we want to count
+     *   }
+     * })
+    **/
+    count<T extends DepartmentCountArgs>(
+      args?: Subset<T, DepartmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DepartmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Department.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DepartmentAggregateArgs>(args: Subset<T, DepartmentAggregateArgs>): Prisma.PrismaPromise<GetDepartmentAggregateType<T>>
+
+    /**
+     * Group by Department.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DepartmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DepartmentGroupByArgs['orderBy'] }
+        : { orderBy?: DepartmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DepartmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDepartmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Department model
+   */
+  readonly fields: DepartmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Department.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DepartmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Department model
+   */
+  interface DepartmentFieldRefs {
+    readonly id: FieldRef<"Department", 'String'>
+    readonly name: FieldRef<"Department", 'String'>
+    readonly code: FieldRef<"Department", 'String'>
+    readonly description: FieldRef<"Department", 'String'>
+    readonly isActive: FieldRef<"Department", 'Boolean'>
+    readonly createdAt: FieldRef<"Department", 'DateTime'>
+    readonly updatedAt: FieldRef<"Department", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Department findUnique
+   */
+  export type DepartmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * Filter, which Department to fetch.
+     */
+    where: DepartmentWhereUniqueInput
+  }
+
+  /**
+   * Department findUniqueOrThrow
+   */
+  export type DepartmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * Filter, which Department to fetch.
+     */
+    where: DepartmentWhereUniqueInput
+  }
+
+  /**
+   * Department findFirst
+   */
+  export type DepartmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * Filter, which Department to fetch.
+     */
+    where?: DepartmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Departments to fetch.
+     */
+    orderBy?: DepartmentOrderByWithRelationInput | DepartmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Departments.
+     */
+    cursor?: DepartmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Departments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Departments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Departments.
+     */
+    distinct?: DepartmentScalarFieldEnum | DepartmentScalarFieldEnum[]
+  }
+
+  /**
+   * Department findFirstOrThrow
+   */
+  export type DepartmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * Filter, which Department to fetch.
+     */
+    where?: DepartmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Departments to fetch.
+     */
+    orderBy?: DepartmentOrderByWithRelationInput | DepartmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Departments.
+     */
+    cursor?: DepartmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Departments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Departments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Departments.
+     */
+    distinct?: DepartmentScalarFieldEnum | DepartmentScalarFieldEnum[]
+  }
+
+  /**
+   * Department findMany
+   */
+  export type DepartmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * Filter, which Departments to fetch.
+     */
+    where?: DepartmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Departments to fetch.
+     */
+    orderBy?: DepartmentOrderByWithRelationInput | DepartmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Departments.
+     */
+    cursor?: DepartmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Departments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Departments.
+     */
+    skip?: number
+    distinct?: DepartmentScalarFieldEnum | DepartmentScalarFieldEnum[]
+  }
+
+  /**
+   * Department create
+   */
+  export type DepartmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Department.
+     */
+    data: XOR<DepartmentCreateInput, DepartmentUncheckedCreateInput>
+  }
+
+  /**
+   * Department createMany
+   */
+  export type DepartmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Departments.
+     */
+    data: DepartmentCreateManyInput | DepartmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Department createManyAndReturn
+   */
+  export type DepartmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many Departments.
+     */
+    data: DepartmentCreateManyInput | DepartmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Department update
+   */
+  export type DepartmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Department.
+     */
+    data: XOR<DepartmentUpdateInput, DepartmentUncheckedUpdateInput>
+    /**
+     * Choose, which Department to update.
+     */
+    where: DepartmentWhereUniqueInput
+  }
+
+  /**
+   * Department updateMany
+   */
+  export type DepartmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Departments.
+     */
+    data: XOR<DepartmentUpdateManyMutationInput, DepartmentUncheckedUpdateManyInput>
+    /**
+     * Filter which Departments to update
+     */
+    where?: DepartmentWhereInput
+    /**
+     * Limit how many Departments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Department updateManyAndReturn
+   */
+  export type DepartmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * The data used to update Departments.
+     */
+    data: XOR<DepartmentUpdateManyMutationInput, DepartmentUncheckedUpdateManyInput>
+    /**
+     * Filter which Departments to update
+     */
+    where?: DepartmentWhereInput
+    /**
+     * Limit how many Departments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Department upsert
+   */
+  export type DepartmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Department to update in case it exists.
+     */
+    where: DepartmentWhereUniqueInput
+    /**
+     * In case the Department found by the `where` argument doesn't exist, create a new Department with this data.
+     */
+    create: XOR<DepartmentCreateInput, DepartmentUncheckedCreateInput>
+    /**
+     * In case the Department was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DepartmentUpdateInput, DepartmentUncheckedUpdateInput>
+  }
+
+  /**
+   * Department delete
+   */
+  export type DepartmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * Filter which Department to delete.
+     */
+    where: DepartmentWhereUniqueInput
+  }
+
+  /**
+   * Department deleteMany
+   */
+  export type DepartmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Departments to delete
+     */
+    where?: DepartmentWhereInput
+    /**
+     * Limit how many Departments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Department without action
+   */
+  export type DepartmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DepartmentAdminAssignment
+   */
+
+  export type AggregateDepartmentAdminAssignment = {
+    _count: DepartmentAdminAssignmentCountAggregateOutputType | null
+    _min: DepartmentAdminAssignmentMinAggregateOutputType | null
+    _max: DepartmentAdminAssignmentMaxAggregateOutputType | null
+  }
+
+  export type DepartmentAdminAssignmentMinAggregateOutputType = {
+    id: string | null
+    departmentId: string | null
+    userId: string | null
+    role: $Enums.DepartmentAdminRole | null
+    isActive: boolean | null
+    assignedById: string | null
+    assignedAt: Date | null
+    revokedAt: Date | null
+    revokedById: string | null
+    authAssignmentId: string | null
+  }
+
+  export type DepartmentAdminAssignmentMaxAggregateOutputType = {
+    id: string | null
+    departmentId: string | null
+    userId: string | null
+    role: $Enums.DepartmentAdminRole | null
+    isActive: boolean | null
+    assignedById: string | null
+    assignedAt: Date | null
+    revokedAt: Date | null
+    revokedById: string | null
+    authAssignmentId: string | null
+  }
+
+  export type DepartmentAdminAssignmentCountAggregateOutputType = {
+    id: number
+    departmentId: number
+    userId: number
+    role: number
+    isActive: number
+    assignedById: number
+    assignedAt: number
+    revokedAt: number
+    revokedById: number
+    authAssignmentId: number
+    _all: number
+  }
+
+
+  export type DepartmentAdminAssignmentMinAggregateInputType = {
+    id?: true
+    departmentId?: true
+    userId?: true
+    role?: true
+    isActive?: true
+    assignedById?: true
+    assignedAt?: true
+    revokedAt?: true
+    revokedById?: true
+    authAssignmentId?: true
+  }
+
+  export type DepartmentAdminAssignmentMaxAggregateInputType = {
+    id?: true
+    departmentId?: true
+    userId?: true
+    role?: true
+    isActive?: true
+    assignedById?: true
+    assignedAt?: true
+    revokedAt?: true
+    revokedById?: true
+    authAssignmentId?: true
+  }
+
+  export type DepartmentAdminAssignmentCountAggregateInputType = {
+    id?: true
+    departmentId?: true
+    userId?: true
+    role?: true
+    isActive?: true
+    assignedById?: true
+    assignedAt?: true
+    revokedAt?: true
+    revokedById?: true
+    authAssignmentId?: true
+    _all?: true
+  }
+
+  export type DepartmentAdminAssignmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DepartmentAdminAssignment to aggregate.
+     */
+    where?: DepartmentAdminAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DepartmentAdminAssignments to fetch.
+     */
+    orderBy?: DepartmentAdminAssignmentOrderByWithRelationInput | DepartmentAdminAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DepartmentAdminAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DepartmentAdminAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DepartmentAdminAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DepartmentAdminAssignments
+    **/
+    _count?: true | DepartmentAdminAssignmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DepartmentAdminAssignmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DepartmentAdminAssignmentMaxAggregateInputType
+  }
+
+  export type GetDepartmentAdminAssignmentAggregateType<T extends DepartmentAdminAssignmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateDepartmentAdminAssignment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDepartmentAdminAssignment[P]>
+      : GetScalarType<T[P], AggregateDepartmentAdminAssignment[P]>
+  }
+
+
+
+
+  export type DepartmentAdminAssignmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DepartmentAdminAssignmentWhereInput
+    orderBy?: DepartmentAdminAssignmentOrderByWithAggregationInput | DepartmentAdminAssignmentOrderByWithAggregationInput[]
+    by: DepartmentAdminAssignmentScalarFieldEnum[] | DepartmentAdminAssignmentScalarFieldEnum
+    having?: DepartmentAdminAssignmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DepartmentAdminAssignmentCountAggregateInputType | true
+    _min?: DepartmentAdminAssignmentMinAggregateInputType
+    _max?: DepartmentAdminAssignmentMaxAggregateInputType
+  }
+
+  export type DepartmentAdminAssignmentGroupByOutputType = {
+    id: string
+    departmentId: string
+    userId: string
+    role: $Enums.DepartmentAdminRole
+    isActive: boolean
+    assignedById: string
+    assignedAt: Date
+    revokedAt: Date | null
+    revokedById: string | null
+    authAssignmentId: string | null
+    _count: DepartmentAdminAssignmentCountAggregateOutputType | null
+    _min: DepartmentAdminAssignmentMinAggregateOutputType | null
+    _max: DepartmentAdminAssignmentMaxAggregateOutputType | null
+  }
+
+  type GetDepartmentAdminAssignmentGroupByPayload<T extends DepartmentAdminAssignmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DepartmentAdminAssignmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DepartmentAdminAssignmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DepartmentAdminAssignmentGroupByOutputType[P]>
+            : GetScalarType<T[P], DepartmentAdminAssignmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DepartmentAdminAssignmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    departmentId?: boolean
+    userId?: boolean
+    role?: boolean
+    isActive?: boolean
+    assignedById?: boolean
+    assignedAt?: boolean
+    revokedAt?: boolean
+    revokedById?: boolean
+    authAssignmentId?: boolean
+  }, ExtArgs["result"]["departmentAdminAssignment"]>
+
+  export type DepartmentAdminAssignmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    departmentId?: boolean
+    userId?: boolean
+    role?: boolean
+    isActive?: boolean
+    assignedById?: boolean
+    assignedAt?: boolean
+    revokedAt?: boolean
+    revokedById?: boolean
+    authAssignmentId?: boolean
+  }, ExtArgs["result"]["departmentAdminAssignment"]>
+
+  export type DepartmentAdminAssignmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    departmentId?: boolean
+    userId?: boolean
+    role?: boolean
+    isActive?: boolean
+    assignedById?: boolean
+    assignedAt?: boolean
+    revokedAt?: boolean
+    revokedById?: boolean
+    authAssignmentId?: boolean
+  }, ExtArgs["result"]["departmentAdminAssignment"]>
+
+  export type DepartmentAdminAssignmentSelectScalar = {
+    id?: boolean
+    departmentId?: boolean
+    userId?: boolean
+    role?: boolean
+    isActive?: boolean
+    assignedById?: boolean
+    assignedAt?: boolean
+    revokedAt?: boolean
+    revokedById?: boolean
+    authAssignmentId?: boolean
+  }
+
+  export type DepartmentAdminAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "departmentId" | "userId" | "role" | "isActive" | "assignedById" | "assignedAt" | "revokedAt" | "revokedById" | "authAssignmentId", ExtArgs["result"]["departmentAdminAssignment"]>
+
+  export type $DepartmentAdminAssignmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DepartmentAdminAssignment"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      departmentId: string
+      userId: string
+      role: $Enums.DepartmentAdminRole
+      isActive: boolean
+      assignedById: string
+      assignedAt: Date
+      revokedAt: Date | null
+      revokedById: string | null
+      authAssignmentId: string | null
+    }, ExtArgs["result"]["departmentAdminAssignment"]>
+    composites: {}
+  }
+
+  type DepartmentAdminAssignmentGetPayload<S extends boolean | null | undefined | DepartmentAdminAssignmentDefaultArgs> = $Result.GetResult<Prisma.$DepartmentAdminAssignmentPayload, S>
+
+  type DepartmentAdminAssignmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DepartmentAdminAssignmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DepartmentAdminAssignmentCountAggregateInputType | true
+    }
+
+  export interface DepartmentAdminAssignmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DepartmentAdminAssignment'], meta: { name: 'DepartmentAdminAssignment' } }
+    /**
+     * Find zero or one DepartmentAdminAssignment that matches the filter.
+     * @param {DepartmentAdminAssignmentFindUniqueArgs} args - Arguments to find a DepartmentAdminAssignment
+     * @example
+     * // Get one DepartmentAdminAssignment
+     * const departmentAdminAssignment = await prisma.departmentAdminAssignment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DepartmentAdminAssignmentFindUniqueArgs>(args: SelectSubset<T, DepartmentAdminAssignmentFindUniqueArgs<ExtArgs>>): Prisma__DepartmentAdminAssignmentClient<$Result.GetResult<Prisma.$DepartmentAdminAssignmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DepartmentAdminAssignment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DepartmentAdminAssignmentFindUniqueOrThrowArgs} args - Arguments to find a DepartmentAdminAssignment
+     * @example
+     * // Get one DepartmentAdminAssignment
+     * const departmentAdminAssignment = await prisma.departmentAdminAssignment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DepartmentAdminAssignmentFindUniqueOrThrowArgs>(args: SelectSubset<T, DepartmentAdminAssignmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DepartmentAdminAssignmentClient<$Result.GetResult<Prisma.$DepartmentAdminAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DepartmentAdminAssignment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentAdminAssignmentFindFirstArgs} args - Arguments to find a DepartmentAdminAssignment
+     * @example
+     * // Get one DepartmentAdminAssignment
+     * const departmentAdminAssignment = await prisma.departmentAdminAssignment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DepartmentAdminAssignmentFindFirstArgs>(args?: SelectSubset<T, DepartmentAdminAssignmentFindFirstArgs<ExtArgs>>): Prisma__DepartmentAdminAssignmentClient<$Result.GetResult<Prisma.$DepartmentAdminAssignmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DepartmentAdminAssignment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentAdminAssignmentFindFirstOrThrowArgs} args - Arguments to find a DepartmentAdminAssignment
+     * @example
+     * // Get one DepartmentAdminAssignment
+     * const departmentAdminAssignment = await prisma.departmentAdminAssignment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DepartmentAdminAssignmentFindFirstOrThrowArgs>(args?: SelectSubset<T, DepartmentAdminAssignmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__DepartmentAdminAssignmentClient<$Result.GetResult<Prisma.$DepartmentAdminAssignmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DepartmentAdminAssignments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentAdminAssignmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DepartmentAdminAssignments
+     * const departmentAdminAssignments = await prisma.departmentAdminAssignment.findMany()
+     * 
+     * // Get first 10 DepartmentAdminAssignments
+     * const departmentAdminAssignments = await prisma.departmentAdminAssignment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const departmentAdminAssignmentWithIdOnly = await prisma.departmentAdminAssignment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DepartmentAdminAssignmentFindManyArgs>(args?: SelectSubset<T, DepartmentAdminAssignmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentAdminAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DepartmentAdminAssignment.
+     * @param {DepartmentAdminAssignmentCreateArgs} args - Arguments to create a DepartmentAdminAssignment.
+     * @example
+     * // Create one DepartmentAdminAssignment
+     * const DepartmentAdminAssignment = await prisma.departmentAdminAssignment.create({
+     *   data: {
+     *     // ... data to create a DepartmentAdminAssignment
+     *   }
+     * })
+     * 
+     */
+    create<T extends DepartmentAdminAssignmentCreateArgs>(args: SelectSubset<T, DepartmentAdminAssignmentCreateArgs<ExtArgs>>): Prisma__DepartmentAdminAssignmentClient<$Result.GetResult<Prisma.$DepartmentAdminAssignmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DepartmentAdminAssignments.
+     * @param {DepartmentAdminAssignmentCreateManyArgs} args - Arguments to create many DepartmentAdminAssignments.
+     * @example
+     * // Create many DepartmentAdminAssignments
+     * const departmentAdminAssignment = await prisma.departmentAdminAssignment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DepartmentAdminAssignmentCreateManyArgs>(args?: SelectSubset<T, DepartmentAdminAssignmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DepartmentAdminAssignments and returns the data saved in the database.
+     * @param {DepartmentAdminAssignmentCreateManyAndReturnArgs} args - Arguments to create many DepartmentAdminAssignments.
+     * @example
+     * // Create many DepartmentAdminAssignments
+     * const departmentAdminAssignment = await prisma.departmentAdminAssignment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DepartmentAdminAssignments and only return the `id`
+     * const departmentAdminAssignmentWithIdOnly = await prisma.departmentAdminAssignment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DepartmentAdminAssignmentCreateManyAndReturnArgs>(args?: SelectSubset<T, DepartmentAdminAssignmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentAdminAssignmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DepartmentAdminAssignment.
+     * @param {DepartmentAdminAssignmentDeleteArgs} args - Arguments to delete one DepartmentAdminAssignment.
+     * @example
+     * // Delete one DepartmentAdminAssignment
+     * const DepartmentAdminAssignment = await prisma.departmentAdminAssignment.delete({
+     *   where: {
+     *     // ... filter to delete one DepartmentAdminAssignment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DepartmentAdminAssignmentDeleteArgs>(args: SelectSubset<T, DepartmentAdminAssignmentDeleteArgs<ExtArgs>>): Prisma__DepartmentAdminAssignmentClient<$Result.GetResult<Prisma.$DepartmentAdminAssignmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DepartmentAdminAssignment.
+     * @param {DepartmentAdminAssignmentUpdateArgs} args - Arguments to update one DepartmentAdminAssignment.
+     * @example
+     * // Update one DepartmentAdminAssignment
+     * const departmentAdminAssignment = await prisma.departmentAdminAssignment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DepartmentAdminAssignmentUpdateArgs>(args: SelectSubset<T, DepartmentAdminAssignmentUpdateArgs<ExtArgs>>): Prisma__DepartmentAdminAssignmentClient<$Result.GetResult<Prisma.$DepartmentAdminAssignmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DepartmentAdminAssignments.
+     * @param {DepartmentAdminAssignmentDeleteManyArgs} args - Arguments to filter DepartmentAdminAssignments to delete.
+     * @example
+     * // Delete a few DepartmentAdminAssignments
+     * const { count } = await prisma.departmentAdminAssignment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DepartmentAdminAssignmentDeleteManyArgs>(args?: SelectSubset<T, DepartmentAdminAssignmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DepartmentAdminAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentAdminAssignmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DepartmentAdminAssignments
+     * const departmentAdminAssignment = await prisma.departmentAdminAssignment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DepartmentAdminAssignmentUpdateManyArgs>(args: SelectSubset<T, DepartmentAdminAssignmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DepartmentAdminAssignments and returns the data updated in the database.
+     * @param {DepartmentAdminAssignmentUpdateManyAndReturnArgs} args - Arguments to update many DepartmentAdminAssignments.
+     * @example
+     * // Update many DepartmentAdminAssignments
+     * const departmentAdminAssignment = await prisma.departmentAdminAssignment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DepartmentAdminAssignments and only return the `id`
+     * const departmentAdminAssignmentWithIdOnly = await prisma.departmentAdminAssignment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DepartmentAdminAssignmentUpdateManyAndReturnArgs>(args: SelectSubset<T, DepartmentAdminAssignmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentAdminAssignmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DepartmentAdminAssignment.
+     * @param {DepartmentAdminAssignmentUpsertArgs} args - Arguments to update or create a DepartmentAdminAssignment.
+     * @example
+     * // Update or create a DepartmentAdminAssignment
+     * const departmentAdminAssignment = await prisma.departmentAdminAssignment.upsert({
+     *   create: {
+     *     // ... data to create a DepartmentAdminAssignment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DepartmentAdminAssignment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DepartmentAdminAssignmentUpsertArgs>(args: SelectSubset<T, DepartmentAdminAssignmentUpsertArgs<ExtArgs>>): Prisma__DepartmentAdminAssignmentClient<$Result.GetResult<Prisma.$DepartmentAdminAssignmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DepartmentAdminAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentAdminAssignmentCountArgs} args - Arguments to filter DepartmentAdminAssignments to count.
+     * @example
+     * // Count the number of DepartmentAdminAssignments
+     * const count = await prisma.departmentAdminAssignment.count({
+     *   where: {
+     *     // ... the filter for the DepartmentAdminAssignments we want to count
+     *   }
+     * })
+    **/
+    count<T extends DepartmentAdminAssignmentCountArgs>(
+      args?: Subset<T, DepartmentAdminAssignmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DepartmentAdminAssignmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DepartmentAdminAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentAdminAssignmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DepartmentAdminAssignmentAggregateArgs>(args: Subset<T, DepartmentAdminAssignmentAggregateArgs>): Prisma.PrismaPromise<GetDepartmentAdminAssignmentAggregateType<T>>
+
+    /**
+     * Group by DepartmentAdminAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentAdminAssignmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DepartmentAdminAssignmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DepartmentAdminAssignmentGroupByArgs['orderBy'] }
+        : { orderBy?: DepartmentAdminAssignmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DepartmentAdminAssignmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDepartmentAdminAssignmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DepartmentAdminAssignment model
+   */
+  readonly fields: DepartmentAdminAssignmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DepartmentAdminAssignment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DepartmentAdminAssignmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DepartmentAdminAssignment model
+   */
+  interface DepartmentAdminAssignmentFieldRefs {
+    readonly id: FieldRef<"DepartmentAdminAssignment", 'String'>
+    readonly departmentId: FieldRef<"DepartmentAdminAssignment", 'String'>
+    readonly userId: FieldRef<"DepartmentAdminAssignment", 'String'>
+    readonly role: FieldRef<"DepartmentAdminAssignment", 'DepartmentAdminRole'>
+    readonly isActive: FieldRef<"DepartmentAdminAssignment", 'Boolean'>
+    readonly assignedById: FieldRef<"DepartmentAdminAssignment", 'String'>
+    readonly assignedAt: FieldRef<"DepartmentAdminAssignment", 'DateTime'>
+    readonly revokedAt: FieldRef<"DepartmentAdminAssignment", 'DateTime'>
+    readonly revokedById: FieldRef<"DepartmentAdminAssignment", 'String'>
+    readonly authAssignmentId: FieldRef<"DepartmentAdminAssignment", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DepartmentAdminAssignment findUnique
+   */
+  export type DepartmentAdminAssignmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentAdminAssignment
+     */
+    select?: DepartmentAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentAdminAssignment
+     */
+    omit?: DepartmentAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which DepartmentAdminAssignment to fetch.
+     */
+    where: DepartmentAdminAssignmentWhereUniqueInput
+  }
+
+  /**
+   * DepartmentAdminAssignment findUniqueOrThrow
+   */
+  export type DepartmentAdminAssignmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentAdminAssignment
+     */
+    select?: DepartmentAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentAdminAssignment
+     */
+    omit?: DepartmentAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which DepartmentAdminAssignment to fetch.
+     */
+    where: DepartmentAdminAssignmentWhereUniqueInput
+  }
+
+  /**
+   * DepartmentAdminAssignment findFirst
+   */
+  export type DepartmentAdminAssignmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentAdminAssignment
+     */
+    select?: DepartmentAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentAdminAssignment
+     */
+    omit?: DepartmentAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which DepartmentAdminAssignment to fetch.
+     */
+    where?: DepartmentAdminAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DepartmentAdminAssignments to fetch.
+     */
+    orderBy?: DepartmentAdminAssignmentOrderByWithRelationInput | DepartmentAdminAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DepartmentAdminAssignments.
+     */
+    cursor?: DepartmentAdminAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DepartmentAdminAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DepartmentAdminAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DepartmentAdminAssignments.
+     */
+    distinct?: DepartmentAdminAssignmentScalarFieldEnum | DepartmentAdminAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * DepartmentAdminAssignment findFirstOrThrow
+   */
+  export type DepartmentAdminAssignmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentAdminAssignment
+     */
+    select?: DepartmentAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentAdminAssignment
+     */
+    omit?: DepartmentAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which DepartmentAdminAssignment to fetch.
+     */
+    where?: DepartmentAdminAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DepartmentAdminAssignments to fetch.
+     */
+    orderBy?: DepartmentAdminAssignmentOrderByWithRelationInput | DepartmentAdminAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DepartmentAdminAssignments.
+     */
+    cursor?: DepartmentAdminAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DepartmentAdminAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DepartmentAdminAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DepartmentAdminAssignments.
+     */
+    distinct?: DepartmentAdminAssignmentScalarFieldEnum | DepartmentAdminAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * DepartmentAdminAssignment findMany
+   */
+  export type DepartmentAdminAssignmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentAdminAssignment
+     */
+    select?: DepartmentAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentAdminAssignment
+     */
+    omit?: DepartmentAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which DepartmentAdminAssignments to fetch.
+     */
+    where?: DepartmentAdminAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DepartmentAdminAssignments to fetch.
+     */
+    orderBy?: DepartmentAdminAssignmentOrderByWithRelationInput | DepartmentAdminAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DepartmentAdminAssignments.
+     */
+    cursor?: DepartmentAdminAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DepartmentAdminAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DepartmentAdminAssignments.
+     */
+    skip?: number
+    distinct?: DepartmentAdminAssignmentScalarFieldEnum | DepartmentAdminAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * DepartmentAdminAssignment create
+   */
+  export type DepartmentAdminAssignmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentAdminAssignment
+     */
+    select?: DepartmentAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentAdminAssignment
+     */
+    omit?: DepartmentAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * The data needed to create a DepartmentAdminAssignment.
+     */
+    data: XOR<DepartmentAdminAssignmentCreateInput, DepartmentAdminAssignmentUncheckedCreateInput>
+  }
+
+  /**
+   * DepartmentAdminAssignment createMany
+   */
+  export type DepartmentAdminAssignmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DepartmentAdminAssignments.
+     */
+    data: DepartmentAdminAssignmentCreateManyInput | DepartmentAdminAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DepartmentAdminAssignment createManyAndReturn
+   */
+  export type DepartmentAdminAssignmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentAdminAssignment
+     */
+    select?: DepartmentAdminAssignmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentAdminAssignment
+     */
+    omit?: DepartmentAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many DepartmentAdminAssignments.
+     */
+    data: DepartmentAdminAssignmentCreateManyInput | DepartmentAdminAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DepartmentAdminAssignment update
+   */
+  export type DepartmentAdminAssignmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentAdminAssignment
+     */
+    select?: DepartmentAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentAdminAssignment
+     */
+    omit?: DepartmentAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * The data needed to update a DepartmentAdminAssignment.
+     */
+    data: XOR<DepartmentAdminAssignmentUpdateInput, DepartmentAdminAssignmentUncheckedUpdateInput>
+    /**
+     * Choose, which DepartmentAdminAssignment to update.
+     */
+    where: DepartmentAdminAssignmentWhereUniqueInput
+  }
+
+  /**
+   * DepartmentAdminAssignment updateMany
+   */
+  export type DepartmentAdminAssignmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DepartmentAdminAssignments.
+     */
+    data: XOR<DepartmentAdminAssignmentUpdateManyMutationInput, DepartmentAdminAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which DepartmentAdminAssignments to update
+     */
+    where?: DepartmentAdminAssignmentWhereInput
+    /**
+     * Limit how many DepartmentAdminAssignments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DepartmentAdminAssignment updateManyAndReturn
+   */
+  export type DepartmentAdminAssignmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentAdminAssignment
+     */
+    select?: DepartmentAdminAssignmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentAdminAssignment
+     */
+    omit?: DepartmentAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to update DepartmentAdminAssignments.
+     */
+    data: XOR<DepartmentAdminAssignmentUpdateManyMutationInput, DepartmentAdminAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which DepartmentAdminAssignments to update
+     */
+    where?: DepartmentAdminAssignmentWhereInput
+    /**
+     * Limit how many DepartmentAdminAssignments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DepartmentAdminAssignment upsert
+   */
+  export type DepartmentAdminAssignmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentAdminAssignment
+     */
+    select?: DepartmentAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentAdminAssignment
+     */
+    omit?: DepartmentAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * The filter to search for the DepartmentAdminAssignment to update in case it exists.
+     */
+    where: DepartmentAdminAssignmentWhereUniqueInput
+    /**
+     * In case the DepartmentAdminAssignment found by the `where` argument doesn't exist, create a new DepartmentAdminAssignment with this data.
+     */
+    create: XOR<DepartmentAdminAssignmentCreateInput, DepartmentAdminAssignmentUncheckedCreateInput>
+    /**
+     * In case the DepartmentAdminAssignment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DepartmentAdminAssignmentUpdateInput, DepartmentAdminAssignmentUncheckedUpdateInput>
+  }
+
+  /**
+   * DepartmentAdminAssignment delete
+   */
+  export type DepartmentAdminAssignmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentAdminAssignment
+     */
+    select?: DepartmentAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentAdminAssignment
+     */
+    omit?: DepartmentAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter which DepartmentAdminAssignment to delete.
+     */
+    where: DepartmentAdminAssignmentWhereUniqueInput
+  }
+
+  /**
+   * DepartmentAdminAssignment deleteMany
+   */
+  export type DepartmentAdminAssignmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DepartmentAdminAssignments to delete
+     */
+    where?: DepartmentAdminAssignmentWhereInput
+    /**
+     * Limit how many DepartmentAdminAssignments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DepartmentAdminAssignment without action
+   */
+  export type DepartmentAdminAssignmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentAdminAssignment
+     */
+    select?: DepartmentAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentAdminAssignment
+     */
+    omit?: DepartmentAdminAssignmentOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UnitAdminAssignment
+   */
+
+  export type AggregateUnitAdminAssignment = {
+    _count: UnitAdminAssignmentCountAggregateOutputType | null
+    _min: UnitAdminAssignmentMinAggregateOutputType | null
+    _max: UnitAdminAssignmentMaxAggregateOutputType | null
+  }
+
+  export type UnitAdminAssignmentMinAggregateOutputType = {
+    id: string | null
+    unitId: string | null
+    userId: string | null
+    app: string | null
+    role: string | null
+    isActive: boolean | null
+    assignedById: string | null
+    assignedAt: Date | null
+    revokedAt: Date | null
+    revokedById: string | null
+    authAssignmentId: string | null
+  }
+
+  export type UnitAdminAssignmentMaxAggregateOutputType = {
+    id: string | null
+    unitId: string | null
+    userId: string | null
+    app: string | null
+    role: string | null
+    isActive: boolean | null
+    assignedById: string | null
+    assignedAt: Date | null
+    revokedAt: Date | null
+    revokedById: string | null
+    authAssignmentId: string | null
+  }
+
+  export type UnitAdminAssignmentCountAggregateOutputType = {
+    id: number
+    unitId: number
+    userId: number
+    app: number
+    role: number
+    isActive: number
+    assignedById: number
+    assignedAt: number
+    revokedAt: number
+    revokedById: number
+    authAssignmentId: number
+    _all: number
+  }
+
+
+  export type UnitAdminAssignmentMinAggregateInputType = {
+    id?: true
+    unitId?: true
+    userId?: true
+    app?: true
+    role?: true
+    isActive?: true
+    assignedById?: true
+    assignedAt?: true
+    revokedAt?: true
+    revokedById?: true
+    authAssignmentId?: true
+  }
+
+  export type UnitAdminAssignmentMaxAggregateInputType = {
+    id?: true
+    unitId?: true
+    userId?: true
+    app?: true
+    role?: true
+    isActive?: true
+    assignedById?: true
+    assignedAt?: true
+    revokedAt?: true
+    revokedById?: true
+    authAssignmentId?: true
+  }
+
+  export type UnitAdminAssignmentCountAggregateInputType = {
+    id?: true
+    unitId?: true
+    userId?: true
+    app?: true
+    role?: true
+    isActive?: true
+    assignedById?: true
+    assignedAt?: true
+    revokedAt?: true
+    revokedById?: true
+    authAssignmentId?: true
+    _all?: true
+  }
+
+  export type UnitAdminAssignmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UnitAdminAssignment to aggregate.
+     */
+    where?: UnitAdminAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UnitAdminAssignments to fetch.
+     */
+    orderBy?: UnitAdminAssignmentOrderByWithRelationInput | UnitAdminAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UnitAdminAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UnitAdminAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UnitAdminAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UnitAdminAssignments
+    **/
+    _count?: true | UnitAdminAssignmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UnitAdminAssignmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UnitAdminAssignmentMaxAggregateInputType
+  }
+
+  export type GetUnitAdminAssignmentAggregateType<T extends UnitAdminAssignmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateUnitAdminAssignment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUnitAdminAssignment[P]>
+      : GetScalarType<T[P], AggregateUnitAdminAssignment[P]>
+  }
+
+
+
+
+  export type UnitAdminAssignmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UnitAdminAssignmentWhereInput
+    orderBy?: UnitAdminAssignmentOrderByWithAggregationInput | UnitAdminAssignmentOrderByWithAggregationInput[]
+    by: UnitAdminAssignmentScalarFieldEnum[] | UnitAdminAssignmentScalarFieldEnum
+    having?: UnitAdminAssignmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UnitAdminAssignmentCountAggregateInputType | true
+    _min?: UnitAdminAssignmentMinAggregateInputType
+    _max?: UnitAdminAssignmentMaxAggregateInputType
+  }
+
+  export type UnitAdminAssignmentGroupByOutputType = {
+    id: string
+    unitId: string
+    userId: string
+    app: string
+    role: string
+    isActive: boolean
+    assignedById: string
+    assignedAt: Date
+    revokedAt: Date | null
+    revokedById: string | null
+    authAssignmentId: string | null
+    _count: UnitAdminAssignmentCountAggregateOutputType | null
+    _min: UnitAdminAssignmentMinAggregateOutputType | null
+    _max: UnitAdminAssignmentMaxAggregateOutputType | null
+  }
+
+  type GetUnitAdminAssignmentGroupByPayload<T extends UnitAdminAssignmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UnitAdminAssignmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UnitAdminAssignmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UnitAdminAssignmentGroupByOutputType[P]>
+            : GetScalarType<T[P], UnitAdminAssignmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UnitAdminAssignmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    unitId?: boolean
+    userId?: boolean
+    app?: boolean
+    role?: boolean
+    isActive?: boolean
+    assignedById?: boolean
+    assignedAt?: boolean
+    revokedAt?: boolean
+    revokedById?: boolean
+    authAssignmentId?: boolean
+  }, ExtArgs["result"]["unitAdminAssignment"]>
+
+  export type UnitAdminAssignmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    unitId?: boolean
+    userId?: boolean
+    app?: boolean
+    role?: boolean
+    isActive?: boolean
+    assignedById?: boolean
+    assignedAt?: boolean
+    revokedAt?: boolean
+    revokedById?: boolean
+    authAssignmentId?: boolean
+  }, ExtArgs["result"]["unitAdminAssignment"]>
+
+  export type UnitAdminAssignmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    unitId?: boolean
+    userId?: boolean
+    app?: boolean
+    role?: boolean
+    isActive?: boolean
+    assignedById?: boolean
+    assignedAt?: boolean
+    revokedAt?: boolean
+    revokedById?: boolean
+    authAssignmentId?: boolean
+  }, ExtArgs["result"]["unitAdminAssignment"]>
+
+  export type UnitAdminAssignmentSelectScalar = {
+    id?: boolean
+    unitId?: boolean
+    userId?: boolean
+    app?: boolean
+    role?: boolean
+    isActive?: boolean
+    assignedById?: boolean
+    assignedAt?: boolean
+    revokedAt?: boolean
+    revokedById?: boolean
+    authAssignmentId?: boolean
+  }
+
+  export type UnitAdminAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "unitId" | "userId" | "app" | "role" | "isActive" | "assignedById" | "assignedAt" | "revokedAt" | "revokedById" | "authAssignmentId", ExtArgs["result"]["unitAdminAssignment"]>
+
+  export type $UnitAdminAssignmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UnitAdminAssignment"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      unitId: string
+      userId: string
+      app: string
+      role: string
+      isActive: boolean
+      assignedById: string
+      assignedAt: Date
+      revokedAt: Date | null
+      revokedById: string | null
+      authAssignmentId: string | null
+    }, ExtArgs["result"]["unitAdminAssignment"]>
+    composites: {}
+  }
+
+  type UnitAdminAssignmentGetPayload<S extends boolean | null | undefined | UnitAdminAssignmentDefaultArgs> = $Result.GetResult<Prisma.$UnitAdminAssignmentPayload, S>
+
+  type UnitAdminAssignmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UnitAdminAssignmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UnitAdminAssignmentCountAggregateInputType | true
+    }
+
+  export interface UnitAdminAssignmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UnitAdminAssignment'], meta: { name: 'UnitAdminAssignment' } }
+    /**
+     * Find zero or one UnitAdminAssignment that matches the filter.
+     * @param {UnitAdminAssignmentFindUniqueArgs} args - Arguments to find a UnitAdminAssignment
+     * @example
+     * // Get one UnitAdminAssignment
+     * const unitAdminAssignment = await prisma.unitAdminAssignment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UnitAdminAssignmentFindUniqueArgs>(args: SelectSubset<T, UnitAdminAssignmentFindUniqueArgs<ExtArgs>>): Prisma__UnitAdminAssignmentClient<$Result.GetResult<Prisma.$UnitAdminAssignmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UnitAdminAssignment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UnitAdminAssignmentFindUniqueOrThrowArgs} args - Arguments to find a UnitAdminAssignment
+     * @example
+     * // Get one UnitAdminAssignment
+     * const unitAdminAssignment = await prisma.unitAdminAssignment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UnitAdminAssignmentFindUniqueOrThrowArgs>(args: SelectSubset<T, UnitAdminAssignmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UnitAdminAssignmentClient<$Result.GetResult<Prisma.$UnitAdminAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UnitAdminAssignment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitAdminAssignmentFindFirstArgs} args - Arguments to find a UnitAdminAssignment
+     * @example
+     * // Get one UnitAdminAssignment
+     * const unitAdminAssignment = await prisma.unitAdminAssignment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UnitAdminAssignmentFindFirstArgs>(args?: SelectSubset<T, UnitAdminAssignmentFindFirstArgs<ExtArgs>>): Prisma__UnitAdminAssignmentClient<$Result.GetResult<Prisma.$UnitAdminAssignmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UnitAdminAssignment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitAdminAssignmentFindFirstOrThrowArgs} args - Arguments to find a UnitAdminAssignment
+     * @example
+     * // Get one UnitAdminAssignment
+     * const unitAdminAssignment = await prisma.unitAdminAssignment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UnitAdminAssignmentFindFirstOrThrowArgs>(args?: SelectSubset<T, UnitAdminAssignmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__UnitAdminAssignmentClient<$Result.GetResult<Prisma.$UnitAdminAssignmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UnitAdminAssignments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitAdminAssignmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UnitAdminAssignments
+     * const unitAdminAssignments = await prisma.unitAdminAssignment.findMany()
+     * 
+     * // Get first 10 UnitAdminAssignments
+     * const unitAdminAssignments = await prisma.unitAdminAssignment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const unitAdminAssignmentWithIdOnly = await prisma.unitAdminAssignment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UnitAdminAssignmentFindManyArgs>(args?: SelectSubset<T, UnitAdminAssignmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UnitAdminAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UnitAdminAssignment.
+     * @param {UnitAdminAssignmentCreateArgs} args - Arguments to create a UnitAdminAssignment.
+     * @example
+     * // Create one UnitAdminAssignment
+     * const UnitAdminAssignment = await prisma.unitAdminAssignment.create({
+     *   data: {
+     *     // ... data to create a UnitAdminAssignment
+     *   }
+     * })
+     * 
+     */
+    create<T extends UnitAdminAssignmentCreateArgs>(args: SelectSubset<T, UnitAdminAssignmentCreateArgs<ExtArgs>>): Prisma__UnitAdminAssignmentClient<$Result.GetResult<Prisma.$UnitAdminAssignmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UnitAdminAssignments.
+     * @param {UnitAdminAssignmentCreateManyArgs} args - Arguments to create many UnitAdminAssignments.
+     * @example
+     * // Create many UnitAdminAssignments
+     * const unitAdminAssignment = await prisma.unitAdminAssignment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UnitAdminAssignmentCreateManyArgs>(args?: SelectSubset<T, UnitAdminAssignmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UnitAdminAssignments and returns the data saved in the database.
+     * @param {UnitAdminAssignmentCreateManyAndReturnArgs} args - Arguments to create many UnitAdminAssignments.
+     * @example
+     * // Create many UnitAdminAssignments
+     * const unitAdminAssignment = await prisma.unitAdminAssignment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UnitAdminAssignments and only return the `id`
+     * const unitAdminAssignmentWithIdOnly = await prisma.unitAdminAssignment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UnitAdminAssignmentCreateManyAndReturnArgs>(args?: SelectSubset<T, UnitAdminAssignmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UnitAdminAssignmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UnitAdminAssignment.
+     * @param {UnitAdminAssignmentDeleteArgs} args - Arguments to delete one UnitAdminAssignment.
+     * @example
+     * // Delete one UnitAdminAssignment
+     * const UnitAdminAssignment = await prisma.unitAdminAssignment.delete({
+     *   where: {
+     *     // ... filter to delete one UnitAdminAssignment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UnitAdminAssignmentDeleteArgs>(args: SelectSubset<T, UnitAdminAssignmentDeleteArgs<ExtArgs>>): Prisma__UnitAdminAssignmentClient<$Result.GetResult<Prisma.$UnitAdminAssignmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UnitAdminAssignment.
+     * @param {UnitAdminAssignmentUpdateArgs} args - Arguments to update one UnitAdminAssignment.
+     * @example
+     * // Update one UnitAdminAssignment
+     * const unitAdminAssignment = await prisma.unitAdminAssignment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UnitAdminAssignmentUpdateArgs>(args: SelectSubset<T, UnitAdminAssignmentUpdateArgs<ExtArgs>>): Prisma__UnitAdminAssignmentClient<$Result.GetResult<Prisma.$UnitAdminAssignmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UnitAdminAssignments.
+     * @param {UnitAdminAssignmentDeleteManyArgs} args - Arguments to filter UnitAdminAssignments to delete.
+     * @example
+     * // Delete a few UnitAdminAssignments
+     * const { count } = await prisma.unitAdminAssignment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UnitAdminAssignmentDeleteManyArgs>(args?: SelectSubset<T, UnitAdminAssignmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UnitAdminAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitAdminAssignmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UnitAdminAssignments
+     * const unitAdminAssignment = await prisma.unitAdminAssignment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UnitAdminAssignmentUpdateManyArgs>(args: SelectSubset<T, UnitAdminAssignmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UnitAdminAssignments and returns the data updated in the database.
+     * @param {UnitAdminAssignmentUpdateManyAndReturnArgs} args - Arguments to update many UnitAdminAssignments.
+     * @example
+     * // Update many UnitAdminAssignments
+     * const unitAdminAssignment = await prisma.unitAdminAssignment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UnitAdminAssignments and only return the `id`
+     * const unitAdminAssignmentWithIdOnly = await prisma.unitAdminAssignment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UnitAdminAssignmentUpdateManyAndReturnArgs>(args: SelectSubset<T, UnitAdminAssignmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UnitAdminAssignmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UnitAdminAssignment.
+     * @param {UnitAdminAssignmentUpsertArgs} args - Arguments to update or create a UnitAdminAssignment.
+     * @example
+     * // Update or create a UnitAdminAssignment
+     * const unitAdminAssignment = await prisma.unitAdminAssignment.upsert({
+     *   create: {
+     *     // ... data to create a UnitAdminAssignment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UnitAdminAssignment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UnitAdminAssignmentUpsertArgs>(args: SelectSubset<T, UnitAdminAssignmentUpsertArgs<ExtArgs>>): Prisma__UnitAdminAssignmentClient<$Result.GetResult<Prisma.$UnitAdminAssignmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UnitAdminAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitAdminAssignmentCountArgs} args - Arguments to filter UnitAdminAssignments to count.
+     * @example
+     * // Count the number of UnitAdminAssignments
+     * const count = await prisma.unitAdminAssignment.count({
+     *   where: {
+     *     // ... the filter for the UnitAdminAssignments we want to count
+     *   }
+     * })
+    **/
+    count<T extends UnitAdminAssignmentCountArgs>(
+      args?: Subset<T, UnitAdminAssignmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UnitAdminAssignmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UnitAdminAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitAdminAssignmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UnitAdminAssignmentAggregateArgs>(args: Subset<T, UnitAdminAssignmentAggregateArgs>): Prisma.PrismaPromise<GetUnitAdminAssignmentAggregateType<T>>
+
+    /**
+     * Group by UnitAdminAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnitAdminAssignmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UnitAdminAssignmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UnitAdminAssignmentGroupByArgs['orderBy'] }
+        : { orderBy?: UnitAdminAssignmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UnitAdminAssignmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUnitAdminAssignmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UnitAdminAssignment model
+   */
+  readonly fields: UnitAdminAssignmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UnitAdminAssignment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UnitAdminAssignmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UnitAdminAssignment model
+   */
+  interface UnitAdminAssignmentFieldRefs {
+    readonly id: FieldRef<"UnitAdminAssignment", 'String'>
+    readonly unitId: FieldRef<"UnitAdminAssignment", 'String'>
+    readonly userId: FieldRef<"UnitAdminAssignment", 'String'>
+    readonly app: FieldRef<"UnitAdminAssignment", 'String'>
+    readonly role: FieldRef<"UnitAdminAssignment", 'String'>
+    readonly isActive: FieldRef<"UnitAdminAssignment", 'Boolean'>
+    readonly assignedById: FieldRef<"UnitAdminAssignment", 'String'>
+    readonly assignedAt: FieldRef<"UnitAdminAssignment", 'DateTime'>
+    readonly revokedAt: FieldRef<"UnitAdminAssignment", 'DateTime'>
+    readonly revokedById: FieldRef<"UnitAdminAssignment", 'String'>
+    readonly authAssignmentId: FieldRef<"UnitAdminAssignment", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UnitAdminAssignment findUnique
+   */
+  export type UnitAdminAssignmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnitAdminAssignment
+     */
+    select?: UnitAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnitAdminAssignment
+     */
+    omit?: UnitAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which UnitAdminAssignment to fetch.
+     */
+    where: UnitAdminAssignmentWhereUniqueInput
+  }
+
+  /**
+   * UnitAdminAssignment findUniqueOrThrow
+   */
+  export type UnitAdminAssignmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnitAdminAssignment
+     */
+    select?: UnitAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnitAdminAssignment
+     */
+    omit?: UnitAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which UnitAdminAssignment to fetch.
+     */
+    where: UnitAdminAssignmentWhereUniqueInput
+  }
+
+  /**
+   * UnitAdminAssignment findFirst
+   */
+  export type UnitAdminAssignmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnitAdminAssignment
+     */
+    select?: UnitAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnitAdminAssignment
+     */
+    omit?: UnitAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which UnitAdminAssignment to fetch.
+     */
+    where?: UnitAdminAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UnitAdminAssignments to fetch.
+     */
+    orderBy?: UnitAdminAssignmentOrderByWithRelationInput | UnitAdminAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UnitAdminAssignments.
+     */
+    cursor?: UnitAdminAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UnitAdminAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UnitAdminAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UnitAdminAssignments.
+     */
+    distinct?: UnitAdminAssignmentScalarFieldEnum | UnitAdminAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * UnitAdminAssignment findFirstOrThrow
+   */
+  export type UnitAdminAssignmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnitAdminAssignment
+     */
+    select?: UnitAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnitAdminAssignment
+     */
+    omit?: UnitAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which UnitAdminAssignment to fetch.
+     */
+    where?: UnitAdminAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UnitAdminAssignments to fetch.
+     */
+    orderBy?: UnitAdminAssignmentOrderByWithRelationInput | UnitAdminAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UnitAdminAssignments.
+     */
+    cursor?: UnitAdminAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UnitAdminAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UnitAdminAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UnitAdminAssignments.
+     */
+    distinct?: UnitAdminAssignmentScalarFieldEnum | UnitAdminAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * UnitAdminAssignment findMany
+   */
+  export type UnitAdminAssignmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnitAdminAssignment
+     */
+    select?: UnitAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnitAdminAssignment
+     */
+    omit?: UnitAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter, which UnitAdminAssignments to fetch.
+     */
+    where?: UnitAdminAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UnitAdminAssignments to fetch.
+     */
+    orderBy?: UnitAdminAssignmentOrderByWithRelationInput | UnitAdminAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UnitAdminAssignments.
+     */
+    cursor?: UnitAdminAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UnitAdminAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UnitAdminAssignments.
+     */
+    skip?: number
+    distinct?: UnitAdminAssignmentScalarFieldEnum | UnitAdminAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * UnitAdminAssignment create
+   */
+  export type UnitAdminAssignmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnitAdminAssignment
+     */
+    select?: UnitAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnitAdminAssignment
+     */
+    omit?: UnitAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * The data needed to create a UnitAdminAssignment.
+     */
+    data: XOR<UnitAdminAssignmentCreateInput, UnitAdminAssignmentUncheckedCreateInput>
+  }
+
+  /**
+   * UnitAdminAssignment createMany
+   */
+  export type UnitAdminAssignmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UnitAdminAssignments.
+     */
+    data: UnitAdminAssignmentCreateManyInput | UnitAdminAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UnitAdminAssignment createManyAndReturn
+   */
+  export type UnitAdminAssignmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnitAdminAssignment
+     */
+    select?: UnitAdminAssignmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnitAdminAssignment
+     */
+    omit?: UnitAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many UnitAdminAssignments.
+     */
+    data: UnitAdminAssignmentCreateManyInput | UnitAdminAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UnitAdminAssignment update
+   */
+  export type UnitAdminAssignmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnitAdminAssignment
+     */
+    select?: UnitAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnitAdminAssignment
+     */
+    omit?: UnitAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * The data needed to update a UnitAdminAssignment.
+     */
+    data: XOR<UnitAdminAssignmentUpdateInput, UnitAdminAssignmentUncheckedUpdateInput>
+    /**
+     * Choose, which UnitAdminAssignment to update.
+     */
+    where: UnitAdminAssignmentWhereUniqueInput
+  }
+
+  /**
+   * UnitAdminAssignment updateMany
+   */
+  export type UnitAdminAssignmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UnitAdminAssignments.
+     */
+    data: XOR<UnitAdminAssignmentUpdateManyMutationInput, UnitAdminAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which UnitAdminAssignments to update
+     */
+    where?: UnitAdminAssignmentWhereInput
+    /**
+     * Limit how many UnitAdminAssignments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UnitAdminAssignment updateManyAndReturn
+   */
+  export type UnitAdminAssignmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnitAdminAssignment
+     */
+    select?: UnitAdminAssignmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnitAdminAssignment
+     */
+    omit?: UnitAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to update UnitAdminAssignments.
+     */
+    data: XOR<UnitAdminAssignmentUpdateManyMutationInput, UnitAdminAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which UnitAdminAssignments to update
+     */
+    where?: UnitAdminAssignmentWhereInput
+    /**
+     * Limit how many UnitAdminAssignments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UnitAdminAssignment upsert
+   */
+  export type UnitAdminAssignmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnitAdminAssignment
+     */
+    select?: UnitAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnitAdminAssignment
+     */
+    omit?: UnitAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * The filter to search for the UnitAdminAssignment to update in case it exists.
+     */
+    where: UnitAdminAssignmentWhereUniqueInput
+    /**
+     * In case the UnitAdminAssignment found by the `where` argument doesn't exist, create a new UnitAdminAssignment with this data.
+     */
+    create: XOR<UnitAdminAssignmentCreateInput, UnitAdminAssignmentUncheckedCreateInput>
+    /**
+     * In case the UnitAdminAssignment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UnitAdminAssignmentUpdateInput, UnitAdminAssignmentUncheckedUpdateInput>
+  }
+
+  /**
+   * UnitAdminAssignment delete
+   */
+  export type UnitAdminAssignmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnitAdminAssignment
+     */
+    select?: UnitAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnitAdminAssignment
+     */
+    omit?: UnitAdminAssignmentOmit<ExtArgs> | null
+    /**
+     * Filter which UnitAdminAssignment to delete.
+     */
+    where: UnitAdminAssignmentWhereUniqueInput
+  }
+
+  /**
+   * UnitAdminAssignment deleteMany
+   */
+  export type UnitAdminAssignmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UnitAdminAssignments to delete
+     */
+    where?: UnitAdminAssignmentWhereInput
+    /**
+     * Limit how many UnitAdminAssignments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UnitAdminAssignment without action
+   */
+  export type UnitAdminAssignmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnitAdminAssignment
+     */
+    select?: UnitAdminAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UnitAdminAssignment
+     */
+    omit?: UnitAdminAssignmentOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OrganizationSyncOutbox
+   */
+
+  export type AggregateOrganizationSyncOutbox = {
+    _count: OrganizationSyncOutboxCountAggregateOutputType | null
+    _avg: OrganizationSyncOutboxAvgAggregateOutputType | null
+    _sum: OrganizationSyncOutboxSumAggregateOutputType | null
+    _min: OrganizationSyncOutboxMinAggregateOutputType | null
+    _max: OrganizationSyncOutboxMaxAggregateOutputType | null
+  }
+
+  export type OrganizationSyncOutboxAvgAggregateOutputType = {
+    attemptCount: number | null
+  }
+
+  export type OrganizationSyncOutboxSumAggregateOutputType = {
+    attemptCount: number | null
+  }
+
+  export type OrganizationSyncOutboxMinAggregateOutputType = {
+    id: string | null
+    aggregate: $Enums.OrganizationSyncAggregate | null
+    aggregateId: string | null
+    eventType: string | null
+    idempotencyKey: string | null
+    status: $Enums.OrganizationSyncStatus | null
+    attemptCount: number | null
+    lastError: string | null
+    availableAt: Date | null
+    deliveredAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrganizationSyncOutboxMaxAggregateOutputType = {
+    id: string | null
+    aggregate: $Enums.OrganizationSyncAggregate | null
+    aggregateId: string | null
+    eventType: string | null
+    idempotencyKey: string | null
+    status: $Enums.OrganizationSyncStatus | null
+    attemptCount: number | null
+    lastError: string | null
+    availableAt: Date | null
+    deliveredAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrganizationSyncOutboxCountAggregateOutputType = {
+    id: number
+    aggregate: number
+    aggregateId: number
+    eventType: number
+    payload: number
+    idempotencyKey: number
+    status: number
+    attemptCount: number
+    lastError: number
+    availableAt: number
+    deliveredAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type OrganizationSyncOutboxAvgAggregateInputType = {
+    attemptCount?: true
+  }
+
+  export type OrganizationSyncOutboxSumAggregateInputType = {
+    attemptCount?: true
+  }
+
+  export type OrganizationSyncOutboxMinAggregateInputType = {
+    id?: true
+    aggregate?: true
+    aggregateId?: true
+    eventType?: true
+    idempotencyKey?: true
+    status?: true
+    attemptCount?: true
+    lastError?: true
+    availableAt?: true
+    deliveredAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrganizationSyncOutboxMaxAggregateInputType = {
+    id?: true
+    aggregate?: true
+    aggregateId?: true
+    eventType?: true
+    idempotencyKey?: true
+    status?: true
+    attemptCount?: true
+    lastError?: true
+    availableAt?: true
+    deliveredAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrganizationSyncOutboxCountAggregateInputType = {
+    id?: true
+    aggregate?: true
+    aggregateId?: true
+    eventType?: true
+    payload?: true
+    idempotencyKey?: true
+    status?: true
+    attemptCount?: true
+    lastError?: true
+    availableAt?: true
+    deliveredAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type OrganizationSyncOutboxAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OrganizationSyncOutbox to aggregate.
+     */
+    where?: OrganizationSyncOutboxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrganizationSyncOutboxes to fetch.
+     */
+    orderBy?: OrganizationSyncOutboxOrderByWithRelationInput | OrganizationSyncOutboxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OrganizationSyncOutboxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrganizationSyncOutboxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrganizationSyncOutboxes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OrganizationSyncOutboxes
+    **/
+    _count?: true | OrganizationSyncOutboxCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OrganizationSyncOutboxAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OrganizationSyncOutboxSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OrganizationSyncOutboxMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OrganizationSyncOutboxMaxAggregateInputType
+  }
+
+  export type GetOrganizationSyncOutboxAggregateType<T extends OrganizationSyncOutboxAggregateArgs> = {
+        [P in keyof T & keyof AggregateOrganizationSyncOutbox]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOrganizationSyncOutbox[P]>
+      : GetScalarType<T[P], AggregateOrganizationSyncOutbox[P]>
+  }
+
+
+
+
+  export type OrganizationSyncOutboxGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrganizationSyncOutboxWhereInput
+    orderBy?: OrganizationSyncOutboxOrderByWithAggregationInput | OrganizationSyncOutboxOrderByWithAggregationInput[]
+    by: OrganizationSyncOutboxScalarFieldEnum[] | OrganizationSyncOutboxScalarFieldEnum
+    having?: OrganizationSyncOutboxScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OrganizationSyncOutboxCountAggregateInputType | true
+    _avg?: OrganizationSyncOutboxAvgAggregateInputType
+    _sum?: OrganizationSyncOutboxSumAggregateInputType
+    _min?: OrganizationSyncOutboxMinAggregateInputType
+    _max?: OrganizationSyncOutboxMaxAggregateInputType
+  }
+
+  export type OrganizationSyncOutboxGroupByOutputType = {
+    id: string
+    aggregate: $Enums.OrganizationSyncAggregate
+    aggregateId: string
+    eventType: string
+    payload: JsonValue
+    idempotencyKey: string
+    status: $Enums.OrganizationSyncStatus
+    attemptCount: number
+    lastError: string | null
+    availableAt: Date
+    deliveredAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: OrganizationSyncOutboxCountAggregateOutputType | null
+    _avg: OrganizationSyncOutboxAvgAggregateOutputType | null
+    _sum: OrganizationSyncOutboxSumAggregateOutputType | null
+    _min: OrganizationSyncOutboxMinAggregateOutputType | null
+    _max: OrganizationSyncOutboxMaxAggregateOutputType | null
+  }
+
+  type GetOrganizationSyncOutboxGroupByPayload<T extends OrganizationSyncOutboxGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OrganizationSyncOutboxGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OrganizationSyncOutboxGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OrganizationSyncOutboxGroupByOutputType[P]>
+            : GetScalarType<T[P], OrganizationSyncOutboxGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OrganizationSyncOutboxSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    aggregate?: boolean
+    aggregateId?: boolean
+    eventType?: boolean
+    payload?: boolean
+    idempotencyKey?: boolean
+    status?: boolean
+    attemptCount?: boolean
+    lastError?: boolean
+    availableAt?: boolean
+    deliveredAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["organizationSyncOutbox"]>
+
+  export type OrganizationSyncOutboxSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    aggregate?: boolean
+    aggregateId?: boolean
+    eventType?: boolean
+    payload?: boolean
+    idempotencyKey?: boolean
+    status?: boolean
+    attemptCount?: boolean
+    lastError?: boolean
+    availableAt?: boolean
+    deliveredAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["organizationSyncOutbox"]>
+
+  export type OrganizationSyncOutboxSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    aggregate?: boolean
+    aggregateId?: boolean
+    eventType?: boolean
+    payload?: boolean
+    idempotencyKey?: boolean
+    status?: boolean
+    attemptCount?: boolean
+    lastError?: boolean
+    availableAt?: boolean
+    deliveredAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["organizationSyncOutbox"]>
+
+  export type OrganizationSyncOutboxSelectScalar = {
+    id?: boolean
+    aggregate?: boolean
+    aggregateId?: boolean
+    eventType?: boolean
+    payload?: boolean
+    idempotencyKey?: boolean
+    status?: boolean
+    attemptCount?: boolean
+    lastError?: boolean
+    availableAt?: boolean
+    deliveredAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type OrganizationSyncOutboxOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "aggregate" | "aggregateId" | "eventType" | "payload" | "idempotencyKey" | "status" | "attemptCount" | "lastError" | "availableAt" | "deliveredAt" | "createdAt" | "updatedAt", ExtArgs["result"]["organizationSyncOutbox"]>
+
+  export type $OrganizationSyncOutboxPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OrganizationSyncOutbox"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      aggregate: $Enums.OrganizationSyncAggregate
+      aggregateId: string
+      eventType: string
+      payload: Prisma.JsonValue
+      idempotencyKey: string
+      status: $Enums.OrganizationSyncStatus
+      attemptCount: number
+      lastError: string | null
+      availableAt: Date
+      deliveredAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["organizationSyncOutbox"]>
+    composites: {}
+  }
+
+  type OrganizationSyncOutboxGetPayload<S extends boolean | null | undefined | OrganizationSyncOutboxDefaultArgs> = $Result.GetResult<Prisma.$OrganizationSyncOutboxPayload, S>
+
+  type OrganizationSyncOutboxCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OrganizationSyncOutboxFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OrganizationSyncOutboxCountAggregateInputType | true
+    }
+
+  export interface OrganizationSyncOutboxDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OrganizationSyncOutbox'], meta: { name: 'OrganizationSyncOutbox' } }
+    /**
+     * Find zero or one OrganizationSyncOutbox that matches the filter.
+     * @param {OrganizationSyncOutboxFindUniqueArgs} args - Arguments to find a OrganizationSyncOutbox
+     * @example
+     * // Get one OrganizationSyncOutbox
+     * const organizationSyncOutbox = await prisma.organizationSyncOutbox.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OrganizationSyncOutboxFindUniqueArgs>(args: SelectSubset<T, OrganizationSyncOutboxFindUniqueArgs<ExtArgs>>): Prisma__OrganizationSyncOutboxClient<$Result.GetResult<Prisma.$OrganizationSyncOutboxPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OrganizationSyncOutbox that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OrganizationSyncOutboxFindUniqueOrThrowArgs} args - Arguments to find a OrganizationSyncOutbox
+     * @example
+     * // Get one OrganizationSyncOutbox
+     * const organizationSyncOutbox = await prisma.organizationSyncOutbox.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OrganizationSyncOutboxFindUniqueOrThrowArgs>(args: SelectSubset<T, OrganizationSyncOutboxFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OrganizationSyncOutboxClient<$Result.GetResult<Prisma.$OrganizationSyncOutboxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OrganizationSyncOutbox that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationSyncOutboxFindFirstArgs} args - Arguments to find a OrganizationSyncOutbox
+     * @example
+     * // Get one OrganizationSyncOutbox
+     * const organizationSyncOutbox = await prisma.organizationSyncOutbox.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OrganizationSyncOutboxFindFirstArgs>(args?: SelectSubset<T, OrganizationSyncOutboxFindFirstArgs<ExtArgs>>): Prisma__OrganizationSyncOutboxClient<$Result.GetResult<Prisma.$OrganizationSyncOutboxPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OrganizationSyncOutbox that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationSyncOutboxFindFirstOrThrowArgs} args - Arguments to find a OrganizationSyncOutbox
+     * @example
+     * // Get one OrganizationSyncOutbox
+     * const organizationSyncOutbox = await prisma.organizationSyncOutbox.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OrganizationSyncOutboxFindFirstOrThrowArgs>(args?: SelectSubset<T, OrganizationSyncOutboxFindFirstOrThrowArgs<ExtArgs>>): Prisma__OrganizationSyncOutboxClient<$Result.GetResult<Prisma.$OrganizationSyncOutboxPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OrganizationSyncOutboxes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationSyncOutboxFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OrganizationSyncOutboxes
+     * const organizationSyncOutboxes = await prisma.organizationSyncOutbox.findMany()
+     * 
+     * // Get first 10 OrganizationSyncOutboxes
+     * const organizationSyncOutboxes = await prisma.organizationSyncOutbox.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const organizationSyncOutboxWithIdOnly = await prisma.organizationSyncOutbox.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OrganizationSyncOutboxFindManyArgs>(args?: SelectSubset<T, OrganizationSyncOutboxFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationSyncOutboxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OrganizationSyncOutbox.
+     * @param {OrganizationSyncOutboxCreateArgs} args - Arguments to create a OrganizationSyncOutbox.
+     * @example
+     * // Create one OrganizationSyncOutbox
+     * const OrganizationSyncOutbox = await prisma.organizationSyncOutbox.create({
+     *   data: {
+     *     // ... data to create a OrganizationSyncOutbox
+     *   }
+     * })
+     * 
+     */
+    create<T extends OrganizationSyncOutboxCreateArgs>(args: SelectSubset<T, OrganizationSyncOutboxCreateArgs<ExtArgs>>): Prisma__OrganizationSyncOutboxClient<$Result.GetResult<Prisma.$OrganizationSyncOutboxPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OrganizationSyncOutboxes.
+     * @param {OrganizationSyncOutboxCreateManyArgs} args - Arguments to create many OrganizationSyncOutboxes.
+     * @example
+     * // Create many OrganizationSyncOutboxes
+     * const organizationSyncOutbox = await prisma.organizationSyncOutbox.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OrganizationSyncOutboxCreateManyArgs>(args?: SelectSubset<T, OrganizationSyncOutboxCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OrganizationSyncOutboxes and returns the data saved in the database.
+     * @param {OrganizationSyncOutboxCreateManyAndReturnArgs} args - Arguments to create many OrganizationSyncOutboxes.
+     * @example
+     * // Create many OrganizationSyncOutboxes
+     * const organizationSyncOutbox = await prisma.organizationSyncOutbox.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OrganizationSyncOutboxes and only return the `id`
+     * const organizationSyncOutboxWithIdOnly = await prisma.organizationSyncOutbox.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OrganizationSyncOutboxCreateManyAndReturnArgs>(args?: SelectSubset<T, OrganizationSyncOutboxCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationSyncOutboxPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OrganizationSyncOutbox.
+     * @param {OrganizationSyncOutboxDeleteArgs} args - Arguments to delete one OrganizationSyncOutbox.
+     * @example
+     * // Delete one OrganizationSyncOutbox
+     * const OrganizationSyncOutbox = await prisma.organizationSyncOutbox.delete({
+     *   where: {
+     *     // ... filter to delete one OrganizationSyncOutbox
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OrganizationSyncOutboxDeleteArgs>(args: SelectSubset<T, OrganizationSyncOutboxDeleteArgs<ExtArgs>>): Prisma__OrganizationSyncOutboxClient<$Result.GetResult<Prisma.$OrganizationSyncOutboxPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OrganizationSyncOutbox.
+     * @param {OrganizationSyncOutboxUpdateArgs} args - Arguments to update one OrganizationSyncOutbox.
+     * @example
+     * // Update one OrganizationSyncOutbox
+     * const organizationSyncOutbox = await prisma.organizationSyncOutbox.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OrganizationSyncOutboxUpdateArgs>(args: SelectSubset<T, OrganizationSyncOutboxUpdateArgs<ExtArgs>>): Prisma__OrganizationSyncOutboxClient<$Result.GetResult<Prisma.$OrganizationSyncOutboxPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OrganizationSyncOutboxes.
+     * @param {OrganizationSyncOutboxDeleteManyArgs} args - Arguments to filter OrganizationSyncOutboxes to delete.
+     * @example
+     * // Delete a few OrganizationSyncOutboxes
+     * const { count } = await prisma.organizationSyncOutbox.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OrganizationSyncOutboxDeleteManyArgs>(args?: SelectSubset<T, OrganizationSyncOutboxDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OrganizationSyncOutboxes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationSyncOutboxUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OrganizationSyncOutboxes
+     * const organizationSyncOutbox = await prisma.organizationSyncOutbox.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OrganizationSyncOutboxUpdateManyArgs>(args: SelectSubset<T, OrganizationSyncOutboxUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OrganizationSyncOutboxes and returns the data updated in the database.
+     * @param {OrganizationSyncOutboxUpdateManyAndReturnArgs} args - Arguments to update many OrganizationSyncOutboxes.
+     * @example
+     * // Update many OrganizationSyncOutboxes
+     * const organizationSyncOutbox = await prisma.organizationSyncOutbox.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OrganizationSyncOutboxes and only return the `id`
+     * const organizationSyncOutboxWithIdOnly = await prisma.organizationSyncOutbox.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OrganizationSyncOutboxUpdateManyAndReturnArgs>(args: SelectSubset<T, OrganizationSyncOutboxUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationSyncOutboxPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OrganizationSyncOutbox.
+     * @param {OrganizationSyncOutboxUpsertArgs} args - Arguments to update or create a OrganizationSyncOutbox.
+     * @example
+     * // Update or create a OrganizationSyncOutbox
+     * const organizationSyncOutbox = await prisma.organizationSyncOutbox.upsert({
+     *   create: {
+     *     // ... data to create a OrganizationSyncOutbox
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OrganizationSyncOutbox we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OrganizationSyncOutboxUpsertArgs>(args: SelectSubset<T, OrganizationSyncOutboxUpsertArgs<ExtArgs>>): Prisma__OrganizationSyncOutboxClient<$Result.GetResult<Prisma.$OrganizationSyncOutboxPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OrganizationSyncOutboxes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationSyncOutboxCountArgs} args - Arguments to filter OrganizationSyncOutboxes to count.
+     * @example
+     * // Count the number of OrganizationSyncOutboxes
+     * const count = await prisma.organizationSyncOutbox.count({
+     *   where: {
+     *     // ... the filter for the OrganizationSyncOutboxes we want to count
+     *   }
+     * })
+    **/
+    count<T extends OrganizationSyncOutboxCountArgs>(
+      args?: Subset<T, OrganizationSyncOutboxCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OrganizationSyncOutboxCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OrganizationSyncOutbox.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationSyncOutboxAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OrganizationSyncOutboxAggregateArgs>(args: Subset<T, OrganizationSyncOutboxAggregateArgs>): Prisma.PrismaPromise<GetOrganizationSyncOutboxAggregateType<T>>
+
+    /**
+     * Group by OrganizationSyncOutbox.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationSyncOutboxGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OrganizationSyncOutboxGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OrganizationSyncOutboxGroupByArgs['orderBy'] }
+        : { orderBy?: OrganizationSyncOutboxGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OrganizationSyncOutboxGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOrganizationSyncOutboxGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OrganizationSyncOutbox model
+   */
+  readonly fields: OrganizationSyncOutboxFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OrganizationSyncOutbox.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OrganizationSyncOutboxClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OrganizationSyncOutbox model
+   */
+  interface OrganizationSyncOutboxFieldRefs {
+    readonly id: FieldRef<"OrganizationSyncOutbox", 'String'>
+    readonly aggregate: FieldRef<"OrganizationSyncOutbox", 'OrganizationSyncAggregate'>
+    readonly aggregateId: FieldRef<"OrganizationSyncOutbox", 'String'>
+    readonly eventType: FieldRef<"OrganizationSyncOutbox", 'String'>
+    readonly payload: FieldRef<"OrganizationSyncOutbox", 'Json'>
+    readonly idempotencyKey: FieldRef<"OrganizationSyncOutbox", 'String'>
+    readonly status: FieldRef<"OrganizationSyncOutbox", 'OrganizationSyncStatus'>
+    readonly attemptCount: FieldRef<"OrganizationSyncOutbox", 'Int'>
+    readonly lastError: FieldRef<"OrganizationSyncOutbox", 'String'>
+    readonly availableAt: FieldRef<"OrganizationSyncOutbox", 'DateTime'>
+    readonly deliveredAt: FieldRef<"OrganizationSyncOutbox", 'DateTime'>
+    readonly createdAt: FieldRef<"OrganizationSyncOutbox", 'DateTime'>
+    readonly updatedAt: FieldRef<"OrganizationSyncOutbox", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OrganizationSyncOutbox findUnique
+   */
+  export type OrganizationSyncOutboxFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationSyncOutbox
+     */
+    select?: OrganizationSyncOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrganizationSyncOutbox
+     */
+    omit?: OrganizationSyncOutboxOmit<ExtArgs> | null
+    /**
+     * Filter, which OrganizationSyncOutbox to fetch.
+     */
+    where: OrganizationSyncOutboxWhereUniqueInput
+  }
+
+  /**
+   * OrganizationSyncOutbox findUniqueOrThrow
+   */
+  export type OrganizationSyncOutboxFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationSyncOutbox
+     */
+    select?: OrganizationSyncOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrganizationSyncOutbox
+     */
+    omit?: OrganizationSyncOutboxOmit<ExtArgs> | null
+    /**
+     * Filter, which OrganizationSyncOutbox to fetch.
+     */
+    where: OrganizationSyncOutboxWhereUniqueInput
+  }
+
+  /**
+   * OrganizationSyncOutbox findFirst
+   */
+  export type OrganizationSyncOutboxFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationSyncOutbox
+     */
+    select?: OrganizationSyncOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrganizationSyncOutbox
+     */
+    omit?: OrganizationSyncOutboxOmit<ExtArgs> | null
+    /**
+     * Filter, which OrganizationSyncOutbox to fetch.
+     */
+    where?: OrganizationSyncOutboxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrganizationSyncOutboxes to fetch.
+     */
+    orderBy?: OrganizationSyncOutboxOrderByWithRelationInput | OrganizationSyncOutboxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OrganizationSyncOutboxes.
+     */
+    cursor?: OrganizationSyncOutboxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrganizationSyncOutboxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrganizationSyncOutboxes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OrganizationSyncOutboxes.
+     */
+    distinct?: OrganizationSyncOutboxScalarFieldEnum | OrganizationSyncOutboxScalarFieldEnum[]
+  }
+
+  /**
+   * OrganizationSyncOutbox findFirstOrThrow
+   */
+  export type OrganizationSyncOutboxFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationSyncOutbox
+     */
+    select?: OrganizationSyncOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrganizationSyncOutbox
+     */
+    omit?: OrganizationSyncOutboxOmit<ExtArgs> | null
+    /**
+     * Filter, which OrganizationSyncOutbox to fetch.
+     */
+    where?: OrganizationSyncOutboxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrganizationSyncOutboxes to fetch.
+     */
+    orderBy?: OrganizationSyncOutboxOrderByWithRelationInput | OrganizationSyncOutboxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OrganizationSyncOutboxes.
+     */
+    cursor?: OrganizationSyncOutboxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrganizationSyncOutboxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrganizationSyncOutboxes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OrganizationSyncOutboxes.
+     */
+    distinct?: OrganizationSyncOutboxScalarFieldEnum | OrganizationSyncOutboxScalarFieldEnum[]
+  }
+
+  /**
+   * OrganizationSyncOutbox findMany
+   */
+  export type OrganizationSyncOutboxFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationSyncOutbox
+     */
+    select?: OrganizationSyncOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrganizationSyncOutbox
+     */
+    omit?: OrganizationSyncOutboxOmit<ExtArgs> | null
+    /**
+     * Filter, which OrganizationSyncOutboxes to fetch.
+     */
+    where?: OrganizationSyncOutboxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrganizationSyncOutboxes to fetch.
+     */
+    orderBy?: OrganizationSyncOutboxOrderByWithRelationInput | OrganizationSyncOutboxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OrganizationSyncOutboxes.
+     */
+    cursor?: OrganizationSyncOutboxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrganizationSyncOutboxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrganizationSyncOutboxes.
+     */
+    skip?: number
+    distinct?: OrganizationSyncOutboxScalarFieldEnum | OrganizationSyncOutboxScalarFieldEnum[]
+  }
+
+  /**
+   * OrganizationSyncOutbox create
+   */
+  export type OrganizationSyncOutboxCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationSyncOutbox
+     */
+    select?: OrganizationSyncOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrganizationSyncOutbox
+     */
+    omit?: OrganizationSyncOutboxOmit<ExtArgs> | null
+    /**
+     * The data needed to create a OrganizationSyncOutbox.
+     */
+    data: XOR<OrganizationSyncOutboxCreateInput, OrganizationSyncOutboxUncheckedCreateInput>
+  }
+
+  /**
+   * OrganizationSyncOutbox createMany
+   */
+  export type OrganizationSyncOutboxCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OrganizationSyncOutboxes.
+     */
+    data: OrganizationSyncOutboxCreateManyInput | OrganizationSyncOutboxCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OrganizationSyncOutbox createManyAndReturn
+   */
+  export type OrganizationSyncOutboxCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationSyncOutbox
+     */
+    select?: OrganizationSyncOutboxSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrganizationSyncOutbox
+     */
+    omit?: OrganizationSyncOutboxOmit<ExtArgs> | null
+    /**
+     * The data used to create many OrganizationSyncOutboxes.
+     */
+    data: OrganizationSyncOutboxCreateManyInput | OrganizationSyncOutboxCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OrganizationSyncOutbox update
+   */
+  export type OrganizationSyncOutboxUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationSyncOutbox
+     */
+    select?: OrganizationSyncOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrganizationSyncOutbox
+     */
+    omit?: OrganizationSyncOutboxOmit<ExtArgs> | null
+    /**
+     * The data needed to update a OrganizationSyncOutbox.
+     */
+    data: XOR<OrganizationSyncOutboxUpdateInput, OrganizationSyncOutboxUncheckedUpdateInput>
+    /**
+     * Choose, which OrganizationSyncOutbox to update.
+     */
+    where: OrganizationSyncOutboxWhereUniqueInput
+  }
+
+  /**
+   * OrganizationSyncOutbox updateMany
+   */
+  export type OrganizationSyncOutboxUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OrganizationSyncOutboxes.
+     */
+    data: XOR<OrganizationSyncOutboxUpdateManyMutationInput, OrganizationSyncOutboxUncheckedUpdateManyInput>
+    /**
+     * Filter which OrganizationSyncOutboxes to update
+     */
+    where?: OrganizationSyncOutboxWhereInput
+    /**
+     * Limit how many OrganizationSyncOutboxes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OrganizationSyncOutbox updateManyAndReturn
+   */
+  export type OrganizationSyncOutboxUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationSyncOutbox
+     */
+    select?: OrganizationSyncOutboxSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrganizationSyncOutbox
+     */
+    omit?: OrganizationSyncOutboxOmit<ExtArgs> | null
+    /**
+     * The data used to update OrganizationSyncOutboxes.
+     */
+    data: XOR<OrganizationSyncOutboxUpdateManyMutationInput, OrganizationSyncOutboxUncheckedUpdateManyInput>
+    /**
+     * Filter which OrganizationSyncOutboxes to update
+     */
+    where?: OrganizationSyncOutboxWhereInput
+    /**
+     * Limit how many OrganizationSyncOutboxes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OrganizationSyncOutbox upsert
+   */
+  export type OrganizationSyncOutboxUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationSyncOutbox
+     */
+    select?: OrganizationSyncOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrganizationSyncOutbox
+     */
+    omit?: OrganizationSyncOutboxOmit<ExtArgs> | null
+    /**
+     * The filter to search for the OrganizationSyncOutbox to update in case it exists.
+     */
+    where: OrganizationSyncOutboxWhereUniqueInput
+    /**
+     * In case the OrganizationSyncOutbox found by the `where` argument doesn't exist, create a new OrganizationSyncOutbox with this data.
+     */
+    create: XOR<OrganizationSyncOutboxCreateInput, OrganizationSyncOutboxUncheckedCreateInput>
+    /**
+     * In case the OrganizationSyncOutbox was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OrganizationSyncOutboxUpdateInput, OrganizationSyncOutboxUncheckedUpdateInput>
+  }
+
+  /**
+   * OrganizationSyncOutbox delete
+   */
+  export type OrganizationSyncOutboxDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationSyncOutbox
+     */
+    select?: OrganizationSyncOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrganizationSyncOutbox
+     */
+    omit?: OrganizationSyncOutboxOmit<ExtArgs> | null
+    /**
+     * Filter which OrganizationSyncOutbox to delete.
+     */
+    where: OrganizationSyncOutboxWhereUniqueInput
+  }
+
+  /**
+   * OrganizationSyncOutbox deleteMany
+   */
+  export type OrganizationSyncOutboxDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OrganizationSyncOutboxes to delete
+     */
+    where?: OrganizationSyncOutboxWhereInput
+    /**
+     * Limit how many OrganizationSyncOutboxes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OrganizationSyncOutbox without action
+   */
+  export type OrganizationSyncOutboxDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationSyncOutbox
+     */
+    select?: OrganizationSyncOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrganizationSyncOutbox
+     */
+    omit?: OrganizationSyncOutboxOmit<ExtArgs> | null
   }
 
 
@@ -15805,6 +21614,85 @@ export namespace Prisma {
   export type EmployeeProfileScalarFieldEnum = (typeof EmployeeProfileScalarFieldEnum)[keyof typeof EmployeeProfileScalarFieldEnum]
 
 
+  export const UnitScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    code: 'code',
+    category: 'category',
+    address: 'address',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type UnitScalarFieldEnum = (typeof UnitScalarFieldEnum)[keyof typeof UnitScalarFieldEnum]
+
+
+  export const DepartmentScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    code: 'code',
+    description: 'description',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DepartmentScalarFieldEnum = (typeof DepartmentScalarFieldEnum)[keyof typeof DepartmentScalarFieldEnum]
+
+
+  export const DepartmentAdminAssignmentScalarFieldEnum: {
+    id: 'id',
+    departmentId: 'departmentId',
+    userId: 'userId',
+    role: 'role',
+    isActive: 'isActive',
+    assignedById: 'assignedById',
+    assignedAt: 'assignedAt',
+    revokedAt: 'revokedAt',
+    revokedById: 'revokedById',
+    authAssignmentId: 'authAssignmentId'
+  };
+
+  export type DepartmentAdminAssignmentScalarFieldEnum = (typeof DepartmentAdminAssignmentScalarFieldEnum)[keyof typeof DepartmentAdminAssignmentScalarFieldEnum]
+
+
+  export const UnitAdminAssignmentScalarFieldEnum: {
+    id: 'id',
+    unitId: 'unitId',
+    userId: 'userId',
+    app: 'app',
+    role: 'role',
+    isActive: 'isActive',
+    assignedById: 'assignedById',
+    assignedAt: 'assignedAt',
+    revokedAt: 'revokedAt',
+    revokedById: 'revokedById',
+    authAssignmentId: 'authAssignmentId'
+  };
+
+  export type UnitAdminAssignmentScalarFieldEnum = (typeof UnitAdminAssignmentScalarFieldEnum)[keyof typeof UnitAdminAssignmentScalarFieldEnum]
+
+
+  export const OrganizationSyncOutboxScalarFieldEnum: {
+    id: 'id',
+    aggregate: 'aggregate',
+    aggregateId: 'aggregateId',
+    eventType: 'eventType',
+    payload: 'payload',
+    idempotencyKey: 'idempotencyKey',
+    status: 'status',
+    attemptCount: 'attemptCount',
+    lastError: 'lastError',
+    availableAt: 'availableAt',
+    deliveredAt: 'deliveredAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type OrganizationSyncOutboxScalarFieldEnum = (typeof OrganizationSyncOutboxScalarFieldEnum)[keyof typeof OrganizationSyncOutboxScalarFieldEnum]
+
+
   export const EmployeeUnitAssignmentScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
@@ -15959,6 +21847,13 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
   export const QueryMode: {
     default: 'default',
     insensitive: 'insensitive'
@@ -15973,6 +21868,15 @@ export namespace Prisma {
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   /**
@@ -16026,6 +21930,62 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DepartmentAdminRole'
+   */
+  export type EnumDepartmentAdminRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DepartmentAdminRole'>
+    
+
+
+  /**
+   * Reference to a field of type 'DepartmentAdminRole[]'
+   */
+  export type ListEnumDepartmentAdminRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DepartmentAdminRole[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'OrganizationSyncAggregate'
+   */
+  export type EnumOrganizationSyncAggregateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrganizationSyncAggregate'>
+    
+
+
+  /**
+   * Reference to a field of type 'OrganizationSyncAggregate[]'
+   */
+  export type ListEnumOrganizationSyncAggregateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrganizationSyncAggregate[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'OrganizationSyncStatus'
+   */
+  export type EnumOrganizationSyncStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrganizationSyncStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'OrganizationSyncStatus[]'
+   */
+  export type ListEnumOrganizationSyncStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrganizationSyncStatus[]'>
     
 
 
@@ -16290,6 +22250,390 @@ export namespace Prisma {
     notes?: StringNullableWithAggregatesFilter<"EmployeeProfile"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"EmployeeProfile"> | Date | string
     updatedAt?: DateTimeNullableWithAggregatesFilter<"EmployeeProfile"> | Date | string | null
+  }
+
+  export type UnitWhereInput = {
+    AND?: UnitWhereInput | UnitWhereInput[]
+    OR?: UnitWhereInput[]
+    NOT?: UnitWhereInput | UnitWhereInput[]
+    id?: UuidFilter<"Unit"> | string
+    name?: StringFilter<"Unit"> | string
+    code?: StringFilter<"Unit"> | string
+    category?: StringFilter<"Unit"> | string
+    address?: StringNullableFilter<"Unit"> | string | null
+    isActive?: BoolFilter<"Unit"> | boolean
+    createdAt?: DateTimeFilter<"Unit"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"Unit"> | Date | string | null
+  }
+
+  export type UnitOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    code?: SortOrder
+    category?: SortOrder
+    address?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+  }
+
+  export type UnitWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    code?: string
+    AND?: UnitWhereInput | UnitWhereInput[]
+    OR?: UnitWhereInput[]
+    NOT?: UnitWhereInput | UnitWhereInput[]
+    name?: StringFilter<"Unit"> | string
+    category?: StringFilter<"Unit"> | string
+    address?: StringNullableFilter<"Unit"> | string | null
+    isActive?: BoolFilter<"Unit"> | boolean
+    createdAt?: DateTimeFilter<"Unit"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"Unit"> | Date | string | null
+  }, "id" | "code">
+
+  export type UnitOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    code?: SortOrder
+    category?: SortOrder
+    address?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    _count?: UnitCountOrderByAggregateInput
+    _max?: UnitMaxOrderByAggregateInput
+    _min?: UnitMinOrderByAggregateInput
+  }
+
+  export type UnitScalarWhereWithAggregatesInput = {
+    AND?: UnitScalarWhereWithAggregatesInput | UnitScalarWhereWithAggregatesInput[]
+    OR?: UnitScalarWhereWithAggregatesInput[]
+    NOT?: UnitScalarWhereWithAggregatesInput | UnitScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"Unit"> | string
+    name?: StringWithAggregatesFilter<"Unit"> | string
+    code?: StringWithAggregatesFilter<"Unit"> | string
+    category?: StringWithAggregatesFilter<"Unit"> | string
+    address?: StringNullableWithAggregatesFilter<"Unit"> | string | null
+    isActive?: BoolWithAggregatesFilter<"Unit"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"Unit"> | Date | string
+    updatedAt?: DateTimeNullableWithAggregatesFilter<"Unit"> | Date | string | null
+  }
+
+  export type DepartmentWhereInput = {
+    AND?: DepartmentWhereInput | DepartmentWhereInput[]
+    OR?: DepartmentWhereInput[]
+    NOT?: DepartmentWhereInput | DepartmentWhereInput[]
+    id?: UuidFilter<"Department"> | string
+    name?: StringFilter<"Department"> | string
+    code?: StringFilter<"Department"> | string
+    description?: StringNullableFilter<"Department"> | string | null
+    isActive?: BoolFilter<"Department"> | boolean
+    createdAt?: DateTimeFilter<"Department"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"Department"> | Date | string | null
+  }
+
+  export type DepartmentOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    code?: SortOrder
+    description?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+  }
+
+  export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    name?: string
+    code?: string
+    AND?: DepartmentWhereInput | DepartmentWhereInput[]
+    OR?: DepartmentWhereInput[]
+    NOT?: DepartmentWhereInput | DepartmentWhereInput[]
+    description?: StringNullableFilter<"Department"> | string | null
+    isActive?: BoolFilter<"Department"> | boolean
+    createdAt?: DateTimeFilter<"Department"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"Department"> | Date | string | null
+  }, "id" | "name" | "code">
+
+  export type DepartmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    code?: SortOrder
+    description?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    _count?: DepartmentCountOrderByAggregateInput
+    _max?: DepartmentMaxOrderByAggregateInput
+    _min?: DepartmentMinOrderByAggregateInput
+  }
+
+  export type DepartmentScalarWhereWithAggregatesInput = {
+    AND?: DepartmentScalarWhereWithAggregatesInput | DepartmentScalarWhereWithAggregatesInput[]
+    OR?: DepartmentScalarWhereWithAggregatesInput[]
+    NOT?: DepartmentScalarWhereWithAggregatesInput | DepartmentScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"Department"> | string
+    name?: StringWithAggregatesFilter<"Department"> | string
+    code?: StringWithAggregatesFilter<"Department"> | string
+    description?: StringNullableWithAggregatesFilter<"Department"> | string | null
+    isActive?: BoolWithAggregatesFilter<"Department"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"Department"> | Date | string
+    updatedAt?: DateTimeNullableWithAggregatesFilter<"Department"> | Date | string | null
+  }
+
+  export type DepartmentAdminAssignmentWhereInput = {
+    AND?: DepartmentAdminAssignmentWhereInput | DepartmentAdminAssignmentWhereInput[]
+    OR?: DepartmentAdminAssignmentWhereInput[]
+    NOT?: DepartmentAdminAssignmentWhereInput | DepartmentAdminAssignmentWhereInput[]
+    id?: UuidFilter<"DepartmentAdminAssignment"> | string
+    departmentId?: UuidFilter<"DepartmentAdminAssignment"> | string
+    userId?: UuidFilter<"DepartmentAdminAssignment"> | string
+    role?: EnumDepartmentAdminRoleFilter<"DepartmentAdminAssignment"> | $Enums.DepartmentAdminRole
+    isActive?: BoolFilter<"DepartmentAdminAssignment"> | boolean
+    assignedById?: UuidFilter<"DepartmentAdminAssignment"> | string
+    assignedAt?: DateTimeFilter<"DepartmentAdminAssignment"> | Date | string
+    revokedAt?: DateTimeNullableFilter<"DepartmentAdminAssignment"> | Date | string | null
+    revokedById?: UuidNullableFilter<"DepartmentAdminAssignment"> | string | null
+    authAssignmentId?: UuidNullableFilter<"DepartmentAdminAssignment"> | string | null
+  }
+
+  export type DepartmentAdminAssignmentOrderByWithRelationInput = {
+    id?: SortOrder
+    departmentId?: SortOrder
+    userId?: SortOrder
+    role?: SortOrder
+    isActive?: SortOrder
+    assignedById?: SortOrder
+    assignedAt?: SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    revokedById?: SortOrderInput | SortOrder
+    authAssignmentId?: SortOrderInput | SortOrder
+  }
+
+  export type DepartmentAdminAssignmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    departmentId_userId_role?: DepartmentAdminAssignmentDepartmentIdUserIdRoleCompoundUniqueInput
+    AND?: DepartmentAdminAssignmentWhereInput | DepartmentAdminAssignmentWhereInput[]
+    OR?: DepartmentAdminAssignmentWhereInput[]
+    NOT?: DepartmentAdminAssignmentWhereInput | DepartmentAdminAssignmentWhereInput[]
+    departmentId?: UuidFilter<"DepartmentAdminAssignment"> | string
+    userId?: UuidFilter<"DepartmentAdminAssignment"> | string
+    role?: EnumDepartmentAdminRoleFilter<"DepartmentAdminAssignment"> | $Enums.DepartmentAdminRole
+    isActive?: BoolFilter<"DepartmentAdminAssignment"> | boolean
+    assignedById?: UuidFilter<"DepartmentAdminAssignment"> | string
+    assignedAt?: DateTimeFilter<"DepartmentAdminAssignment"> | Date | string
+    revokedAt?: DateTimeNullableFilter<"DepartmentAdminAssignment"> | Date | string | null
+    revokedById?: UuidNullableFilter<"DepartmentAdminAssignment"> | string | null
+    authAssignmentId?: UuidNullableFilter<"DepartmentAdminAssignment"> | string | null
+  }, "id" | "departmentId_userId_role">
+
+  export type DepartmentAdminAssignmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    departmentId?: SortOrder
+    userId?: SortOrder
+    role?: SortOrder
+    isActive?: SortOrder
+    assignedById?: SortOrder
+    assignedAt?: SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    revokedById?: SortOrderInput | SortOrder
+    authAssignmentId?: SortOrderInput | SortOrder
+    _count?: DepartmentAdminAssignmentCountOrderByAggregateInput
+    _max?: DepartmentAdminAssignmentMaxOrderByAggregateInput
+    _min?: DepartmentAdminAssignmentMinOrderByAggregateInput
+  }
+
+  export type DepartmentAdminAssignmentScalarWhereWithAggregatesInput = {
+    AND?: DepartmentAdminAssignmentScalarWhereWithAggregatesInput | DepartmentAdminAssignmentScalarWhereWithAggregatesInput[]
+    OR?: DepartmentAdminAssignmentScalarWhereWithAggregatesInput[]
+    NOT?: DepartmentAdminAssignmentScalarWhereWithAggregatesInput | DepartmentAdminAssignmentScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"DepartmentAdminAssignment"> | string
+    departmentId?: UuidWithAggregatesFilter<"DepartmentAdminAssignment"> | string
+    userId?: UuidWithAggregatesFilter<"DepartmentAdminAssignment"> | string
+    role?: EnumDepartmentAdminRoleWithAggregatesFilter<"DepartmentAdminAssignment"> | $Enums.DepartmentAdminRole
+    isActive?: BoolWithAggregatesFilter<"DepartmentAdminAssignment"> | boolean
+    assignedById?: UuidWithAggregatesFilter<"DepartmentAdminAssignment"> | string
+    assignedAt?: DateTimeWithAggregatesFilter<"DepartmentAdminAssignment"> | Date | string
+    revokedAt?: DateTimeNullableWithAggregatesFilter<"DepartmentAdminAssignment"> | Date | string | null
+    revokedById?: UuidNullableWithAggregatesFilter<"DepartmentAdminAssignment"> | string | null
+    authAssignmentId?: UuidNullableWithAggregatesFilter<"DepartmentAdminAssignment"> | string | null
+  }
+
+  export type UnitAdminAssignmentWhereInput = {
+    AND?: UnitAdminAssignmentWhereInput | UnitAdminAssignmentWhereInput[]
+    OR?: UnitAdminAssignmentWhereInput[]
+    NOT?: UnitAdminAssignmentWhereInput | UnitAdminAssignmentWhereInput[]
+    id?: UuidFilter<"UnitAdminAssignment"> | string
+    unitId?: UuidFilter<"UnitAdminAssignment"> | string
+    userId?: UuidFilter<"UnitAdminAssignment"> | string
+    app?: StringFilter<"UnitAdminAssignment"> | string
+    role?: StringFilter<"UnitAdminAssignment"> | string
+    isActive?: BoolFilter<"UnitAdminAssignment"> | boolean
+    assignedById?: UuidFilter<"UnitAdminAssignment"> | string
+    assignedAt?: DateTimeFilter<"UnitAdminAssignment"> | Date | string
+    revokedAt?: DateTimeNullableFilter<"UnitAdminAssignment"> | Date | string | null
+    revokedById?: UuidNullableFilter<"UnitAdminAssignment"> | string | null
+    authAssignmentId?: UuidNullableFilter<"UnitAdminAssignment"> | string | null
+  }
+
+  export type UnitAdminAssignmentOrderByWithRelationInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    userId?: SortOrder
+    app?: SortOrder
+    role?: SortOrder
+    isActive?: SortOrder
+    assignedById?: SortOrder
+    assignedAt?: SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    revokedById?: SortOrderInput | SortOrder
+    authAssignmentId?: SortOrderInput | SortOrder
+  }
+
+  export type UnitAdminAssignmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    unitId_userId_app_role?: UnitAdminAssignmentUnitIdUserIdAppRoleCompoundUniqueInput
+    AND?: UnitAdminAssignmentWhereInput | UnitAdminAssignmentWhereInput[]
+    OR?: UnitAdminAssignmentWhereInput[]
+    NOT?: UnitAdminAssignmentWhereInput | UnitAdminAssignmentWhereInput[]
+    unitId?: UuidFilter<"UnitAdminAssignment"> | string
+    userId?: UuidFilter<"UnitAdminAssignment"> | string
+    app?: StringFilter<"UnitAdminAssignment"> | string
+    role?: StringFilter<"UnitAdminAssignment"> | string
+    isActive?: BoolFilter<"UnitAdminAssignment"> | boolean
+    assignedById?: UuidFilter<"UnitAdminAssignment"> | string
+    assignedAt?: DateTimeFilter<"UnitAdminAssignment"> | Date | string
+    revokedAt?: DateTimeNullableFilter<"UnitAdminAssignment"> | Date | string | null
+    revokedById?: UuidNullableFilter<"UnitAdminAssignment"> | string | null
+    authAssignmentId?: UuidNullableFilter<"UnitAdminAssignment"> | string | null
+  }, "id" | "unitId_userId_app_role">
+
+  export type UnitAdminAssignmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    userId?: SortOrder
+    app?: SortOrder
+    role?: SortOrder
+    isActive?: SortOrder
+    assignedById?: SortOrder
+    assignedAt?: SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    revokedById?: SortOrderInput | SortOrder
+    authAssignmentId?: SortOrderInput | SortOrder
+    _count?: UnitAdminAssignmentCountOrderByAggregateInput
+    _max?: UnitAdminAssignmentMaxOrderByAggregateInput
+    _min?: UnitAdminAssignmentMinOrderByAggregateInput
+  }
+
+  export type UnitAdminAssignmentScalarWhereWithAggregatesInput = {
+    AND?: UnitAdminAssignmentScalarWhereWithAggregatesInput | UnitAdminAssignmentScalarWhereWithAggregatesInput[]
+    OR?: UnitAdminAssignmentScalarWhereWithAggregatesInput[]
+    NOT?: UnitAdminAssignmentScalarWhereWithAggregatesInput | UnitAdminAssignmentScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"UnitAdminAssignment"> | string
+    unitId?: UuidWithAggregatesFilter<"UnitAdminAssignment"> | string
+    userId?: UuidWithAggregatesFilter<"UnitAdminAssignment"> | string
+    app?: StringWithAggregatesFilter<"UnitAdminAssignment"> | string
+    role?: StringWithAggregatesFilter<"UnitAdminAssignment"> | string
+    isActive?: BoolWithAggregatesFilter<"UnitAdminAssignment"> | boolean
+    assignedById?: UuidWithAggregatesFilter<"UnitAdminAssignment"> | string
+    assignedAt?: DateTimeWithAggregatesFilter<"UnitAdminAssignment"> | Date | string
+    revokedAt?: DateTimeNullableWithAggregatesFilter<"UnitAdminAssignment"> | Date | string | null
+    revokedById?: UuidNullableWithAggregatesFilter<"UnitAdminAssignment"> | string | null
+    authAssignmentId?: UuidNullableWithAggregatesFilter<"UnitAdminAssignment"> | string | null
+  }
+
+  export type OrganizationSyncOutboxWhereInput = {
+    AND?: OrganizationSyncOutboxWhereInput | OrganizationSyncOutboxWhereInput[]
+    OR?: OrganizationSyncOutboxWhereInput[]
+    NOT?: OrganizationSyncOutboxWhereInput | OrganizationSyncOutboxWhereInput[]
+    id?: UuidFilter<"OrganizationSyncOutbox"> | string
+    aggregate?: EnumOrganizationSyncAggregateFilter<"OrganizationSyncOutbox"> | $Enums.OrganizationSyncAggregate
+    aggregateId?: UuidFilter<"OrganizationSyncOutbox"> | string
+    eventType?: StringFilter<"OrganizationSyncOutbox"> | string
+    payload?: JsonFilter<"OrganizationSyncOutbox">
+    idempotencyKey?: StringFilter<"OrganizationSyncOutbox"> | string
+    status?: EnumOrganizationSyncStatusFilter<"OrganizationSyncOutbox"> | $Enums.OrganizationSyncStatus
+    attemptCount?: IntFilter<"OrganizationSyncOutbox"> | number
+    lastError?: StringNullableFilter<"OrganizationSyncOutbox"> | string | null
+    availableAt?: DateTimeFilter<"OrganizationSyncOutbox"> | Date | string
+    deliveredAt?: DateTimeNullableFilter<"OrganizationSyncOutbox"> | Date | string | null
+    createdAt?: DateTimeFilter<"OrganizationSyncOutbox"> | Date | string
+    updatedAt?: DateTimeFilter<"OrganizationSyncOutbox"> | Date | string
+  }
+
+  export type OrganizationSyncOutboxOrderByWithRelationInput = {
+    id?: SortOrder
+    aggregate?: SortOrder
+    aggregateId?: SortOrder
+    eventType?: SortOrder
+    payload?: SortOrder
+    idempotencyKey?: SortOrder
+    status?: SortOrder
+    attemptCount?: SortOrder
+    lastError?: SortOrderInput | SortOrder
+    availableAt?: SortOrder
+    deliveredAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrganizationSyncOutboxWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    idempotencyKey?: string
+    AND?: OrganizationSyncOutboxWhereInput | OrganizationSyncOutboxWhereInput[]
+    OR?: OrganizationSyncOutboxWhereInput[]
+    NOT?: OrganizationSyncOutboxWhereInput | OrganizationSyncOutboxWhereInput[]
+    aggregate?: EnumOrganizationSyncAggregateFilter<"OrganizationSyncOutbox"> | $Enums.OrganizationSyncAggregate
+    aggregateId?: UuidFilter<"OrganizationSyncOutbox"> | string
+    eventType?: StringFilter<"OrganizationSyncOutbox"> | string
+    payload?: JsonFilter<"OrganizationSyncOutbox">
+    status?: EnumOrganizationSyncStatusFilter<"OrganizationSyncOutbox"> | $Enums.OrganizationSyncStatus
+    attemptCount?: IntFilter<"OrganizationSyncOutbox"> | number
+    lastError?: StringNullableFilter<"OrganizationSyncOutbox"> | string | null
+    availableAt?: DateTimeFilter<"OrganizationSyncOutbox"> | Date | string
+    deliveredAt?: DateTimeNullableFilter<"OrganizationSyncOutbox"> | Date | string | null
+    createdAt?: DateTimeFilter<"OrganizationSyncOutbox"> | Date | string
+    updatedAt?: DateTimeFilter<"OrganizationSyncOutbox"> | Date | string
+  }, "id" | "idempotencyKey">
+
+  export type OrganizationSyncOutboxOrderByWithAggregationInput = {
+    id?: SortOrder
+    aggregate?: SortOrder
+    aggregateId?: SortOrder
+    eventType?: SortOrder
+    payload?: SortOrder
+    idempotencyKey?: SortOrder
+    status?: SortOrder
+    attemptCount?: SortOrder
+    lastError?: SortOrderInput | SortOrder
+    availableAt?: SortOrder
+    deliveredAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OrganizationSyncOutboxCountOrderByAggregateInput
+    _avg?: OrganizationSyncOutboxAvgOrderByAggregateInput
+    _max?: OrganizationSyncOutboxMaxOrderByAggregateInput
+    _min?: OrganizationSyncOutboxMinOrderByAggregateInput
+    _sum?: OrganizationSyncOutboxSumOrderByAggregateInput
+  }
+
+  export type OrganizationSyncOutboxScalarWhereWithAggregatesInput = {
+    AND?: OrganizationSyncOutboxScalarWhereWithAggregatesInput | OrganizationSyncOutboxScalarWhereWithAggregatesInput[]
+    OR?: OrganizationSyncOutboxScalarWhereWithAggregatesInput[]
+    NOT?: OrganizationSyncOutboxScalarWhereWithAggregatesInput | OrganizationSyncOutboxScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"OrganizationSyncOutbox"> | string
+    aggregate?: EnumOrganizationSyncAggregateWithAggregatesFilter<"OrganizationSyncOutbox"> | $Enums.OrganizationSyncAggregate
+    aggregateId?: UuidWithAggregatesFilter<"OrganizationSyncOutbox"> | string
+    eventType?: StringWithAggregatesFilter<"OrganizationSyncOutbox"> | string
+    payload?: JsonWithAggregatesFilter<"OrganizationSyncOutbox">
+    idempotencyKey?: StringWithAggregatesFilter<"OrganizationSyncOutbox"> | string
+    status?: EnumOrganizationSyncStatusWithAggregatesFilter<"OrganizationSyncOutbox"> | $Enums.OrganizationSyncStatus
+    attemptCount?: IntWithAggregatesFilter<"OrganizationSyncOutbox"> | number
+    lastError?: StringNullableWithAggregatesFilter<"OrganizationSyncOutbox"> | string | null
+    availableAt?: DateTimeWithAggregatesFilter<"OrganizationSyncOutbox"> | Date | string
+    deliveredAt?: DateTimeNullableWithAggregatesFilter<"OrganizationSyncOutbox"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"OrganizationSyncOutbox"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"OrganizationSyncOutbox"> | Date | string
   }
 
   export type EmployeeUnitAssignmentWhereInput = {
@@ -17246,6 +23590,454 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UnitCreateInput = {
+    id?: string
+    name: string
+    code: string
+    category?: string
+    address?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type UnitUncheckedCreateInput = {
+    id?: string
+    name: string
+    code: string
+    category?: string
+    address?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type UnitUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UnitUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UnitCreateManyInput = {
+    id?: string
+    name: string
+    code: string
+    category?: string
+    address?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type UnitUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UnitUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type DepartmentCreateInput = {
+    id?: string
+    name: string
+    code: string
+    description?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type DepartmentUncheckedCreateInput = {
+    id?: string
+    name: string
+    code: string
+    description?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type DepartmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type DepartmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type DepartmentCreateManyInput = {
+    id?: string
+    name: string
+    code: string
+    description?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type DepartmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type DepartmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type DepartmentAdminAssignmentCreateInput = {
+    id?: string
+    departmentId: string
+    userId: string
+    role?: $Enums.DepartmentAdminRole
+    isActive?: boolean
+    assignedById: string
+    assignedAt?: Date | string
+    revokedAt?: Date | string | null
+    revokedById?: string | null
+    authAssignmentId?: string | null
+  }
+
+  export type DepartmentAdminAssignmentUncheckedCreateInput = {
+    id?: string
+    departmentId: string
+    userId: string
+    role?: $Enums.DepartmentAdminRole
+    isActive?: boolean
+    assignedById: string
+    assignedAt?: Date | string
+    revokedAt?: Date | string | null
+    revokedById?: string | null
+    authAssignmentId?: string | null
+  }
+
+  export type DepartmentAdminAssignmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    departmentId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    role?: EnumDepartmentAdminRoleFieldUpdateOperationsInput | $Enums.DepartmentAdminRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedById?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedById?: NullableStringFieldUpdateOperationsInput | string | null
+    authAssignmentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DepartmentAdminAssignmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    departmentId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    role?: EnumDepartmentAdminRoleFieldUpdateOperationsInput | $Enums.DepartmentAdminRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedById?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedById?: NullableStringFieldUpdateOperationsInput | string | null
+    authAssignmentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DepartmentAdminAssignmentCreateManyInput = {
+    id?: string
+    departmentId: string
+    userId: string
+    role?: $Enums.DepartmentAdminRole
+    isActive?: boolean
+    assignedById: string
+    assignedAt?: Date | string
+    revokedAt?: Date | string | null
+    revokedById?: string | null
+    authAssignmentId?: string | null
+  }
+
+  export type DepartmentAdminAssignmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    departmentId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    role?: EnumDepartmentAdminRoleFieldUpdateOperationsInput | $Enums.DepartmentAdminRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedById?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedById?: NullableStringFieldUpdateOperationsInput | string | null
+    authAssignmentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DepartmentAdminAssignmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    departmentId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    role?: EnumDepartmentAdminRoleFieldUpdateOperationsInput | $Enums.DepartmentAdminRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedById?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedById?: NullableStringFieldUpdateOperationsInput | string | null
+    authAssignmentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type UnitAdminAssignmentCreateInput = {
+    id?: string
+    unitId: string
+    userId: string
+    app: string
+    role: string
+    isActive?: boolean
+    assignedById: string
+    assignedAt?: Date | string
+    revokedAt?: Date | string | null
+    revokedById?: string | null
+    authAssignmentId?: string | null
+  }
+
+  export type UnitAdminAssignmentUncheckedCreateInput = {
+    id?: string
+    unitId: string
+    userId: string
+    app: string
+    role: string
+    isActive?: boolean
+    assignedById: string
+    assignedAt?: Date | string
+    revokedAt?: Date | string | null
+    revokedById?: string | null
+    authAssignmentId?: string | null
+  }
+
+  export type UnitAdminAssignmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    app?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedById?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedById?: NullableStringFieldUpdateOperationsInput | string | null
+    authAssignmentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type UnitAdminAssignmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    app?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedById?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedById?: NullableStringFieldUpdateOperationsInput | string | null
+    authAssignmentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type UnitAdminAssignmentCreateManyInput = {
+    id?: string
+    unitId: string
+    userId: string
+    app: string
+    role: string
+    isActive?: boolean
+    assignedById: string
+    assignedAt?: Date | string
+    revokedAt?: Date | string | null
+    revokedById?: string | null
+    authAssignmentId?: string | null
+  }
+
+  export type UnitAdminAssignmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    app?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedById?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedById?: NullableStringFieldUpdateOperationsInput | string | null
+    authAssignmentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type UnitAdminAssignmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    app?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    assignedById?: StringFieldUpdateOperationsInput | string
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedById?: NullableStringFieldUpdateOperationsInput | string | null
+    authAssignmentId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type OrganizationSyncOutboxCreateInput = {
+    id?: string
+    aggregate: $Enums.OrganizationSyncAggregate
+    aggregateId: string
+    eventType: string
+    payload: JsonNullValueInput | InputJsonValue
+    idempotencyKey: string
+    status?: $Enums.OrganizationSyncStatus
+    attemptCount?: number
+    lastError?: string | null
+    availableAt?: Date | string
+    deliveredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrganizationSyncOutboxUncheckedCreateInput = {
+    id?: string
+    aggregate: $Enums.OrganizationSyncAggregate
+    aggregateId: string
+    eventType: string
+    payload: JsonNullValueInput | InputJsonValue
+    idempotencyKey: string
+    status?: $Enums.OrganizationSyncStatus
+    attemptCount?: number
+    lastError?: string | null
+    availableAt?: Date | string
+    deliveredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrganizationSyncOutboxUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    aggregate?: EnumOrganizationSyncAggregateFieldUpdateOperationsInput | $Enums.OrganizationSyncAggregate
+    aggregateId?: StringFieldUpdateOperationsInput | string
+    eventType?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrganizationSyncStatusFieldUpdateOperationsInput | $Enums.OrganizationSyncStatus
+    attemptCount?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    availableAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationSyncOutboxUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    aggregate?: EnumOrganizationSyncAggregateFieldUpdateOperationsInput | $Enums.OrganizationSyncAggregate
+    aggregateId?: StringFieldUpdateOperationsInput | string
+    eventType?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrganizationSyncStatusFieldUpdateOperationsInput | $Enums.OrganizationSyncStatus
+    attemptCount?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    availableAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationSyncOutboxCreateManyInput = {
+    id?: string
+    aggregate: $Enums.OrganizationSyncAggregate
+    aggregateId: string
+    eventType: string
+    payload: JsonNullValueInput | InputJsonValue
+    idempotencyKey: string
+    status?: $Enums.OrganizationSyncStatus
+    attemptCount?: number
+    lastError?: string | null
+    availableAt?: Date | string
+    deliveredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrganizationSyncOutboxUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    aggregate?: EnumOrganizationSyncAggregateFieldUpdateOperationsInput | $Enums.OrganizationSyncAggregate
+    aggregateId?: StringFieldUpdateOperationsInput | string
+    eventType?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrganizationSyncStatusFieldUpdateOperationsInput | $Enums.OrganizationSyncStatus
+    attemptCount?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    availableAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationSyncOutboxUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    aggregate?: EnumOrganizationSyncAggregateFieldUpdateOperationsInput | $Enums.OrganizationSyncAggregate
+    aggregateId?: StringFieldUpdateOperationsInput | string
+    eventType?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrganizationSyncStatusFieldUpdateOperationsInput | $Enums.OrganizationSyncStatus
+    attemptCount?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    availableAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmployeeUnitAssignmentCreateInput = {
@@ -18409,6 +25201,344 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type UnitCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    code?: SortOrder
+    category?: SortOrder
+    address?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UnitMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    code?: SortOrder
+    category?: SortOrder
+    address?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UnitMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    code?: SortOrder
+    category?: SortOrder
+    address?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DepartmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    code?: SortOrder
+    description?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DepartmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    code?: SortOrder
+    description?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DepartmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    code?: SortOrder
+    description?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumDepartmentAdminRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.DepartmentAdminRole | EnumDepartmentAdminRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.DepartmentAdminRole[] | ListEnumDepartmentAdminRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DepartmentAdminRole[] | ListEnumDepartmentAdminRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumDepartmentAdminRoleFilter<$PrismaModel> | $Enums.DepartmentAdminRole
+  }
+
+  export type UuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type DepartmentAdminAssignmentDepartmentIdUserIdRoleCompoundUniqueInput = {
+    departmentId: string
+    userId: string
+    role: $Enums.DepartmentAdminRole
+  }
+
+  export type DepartmentAdminAssignmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    departmentId?: SortOrder
+    userId?: SortOrder
+    role?: SortOrder
+    isActive?: SortOrder
+    assignedById?: SortOrder
+    assignedAt?: SortOrder
+    revokedAt?: SortOrder
+    revokedById?: SortOrder
+    authAssignmentId?: SortOrder
+  }
+
+  export type DepartmentAdminAssignmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    departmentId?: SortOrder
+    userId?: SortOrder
+    role?: SortOrder
+    isActive?: SortOrder
+    assignedById?: SortOrder
+    assignedAt?: SortOrder
+    revokedAt?: SortOrder
+    revokedById?: SortOrder
+    authAssignmentId?: SortOrder
+  }
+
+  export type DepartmentAdminAssignmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    departmentId?: SortOrder
+    userId?: SortOrder
+    role?: SortOrder
+    isActive?: SortOrder
+    assignedById?: SortOrder
+    assignedAt?: SortOrder
+    revokedAt?: SortOrder
+    revokedById?: SortOrder
+    authAssignmentId?: SortOrder
+  }
+
+  export type EnumDepartmentAdminRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DepartmentAdminRole | EnumDepartmentAdminRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.DepartmentAdminRole[] | ListEnumDepartmentAdminRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DepartmentAdminRole[] | ListEnumDepartmentAdminRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumDepartmentAdminRoleWithAggregatesFilter<$PrismaModel> | $Enums.DepartmentAdminRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDepartmentAdminRoleFilter<$PrismaModel>
+    _max?: NestedEnumDepartmentAdminRoleFilter<$PrismaModel>
+  }
+
+  export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type UnitAdminAssignmentUnitIdUserIdAppRoleCompoundUniqueInput = {
+    unitId: string
+    userId: string
+    app: string
+    role: string
+  }
+
+  export type UnitAdminAssignmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    userId?: SortOrder
+    app?: SortOrder
+    role?: SortOrder
+    isActive?: SortOrder
+    assignedById?: SortOrder
+    assignedAt?: SortOrder
+    revokedAt?: SortOrder
+    revokedById?: SortOrder
+    authAssignmentId?: SortOrder
+  }
+
+  export type UnitAdminAssignmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    userId?: SortOrder
+    app?: SortOrder
+    role?: SortOrder
+    isActive?: SortOrder
+    assignedById?: SortOrder
+    assignedAt?: SortOrder
+    revokedAt?: SortOrder
+    revokedById?: SortOrder
+    authAssignmentId?: SortOrder
+  }
+
+  export type UnitAdminAssignmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    unitId?: SortOrder
+    userId?: SortOrder
+    app?: SortOrder
+    role?: SortOrder
+    isActive?: SortOrder
+    assignedById?: SortOrder
+    assignedAt?: SortOrder
+    revokedAt?: SortOrder
+    revokedById?: SortOrder
+    authAssignmentId?: SortOrder
+  }
+
+  export type EnumOrganizationSyncAggregateFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizationSyncAggregate | EnumOrganizationSyncAggregateFieldRefInput<$PrismaModel>
+    in?: $Enums.OrganizationSyncAggregate[] | ListEnumOrganizationSyncAggregateFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrganizationSyncAggregate[] | ListEnumOrganizationSyncAggregateFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrganizationSyncAggregateFilter<$PrismaModel> | $Enums.OrganizationSyncAggregate
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type EnumOrganizationSyncStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizationSyncStatus | EnumOrganizationSyncStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.OrganizationSyncStatus[] | ListEnumOrganizationSyncStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrganizationSyncStatus[] | ListEnumOrganizationSyncStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrganizationSyncStatusFilter<$PrismaModel> | $Enums.OrganizationSyncStatus
+  }
+
+  export type OrganizationSyncOutboxCountOrderByAggregateInput = {
+    id?: SortOrder
+    aggregate?: SortOrder
+    aggregateId?: SortOrder
+    eventType?: SortOrder
+    payload?: SortOrder
+    idempotencyKey?: SortOrder
+    status?: SortOrder
+    attemptCount?: SortOrder
+    lastError?: SortOrder
+    availableAt?: SortOrder
+    deliveredAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrganizationSyncOutboxAvgOrderByAggregateInput = {
+    attemptCount?: SortOrder
+  }
+
+  export type OrganizationSyncOutboxMaxOrderByAggregateInput = {
+    id?: SortOrder
+    aggregate?: SortOrder
+    aggregateId?: SortOrder
+    eventType?: SortOrder
+    idempotencyKey?: SortOrder
+    status?: SortOrder
+    attemptCount?: SortOrder
+    lastError?: SortOrder
+    availableAt?: SortOrder
+    deliveredAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrganizationSyncOutboxMinOrderByAggregateInput = {
+    id?: SortOrder
+    aggregate?: SortOrder
+    aggregateId?: SortOrder
+    eventType?: SortOrder
+    idempotencyKey?: SortOrder
+    status?: SortOrder
+    attemptCount?: SortOrder
+    lastError?: SortOrder
+    availableAt?: SortOrder
+    deliveredAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrganizationSyncOutboxSumOrderByAggregateInput = {
+    attemptCount?: SortOrder
+  }
+
+  export type EnumOrganizationSyncAggregateWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizationSyncAggregate | EnumOrganizationSyncAggregateFieldRefInput<$PrismaModel>
+    in?: $Enums.OrganizationSyncAggregate[] | ListEnumOrganizationSyncAggregateFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrganizationSyncAggregate[] | ListEnumOrganizationSyncAggregateFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrganizationSyncAggregateWithAggregatesFilter<$PrismaModel> | $Enums.OrganizationSyncAggregate
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOrganizationSyncAggregateFilter<$PrismaModel>
+    _max?: NestedEnumOrganizationSyncAggregateFilter<$PrismaModel>
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type EnumOrganizationSyncStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizationSyncStatus | EnumOrganizationSyncStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.OrganizationSyncStatus[] | ListEnumOrganizationSyncStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrganizationSyncStatus[] | ListEnumOrganizationSyncStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrganizationSyncStatusWithAggregatesFilter<$PrismaModel> | $Enums.OrganizationSyncStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOrganizationSyncStatusFilter<$PrismaModel>
+    _max?: NestedEnumOrganizationSyncStatusFilter<$PrismaModel>
+  }
+
   export type EmployeeUnitAssignmentCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
@@ -18621,18 +25751,6 @@ export namespace Prisma {
     _max?: NestedEnumGpsAttendanceStatusFilter<$PrismaModel>
   }
 
-  export type UuidNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
-  }
-
   export type HolidayUnitIdDateCompoundUniqueInput = {
     unitId: string
     date: Date | string
@@ -18663,21 +25781,6 @@ export namespace Prisma {
     name?: SortOrder
     description?: SortOrder
     createdAt?: SortOrder
-  }
-
-  export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type EnumLeaveTypeFilter<$PrismaModel = never> = {
@@ -19417,6 +26520,18 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutProfileInput, UserUpdateWithoutProfileInput>, UserUncheckedUpdateWithoutProfileInput>
   }
 
+  export type EnumDepartmentAdminRoleFieldUpdateOperationsInput = {
+    set?: $Enums.DepartmentAdminRole
+  }
+
+  export type EnumOrganizationSyncAggregateFieldUpdateOperationsInput = {
+    set?: $Enums.OrganizationSyncAggregate
+  }
+
+  export type EnumOrganizationSyncStatusFieldUpdateOperationsInput = {
+    set?: $Enums.OrganizationSyncStatus
+  }
+
   export type UserCreateNestedOneWithoutUnitAssignmentsInput = {
     create?: XOR<UserCreateWithoutUnitAssignmentsInput, UserUncheckedCreateWithoutUnitAssignmentsInput>
     connectOrCreate?: UserCreateOrConnectWithoutUnitAssignmentsInput
@@ -19934,6 +27049,105 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type NestedEnumDepartmentAdminRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.DepartmentAdminRole | EnumDepartmentAdminRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.DepartmentAdminRole[] | ListEnumDepartmentAdminRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DepartmentAdminRole[] | ListEnumDepartmentAdminRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumDepartmentAdminRoleFilter<$PrismaModel> | $Enums.DepartmentAdminRole
+  }
+
+  export type NestedUuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedEnumDepartmentAdminRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DepartmentAdminRole | EnumDepartmentAdminRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.DepartmentAdminRole[] | ListEnumDepartmentAdminRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DepartmentAdminRole[] | ListEnumDepartmentAdminRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumDepartmentAdminRoleWithAggregatesFilter<$PrismaModel> | $Enums.DepartmentAdminRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDepartmentAdminRoleFilter<$PrismaModel>
+    _max?: NestedEnumDepartmentAdminRoleFilter<$PrismaModel>
+  }
+
+  export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumOrganizationSyncAggregateFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizationSyncAggregate | EnumOrganizationSyncAggregateFieldRefInput<$PrismaModel>
+    in?: $Enums.OrganizationSyncAggregate[] | ListEnumOrganizationSyncAggregateFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrganizationSyncAggregate[] | ListEnumOrganizationSyncAggregateFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrganizationSyncAggregateFilter<$PrismaModel> | $Enums.OrganizationSyncAggregate
+  }
+
+  export type NestedEnumOrganizationSyncStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizationSyncStatus | EnumOrganizationSyncStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.OrganizationSyncStatus[] | ListEnumOrganizationSyncStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrganizationSyncStatus[] | ListEnumOrganizationSyncStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrganizationSyncStatusFilter<$PrismaModel> | $Enums.OrganizationSyncStatus
+  }
+
+  export type NestedEnumOrganizationSyncAggregateWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizationSyncAggregate | EnumOrganizationSyncAggregateFieldRefInput<$PrismaModel>
+    in?: $Enums.OrganizationSyncAggregate[] | ListEnumOrganizationSyncAggregateFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrganizationSyncAggregate[] | ListEnumOrganizationSyncAggregateFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrganizationSyncAggregateWithAggregatesFilter<$PrismaModel> | $Enums.OrganizationSyncAggregate
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOrganizationSyncAggregateFilter<$PrismaModel>
+    _max?: NestedEnumOrganizationSyncAggregateFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumOrganizationSyncStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizationSyncStatus | EnumOrganizationSyncStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.OrganizationSyncStatus[] | ListEnumOrganizationSyncStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrganizationSyncStatus[] | ListEnumOrganizationSyncStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrganizationSyncStatusWithAggregatesFilter<$PrismaModel> | $Enums.OrganizationSyncStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOrganizationSyncStatusFilter<$PrismaModel>
+    _max?: NestedEnumOrganizationSyncStatusFilter<$PrismaModel>
+  }
+
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -19992,31 +27206,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumGpsAttendanceStatusFilter<$PrismaModel>
     _max?: NestedEnumGpsAttendanceStatusFilter<$PrismaModel>
-  }
-
-  export type NestedUuidNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
-  }
-
-  export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumLeaveTypeFilter<$PrismaModel = never> = {

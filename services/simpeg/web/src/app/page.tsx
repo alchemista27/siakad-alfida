@@ -2,6 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { AppShell, Card, Badge, Button, EmptyState, LoadingState, ErrorState } from "@alfida/ui";
+import { UnitManagementPanel } from "../components/organization/unit-management-panel";
+import { UnitAdminModal } from "../components/organization/unit-admin-modal";
+import { DepartmentManagementPanel } from "../components/organization/department-management-panel";
+import { DepartmentAdminModal } from "../components/organization/department-admin-modal";
+import { OrganizationDepartment, OrganizationEmployee, OrganizationUnit } from "../components/organization/types";
 
 interface Assignment {
   id: string;
@@ -35,25 +40,35 @@ interface LeaveRequest {
   };
 }
 
+type SimpegTab = "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings";
+
 export default function SimpegDashboard() {
-  const [activeTab, setActiveTab] = useState<"assignments" | "attendance" | "leaves" | "liqo">("assignments");
+  const [activeTab, setActiveTab] = useState<SimpegTab>("assignments");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Data states
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
-  const [employees, setEmployees] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<OrganizationEmployee[]>([]);
   const [attendanceContext, setAttendanceContext] = useState<any>(null);
   const [attendanceLogs, setAttendanceLogs] = useState<any[]>([]);
+  const [units, setUnits] = useState<OrganizationUnit[]>([]);
+  const [departments, setDepartments] = useState<OrganizationDepartment[]>([]);
+  const [gpsConfigs, setGpsConfigs] = useState<any[]>([]);
 
   // Form states
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAddAssignmentModal, setShowAddAssignmentModal] = useState(false);
+  const [showGpsConfigModal, setShowGpsConfigModal] = useState(false);
+  const [gpsConfigForm, setGpsConfigForm] = useState({ unitId: "", latitude: "", longitude: "", radiusMeters: "50" });
+  const [gpsError, setGpsError] = useState<string | null>(null);
+  const [managedUnit, setManagedUnit] = useState<OrganizationUnit | null>(null);
+  const [managedDepartment, setManagedDepartment] = useState<OrganizationDepartment | null>(null);
   const [newAssignment, setNewAssignment] = useState({
     userId: "",
-    unitName: "SMA IT Alfida",
-    unitId: "11111111-1111-1111-1111-111111111111",
+    unitName: "",
+    unitId: "",
     role: "Guru Kelas",
     isPrimary: true,
     startDate: new Date().toISOString().slice(0, 10),
@@ -68,23 +83,37 @@ export default function SimpegDashboard() {
   });
 
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string } | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const [resAssignments, resLeaves, resEmployees] = await Promise.all([
+      const [resAssignments, resLeaves, resEmployees, resUnits, resDepartments, resAttendanceContext, resGpsConfigs] = await Promise.all([
         fetch("/api/assignments").then((r) => (r.ok ? r.json() : [])),
         fetch("/api/leaves").then((r) => (r.ok ? r.json() : [])),
         fetch("/api/employees").then((r) => (r.ok ? r.json() : [])),
+        fetch("/api/units").then((r) => (r.ok ? r.json() : [])),
+        fetch("/api/departments").then((r) => (r.ok ? r.json() : [])),
+        fetch("/api/attendance/context").then((r) => (r.ok ? r.json() : null)),
+        fetch("/api/attendance/configs").then((r) => (r.ok ? r.json() : [])),
       ]);
 
       setAssignments(resAssignments || []);
       setLeaves(resLeaves || []);
       setEmployees(resEmployees || []);
+      setUnits(resUnits || []);
+      setDepartments(resDepartments || []);
+      setAttendanceContext(resAttendanceContext);
+      setGpsConfigs(resGpsConfigs || []);
       if (resEmployees && resEmployees.length > 0 && !newAssignment.userId) {
         setNewAssignment((prev) => ({ ...prev, userId: resEmployees[0].id }));
+      }
+      if (resUnits && resUnits.length > 0) {
+        setNewAssignment((prev) => !prev.unitId
+          ? { ...prev, unitId: resUnits[0].id, unitName: resUnits[0].name }
+          : prev);
       }
     } catch (err: any) {
       setError(err?.message || "Gagal memuat data kepegawaian.");
@@ -119,9 +148,38 @@ export default function SimpegDashboard() {
     fetchData();
   }, []);
 
+  const handleSaveGpsConfig = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!gpsConfigForm.unitId || !gpsConfigForm.latitude || !gpsConfigForm.longitude) return;
+    setIsSubmitting(true);
+    setGpsError(null);
+    try {
+      const response = await fetch("/api/attendance/configs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          unitId: gpsConfigForm.unitId,
+          latitude: Number(gpsConfigForm.latitude),
+          longitude: Number(gpsConfigForm.longitude),
+          radiusMeters: Number(gpsConfigForm.radiusMeters || 50),
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.message || "Konfigurasi GPS gagal disimpan.");
+      setActionSuccess("Konfigurasi GPS unit berhasil disimpan.");
+      setShowGpsConfigModal(false);
+      setGpsConfigForm({ unitId: "", latitude: "", longitude: "", radiusMeters: "50" });
+      fetchData();
+    } catch (err: any) {
+      setGpsError(err.message || "Konfigurasi GPS gagal disimpan.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleCreateAssignment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAssignment.userId || !newAssignment.unitName) return;
+    if (!newAssignment.userId || !newAssignment.unitId || !newAssignment.unitName) return;
 
     setIsSubmitting(true);
     try {
@@ -138,7 +196,7 @@ export default function SimpegDashboard() {
       setTimeout(() => setActionSuccess(null), 4000);
       fetchData();
     } catch (err: any) {
-      alert(err.message || "Terjadi kesalahan saat menyimpan.");
+      setFeedbackError(err.message || "Terjadi kesalahan saat menyimpan.");
     } finally {
       setIsSubmitting(false);
     }
@@ -190,7 +248,7 @@ export default function SimpegDashboard() {
       setActionSuccess("Presensi masuk berhasil dicatat.");
       setTimeout(() => setActionSuccess(null), 4000);
     } catch (err: any) {
-      alert(err.message);
+      setFeedbackError(err.message || "Terjadi kesalahan saat menjalankan tindakan.");
     } finally {
       setIsSubmitting(false);
     }
@@ -214,7 +272,7 @@ export default function SimpegDashboard() {
       setActionSuccess("Presensi keluar berhasil dicatat.");
       setTimeout(() => setActionSuccess(null), 4000);
     } catch (err: any) {
-      alert(err.message);
+      setFeedbackError(err.message || "Terjadi kesalahan saat menjalankan tindakan.");
     } finally {
       setIsSubmitting(false);
     }
@@ -232,7 +290,7 @@ export default function SimpegDashboard() {
       setTimeout(() => setActionSuccess(null), 4000);
       fetchData();
     } catch (err: any) {
-      alert(err.message);
+      setFeedbackError(err.message || "Terjadi kesalahan saat menjalankan tindakan.");
     }
   };
 
@@ -248,7 +306,7 @@ export default function SimpegDashboard() {
       setTimeout(() => setActionSuccess(null), 4000);
       fetchData();
     } catch (err: any) {
-      alert(err.message);
+      setFeedbackError(err.message || "Terjadi kesalahan saat menjalankan tindakan.");
     }
   };
 
@@ -277,7 +335,7 @@ export default function SimpegDashboard() {
       setTimeout(() => setActionSuccess(null), 4000);
       fetchData();
     } catch (err: any) {
-      alert(err.message);
+      setFeedbackError(err.message || "Terjadi kesalahan saat menjalankan tindakan.");
     } finally {
       setIsSubmitting(false);
     }
@@ -300,6 +358,32 @@ export default function SimpegDashboard() {
           icon: "location_on",
           active: activeTab === "attendance",
           onClick: () => setActiveTab("attendance"),
+        },
+      ],
+    },
+    {
+      title: "Master Kepegawaian",
+      items: [
+        {
+          label: "Unit & Lokasi Kerja",
+          href: "#units",
+          icon: "domain",
+          active: activeTab === "units",
+          onClick: () => setActiveTab("units"),
+        },
+        {
+          label: "Bidang & Departemen",
+          href: "#departments",
+          icon: "account_tree",
+          active: activeTab === "departments",
+          onClick: () => setActiveTab("departments"),
+        },
+        {
+          label: "Konfigurasi GPS",
+          href: "#gps-settings",
+          icon: "my_location",
+          active: activeTab === "gps-settings",
+          onClick: () => setActiveTab("gps-settings"),
         },
       ],
     },
@@ -394,6 +478,13 @@ export default function SimpegDashboard() {
             >
               Tutup
             </button>
+          </div>
+        )}
+
+        {feedbackError && (
+          <div className="flex items-center justify-between rounded-md border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800" role="alert">
+            <span>{feedbackError}</span>
+            <button type="button" onClick={() => setFeedbackError(null)} className="font-semibold text-rose-700 hover:text-rose-900">Tutup</button>
           </div>
         )}
 
@@ -543,26 +634,21 @@ export default function SimpegDashboard() {
                     Presensi GPS mencatat koordinat lokasi terkini perangkat Anda dan memvalidasi jarak terhadap lokasi unit kerja terdaftar.
                   </p>
 
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-sm space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Unit Utama:</span>
-                      <span className="font-medium text-slate-900">Kampus Terpadu Alfida</span>
+                  {attendanceContext?.config ? (
+                    <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-sm space-y-2">
+                      <div className="flex justify-between"><span className="text-slate-500">Unit Utama:</span><span className="font-medium text-slate-900">{attendanceContext.unitName}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Lokasi GPS:</span><span className="font-medium text-slate-900">{Number(attendanceContext.config.latitude).toFixed(5)}, {Number(attendanceContext.config.longitude).toFixed(5)}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Maksimum Radius:</span><span className="font-medium text-slate-900">{attendanceContext.config.radiusMeters} Meter</span></div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Batas Waktu Masuk:</span>
-                      <span className="font-medium text-slate-900">07:15 WIB</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Maksimum Radius:</span>
-                      <span className="font-medium text-slate-900">50 Meter</span>
-                    </div>
-                  </div>
+                  ) : (
+                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">Penugasan atau konfigurasi GPS unit Anda belum tersedia. Hubungi admin kepegawaian.</div>
+                  )}
 
                   <div className="flex gap-3 pt-2">
                     <Button
                       variant="primary"
                       onClick={handleCheckInGps}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !attendanceContext?.config}
                       className="flex-1"
                     >
                       Check-In Masuk (GPS)
@@ -570,7 +656,7 @@ export default function SimpegDashboard() {
                     <Button
                       variant="secondary"
                       onClick={handleCheckOutGps}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !attendanceContext?.config}
                       className="flex-1"
                     >
                       Check-Out Pulang (GPS)
@@ -748,7 +834,27 @@ export default function SimpegDashboard() {
               </div>
             )}
 
-            {/* TAB 4: PEMBINAAN & BPI */}
+            {/* TAB 4: UNIT & LOKASI KERJA */}
+            {activeTab === "units" && (
+              <UnitManagementPanel units={units} onRefresh={fetchData} onManageAdmins={setManagedUnit} />
+            )}
+
+            {/* TAB 5: BIDANG & DEPARTEMEN */}
+            {activeTab === "departments" && (
+              <DepartmentManagementPanel departments={departments} onRefresh={fetchData} onManageAdmins={setManagedDepartment} />
+            )}
+
+            {/* TAB 6: KONFIGURASI GPS */}
+            {activeTab === "gps-settings" && (
+              <div className="space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3"><div><h2 className="font-heading text-xl font-bold text-primary">Konfigurasi Lokasi GPS</h2><p className="text-sm text-slate-500 mt-1">Tentukan titik koordinat dan radius presensi untuk setiap unit kerja.</p></div><Button variant="primary" size="sm" onClick={() => { setGpsError(null); setShowGpsConfigModal(true); }}>Atur Lokasi GPS</Button></div>
+                {gpsConfigs.length === 0 ? <EmptyState title="Belum ada lokasi GPS" description="Atur koordinat unit agar pegawai dapat melakukan check-in dan check-out berbasis lokasi." actionLabel="Atur Lokasi GPS" onAction={() => setShowGpsConfigModal(true)} /> : (
+                  <div className="overflow-x-auto border border-border rounded-lg bg-white"><table className="w-full text-left text-sm"><thead className="bg-[#F7F8F8] text-xs uppercase text-slate-500"><tr><th className="px-5 py-3">Unit</th><th className="px-5 py-3">Latitude</th><th className="px-5 py-3">Longitude</th><th className="px-5 py-3">Radius</th></tr></thead><tbody className="divide-y divide-border">{gpsConfigs.map((config) => { const unit = config.unit || units.find((item) => item.id === config.unitId); return <tr key={config.id}><td className="px-5 py-4 font-semibold text-primary">{unit?.name || config.unitId}</td><td className="px-5 py-4 font-mono text-xs">{config.latitude}</td><td className="px-5 py-4 font-mono text-xs">{config.longitude}</td><td className="px-5 py-4">{config.radiusMeters} meter</td></tr>; })}</tbody></table></div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 7: PEMBINAAN & BPI */}
             {activeTab === "liqo" && (
               <div className="space-y-4">
                 <Card className="p-6 bg-white border border-slate-200">
@@ -766,6 +872,20 @@ export default function SimpegDashboard() {
             )}
           </div>
         )}
+
+        {/* Modal Konfigurasi GPS */}
+        {showGpsConfigModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-labelledby="gps-config-title">
+            <div className="w-full max-w-md rounded-md border border-border bg-surface p-5">
+              <div className="flex items-start justify-between border-b border-border pb-3"><div><h3 id="gps-config-title" className="font-heading font-bold text-primary">Konfigurasi Lokasi GPS</h3><p className="mt-1 text-xs text-slate-500">Gunakan koordinat titik pusat unit kerja.</p></div><button type="button" onClick={() => setShowGpsConfigModal(false)} className="text-slate-500" aria-label="Tutup konfigurasi GPS"><span className="material-symbols-rounded" aria-hidden="true">close</span></button></div>
+              {gpsError && <p className="mt-4 rounded-sm border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800" role="alert">Pesan kesalahan dari server akan ditampilkan di sini: {gpsError}</p>}
+              <form onSubmit={handleSaveGpsConfig} className="mt-4 space-y-4"><label className="block text-xs font-semibold text-primary">Unit Kerja<select required value={gpsConfigForm.unitId} onChange={(event) => setGpsConfigForm({ ...gpsConfigForm, unitId: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm"><option value="">Pilih unit</option>{units.filter((unit) => unit.isActive).map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select></label><div className="grid grid-cols-2 gap-3"><label className="block text-xs font-semibold text-primary">Latitude<input required type="number" min="-90" max="90" step="any" value={gpsConfigForm.latitude} onChange={(event) => setGpsConfigForm({ ...gpsConfigForm, latitude: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" placeholder="-6.200000" /></label><label className="block text-xs font-semibold text-primary">Longitude<input required type="number" min="-180" max="180" step="any" value={gpsConfigForm.longitude} onChange={(event) => setGpsConfigForm({ ...gpsConfigForm, longitude: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" placeholder="106.816666" /></label></div><label className="block text-xs font-semibold text-primary">Radius (meter)<input required type="number" min="10" max="1000" value={gpsConfigForm.radiusMeters} onChange={(event) => setGpsConfigForm({ ...gpsConfigForm, radiusMeters: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" /></label><div className="flex justify-end gap-2 border-t border-border pt-3"><Button type="button" variant="secondary" size="sm" onClick={() => setShowGpsConfigModal(false)}>Batal</Button><Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>{isSubmitting ? "Menyimpan..." : "Simpan Lokasi"}</Button></div></form>
+            </div>
+          </div>
+        )}
+
+        <UnitAdminModal unit={managedUnit} employees={employees} onClose={() => setManagedUnit(null)} onChanged={fetchData} />
+        <DepartmentAdminModal department={managedDepartment} employees={employees} onClose={() => setManagedDepartment(null)} onChanged={fetchData} />
 
         {/* Modal Tambah Penugasan */}
         {showAddAssignmentModal && (
@@ -822,12 +942,13 @@ export default function SimpegDashboard() {
                     className="w-full text-sm border border-slate-300 rounded px-3 py-2 bg-white"
                     required
                   >
-                    <option value="11111111-1111-1111-1111-111111111111">Kantor Yayasan Alfida</option>
-                    <option value="22222222-2222-2222-2222-222222222222">SD IT Alfida 1</option>
-                    <option value="33333333-3333-3333-3333-333333333333">SD IT Alfida 2</option>
-                    <option value="44444444-4444-4444-4444-444444444444">SMP IT Alfida</option>
-                    <option value="55555555-5555-5555-5555-555555555555">SMA IT Alfida</option>
-                    <option value="66666666-6666-6666-6666-666666666666">Pondok Pesantren Alfida</option>
+                    {units.filter((unit) => unit.isActive).length === 0 ? (
+                      <option value="">Buat unit kerja terlebih dahulu</option>
+                    ) : (
+                      units.filter((unit) => unit.isActive).map((unit) => (
+                        <option key={unit.id} value={unit.id}>{unit.name}</option>
+                      ))
+                    )}
                   </select>
                 </div>
 

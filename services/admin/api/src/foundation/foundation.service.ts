@@ -1,6 +1,7 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpdateFoundationDto } from "./foundation.dto";
+import { isAllowedFoundationCloudinaryUrl } from "./foundation-cloudinary-asset.policy";
 
 const DEFAULT_SETTINGS_ID = "00000000-0000-0000-0000-000000000001";
 
@@ -11,7 +12,7 @@ export class FoundationService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getPublicSettings() {
-    let settings = await this.prisma.foundationSettings.findFirst({
+    const settings = await this.prisma.foundationSettings.findFirst({
       select: {
         foundationName: true,
         logoUrl: true,
@@ -19,15 +20,11 @@ export class FoundationService {
       },
     });
 
-    if (!settings) {
-      settings = {
-        foundationName: "Yayasan Alfida",
-        logoUrl: "https://s3.alfida.or.id/sim-alfida/sim-alfida/foundation/logo-1790054535826",
-        faviconUrl: null,
-      };
-    }
-
-    return settings;
+    return settings || {
+      foundationName: "Yayasan Alfida",
+      logoUrl: null,
+      faviconUrl: null,
+    };
   }
 
   async getAdminSettings() {
@@ -38,7 +35,6 @@ export class FoundationService {
         data: {
           id: DEFAULT_SETTINGS_ID,
           foundationName: "Yayasan Alfida",
-          logoUrl: "https://s3.alfida.or.id/sim-alfida/sim-alfida/foundation/logo-1790054535826",
           bankName: "Bank Syariah Indonesia (BSI)",
           bankAccountNumber: "7121234567",
           bankAccountHolder: "Yayasan Alfida",
@@ -50,52 +46,31 @@ export class FoundationService {
   }
 
   async updateSettings(dto: UpdateFoundationDto) {
-    let existing = await this.prisma.foundationSettings.findFirst();
+    this.assertAllowedAssetUrls(dto);
+    const existing = await this.prisma.foundationSettings.findFirst();
+    const data = {
+      foundationName: dto.foundationName.trim(),
+      logoUrl: dto.logoUrl || null,
+      faviconUrl: dto.faviconUrl || null,
+      chairmanName: dto.chairmanName || null,
+      chairmanSignatureUrl: dto.chairmanSignatureUrl || null,
+      bankName: dto.bankName || null,
+      bankAccountNumber: dto.bankAccountNumber || null,
+      bankAccountHolder: dto.bankAccountHolder || null,
+      address: dto.address || null,
+      phone: dto.phone || null,
+      email: dto.email || null,
+    };
+    const settings = existing
+      ? await this.prisma.foundationSettings.update({ where: { id: existing.id }, data })
+      : await this.prisma.foundationSettings.create({ data: { id: DEFAULT_SETTINGS_ID, ...data } });
 
-    let settings;
-    if (existing) {
-      settings = await this.prisma.foundationSettings.update({
-        where: { id: existing.id },
-        data: {
-          foundationName: dto.foundationName.trim(),
-          logoUrl: dto.logoUrl || null,
-          faviconUrl: dto.faviconUrl || null,
-          chairmanName: dto.chairmanName || null,
-          chairmanSignatureUrl: dto.chairmanSignatureUrl || null,
-          bankName: dto.bankName || null,
-          bankAccountNumber: dto.bankAccountNumber || null,
-          bankAccountHolder: dto.bankAccountHolder || null,
-          address: dto.address || null,
-          phone: dto.phone || null,
-          email: dto.email || null,
-        },
-      });
-    } else {
-      settings = await this.prisma.foundationSettings.create({
-        data: {
-          id: DEFAULT_SETTINGS_ID,
-          foundationName: dto.foundationName.trim(),
-          logoUrl: dto.logoUrl || null,
-          faviconUrl: dto.faviconUrl || null,
-          chairmanName: dto.chairmanName || null,
-          chairmanSignatureUrl: dto.chairmanSignatureUrl || null,
-          bankName: dto.bankName || null,
-          bankAccountNumber: dto.bankAccountNumber || null,
-          bankAccountHolder: dto.bankAccountHolder || null,
-          address: dto.address || null,
-          phone: dto.phone || null,
-          email: dto.email || null,
-        },
-      });
-    }
-
-    // Sinkronisasi non-blocking ke basis data simalfida legacy (sim.foundation_settings) jika ada
     try {
       if (process.env.LEGACY_DATABASE_URL) {
-        // Query update langsung via raw query jika datasource support
+        // Legacy synchronization is intentionally non-blocking.
       }
-    } catch (e: any) {
-      this.logger.warn(`Gagal sinkronisasi ke legacy: ${e.message}`);
+    } catch (error: unknown) {
+      this.logger.warn(`Gagal sinkronisasi ke legacy: ${error instanceof Error ? error.message : "unknown error"}`);
     }
 
     return {
@@ -103,5 +78,20 @@ export class FoundationService {
       message: "Pengaturan identitas yayasan berhasil diperbarui",
       data: settings,
     };
+  }
+
+  private assertAllowedAssetUrls(dto: UpdateFoundationDto) {
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || "";
+    const assets = [
+      ["logo", dto.logoUrl],
+      ["favicon", dto.faviconUrl],
+      ["tanda tangan ketua", dto.chairmanSignatureUrl],
+    ] as const;
+
+    for (const [label, url] of assets) {
+      if (!isAllowedFoundationCloudinaryUrl(url, cloudName)) {
+        throw new BadRequestException(`URL ${label} harus berasal dari folder Cloudinary foundation yang sesuai.`);
+      }
+    }
   }
 }

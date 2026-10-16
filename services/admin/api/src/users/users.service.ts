@@ -12,6 +12,7 @@ import {
   ResetPasswordDto,
   BatchImportUsersDto,
 } from "./dto/users.dto";
+import { assertDirectRoleAssignment } from "./role-catalog";
 
 @Injectable()
 export class UsersService {
@@ -150,6 +151,7 @@ export class UsersService {
   }
 
   async createUserManual(dto: CreateUserManualDto) {
+    const roles = dto.roles.map(assertDirectRoleAssignment);
     const email = dto.email.toLowerCase().trim();
     const existing = await this.prisma.user.findFirst({
       where: { email },
@@ -179,7 +181,7 @@ export class UsersService {
           },
         },
         roles: {
-          create: dto.roles.map((r) => ({
+          create: roles.map((r) => ({
             id: randomUUID(),
             app: r.app,
             role: r.role,
@@ -215,6 +217,11 @@ export class UsersService {
 
     for (const item of dto.users) {
       try {
+        const role = assertDirectRoleAssignment({
+          app: item.app || "simpeg",
+          role: item.role,
+          unitId: item.unitId,
+        });
         const email = item.email.toLowerCase().trim();
         const existing = await this.prisma.user.findFirst({
           where: { email },
@@ -250,9 +257,9 @@ export class UsersService {
               create: [
                 {
                   id: randomUUID(),
-                  app: item.app || "simpeg",
-                  role: item.role,
-                  unitId: item.unitId || null,
+                  app: role.app,
+                  role: role.role,
+                  unitId: role.unitId || null,
                 },
               ],
             },
@@ -297,6 +304,7 @@ export class UsersService {
   }
 
   async addRole(userId: string, dto: AddRoleDto) {
+    const input = assertDirectRoleAssignment(dto);
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -305,28 +313,56 @@ export class UsersService {
       throw new NotFoundException("Pengguna tidak ditemukan");
     }
 
+    const where = {
+      userId,
+      app: input.app,
+      role: input.role,
+      unitId: null,
+      departmentId: null,
+    };
+    const existing = await this.prisma.roleAssignment.findFirst({ where });
+    if (existing) {
+      return {
+        success: true,
+        message: `Peran [${input.app}:${input.role}] sudah dimiliki pengguna`,
+        role: existing,
+      };
+    }
+
     const role = await this.prisma.roleAssignment.create({
-      data: {
-        id: randomUUID(),
-        userId,
-        app: dto.app,
-        role: dto.role,
-        unitId: dto.unitId || null,
-        departmentId: dto.departmentId || null,
-      },
+      data: { id: randomUUID(), ...where },
     });
+    await this.prisma.session.deleteMany({ where: { userId } });
 
     return {
       success: true,
-      message: `Peran [${dto.app}:${dto.role}] berhasil disematkan`,
+      message: `Peran [${input.app}:${input.role}] berhasil disematkan`,
       role,
     };
   }
 
   async removeRole(roleAssignmentId: string) {
+    const assignment = await this.prisma.roleAssignment.findUnique({
+      where: { id: roleAssignmentId },
+    });
+    if (!assignment) {
+      throw new NotFoundException("Peran pengguna tidak ditemukan");
+    }
+
+    assertDirectRoleAssignment(assignment);
+    if (assignment.app === "auth" && assignment.role === "super_admin") {
+      const activeSuperAdminCount = await this.prisma.roleAssignment.count({
+        where: { app: "auth", role: "super_admin" },
+      });
+      if (activeSuperAdminCount <= 1) {
+        throw new BadRequestException("Tidak dapat mencabut super_admin terakhir.");
+      }
+    }
+
     await this.prisma.roleAssignment.delete({
       where: { id: roleAssignmentId },
     });
+    await this.prisma.session.deleteMany({ where: { userId: assignment.userId } });
 
     return {
       success: true,

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { AdminShell } from "@/components/admin-shell";
+import { ConfirmActionModal } from "@/components/confirm-action-modal";
+import { UserRoleModal } from "@/components/user-role-modal";
 import * as XLSX from "xlsx";
 
 interface UserItem {
@@ -16,7 +18,8 @@ interface UserItem {
     id: string;
     app: string;
     role: string;
-    unitId?: string;
+    unitId?: string | null;
+    departmentId?: string | null;
   }>;
 }
 
@@ -49,6 +52,14 @@ export default function UsersPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState<{ id: string; name: string } | null>(null);
+  const [roleUser, setRoleUser] = useState<UserItem | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{
+    title: string;
+    description: string;
+    confirmLabel: string;
+    danger?: boolean;
+    onConfirm: () => Promise<void>;
+  } | null>(null);
 
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
@@ -145,27 +156,22 @@ export default function UsersPage() {
       setShowPasswordModal(null);
       setNewPassword("");
     } catch (err: any) {
-      alert(err.message);
+      setMessage({ text: err.message || "Gagal mengatur ulang kata sandi.", type: "error" });
     }
   };
 
   const handleDeleteUser = async (user: UserItem) => {
-    if (!confirm(`Hapus permanen akun pengguna ${user.fullName} (${user.email})? Tindakan ini tidak dapat dibatalkan.`)) {
-      return;
-    }
-
     try {
       const res = await fetch(`/api/admin/users/${user.id}`, {
         method: "DELETE",
         credentials: "include",
       });
-      if (res.ok) {
-        setMessage({ text: `Pengguna ${user.fullName} berhasil dihapus.`, type: "success" });
-        setUsers((prev) => prev.filter((u) => u.id !== user.id));
-        setTotal((prev) => Math.max(0, prev - 1));
-      }
-    } catch (err) {
-      setMessage({ text: "Gagal menghapus pengguna.", type: "error" });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.message || "Gagal menghapus pengguna.");
+      setMessage({ text: `Pengguna ${user.fullName} berhasil dihapus.`, type: "success" });
+      await fetchUsers();
+    } catch (err: any) {
+      setMessage({ text: err.message || "Gagal menghapus pengguna.", type: "error" });
     }
   };
 
@@ -205,7 +211,7 @@ export default function UsersPage() {
       });
       fetchUsers();
     } catch (err: any) {
-      alert(err.message);
+      setMessage({ text: err.message || "Gagal membuat pengguna.", type: "error" });
     }
   };
 
@@ -252,7 +258,7 @@ export default function UsersPage() {
         setMessage({ text: resJson.message, type: "success" });
         fetchUsers();
       } catch (err: any) {
-        alert(err.message || "Gagal membaca file spreadsheet");
+        setMessage({ text: err.message || "Gagal membaca file spreadsheet.", type: "error" });
       } finally {
         setImporting(false);
         e.target.value = "";
@@ -441,6 +447,13 @@ export default function UsersPage() {
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
+                            onClick={() => setRoleUser(u)}
+                            className="p-1 rounded text-gray-500 hover:text-primary hover:bg-gray-100"
+                            title="Kelola Peran"
+                          >
+                            <span className="material-symbols-rounded text-[18px]">manage_accounts</span>
+                          </button>
+                          <button
                             onClick={() => setShowPasswordModal({ id: u.id, name: u.fullName })}
                             className="p-1 rounded text-gray-500 hover:text-primary hover:bg-gray-100"
                             title="Reset Kata Sandi"
@@ -448,7 +461,13 @@ export default function UsersPage() {
                             <span className="material-symbols-rounded text-[18px]">key</span>
                           </button>
                           <button
-                            onClick={() => handleDeleteUser(u)}
+                            onClick={() => setConfirmAction({
+                              title: "Hapus Pengguna",
+                              description: `Hapus pengguna ${u.fullName}? Tindakan ini tidak dapat dibatalkan.`,
+                              confirmLabel: "Hapus Pengguna",
+                              danger: true,
+                              onConfirm: async () => { await handleDeleteUser(u); },
+                            })}
                             className="p-1 rounded text-red-500 hover:text-red-700 hover:bg-red-50"
                             title="Hapus Pengguna"
                           >
@@ -718,6 +737,26 @@ export default function UsersPage() {
             </div>
           </div>
         )}
+        {roleUser && <UserRoleModal
+          user={roleUser}
+          onClose={() => setRoleUser(null)}
+          onChanged={async (text) => {
+            setMessage({ text, type: "success" });
+            setRoleUser(null);
+            await fetchUsers();
+          }}
+        />}
+        {confirmAction && <ConfirmActionModal
+          title={confirmAction.title}
+          description={confirmAction.description}
+          confirmLabel={confirmAction.confirmLabel}
+          danger={confirmAction.danger}
+          onClose={() => setConfirmAction(null)}
+          onConfirm={async () => {
+            await confirmAction.onConfirm();
+            setConfirmAction(null);
+          }}
+        />}
       </div>
     </AdminShell>
   );

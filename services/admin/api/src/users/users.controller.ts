@@ -8,17 +8,21 @@ import {
   Body,
   Param,
   Query,
+  Req,
   UseGuards,
   HttpCode,
   HttpStatus,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
+import { OrganizationRoleAdminService } from "./organization-role-admin.service";
 import {
   CreateUserManualDto,
   AddRoleDto,
   ResetPasswordDto,
   BatchImportUsersDto,
+  parseAddRoleDto,
 } from "./dto/users.dto";
+import { parseOrganizationRoleAdminDto } from "./dto/organization-role-admin.dto";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 import { AdminRolesGuard, AdminRoles } from "../common/guards/admin-roles.guard";
 
@@ -26,7 +30,10 @@ import { AdminRolesGuard, AdminRoles } from "../common/guards/admin-roles.guard"
 @UseGuards(ServiceJwtAuthGuard, AdminRolesGuard)
 @AdminRoles("super_admin")
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly organizationRoleAdminService: OrganizationRoleAdminService,
+  ) {}
 
   @Get()
   async getUsers(
@@ -89,9 +96,31 @@ export class UsersController {
   @HttpCode(HttpStatus.CREATED)
   async addRole(
     @Param("id") id: string,
-    @Body() body: AddRoleDto
+    @Body() body: unknown
   ) {
-    return this.usersService.addRole(id, body);
+    return this.usersService.addRole(id, parseAddRoleDto(body));
+  }
+
+  @Post(":id/organization-roles")
+  @HttpCode(HttpStatus.CREATED)
+  async assignOrganizationRole(
+    @Param("id") id: string,
+    @Body() body: unknown,
+    @Req() req: { headers: { authorization?: string } },
+  ) {
+    return this.organizationRoleAdminService.assign(
+      id,
+      parseOrganizationRoleAdminDto(body),
+      req.headers.authorization,
+    );
+  }
+
+  @Delete("organization-roles/:roleAssignmentId")
+  async revokeOrganizationRole(
+    @Param("roleAssignmentId") roleAssignmentId: string,
+    @Req() req: { headers: { authorization?: string } },
+  ) {
+    return this.organizationRoleAdminService.revoke(roleAssignmentId, req.headers.authorization);
   }
 
   @Delete("roles/:roleAssignmentId")

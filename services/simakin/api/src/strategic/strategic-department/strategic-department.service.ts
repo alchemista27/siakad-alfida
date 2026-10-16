@@ -13,6 +13,7 @@ export class StrategicDepartmentService {
 
   async findAll() {
     return this.prisma.department.findMany({
+      where: { isActive: true },
       include: { parent: true, leader: true },
       orderBy: { name: 'asc' }
     });
