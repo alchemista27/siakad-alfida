@@ -1,6 +1,25 @@
 **tanggal:** 17 Oktober 2026
 **progress:**
 
+- Menyelesaikan resolusi kegagalan build Coolify, isolasi watch paths monorepo, dan penutupan celah integrasi lintas sistem (*system integration hardening*):
+  - **Sinkronisasi Lockfile (`pnpm-lock.yaml`)**:
+    - Menghapus 23 baris anomali paket `@aws-sdk` di `services/admin/api` dan mendaftarkan paket workspace `services/siakad/api` & `services/siakad/web` ke `importers`.
+    - Memvalidasi instalasi mandiri: `pnpm install --frozen-lockfile --ignore-scripts` terbukti 100% lulus tanpa `ERR_PNPM_OUTDATED_LOCKFILE`.
+  - **Infrastruktur & Penyimpanan MinIO**:
+    - Membuat bucket `alfida-siakad` pada kontainer MinIO (`minio-zbnw7oommvsaoqzencwvqh1t`) untuk penyimpanan rapor LHBS dan modul ajar.
+  - **Sinkronisasi Proyeksi Unit SIAKAD**:
+    - Melakukan *data seed* 9 unit kerja resmi dari database `simalfida` (`sim.units`) ke `alfida_siakad.siakad.unit_projections` sehingga relasi kunci asing (foreign key) pada tabel `AcademicYear`, `Classroom`, dan `Subject` terpenuhi penuh.
+  - **Integrasi Handoff SPMB -> SIAKAD**:
+    - Menginjeksikan variabel lingkungan `INTERNAL_SIAKAD_API_URL` (`https://siakad.alfida.or.id`) dan `INTERNAL_SERVICE_SECRET` terenkripsi ke App ID 7 (`smpb-alfida`) di Coolify.
+  - **Isolasi Resilien `watch_paths` Coolify**:
+    - Membatasi pantauan git webhook per-service (`apps/**`, `services/auth/**`, `services/simakin/**`, `services/simpeg/**`, `services/admin/**`, `services/spmb/**`, `services/siakad/**`) untuk mencegah pemicuan *build storm* massal 7 kontainer bersamaan saat pembaruan paket shared.
+- Validasi: Uji kontrak SPMB, SIAKAD, dan Admin 100% lulus; build Docker `services/siakad/Dockerfile` terkompilasi sukses.
+
+---
+
+**tanggal:** 17 Oktober 2026
+**progress:**
+
 - Menyelesaikan implementasi penuh PPDB Parity (SPMB), replikasi microservice Akademik (SIAKAD), perbaikan formulir Role Admin, dan persiapan deployment Coolify:
   - **Workstream A (SPMB)**:
     - Menambahkan `AdmissionCapacityService` untuk alokasi nomor pendaftaran dan kuota secara atomik bebas *race condition*.
