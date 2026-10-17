@@ -1,6 +1,17 @@
 **tanggal:** 17 Oktober 2026
 **progress:**
 
+- Menyelaraskan rute utama SPMB Web (`services/spmb/web`) agar identik dengan monolith PPDB dan modul layanan lainnya (SIMPEG/SIMAKIN):
+  - Mengubah titik masuk utama `services/spmb/web/src/app/page.tsx` dari template landing page marketing publik menjadi `redirect("/admin")` sehingga pengguna langsung diarahkan ke Dashboard Panitia PPDB (5 tab terintegrasi).
+  - Memperketat `services/spmb/web/src/middleware.ts` untuk memproteksi rute root `/`; akses tanpa sesi SSO otomatis dialihkan ke login `auth.alfida.or.id` dengan callback ke `/admin`.
+  - Memperbarui tautan SPMB pada portal modul `services/auth/web/src/app/modules/page.tsx` langsung mengarah ke `https://spmb.alfida.or.id/admin`.
+  - Memvalidasi seluruh uji kontrak UI dan kompilasi Next.js Standalone SPMB Web: 100% lulus.
+
+---
+
+**tanggal:** 17 Oktober 2026
+**progress:**
+
 - Menyelesaikan resolusi kegagalan build Coolify, isolasi watch paths monorepo, dan penutupan celah integrasi lintas sistem (*system integration hardening*):
   - **Sinkronisasi Lockfile (`pnpm-lock.yaml`)**:
     - Menghapus 23 baris anomali paket `@aws-sdk` di `services/admin/api` dan mendaftarkan paket workspace `services/siakad/api` & `services/siakad/web` ke `importers`.

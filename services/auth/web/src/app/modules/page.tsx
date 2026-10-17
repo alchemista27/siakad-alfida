@@ -85,7 +85,7 @@ export default function ModulesPage() {
       items: [
         {
           label: "SPMB (Siswa Baru)",
-          href: "https://spmb.alfida.or.id",
+          href: "https://spmb.alfida.or.id/admin",
           icon: "school",
         },
         {
@@ -132,7 +132,7 @@ export default function ModulesPage() {
       title: "SPMB (Penerimaan Siswa Baru)",
       description: "Pendaftaran, berkas, pembayaran, observasi, dan pengumuman seleksi murid baru.",
       icon: "school",
-      url: "https://spmb.alfida.or.id",
+      url: "https://spmb.alfida.or.id/admin",
       isActive: true,
       badge: "Aktif",
       external: true,
