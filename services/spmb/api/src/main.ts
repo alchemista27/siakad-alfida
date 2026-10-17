@@ -1,6 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import cookieParser from "cookie-parser";
+import { isAllowedCorsOrigin } from "./common/cors-policy";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,11 +20,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".alfida.or.id")) {
-        callback(null, true);
-      } else {
-        callback(null, true);
-      }
+      callback(null, isAllowedCorsOrigin(origin, allowedOrigins));
     },
     credentials: true,
   });

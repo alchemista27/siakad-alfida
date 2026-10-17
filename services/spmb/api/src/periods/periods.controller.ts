@@ -5,7 +5,7 @@ import {
   Put,
   Body,
   Param,
-  Query,
+  Req,
   UseGuards,
 } from "@nestjs/common";
 import { PeriodsService } from "./periods.service";
@@ -24,32 +24,47 @@ export class PeriodsController {
 
   @Get()
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb", "orang_tua", "observer")
-  async findAll(@Query("unitId") unitId?: string) {
-    return this.periodsService.findAll(unitId);
+  @SpmbRoles("admin_unit", "tim_ppdb", "observer")
+  async findAll(@Req() req: any) {
+    return this.periodsService.findAll(req.user);
   }
 
   @Get(":id")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb", "orang_tua", "observer")
-  async findOne(@Param("id") id: string) {
-    return this.periodsService.findOne(id);
+  @SpmbRoles("admin_unit", "tim_ppdb", "observer")
+  async findOne(@Param("id") id: string, @Req() req: any) {
+    return this.periodsService.findOne(id, req.user);
   }
 
   @Post()
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
-  async create(@Body() dto: CreatePeriodDto) {
-    return this.periodsService.create(dto);
+  @SpmbRoles("admin_unit")
+  async create(@Body() dto: CreatePeriodDto, @Req() req: any) {
+    return this.periodsService.create(dto, req.user);
   }
 
   @Put(":id")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
+  @SpmbRoles("admin_unit")
   async update(
     @Param("id") id: string,
-    @Body() dto: UpdatePeriodDto
+    @Body() dto: UpdatePeriodDto,
+    @Req() req: any,
   ) {
-    return this.periodsService.update(id, dto);
+    return this.periodsService.update(id, dto, req.user);
+  }
+
+  @Post(":id/open")
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit")
+  async open(@Param("id") id: string, @Req() req: any) {
+    return this.periodsService.openPeriod(id, req.user);
+  }
+
+  @Post(":id/close")
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit")
+  async close(@Param("id") id: string, @Req() req: any) {
+    return this.periodsService.closePeriod(id, req.user);
   }
 }

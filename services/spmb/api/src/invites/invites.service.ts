@@ -2,8 +2,17 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
+  ForbiddenException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+
+type ClaimPrincipal = {
+  id: string;
+  email?: string;
+  fullName?: string;
+  phone?: string | null;
+};
 
 @Injectable()
 export class InvitesService {
@@ -40,43 +49,68 @@ export class InvitesService {
     };
   }
 
-  async claimInvite(token: string, parentId: string) {
-    const reg = await this.prisma.registration.findUnique({
-      where: { inviteToken: token },
-    });
-
-    if (!reg) {
-      throw new NotFoundException("Tautan undangan tidak valid.");
-    }
-
-    if (reg.claimedAt) {
-      throw new BadRequestException("Pendaftaran ini sudah diklaim sebelumnya.");
-    }
-
-    if (reg.inviteExpiresAt && reg.inviteExpiresAt < new Date()) {
-      throw new BadRequestException("Tautan undangan telah kedaluwarsa.");
+  async claimInvite(token: string, principal: ClaimPrincipal) {
+    const normalizedToken = token.trim();
+    if (!principal.id || !principal.email) {
+      throw new ForbiddenException("Identitas akun orang tua tidak lengkap.");
     }
 
     return this.prisma.$transaction(async (tx) => {
-      const updated = await tx.registration.update({
-        where: { id: reg.id },
-        data: {
-          parentId,
-          claimedAt: new Date(),
+      const registration = await tx.registration.findUnique({
+        where: { inviteToken: normalizedToken },
+      });
+      if (!registration) {
+        throw new NotFoundException("Tautan undangan tidak valid.");
+      }
+
+      const now = new Date();
+      if (registration.inviteExpiresAt && registration.inviteExpiresAt <= now) {
+        throw new BadRequestException("Tautan undangan telah kedaluwarsa.");
+      }
+
+      await tx.user.upsert({
+        where: { id: principal.id },
+        create: {
+          id: principal.id,
+          email: principal.email,
+          fullName: principal.fullName?.trim() || principal.email,
+          phone: principal.phone?.trim() || null,
+        },
+        update: {
+          email: principal.email,
+          fullName: principal.fullName?.trim() || principal.email,
+          phone: principal.phone?.trim() || null,
         },
       });
+
+      const claimed = await tx.registration.updateMany({
+        where: {
+          id: registration.id,
+          parentId: null,
+          claimedAt: null,
+          inviteToken: normalizedToken,
+          inviteExpiresAt: { gt: now },
+        },
+        data: {
+          parentId: principal.id,
+          claimedAt: now,
+        },
+      });
+      if (claimed.count !== 1) {
+        throw new ConflictException("Tautan klaim sudah digunakan atau tidak lagi valid.");
+      }
 
       await tx.registrationEvent.create({
         data: {
-          registrationId: reg.id,
-          actorId: parentId,
-          toStatus: reg.status,
+          registrationId: registration.id,
+          actorId: principal.id,
+          toStatus: registration.status,
           kind: "claim",
-          note: `Pendaftaran luring berhasil diklaim dan dihubungkan ke akun orang tua (User ID: ${parentId})`,
+          note: "Pendaftaran luring berhasil diklaim dan dihubungkan ke akun orang tua.",
         },
       });
 
-      return updated;
+      return tx.registration.findUnique({ where: { id: registration.id } });
     });
   }
 

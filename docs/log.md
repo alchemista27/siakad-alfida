@@ -1,3 +1,44 @@
+**tanggal:** 17 Oktober 2026
+**progress:**
+
+- Menyelesaikan implementasi penuh PPDB Parity (SPMB), replikasi microservice Akademik (SIAKAD), perbaikan formulir Role Admin, dan persiapan deployment Coolify:
+  - **Workstream A (SPMB)**:
+    - Menambahkan `AdmissionCapacityService` untuk alokasi nomor pendaftaran dan kuota secara atomik bebas *race condition*.
+    - Menerapkan kebijakan `BackfillManifest` untuk memastikan status registrasi impor/offline diturunkan secara deterministik dari bukti dokumen/bayar/medis/observasi.
+    - Mengimplementasikan outbox handoff idempoten (`HandoffProcessor` & `HandoffService`) dengan skema Zod `SpmbHandoffPayloadSchema` dan `SpmbHandoffReceiptSchema`.
+    - Memisahkan rute portal orang tua menjadi multi-stage (`/parent/payment`, `/biodata`, `/documents`, `/medical`, `/observation`, `/result`).
+    - Menjalankan seluruh 22 uji kontrak SPMB API (`bash scripts/run-contracts.sh`) dan 6 kontrak SPMB Web: 100% lulus.
+  - **Workstream B (SIAKAD Microservice)**:
+    - Membangun microservice baru `services/siakad/api` (NestJS + Prisma multiSchema `siakad`) dan `services/siakad/web` (Next.js standalone).
+    - Memperbaiki `siakad-scope-policy.ts` dan guard RBAC terisolasi per unit kerja untuk admin unit, penugasan guru, wali kelas, serta isolasi akses rapor orang tua.
+    - Mengimplementasikan domain Akademik: tahun ajaran, mata pelajaran, rombel/kelas, penugasan guru, wali kelas, penempatan siswa, jurnal/absensi/nilai, rapor LHBS, serta receiver handoff `/api/internal/spmb-handoff`.
+    - Menyediakan database PostgreSQL `alfida_siakad` dan menginisialisasi skema `siakad` (22 tabel).
+    - Menyiapkan `services/siakad/Dockerfile` dan `services/siakad/start.sh` (NestJS pada port 3001, Next.js pada port 3000).
+    - Menjalankan 14 uji kontrak SIAKAD API dan 2 kontrak SIAKAD Web: 100% lulus.
+  - **Workstream C (Admin Role Management)**:
+    - Menyelaraskan katalog peran melalui `packages/contracts/src/role-catalog.ts` sebagai *single source of truth*.
+    - Mengganti input teks bebas pada modal tambah pengguna di Admin Web dengan *dependent dropdown* dinamis berdasarkan aplikasi terpilih, membatasi peran struktural SIMPEG.
+    - Menjalankan pengujian kontrak katalog peran Admin API dan Admin Web: 100% lulus.
+  - **Infrastruktur & Coolify**:
+    - Mengompilasi 21 variabel lingkungan produksi `siakad-alfida` ke dalam `.env.production.local` dan menginjeksinya ke kontainer Coolify (App ID 8) dengan enkripsi Laravel.
+    - Mengisolasi konfigurasi `watch_paths` pada aplikasi 6 (admin), 7 (spmb), dan 8 (siakad) di `coolify-db` untuk mencegah build storm dan OOM pada VPS saat git push.
+- Validasi: `pnpm run typecheck`, Next.js build, NestJS build, dan seluruh test contract monorepo lulus 100%.
+
+---
+
+**tanggal:** 15 Oktober 2026
+**progress:**
+
+- Menjalankan Fase 3 rekonstruksi SIMPEG secara lokal:
+  - Menambah master Unit Kerja dan Bidang/Departemen pada schema Prisma serta endpoint CRUD terproteksi untuk keduanya.
+  - Menambahkan konfigurasi lokasi/radius GPS per unit melalui antarmuka SIMPEG dan memakai konfigurasi GPS aktual pada kartu presensi pegawai, menggantikan data tampilan hardcoded.
+  - Menghubungkan pilihan Unit pada form penugasan pegawai ke master Unit yang sebenarnya, bukan UUID dan daftar unit statis.
+  - Menambahkan guard RBAC SIMPEG untuk data struktur organisasi dan endpoint sensitif konfigurasi/rekap GPS; akses pengelolaan dibatasi bagi Super Admin, Admin Kepegawaian, dan role admin layanan yang relevan.
+  - Menambah kontrak pengujian akses HR `services/simpeg/api/scripts/test-hr-access.ts`.
+- Validasi: build API SIMPEG, build Web SIMPEG, validasi schema Prisma, kontrak akses HR, dan `pnpm run typecheck` (17/17) lulus. Perubahan masih lokal; belum ada commit, push, migrasi database, atau deployment.
+
+---
+
 **tanggal:** 14 Oktober 2026
 **progress:**
 
@@ -639,11 +680,32 @@
   - Menguji kompilasi dan build produksi: `pnpm run typecheck` (17/17 paket monorepo lulus 100%) dan seluruh 6 aplikasi web Next.js (`auth`, `admin`, `simakin`, `simpeg`, `siyaum`, `spmb`) berhasil terkompilasi sukses.
   **commit message:** feat(ui-auth): harmonize DESIGN.md aesthetics with Lora font, enable staff auto-approval, and verify production builds
 
+---
 
+**tanggal:** 15 Oktober 2026
+**progress:**
 
+- Menyelesaikan Fase 4 validasi dan penguatan alur PPDB SPMB secara lokal:
+  - Menjalankan `pnpm run typecheck`: 17/17 paket monorepo lulus.
+  - Build produksi Next.js untuk SIMAKIN Web, Admin Web, SPMB Web, dan SIMPEG Web seluruhnya lulus.
+  - Menjalankan kontrak RBAC SIMAKIN (6/6), RBAC SPMB (7/7), FSM Portal Orang Tua, dan kontrak akses HR SIMPEG; seluruh pengujian lulus.
+  - Menindaklanjuti review keamanan/alur PPDB: booking observasi kini harus berada pada periode pendaftaran yang sama, reservasi kuota slot memakai update atomik, dan booking idempoten tidak menghitung kuota dua kali.
+  - Memperketat FSM PPDB pada unggah pembayaran, biodata, data orang tua, finalisasi berkas, unggah hasil medis, booking observasi, dan input hasil observasi sehingga perubahan status di luar urutan ditolak.
+  - Memisahkan dokumen dasar dan hasil medis: lima dokumen dasar wajib sebelum tahap kesehatan, sedangkan `medical_result` wajib sebelum berkas memasuki verifikasi panitia.
+  - Menambahkan validasi boolean ketat pada verifikasi pembayaran dan berkas untuk menolak payload string seperti `"false"`.
+  - Menambah uji regresi `services/spmb/api/scripts/test-workflow-guards.ts`; seluruh skenario guard workflow lulus.
+- Tidak ada commit, push, migrasi database, atau deployment yang dilakukan.
 
+---
 
+**tanggal:** 15 Oktober 2026
+**progress:**
 
-
-
+- Mengganti input copy-paste URL aset identitas Yayasan di `services/admin/web/src/app/settings/page.tsx` dengan komponen unggah langsung `FoundationAssetUploader` untuk logo, favicon, dan tanda tangan digital Ketua.
+- Menambahkan endpoint super-admin `POST /api/admin/foundation-assets/presign` pada Admin API untuk membuat presigned **POST** MinIO jangka pendek yang mengikat `Content-Type`, rentang ukuran, key acak, dan tag `foundation-asset-status=pending`; credential MinIO tetap hanya berada di server.
+- Menambahkan policy aset Yayasan yang membatasi MIME/ukuran, key prefix (`foundation/logo`, `foundation/favicon`, `foundation/chairman-signature`), menolak URL eksternal atau key MinIO di luar prefix terkelola, serta mempertahankan kompatibilitas aset MinIO legacy yang telah tersimpan.
+- Menambahkan validasi runtime Zod yang ketat pada payload pembaruan Foundation Settings, validasi metadata object MinIO sebelum URL diterbitkan, publikasi tag object baru sebelum database disimpan, dan cleanup best-effort file lama hanya setelah pembaruan database berhasil.
+- Objek upload yang tidak tersimpan tetap berstatus `pending`; saat deployment, lifecycle bucket MinIO wajib menghapus tag `foundation-asset-status=pending` secara terjadwal dan CORS bucket wajib mengizinkan `POST` dari Admin Web.
+- Menambahkan kontrak regresi `services/admin/api/scripts/test-foundation-asset-policy.ts`; policy format/URL, kompatibilitas URL MinIO legacy, urutan persistensi lalu cleanup, dan larangan menghapus file yang tidak berubah tervalidasi.
+- Validasi lokal lulus: `pnpm --filter @alfida/admin-api exec tsx scripts/test-foundation-asset-policy.ts`, typecheck/build Admin API, serta typecheck/build Admin Web. Konfigurasi environment S3, CORS bucket MinIO, dan deployment belum dilakukan; tidak ada commit atau push.
 

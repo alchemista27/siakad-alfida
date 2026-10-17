@@ -20,6 +20,7 @@ enum RegistrationStatus {
   form_filling
   documents_uploaded
   medical_pending
+  medical_uploaded
   verification
   observation_scheduled
   observation_done
@@ -33,6 +34,12 @@ enum HandoffStatus {
   pending
   done
   failed
+}
+
+enum DossierReviewStatus {
+  pending
+  approved
+  revision_required
 }
 
 enum PaymentMethod {
@@ -69,24 +76,26 @@ enum DocumentType {
 }
 
 model AdmissionPeriod {
-  id         String    @id @default(uuid()) @db.Uuid
-  unitId     String    @map("unit_id") @db.Uuid
-  unitName   String    @map("unit_name") @db.VarChar(200)
-  unitSlug   String    @map("unit_slug") @db.VarChar(100)
-  label      String    @db.VarChar(50) // contoh: 2026/2027
-  isOpen     Boolean   @default(true) @map("is_open")
-  quota      Int       @default(60)
-  fee        Int       @default(250000)
-  bankName   String?   @map("bank_name") @db.VarChar(100)
-  bankNumber String?   @map("bank_number") @db.VarChar(50)
-  bankHolder String?   @map("bank_holder") @db.VarChar(200)
-  opensAt    DateTime? @map("opens_at") @db.Date
-  closesAt   DateTime? @map("closes_at") @db.Date
-  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt  DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+  id                   String    @id @default(uuid()) @db.Uuid
+  unitId               String    @map("unit_id") @db.Uuid
+  sourceAcademicYearId String?   @map("source_academic_year_id") @db.Uuid
+  unitName             String    @map("unit_name") @db.VarChar(200)
+  unitSlug             String    @map("unit_slug") @db.VarChar(100)
+  label                String    @db.VarChar(50) // contoh: 2026/2027
+  isOpen               Boolean   @default(true) @map("is_open")
+  quota                Int       @default(60)
+  fee                  Int       @default(250000)
+  bankName             String?   @map("bank_name") @db.VarChar(100)
+  bankNumber           String?   @map("bank_number") @db.VarChar(50)
+  bankHolder           String?   @map("bank_holder") @db.VarChar(200)
+  opensAt              DateTime? @map("opens_at") @db.Date
+  closesAt             DateTime? @map("closes_at") @db.Date
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
   registrations Registration[]
   schedules     ObservationSchedule[]
+  counter       AdmissionPeriodCounter?
 
   @@unique([unitId, label])
   @@index([isOpen])
@@ -107,13 +116,14 @@ model User {
 }
 
 model Registration {
-  id                 String             @id @default(uuid()) @db.Uuid
-  registrationNumber String             @unique @map("registration_number") @db.VarChar(50)
-  periodId           String             @map("period_id") @db.Uuid
-  source             RegistrationSource @default(online)
-  externalRef        String?            @map("external_ref") @db.VarChar(100)
-  status             RegistrationStatus @default(pending_payment)
-  rejectionReason    String?            @map("rejection_reason") @db.Text
+  id                  String              @id @default(uuid()) @db.Uuid
+  registrationNumber  String              @unique @map("registration_number") @db.VarChar(50)
+  periodId            String              @map("period_id") @db.Uuid
+  source              RegistrationSource  @default(online)
+  externalRef         String?             @map("external_ref") @db.VarChar(100)
+  status              RegistrationStatus  @default(pending_payment)
+  dossierReviewStatus DossierReviewStatus @default(pending) @map("dossier_review_status")
+  rejectionReason     String?             @map("rejection_reason") @db.Text
 
   parentId        String?   @map("parent_id") @db.Uuid
   guardianName    String?   @map("guardian_name") @db.VarChar(200)
@@ -141,6 +151,7 @@ model Registration {
   observationBooking ObservationBooking?
   observationResult  ObservationResult?
   events             RegistrationEvent[]
+  handoffOutbox      HandoffOutbox?
 
   @@unique([periodId, externalRef])
   @@index([periodId, status])
@@ -232,7 +243,7 @@ model Document {
   id             String       @id @default(uuid()) @db.Uuid
   registrationId String       @map("registration_id") @db.Uuid
   type           DocumentType
-  fileUrl        String       @map("file_url") @db.Text
+  objectKey      String       @map("object_key") @db.Text
   fileName       String       @map("file_name") @db.VarChar(255)
   fileSize       Int          @map("file_size")
   mimeType       String       @map("mime_type") @db.VarChar(100)
@@ -308,4 +319,33 @@ model SpmbObserver {
 
   @@unique([unitId, userId])
   @@map("spmb_observers")
+}
+
+model AdmissionPeriodCounter {
+  periodId       String @id @map("period_id") @db.Uuid
+  nextSequence   Int    @default(1) @map("next_sequence")
+  intakeReserved Int    @default(0) @map("intake_reserved")
+  acceptedCount  Int    @default(0) @map("accepted_count")
+
+  period AdmissionPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+
+  @@map("admission_period_counters")
+}
+
+model HandoffOutbox {
+  id                      String    @id @default(uuid()) @db.Uuid
+  registrationId          String    @unique @map("registration_id") @db.Uuid
+  idempotencyKey          String    @unique @map("idempotency_key") @db.Uuid
+  payloadHash             String    @map("payload_hash") @db.VarChar(128)
+  status                  String    @default("pending") @db.VarChar(30)
+  attempts                Int       @default(0)
+  lastError               String?   @map("last_error") @db.Text
+  destinationEnrollmentId String?   @map("destination_enrollment_id") @db.Uuid
+  deliveredAt             DateTime? @map("delivered_at") @db.Timestamptz
+  createdAt               DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt               DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@map("handoff_outbox")
 }

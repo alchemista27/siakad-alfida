@@ -1,5 +1,6 @@
 export class CreatePeriodDto {
-  unitId: string;
+  unitId?: string;
+  sourceAcademicYearId?: string;
   unitName: string;
   unitSlug: string;
   label: string; // contoh: "2026/2027"
@@ -14,6 +15,7 @@ export class CreatePeriodDto {
 }
 
 export class UpdatePeriodDto {
+  sourceAcademicYearId?: string;
   label?: string;
   isOpen?: boolean;
   quota?: number;

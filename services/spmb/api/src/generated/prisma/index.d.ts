@@ -15,69 +15,79 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
 /**
  * Model AdmissionPeriod
- * 
+ *
  */
 export type AdmissionPeriod = $Result.DefaultSelection<Prisma.$AdmissionPeriodPayload>
 /**
  * Model User
- * 
+ *
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
  * Model Registration
- * 
+ *
  */
 export type Registration = $Result.DefaultSelection<Prisma.$RegistrationPayload>
 /**
  * Model RegistrationEvent
- * 
+ *
  */
 export type RegistrationEvent = $Result.DefaultSelection<Prisma.$RegistrationEventPayload>
 /**
  * Model Payment
- * 
+ *
  */
 export type Payment = $Result.DefaultSelection<Prisma.$PaymentPayload>
 /**
  * Model StudentData
- * 
+ *
  */
 export type StudentData = $Result.DefaultSelection<Prisma.$StudentDataPayload>
 /**
  * Model ParentData
- * 
+ *
  */
 export type ParentData = $Result.DefaultSelection<Prisma.$ParentDataPayload>
 /**
  * Model Document
- * 
+ *
  */
 export type Document = $Result.DefaultSelection<Prisma.$DocumentPayload>
 /**
  * Model MedicalReferral
- * 
+ *
  */
 export type MedicalReferral = $Result.DefaultSelection<Prisma.$MedicalReferralPayload>
 /**
  * Model ObservationSchedule
- * 
+ *
  */
 export type ObservationSchedule = $Result.DefaultSelection<Prisma.$ObservationSchedulePayload>
 /**
  * Model ObservationBooking
- * 
+ *
  */
 export type ObservationBooking = $Result.DefaultSelection<Prisma.$ObservationBookingPayload>
 /**
  * Model ObservationResult
- * 
+ *
  */
 export type ObservationResult = $Result.DefaultSelection<Prisma.$ObservationResultPayload>
 /**
  * Model SpmbObserver
- * 
+ *
  */
 export type SpmbObserver = $Result.DefaultSelection<Prisma.$SpmbObserverPayload>
+/**
+ * Model AdmissionPeriodCounter
+ *
+ */
+export type AdmissionPeriodCounter = $Result.DefaultSelection<Prisma.$AdmissionPeriodCounterPayload>
+/**
+ * Model HandoffOutbox
+ *
+ */
+export type HandoffOutbox = $Result.DefaultSelection<Prisma.$HandoffOutboxPayload>
 
 /**
  * Enums
@@ -98,6 +108,7 @@ export const RegistrationStatus: {
   form_filling: 'form_filling',
   documents_uploaded: 'documents_uploaded',
   medical_pending: 'medical_pending',
+  medical_uploaded: 'medical_uploaded',
   verification: 'verification',
   observation_scheduled: 'observation_scheduled',
   observation_done: 'observation_done',
@@ -117,6 +128,15 @@ export const HandoffStatus: {
 };
 
 export type HandoffStatus = (typeof HandoffStatus)[keyof typeof HandoffStatus]
+
+
+export const DossierReviewStatus: {
+  pending: 'pending',
+  approved: 'approved',
+  revision_required: 'revision_required'
+};
+
+export type DossierReviewStatus = (typeof DossierReviewStatus)[keyof typeof DossierReviewStatus]
 
 
 export const PaymentMethod: {
@@ -179,6 +199,10 @@ export const RegistrationStatus: typeof $Enums.RegistrationStatus
 export type HandoffStatus = $Enums.HandoffStatus
 
 export const HandoffStatus: typeof $Enums.HandoffStatus
+
+export type DossierReviewStatus = $Enums.DossierReviewStatus
+
+export const DossierReviewStatus: typeof $Enums.DossierReviewStatus
 
 export type PaymentMethod = $Enums.PaymentMethod
 
@@ -306,7 +330,7 @@ export class PrismaClient<
    *   prisma.user.create({ data: { name: 'Alice' } }),
    * ])
    * ```
-   * 
+   *
    * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
    */
   $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
@@ -447,6 +471,26 @@ export class PrismaClient<
     * ```
     */
   get spmbObserver(): Prisma.SpmbObserverDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.admissionPeriodCounter`: Exposes CRUD operations for the **AdmissionPeriodCounter** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AdmissionPeriodCounters
+    * const admissionPeriodCounters = await prisma.admissionPeriodCounter.findMany()
+    * ```
+    */
+  get admissionPeriodCounter(): Prisma.AdmissionPeriodCounterDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.handoffOutbox`: Exposes CRUD operations for the **HandoffOutbox** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more HandoffOutboxes
+    * const handoffOutboxes = await prisma.handoffOutbox.findMany()
+    * ```
+    */
+  get handoffOutbox(): Prisma.HandoffOutboxDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -900,7 +944,9 @@ export namespace Prisma {
     ObservationSchedule: 'ObservationSchedule',
     ObservationBooking: 'ObservationBooking',
     ObservationResult: 'ObservationResult',
-    SpmbObserver: 'SpmbObserver'
+    SpmbObserver: 'SpmbObserver',
+    AdmissionPeriodCounter: 'AdmissionPeriodCounter',
+    HandoffOutbox: 'HandoffOutbox'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -919,7 +965,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "admissionPeriod" | "user" | "registration" | "registrationEvent" | "payment" | "studentData" | "parentData" | "document" | "medicalReferral" | "observationSchedule" | "observationBooking" | "observationResult" | "spmbObserver"
+      modelProps: "admissionPeriod" | "user" | "registration" | "registrationEvent" | "payment" | "studentData" | "parentData" | "document" | "medicalReferral" | "observationSchedule" | "observationBooking" | "observationResult" | "spmbObserver" | "admissionPeriodCounter" | "handoffOutbox"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1885,6 +1931,154 @@ export namespace Prisma {
           }
         }
       }
+      AdmissionPeriodCounter: {
+        payload: Prisma.$AdmissionPeriodCounterPayload<ExtArgs>
+        fields: Prisma.AdmissionPeriodCounterFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AdmissionPeriodCounterFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdmissionPeriodCounterPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AdmissionPeriodCounterFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdmissionPeriodCounterPayload>
+          }
+          findFirst: {
+            args: Prisma.AdmissionPeriodCounterFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdmissionPeriodCounterPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AdmissionPeriodCounterFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdmissionPeriodCounterPayload>
+          }
+          findMany: {
+            args: Prisma.AdmissionPeriodCounterFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdmissionPeriodCounterPayload>[]
+          }
+          create: {
+            args: Prisma.AdmissionPeriodCounterCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdmissionPeriodCounterPayload>
+          }
+          createMany: {
+            args: Prisma.AdmissionPeriodCounterCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AdmissionPeriodCounterCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdmissionPeriodCounterPayload>[]
+          }
+          delete: {
+            args: Prisma.AdmissionPeriodCounterDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdmissionPeriodCounterPayload>
+          }
+          update: {
+            args: Prisma.AdmissionPeriodCounterUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdmissionPeriodCounterPayload>
+          }
+          deleteMany: {
+            args: Prisma.AdmissionPeriodCounterDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AdmissionPeriodCounterUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AdmissionPeriodCounterUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdmissionPeriodCounterPayload>[]
+          }
+          upsert: {
+            args: Prisma.AdmissionPeriodCounterUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdmissionPeriodCounterPayload>
+          }
+          aggregate: {
+            args: Prisma.AdmissionPeriodCounterAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAdmissionPeriodCounter>
+          }
+          groupBy: {
+            args: Prisma.AdmissionPeriodCounterGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AdmissionPeriodCounterGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AdmissionPeriodCounterCountArgs<ExtArgs>
+            result: $Utils.Optional<AdmissionPeriodCounterCountAggregateOutputType> | number
+          }
+        }
+      }
+      HandoffOutbox: {
+        payload: Prisma.$HandoffOutboxPayload<ExtArgs>
+        fields: Prisma.HandoffOutboxFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.HandoffOutboxFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HandoffOutboxPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.HandoffOutboxFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HandoffOutboxPayload>
+          }
+          findFirst: {
+            args: Prisma.HandoffOutboxFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HandoffOutboxPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.HandoffOutboxFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HandoffOutboxPayload>
+          }
+          findMany: {
+            args: Prisma.HandoffOutboxFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HandoffOutboxPayload>[]
+          }
+          create: {
+            args: Prisma.HandoffOutboxCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HandoffOutboxPayload>
+          }
+          createMany: {
+            args: Prisma.HandoffOutboxCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.HandoffOutboxCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HandoffOutboxPayload>[]
+          }
+          delete: {
+            args: Prisma.HandoffOutboxDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HandoffOutboxPayload>
+          }
+          update: {
+            args: Prisma.HandoffOutboxUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HandoffOutboxPayload>
+          }
+          deleteMany: {
+            args: Prisma.HandoffOutboxDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.HandoffOutboxUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.HandoffOutboxUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HandoffOutboxPayload>[]
+          }
+          upsert: {
+            args: Prisma.HandoffOutboxUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HandoffOutboxPayload>
+          }
+          aggregate: {
+            args: Prisma.HandoffOutboxAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateHandoffOutbox>
+          }
+          groupBy: {
+            args: Prisma.HandoffOutboxGroupByArgs<ExtArgs>
+            result: $Utils.Optional<HandoffOutboxGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.HandoffOutboxCountArgs<ExtArgs>
+            result: $Utils.Optional<HandoffOutboxCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1930,7 +2124,7 @@ export namespace Prisma {
      * ```
      * // Shorthand for `emit: 'stdout'`
      * log: ['query', 'info', 'warn', 'error']
-     * 
+     *
      * // Emit as events only
      * log: [
      *   { emit: 'event', level: 'query' },
@@ -1938,14 +2132,14 @@ export namespace Prisma {
      *   { emit: 'event', level: 'warn' }
      *   { emit: 'event', level: 'error' }
      * ]
-     * 
+     *
      * / Emit as events and log to stdout
      * og: [
      *  { emit: 'stdout', level: 'query' },
      *  { emit: 'stdout', level: 'info' },
      *  { emit: 'stdout', level: 'warn' }
      *  { emit: 'stdout', level: 'error' }
-     * 
+     *
      * ```
      * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
      */
@@ -1966,7 +2160,7 @@ export namespace Prisma {
     adapter?: runtime.SqlDriverAdapterFactory | null
     /**
      * Global configuration for omitting model fields by default.
-     * 
+     *
      * @example
      * ```
      * const prisma = new PrismaClient({
@@ -1994,6 +2188,8 @@ export namespace Prisma {
     observationBooking?: ObservationBookingOmit
     observationResult?: ObservationResultOmit
     spmbObserver?: SpmbObserverOmit
+    admissionPeriodCounter?: AdmissionPeriodCounterOmit
+    handoffOutbox?: HandoffOutboxOmit
   }
 
   /* Types for Logging */
@@ -2258,6 +2454,7 @@ export namespace Prisma {
   export type AdmissionPeriodMinAggregateOutputType = {
     id: string | null
     unitId: string | null
+    sourceAcademicYearId: string | null
     unitName: string | null
     unitSlug: string | null
     label: string | null
@@ -2276,6 +2473,7 @@ export namespace Prisma {
   export type AdmissionPeriodMaxAggregateOutputType = {
     id: string | null
     unitId: string | null
+    sourceAcademicYearId: string | null
     unitName: string | null
     unitSlug: string | null
     label: string | null
@@ -2294,6 +2492,7 @@ export namespace Prisma {
   export type AdmissionPeriodCountAggregateOutputType = {
     id: number
     unitId: number
+    sourceAcademicYearId: number
     unitName: number
     unitSlug: number
     label: number
@@ -2324,6 +2523,7 @@ export namespace Prisma {
   export type AdmissionPeriodMinAggregateInputType = {
     id?: true
     unitId?: true
+    sourceAcademicYearId?: true
     unitName?: true
     unitSlug?: true
     label?: true
@@ -2342,6 +2542,7 @@ export namespace Prisma {
   export type AdmissionPeriodMaxAggregateInputType = {
     id?: true
     unitId?: true
+    sourceAcademicYearId?: true
     unitName?: true
     unitSlug?: true
     label?: true
@@ -2360,6 +2561,7 @@ export namespace Prisma {
   export type AdmissionPeriodCountAggregateInputType = {
     id?: true
     unitId?: true
+    sourceAcademicYearId?: true
     unitName?: true
     unitSlug?: true
     label?: true
@@ -2383,55 +2585,55 @@ export namespace Prisma {
     where?: AdmissionPeriodWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of AdmissionPeriods to fetch.
      */
     orderBy?: AdmissionPeriodOrderByWithRelationInput | AdmissionPeriodOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: AdmissionPeriodWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` AdmissionPeriods from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` AdmissionPeriods.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned AdmissionPeriods
     **/
     _count?: true | AdmissionPeriodCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: AdmissionPeriodAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: AdmissionPeriodSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: AdmissionPeriodMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: AdmissionPeriodMaxAggregateInputType
@@ -2465,6 +2667,7 @@ export namespace Prisma {
   export type AdmissionPeriodGroupByOutputType = {
     id: string
     unitId: string
+    sourceAcademicYearId: string | null
     unitName: string
     unitSlug: string
     label: string
@@ -2502,6 +2705,7 @@ export namespace Prisma {
   export type AdmissionPeriodSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     unitId?: boolean
+    sourceAcademicYearId?: boolean
     unitName?: boolean
     unitSlug?: boolean
     label?: boolean
@@ -2517,12 +2721,14 @@ export namespace Prisma {
     updatedAt?: boolean
     registrations?: boolean | AdmissionPeriod$registrationsArgs<ExtArgs>
     schedules?: boolean | AdmissionPeriod$schedulesArgs<ExtArgs>
+    counter?: boolean | AdmissionPeriod$counterArgs<ExtArgs>
     _count?: boolean | AdmissionPeriodCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["admissionPeriod"]>
 
   export type AdmissionPeriodSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     unitId?: boolean
+    sourceAcademicYearId?: boolean
     unitName?: boolean
     unitSlug?: boolean
     label?: boolean
@@ -2541,6 +2747,7 @@ export namespace Prisma {
   export type AdmissionPeriodSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     unitId?: boolean
+    sourceAcademicYearId?: boolean
     unitName?: boolean
     unitSlug?: boolean
     label?: boolean
@@ -2559,6 +2766,7 @@ export namespace Prisma {
   export type AdmissionPeriodSelectScalar = {
     id?: boolean
     unitId?: boolean
+    sourceAcademicYearId?: boolean
     unitName?: boolean
     unitSlug?: boolean
     label?: boolean
@@ -2574,10 +2782,11 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type AdmissionPeriodOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "unitId" | "unitName" | "unitSlug" | "label" | "isOpen" | "quota" | "fee" | "bankName" | "bankNumber" | "bankHolder" | "opensAt" | "closesAt" | "createdAt" | "updatedAt", ExtArgs["result"]["admissionPeriod"]>
+  export type AdmissionPeriodOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "unitId" | "sourceAcademicYearId" | "unitName" | "unitSlug" | "label" | "isOpen" | "quota" | "fee" | "bankName" | "bankNumber" | "bankHolder" | "opensAt" | "closesAt" | "createdAt" | "updatedAt", ExtArgs["result"]["admissionPeriod"]>
   export type AdmissionPeriodInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     registrations?: boolean | AdmissionPeriod$registrationsArgs<ExtArgs>
     schedules?: boolean | AdmissionPeriod$schedulesArgs<ExtArgs>
+    counter?: boolean | AdmissionPeriod$counterArgs<ExtArgs>
     _count?: boolean | AdmissionPeriodCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type AdmissionPeriodIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2588,10 +2797,12 @@ export namespace Prisma {
     objects: {
       registrations: Prisma.$RegistrationPayload<ExtArgs>[]
       schedules: Prisma.$ObservationSchedulePayload<ExtArgs>[]
+      counter: Prisma.$AdmissionPeriodCounterPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       unitId: string
+      sourceAcademicYearId: string | null
       unitName: string
       unitSlug: string
       label: string
@@ -2684,13 +2895,13 @@ export namespace Prisma {
      * @example
      * // Get all AdmissionPeriods
      * const admissionPeriods = await prisma.admissionPeriod.findMany()
-     * 
+     *
      * // Get first 10 AdmissionPeriods
      * const admissionPeriods = await prisma.admissionPeriod.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const admissionPeriodWithIdOnly = await prisma.admissionPeriod.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends AdmissionPeriodFindManyArgs>(args?: SelectSubset<T, AdmissionPeriodFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdmissionPeriodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -2704,7 +2915,7 @@ export namespace Prisma {
      *     // ... data to create a AdmissionPeriod
      *   }
      * })
-     * 
+     *
      */
     create<T extends AdmissionPeriodCreateArgs>(args: SelectSubset<T, AdmissionPeriodCreateArgs<ExtArgs>>): Prisma__AdmissionPeriodClient<$Result.GetResult<Prisma.$AdmissionPeriodPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -2718,7 +2929,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends AdmissionPeriodCreateManyArgs>(args?: SelectSubset<T, AdmissionPeriodCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -2732,7 +2943,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many AdmissionPeriods and only return the `id`
      * const admissionPeriodWithIdOnly = await prisma.admissionPeriod.createManyAndReturn({
      *   select: { id: true },
@@ -2742,7 +2953,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends AdmissionPeriodCreateManyAndReturnArgs>(args?: SelectSubset<T, AdmissionPeriodCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdmissionPeriodPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -2756,7 +2967,7 @@ export namespace Prisma {
      *     // ... filter to delete one AdmissionPeriod
      *   }
      * })
-     * 
+     *
      */
     delete<T extends AdmissionPeriodDeleteArgs>(args: SelectSubset<T, AdmissionPeriodDeleteArgs<ExtArgs>>): Prisma__AdmissionPeriodClient<$Result.GetResult<Prisma.$AdmissionPeriodPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -2773,7 +2984,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends AdmissionPeriodUpdateArgs>(args: SelectSubset<T, AdmissionPeriodUpdateArgs<ExtArgs>>): Prisma__AdmissionPeriodClient<$Result.GetResult<Prisma.$AdmissionPeriodPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -2787,7 +2998,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends AdmissionPeriodDeleteManyArgs>(args?: SelectSubset<T, AdmissionPeriodDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -2806,7 +3017,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends AdmissionPeriodUpdateManyArgs>(args: SelectSubset<T, AdmissionPeriodUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -2823,7 +3034,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more AdmissionPeriods and only return the `id`
      * const admissionPeriodWithIdOnly = await prisma.admissionPeriod.updateManyAndReturn({
      *   select: { id: true },
@@ -2836,7 +3047,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends AdmissionPeriodUpdateManyAndReturnArgs>(args: SelectSubset<T, AdmissionPeriodUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdmissionPeriodPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -2925,7 +3136,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends AdmissionPeriodGroupByArgs,
@@ -3001,6 +3212,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     registrations<T extends AdmissionPeriod$registrationsArgs<ExtArgs> = {}>(args?: Subset<T, AdmissionPeriod$registrationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistrationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     schedules<T extends AdmissionPeriod$schedulesArgs<ExtArgs> = {}>(args?: Subset<T, AdmissionPeriod$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ObservationSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    counter<T extends AdmissionPeriod$counterArgs<ExtArgs> = {}>(args?: Subset<T, AdmissionPeriod$counterArgs<ExtArgs>>): Prisma__AdmissionPeriodCounterClient<$Result.GetResult<Prisma.$AdmissionPeriodCounterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3032,6 +3244,7 @@ export namespace Prisma {
   interface AdmissionPeriodFieldRefs {
     readonly id: FieldRef<"AdmissionPeriod", 'String'>
     readonly unitId: FieldRef<"AdmissionPeriod", 'String'>
+    readonly sourceAcademicYearId: FieldRef<"AdmissionPeriod", 'String'>
     readonly unitName: FieldRef<"AdmissionPeriod", 'String'>
     readonly unitSlug: FieldRef<"AdmissionPeriod", 'String'>
     readonly label: FieldRef<"AdmissionPeriod", 'String'>
@@ -3046,7 +3259,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"AdmissionPeriod", 'DateTime'>
     readonly updatedAt: FieldRef<"AdmissionPeriod", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -3115,31 +3328,31 @@ export namespace Prisma {
     where?: AdmissionPeriodWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of AdmissionPeriods to fetch.
      */
     orderBy?: AdmissionPeriodOrderByWithRelationInput | AdmissionPeriodOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for AdmissionPeriods.
      */
     cursor?: AdmissionPeriodWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` AdmissionPeriods from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` AdmissionPeriods.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of AdmissionPeriods.
      */
     distinct?: AdmissionPeriodScalarFieldEnum | AdmissionPeriodScalarFieldEnum[]
@@ -3167,31 +3380,31 @@ export namespace Prisma {
     where?: AdmissionPeriodWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of AdmissionPeriods to fetch.
      */
     orderBy?: AdmissionPeriodOrderByWithRelationInput | AdmissionPeriodOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for AdmissionPeriods.
      */
     cursor?: AdmissionPeriodWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` AdmissionPeriods from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` AdmissionPeriods.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of AdmissionPeriods.
      */
     distinct?: AdmissionPeriodScalarFieldEnum | AdmissionPeriodScalarFieldEnum[]
@@ -3219,25 +3432,25 @@ export namespace Prisma {
     where?: AdmissionPeriodWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of AdmissionPeriods to fetch.
      */
     orderBy?: AdmissionPeriodOrderByWithRelationInput | AdmissionPeriodOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing AdmissionPeriods.
      */
     cursor?: AdmissionPeriodWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` AdmissionPeriods from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` AdmissionPeriods.
      */
     skip?: number
@@ -3481,6 +3694,25 @@ export namespace Prisma {
   }
 
   /**
+   * AdmissionPeriod.counter
+   */
+  export type AdmissionPeriod$counterArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterInclude<ExtArgs> | null
+    where?: AdmissionPeriodCounterWhereInput
+  }
+
+  /**
    * AdmissionPeriod without action
    */
   export type AdmissionPeriodDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3567,43 +3799,43 @@ export namespace Prisma {
     where?: UserWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Users to fetch.
      */
     orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: UserWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Users from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Users.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Users
     **/
     _count?: true | UserCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: UserMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: UserMaxAggregateInputType
@@ -3792,13 +4024,13 @@ export namespace Prisma {
      * @example
      * // Get all Users
      * const users = await prisma.user.findMany()
-     * 
+     *
      * // Get first 10 Users
      * const users = await prisma.user.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const userWithIdOnly = await prisma.user.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends UserFindManyArgs>(args?: SelectSubset<T, UserFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -3812,7 +4044,7 @@ export namespace Prisma {
      *     // ... data to create a User
      *   }
      * })
-     * 
+     *
      */
     create<T extends UserCreateArgs>(args: SelectSubset<T, UserCreateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -3826,7 +4058,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends UserCreateManyArgs>(args?: SelectSubset<T, UserCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -3840,7 +4072,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Users and only return the `id`
      * const userWithIdOnly = await prisma.user.createManyAndReturn({
      *   select: { id: true },
@@ -3850,7 +4082,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends UserCreateManyAndReturnArgs>(args?: SelectSubset<T, UserCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -3864,7 +4096,7 @@ export namespace Prisma {
      *     // ... filter to delete one User
      *   }
      * })
-     * 
+     *
      */
     delete<T extends UserDeleteArgs>(args: SelectSubset<T, UserDeleteArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -3881,7 +4113,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends UserUpdateArgs>(args: SelectSubset<T, UserUpdateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -3895,7 +4127,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends UserDeleteManyArgs>(args?: SelectSubset<T, UserDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -3914,7 +4146,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends UserUpdateManyArgs>(args: SelectSubset<T, UserUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -3931,7 +4163,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Users and only return the `id`
      * const userWithIdOnly = await prisma.user.updateManyAndReturn({
      *   select: { id: true },
@@ -3944,7 +4176,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends UserUpdateManyAndReturnArgs>(args: SelectSubset<T, UserUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -4033,7 +4265,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends UserGroupByArgs,
@@ -4144,7 +4376,7 @@ export namespace Prisma {
     readonly phone: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -4213,31 +4445,31 @@ export namespace Prisma {
     where?: UserWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Users to fetch.
      */
     orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Users.
      */
     cursor?: UserWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Users from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Users.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Users.
      */
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
@@ -4265,31 +4497,31 @@ export namespace Prisma {
     where?: UserWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Users to fetch.
      */
     orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Users.
      */
     cursor?: UserWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Users from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Users.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Users.
      */
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
@@ -4317,25 +4549,25 @@ export namespace Prisma {
     where?: UserWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Users to fetch.
      */
     orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Users.
      */
     cursor?: UserWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Users from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Users.
      */
     skip?: number
@@ -4614,6 +4846,7 @@ export namespace Prisma {
     source: $Enums.RegistrationSource | null
     externalRef: string | null
     status: $Enums.RegistrationStatus | null
+    dossierReviewStatus: $Enums.DossierReviewStatus | null
     rejectionReason: string | null
     parentId: string | null
     guardianName: string | null
@@ -4637,6 +4870,7 @@ export namespace Prisma {
     source: $Enums.RegistrationSource | null
     externalRef: string | null
     status: $Enums.RegistrationStatus | null
+    dossierReviewStatus: $Enums.DossierReviewStatus | null
     rejectionReason: string | null
     parentId: string | null
     guardianName: string | null
@@ -4660,6 +4894,7 @@ export namespace Prisma {
     source: number
     externalRef: number
     status: number
+    dossierReviewStatus: number
     rejectionReason: number
     parentId: number
     guardianName: number
@@ -4685,6 +4920,7 @@ export namespace Prisma {
     source?: true
     externalRef?: true
     status?: true
+    dossierReviewStatus?: true
     rejectionReason?: true
     parentId?: true
     guardianName?: true
@@ -4708,6 +4944,7 @@ export namespace Prisma {
     source?: true
     externalRef?: true
     status?: true
+    dossierReviewStatus?: true
     rejectionReason?: true
     parentId?: true
     guardianName?: true
@@ -4731,6 +4968,7 @@ export namespace Prisma {
     source?: true
     externalRef?: true
     status?: true
+    dossierReviewStatus?: true
     rejectionReason?: true
     parentId?: true
     guardianName?: true
@@ -4755,43 +4993,43 @@ export namespace Prisma {
     where?: RegistrationWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Registrations to fetch.
      */
     orderBy?: RegistrationOrderByWithRelationInput | RegistrationOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: RegistrationWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Registrations from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Registrations.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Registrations
     **/
     _count?: true | RegistrationCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: RegistrationMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: RegistrationMaxAggregateInputType
@@ -4827,6 +5065,7 @@ export namespace Prisma {
     source: $Enums.RegistrationSource
     externalRef: string | null
     status: $Enums.RegistrationStatus
+    dossierReviewStatus: $Enums.DossierReviewStatus
     rejectionReason: string | null
     parentId: string | null
     guardianName: string | null
@@ -4867,6 +5106,7 @@ export namespace Prisma {
     source?: boolean
     externalRef?: boolean
     status?: boolean
+    dossierReviewStatus?: boolean
     rejectionReason?: boolean
     parentId?: boolean
     guardianName?: boolean
@@ -4891,6 +5131,7 @@ export namespace Prisma {
     observationBooking?: boolean | Registration$observationBookingArgs<ExtArgs>
     observationResult?: boolean | Registration$observationResultArgs<ExtArgs>
     events?: boolean | Registration$eventsArgs<ExtArgs>
+    handoffOutbox?: boolean | Registration$handoffOutboxArgs<ExtArgs>
     _count?: boolean | RegistrationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["registration"]>
 
@@ -4901,6 +5142,7 @@ export namespace Prisma {
     source?: boolean
     externalRef?: boolean
     status?: boolean
+    dossierReviewStatus?: boolean
     rejectionReason?: boolean
     parentId?: boolean
     guardianName?: boolean
@@ -4926,6 +5168,7 @@ export namespace Prisma {
     source?: boolean
     externalRef?: boolean
     status?: boolean
+    dossierReviewStatus?: boolean
     rejectionReason?: boolean
     parentId?: boolean
     guardianName?: boolean
@@ -4951,6 +5194,7 @@ export namespace Prisma {
     source?: boolean
     externalRef?: boolean
     status?: boolean
+    dossierReviewStatus?: boolean
     rejectionReason?: boolean
     parentId?: boolean
     guardianName?: boolean
@@ -4967,7 +5211,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type RegistrationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registrationNumber" | "periodId" | "source" | "externalRef" | "status" | "rejectionReason" | "parentId" | "guardianName" | "guardianPhone" | "guardianEmail" | "inviteToken" | "inviteExpiresAt" | "claimedAt" | "handoffStatus" | "handoffError" | "handoffAt" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["registration"]>
+  export type RegistrationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registrationNumber" | "periodId" | "source" | "externalRef" | "status" | "dossierReviewStatus" | "rejectionReason" | "parentId" | "guardianName" | "guardianPhone" | "guardianEmail" | "inviteToken" | "inviteExpiresAt" | "claimedAt" | "handoffStatus" | "handoffError" | "handoffAt" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["registration"]>
   export type RegistrationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     period?: boolean | AdmissionPeriodDefaultArgs<ExtArgs>
     parent?: boolean | Registration$parentArgs<ExtArgs>
@@ -4979,6 +5223,7 @@ export namespace Prisma {
     observationBooking?: boolean | Registration$observationBookingArgs<ExtArgs>
     observationResult?: boolean | Registration$observationResultArgs<ExtArgs>
     events?: boolean | Registration$eventsArgs<ExtArgs>
+    handoffOutbox?: boolean | Registration$handoffOutboxArgs<ExtArgs>
     _count?: boolean | RegistrationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type RegistrationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5003,6 +5248,7 @@ export namespace Prisma {
       observationBooking: Prisma.$ObservationBookingPayload<ExtArgs> | null
       observationResult: Prisma.$ObservationResultPayload<ExtArgs> | null
       events: Prisma.$RegistrationEventPayload<ExtArgs>[]
+      handoffOutbox: Prisma.$HandoffOutboxPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5011,6 +5257,7 @@ export namespace Prisma {
       source: $Enums.RegistrationSource
       externalRef: string | null
       status: $Enums.RegistrationStatus
+      dossierReviewStatus: $Enums.DossierReviewStatus
       rejectionReason: string | null
       parentId: string | null
       guardianName: string | null
@@ -5104,13 +5351,13 @@ export namespace Prisma {
      * @example
      * // Get all Registrations
      * const registrations = await prisma.registration.findMany()
-     * 
+     *
      * // Get first 10 Registrations
      * const registrations = await prisma.registration.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const registrationWithIdOnly = await prisma.registration.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends RegistrationFindManyArgs>(args?: SelectSubset<T, RegistrationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistrationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -5124,7 +5371,7 @@ export namespace Prisma {
      *     // ... data to create a Registration
      *   }
      * })
-     * 
+     *
      */
     create<T extends RegistrationCreateArgs>(args: SelectSubset<T, RegistrationCreateArgs<ExtArgs>>): Prisma__RegistrationClient<$Result.GetResult<Prisma.$RegistrationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -5138,7 +5385,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends RegistrationCreateManyArgs>(args?: SelectSubset<T, RegistrationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -5152,7 +5399,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Registrations and only return the `id`
      * const registrationWithIdOnly = await prisma.registration.createManyAndReturn({
      *   select: { id: true },
@@ -5162,7 +5409,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends RegistrationCreateManyAndReturnArgs>(args?: SelectSubset<T, RegistrationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistrationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -5176,7 +5423,7 @@ export namespace Prisma {
      *     // ... filter to delete one Registration
      *   }
      * })
-     * 
+     *
      */
     delete<T extends RegistrationDeleteArgs>(args: SelectSubset<T, RegistrationDeleteArgs<ExtArgs>>): Prisma__RegistrationClient<$Result.GetResult<Prisma.$RegistrationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -5193,7 +5440,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends RegistrationUpdateArgs>(args: SelectSubset<T, RegistrationUpdateArgs<ExtArgs>>): Prisma__RegistrationClient<$Result.GetResult<Prisma.$RegistrationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -5207,7 +5454,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends RegistrationDeleteManyArgs>(args?: SelectSubset<T, RegistrationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -5226,7 +5473,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends RegistrationUpdateManyArgs>(args: SelectSubset<T, RegistrationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -5243,7 +5490,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Registrations and only return the `id`
      * const registrationWithIdOnly = await prisma.registration.updateManyAndReturn({
      *   select: { id: true },
@@ -5256,7 +5503,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends RegistrationUpdateManyAndReturnArgs>(args: SelectSubset<T, RegistrationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistrationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -5345,7 +5592,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends RegistrationGroupByArgs,
@@ -5429,6 +5676,7 @@ export namespace Prisma {
     observationBooking<T extends Registration$observationBookingArgs<ExtArgs> = {}>(args?: Subset<T, Registration$observationBookingArgs<ExtArgs>>): Prisma__ObservationBookingClient<$Result.GetResult<Prisma.$ObservationBookingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     observationResult<T extends Registration$observationResultArgs<ExtArgs> = {}>(args?: Subset<T, Registration$observationResultArgs<ExtArgs>>): Prisma__ObservationResultClient<$Result.GetResult<Prisma.$ObservationResultPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     events<T extends Registration$eventsArgs<ExtArgs> = {}>(args?: Subset<T, Registration$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistrationEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    handoffOutbox<T extends Registration$handoffOutboxArgs<ExtArgs> = {}>(args?: Subset<T, Registration$handoffOutboxArgs<ExtArgs>>): Prisma__HandoffOutboxClient<$Result.GetResult<Prisma.$HandoffOutboxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5464,6 +5712,7 @@ export namespace Prisma {
     readonly source: FieldRef<"Registration", 'RegistrationSource'>
     readonly externalRef: FieldRef<"Registration", 'String'>
     readonly status: FieldRef<"Registration", 'RegistrationStatus'>
+    readonly dossierReviewStatus: FieldRef<"Registration", 'DossierReviewStatus'>
     readonly rejectionReason: FieldRef<"Registration", 'String'>
     readonly parentId: FieldRef<"Registration", 'String'>
     readonly guardianName: FieldRef<"Registration", 'String'>
@@ -5479,7 +5728,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Registration", 'DateTime'>
     readonly updatedAt: FieldRef<"Registration", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -5548,31 +5797,31 @@ export namespace Prisma {
     where?: RegistrationWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Registrations to fetch.
      */
     orderBy?: RegistrationOrderByWithRelationInput | RegistrationOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Registrations.
      */
     cursor?: RegistrationWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Registrations from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Registrations.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Registrations.
      */
     distinct?: RegistrationScalarFieldEnum | RegistrationScalarFieldEnum[]
@@ -5600,31 +5849,31 @@ export namespace Prisma {
     where?: RegistrationWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Registrations to fetch.
      */
     orderBy?: RegistrationOrderByWithRelationInput | RegistrationOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Registrations.
      */
     cursor?: RegistrationWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Registrations from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Registrations.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Registrations.
      */
     distinct?: RegistrationScalarFieldEnum | RegistrationScalarFieldEnum[]
@@ -5652,25 +5901,25 @@ export namespace Prisma {
     where?: RegistrationWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Registrations to fetch.
      */
     orderBy?: RegistrationOrderByWithRelationInput | RegistrationOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Registrations.
      */
     cursor?: RegistrationWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Registrations from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Registrations.
      */
     skip?: number
@@ -6060,6 +6309,25 @@ export namespace Prisma {
   }
 
   /**
+   * Registration.handoffOutbox
+   */
+  export type Registration$handoffOutboxArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxInclude<ExtArgs> | null
+    where?: HandoffOutboxWhereInput
+  }
+
+  /**
    * Registration without action
    */
   export type RegistrationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6164,43 +6432,43 @@ export namespace Prisma {
     where?: RegistrationEventWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of RegistrationEvents to fetch.
      */
     orderBy?: RegistrationEventOrderByWithRelationInput | RegistrationEventOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: RegistrationEventWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` RegistrationEvents from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` RegistrationEvents.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned RegistrationEvents
     **/
     _count?: true | RegistrationEventCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: RegistrationEventMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: RegistrationEventMaxAggregateInputType
@@ -6408,13 +6676,13 @@ export namespace Prisma {
      * @example
      * // Get all RegistrationEvents
      * const registrationEvents = await prisma.registrationEvent.findMany()
-     * 
+     *
      * // Get first 10 RegistrationEvents
      * const registrationEvents = await prisma.registrationEvent.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const registrationEventWithIdOnly = await prisma.registrationEvent.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends RegistrationEventFindManyArgs>(args?: SelectSubset<T, RegistrationEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistrationEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -6428,7 +6696,7 @@ export namespace Prisma {
      *     // ... data to create a RegistrationEvent
      *   }
      * })
-     * 
+     *
      */
     create<T extends RegistrationEventCreateArgs>(args: SelectSubset<T, RegistrationEventCreateArgs<ExtArgs>>): Prisma__RegistrationEventClient<$Result.GetResult<Prisma.$RegistrationEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -6442,7 +6710,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends RegistrationEventCreateManyArgs>(args?: SelectSubset<T, RegistrationEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -6456,7 +6724,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many RegistrationEvents and only return the `id`
      * const registrationEventWithIdOnly = await prisma.registrationEvent.createManyAndReturn({
      *   select: { id: true },
@@ -6466,7 +6734,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends RegistrationEventCreateManyAndReturnArgs>(args?: SelectSubset<T, RegistrationEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistrationEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -6480,7 +6748,7 @@ export namespace Prisma {
      *     // ... filter to delete one RegistrationEvent
      *   }
      * })
-     * 
+     *
      */
     delete<T extends RegistrationEventDeleteArgs>(args: SelectSubset<T, RegistrationEventDeleteArgs<ExtArgs>>): Prisma__RegistrationEventClient<$Result.GetResult<Prisma.$RegistrationEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -6497,7 +6765,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends RegistrationEventUpdateArgs>(args: SelectSubset<T, RegistrationEventUpdateArgs<ExtArgs>>): Prisma__RegistrationEventClient<$Result.GetResult<Prisma.$RegistrationEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -6511,7 +6779,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends RegistrationEventDeleteManyArgs>(args?: SelectSubset<T, RegistrationEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -6530,7 +6798,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends RegistrationEventUpdateManyArgs>(args: SelectSubset<T, RegistrationEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -6547,7 +6815,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more RegistrationEvents and only return the `id`
      * const registrationEventWithIdOnly = await prisma.registrationEvent.updateManyAndReturn({
      *   select: { id: true },
@@ -6560,7 +6828,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends RegistrationEventUpdateManyAndReturnArgs>(args: SelectSubset<T, RegistrationEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistrationEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -6649,7 +6917,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends RegistrationEventGroupByArgs,
@@ -6762,7 +7030,7 @@ export namespace Prisma {
     readonly note: FieldRef<"RegistrationEvent", 'String'>
     readonly createdAt: FieldRef<"RegistrationEvent", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -6831,31 +7099,31 @@ export namespace Prisma {
     where?: RegistrationEventWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of RegistrationEvents to fetch.
      */
     orderBy?: RegistrationEventOrderByWithRelationInput | RegistrationEventOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for RegistrationEvents.
      */
     cursor?: RegistrationEventWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` RegistrationEvents from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` RegistrationEvents.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of RegistrationEvents.
      */
     distinct?: RegistrationEventScalarFieldEnum | RegistrationEventScalarFieldEnum[]
@@ -6883,31 +7151,31 @@ export namespace Prisma {
     where?: RegistrationEventWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of RegistrationEvents to fetch.
      */
     orderBy?: RegistrationEventOrderByWithRelationInput | RegistrationEventOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for RegistrationEvents.
      */
     cursor?: RegistrationEventWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` RegistrationEvents from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` RegistrationEvents.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of RegistrationEvents.
      */
     distinct?: RegistrationEventScalarFieldEnum | RegistrationEventScalarFieldEnum[]
@@ -6935,25 +7203,25 @@ export namespace Prisma {
     where?: RegistrationEventWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of RegistrationEvents to fetch.
      */
     orderBy?: RegistrationEventOrderByWithRelationInput | RegistrationEventOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing RegistrationEvents.
      */
     cursor?: RegistrationEventWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` RegistrationEvents from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` RegistrationEvents.
      */
     skip?: number
@@ -7303,55 +7571,55 @@ export namespace Prisma {
     where?: PaymentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Payments to fetch.
      */
     orderBy?: PaymentOrderByWithRelationInput | PaymentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: PaymentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Payments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Payments.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Payments
     **/
     _count?: true | PaymentCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: PaymentAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: PaymentSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: PaymentMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: PaymentMaxAggregateInputType
@@ -7587,13 +7855,13 @@ export namespace Prisma {
      * @example
      * // Get all Payments
      * const payments = await prisma.payment.findMany()
-     * 
+     *
      * // Get first 10 Payments
      * const payments = await prisma.payment.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const paymentWithIdOnly = await prisma.payment.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends PaymentFindManyArgs>(args?: SelectSubset<T, PaymentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -7607,7 +7875,7 @@ export namespace Prisma {
      *     // ... data to create a Payment
      *   }
      * })
-     * 
+     *
      */
     create<T extends PaymentCreateArgs>(args: SelectSubset<T, PaymentCreateArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -7621,7 +7889,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends PaymentCreateManyArgs>(args?: SelectSubset<T, PaymentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -7635,7 +7903,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Payments and only return the `id`
      * const paymentWithIdOnly = await prisma.payment.createManyAndReturn({
      *   select: { id: true },
@@ -7645,7 +7913,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends PaymentCreateManyAndReturnArgs>(args?: SelectSubset<T, PaymentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -7659,7 +7927,7 @@ export namespace Prisma {
      *     // ... filter to delete one Payment
      *   }
      * })
-     * 
+     *
      */
     delete<T extends PaymentDeleteArgs>(args: SelectSubset<T, PaymentDeleteArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -7676,7 +7944,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends PaymentUpdateArgs>(args: SelectSubset<T, PaymentUpdateArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -7690,7 +7958,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends PaymentDeleteManyArgs>(args?: SelectSubset<T, PaymentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -7709,7 +7977,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends PaymentUpdateManyArgs>(args: SelectSubset<T, PaymentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -7726,7 +7994,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Payments and only return the `id`
      * const paymentWithIdOnly = await prisma.payment.updateManyAndReturn({
      *   select: { id: true },
@@ -7739,7 +8007,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends PaymentUpdateManyAndReturnArgs>(args: SelectSubset<T, PaymentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -7828,7 +8096,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends PaymentGroupByArgs,
@@ -7945,7 +8213,7 @@ export namespace Prisma {
     readonly rejectionNote: FieldRef<"Payment", 'String'>
     readonly createdAt: FieldRef<"Payment", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -8014,31 +8282,31 @@ export namespace Prisma {
     where?: PaymentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Payments to fetch.
      */
     orderBy?: PaymentOrderByWithRelationInput | PaymentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Payments.
      */
     cursor?: PaymentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Payments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Payments.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Payments.
      */
     distinct?: PaymentScalarFieldEnum | PaymentScalarFieldEnum[]
@@ -8066,31 +8334,31 @@ export namespace Prisma {
     where?: PaymentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Payments to fetch.
      */
     orderBy?: PaymentOrderByWithRelationInput | PaymentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Payments.
      */
     cursor?: PaymentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Payments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Payments.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Payments.
      */
     distinct?: PaymentScalarFieldEnum | PaymentScalarFieldEnum[]
@@ -8118,25 +8386,25 @@ export namespace Prisma {
     where?: PaymentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Payments to fetch.
      */
     orderBy?: PaymentOrderByWithRelationInput | PaymentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Payments.
      */
     cursor?: PaymentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Payments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Payments.
      */
     skip?: number
@@ -8510,55 +8778,55 @@ export namespace Prisma {
     where?: StudentDataWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of StudentData to fetch.
      */
     orderBy?: StudentDataOrderByWithRelationInput | StudentDataOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: StudentDataWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` StudentData from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` StudentData.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned StudentData
     **/
     _count?: true | StudentDataCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: StudentDataAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: StudentDataSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: StudentDataMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: StudentDataMaxAggregateInputType
@@ -8818,13 +9086,13 @@ export namespace Prisma {
      * @example
      * // Get all StudentData
      * const studentData = await prisma.studentData.findMany()
-     * 
+     *
      * // Get first 10 StudentData
      * const studentData = await prisma.studentData.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const studentDataWithIdOnly = await prisma.studentData.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends StudentDataFindManyArgs>(args?: SelectSubset<T, StudentDataFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -8838,7 +9106,7 @@ export namespace Prisma {
      *     // ... data to create a StudentData
      *   }
      * })
-     * 
+     *
      */
     create<T extends StudentDataCreateArgs>(args: SelectSubset<T, StudentDataCreateArgs<ExtArgs>>): Prisma__StudentDataClient<$Result.GetResult<Prisma.$StudentDataPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -8852,7 +9120,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends StudentDataCreateManyArgs>(args?: SelectSubset<T, StudentDataCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -8866,7 +9134,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many StudentData and only return the `id`
      * const studentDataWithIdOnly = await prisma.studentData.createManyAndReturn({
      *   select: { id: true },
@@ -8876,7 +9144,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends StudentDataCreateManyAndReturnArgs>(args?: SelectSubset<T, StudentDataCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentDataPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -8890,7 +9158,7 @@ export namespace Prisma {
      *     // ... filter to delete one StudentData
      *   }
      * })
-     * 
+     *
      */
     delete<T extends StudentDataDeleteArgs>(args: SelectSubset<T, StudentDataDeleteArgs<ExtArgs>>): Prisma__StudentDataClient<$Result.GetResult<Prisma.$StudentDataPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -8907,7 +9175,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends StudentDataUpdateArgs>(args: SelectSubset<T, StudentDataUpdateArgs<ExtArgs>>): Prisma__StudentDataClient<$Result.GetResult<Prisma.$StudentDataPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -8921,7 +9189,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends StudentDataDeleteManyArgs>(args?: SelectSubset<T, StudentDataDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -8940,7 +9208,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends StudentDataUpdateManyArgs>(args: SelectSubset<T, StudentDataUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -8957,7 +9225,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more StudentData and only return the `id`
      * const studentDataWithIdOnly = await prisma.studentData.updateManyAndReturn({
      *   select: { id: true },
@@ -8970,7 +9238,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends StudentDataUpdateManyAndReturnArgs>(args: SelectSubset<T, StudentDataUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentDataPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -9059,7 +9327,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends StudentDataGroupByArgs,
@@ -9180,7 +9448,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"StudentData", 'DateTime'>
     readonly updatedAt: FieldRef<"StudentData", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -9249,31 +9517,31 @@ export namespace Prisma {
     where?: StudentDataWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of StudentData to fetch.
      */
     orderBy?: StudentDataOrderByWithRelationInput | StudentDataOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for StudentData.
      */
     cursor?: StudentDataWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` StudentData from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` StudentData.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of StudentData.
      */
     distinct?: StudentDataScalarFieldEnum | StudentDataScalarFieldEnum[]
@@ -9301,31 +9569,31 @@ export namespace Prisma {
     where?: StudentDataWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of StudentData to fetch.
      */
     orderBy?: StudentDataOrderByWithRelationInput | StudentDataOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for StudentData.
      */
     cursor?: StudentDataWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` StudentData from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` StudentData.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of StudentData.
      */
     distinct?: StudentDataScalarFieldEnum | StudentDataScalarFieldEnum[]
@@ -9353,25 +9621,25 @@ export namespace Prisma {
     where?: StudentDataWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of StudentData to fetch.
      */
     orderBy?: StudentDataOrderByWithRelationInput | StudentDataOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing StudentData.
      */
     cursor?: StudentDataWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` StudentData from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` StudentData.
      */
     skip?: number
@@ -9715,43 +9983,43 @@ export namespace Prisma {
     where?: ParentDataWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ParentData to fetch.
      */
     orderBy?: ParentDataOrderByWithRelationInput | ParentDataOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: ParentDataWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ParentData from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ParentData.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned ParentData
     **/
     _count?: true | ParentDataCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: ParentDataMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: ParentDataMaxAggregateInputType
@@ -9995,13 +10263,13 @@ export namespace Prisma {
      * @example
      * // Get all ParentData
      * const parentData = await prisma.parentData.findMany()
-     * 
+     *
      * // Get first 10 ParentData
      * const parentData = await prisma.parentData.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const parentDataWithIdOnly = await prisma.parentData.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends ParentDataFindManyArgs>(args?: SelectSubset<T, ParentDataFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParentDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -10015,7 +10283,7 @@ export namespace Prisma {
      *     // ... data to create a ParentData
      *   }
      * })
-     * 
+     *
      */
     create<T extends ParentDataCreateArgs>(args: SelectSubset<T, ParentDataCreateArgs<ExtArgs>>): Prisma__ParentDataClient<$Result.GetResult<Prisma.$ParentDataPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -10029,7 +10297,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends ParentDataCreateManyArgs>(args?: SelectSubset<T, ParentDataCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -10043,7 +10311,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many ParentData and only return the `id`
      * const parentDataWithIdOnly = await prisma.parentData.createManyAndReturn({
      *   select: { id: true },
@@ -10053,7 +10321,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends ParentDataCreateManyAndReturnArgs>(args?: SelectSubset<T, ParentDataCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParentDataPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -10067,7 +10335,7 @@ export namespace Prisma {
      *     // ... filter to delete one ParentData
      *   }
      * })
-     * 
+     *
      */
     delete<T extends ParentDataDeleteArgs>(args: SelectSubset<T, ParentDataDeleteArgs<ExtArgs>>): Prisma__ParentDataClient<$Result.GetResult<Prisma.$ParentDataPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -10084,7 +10352,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends ParentDataUpdateArgs>(args: SelectSubset<T, ParentDataUpdateArgs<ExtArgs>>): Prisma__ParentDataClient<$Result.GetResult<Prisma.$ParentDataPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -10098,7 +10366,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends ParentDataDeleteManyArgs>(args?: SelectSubset<T, ParentDataDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -10117,7 +10385,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends ParentDataUpdateManyArgs>(args: SelectSubset<T, ParentDataUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -10134,7 +10402,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more ParentData and only return the `id`
      * const parentDataWithIdOnly = await prisma.parentData.updateManyAndReturn({
      *   select: { id: true },
@@ -10147,7 +10415,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends ParentDataUpdateManyAndReturnArgs>(args: SelectSubset<T, ParentDataUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ParentDataPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -10236,7 +10504,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends ParentDataGroupByArgs,
@@ -10355,7 +10623,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"ParentData", 'DateTime'>
     readonly updatedAt: FieldRef<"ParentData", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -10424,31 +10692,31 @@ export namespace Prisma {
     where?: ParentDataWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ParentData to fetch.
      */
     orderBy?: ParentDataOrderByWithRelationInput | ParentDataOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for ParentData.
      */
     cursor?: ParentDataWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ParentData from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ParentData.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of ParentData.
      */
     distinct?: ParentDataScalarFieldEnum | ParentDataScalarFieldEnum[]
@@ -10476,31 +10744,31 @@ export namespace Prisma {
     where?: ParentDataWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ParentData to fetch.
      */
     orderBy?: ParentDataOrderByWithRelationInput | ParentDataOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for ParentData.
      */
     cursor?: ParentDataWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ParentData from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ParentData.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of ParentData.
      */
     distinct?: ParentDataScalarFieldEnum | ParentDataScalarFieldEnum[]
@@ -10528,25 +10796,25 @@ export namespace Prisma {
     where?: ParentDataWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ParentData to fetch.
      */
     orderBy?: ParentDataOrderByWithRelationInput | ParentDataOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing ParentData.
      */
     cursor?: ParentDataWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ParentData from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ParentData.
      */
     skip?: number
@@ -10792,7 +11060,7 @@ export namespace Prisma {
     id: string | null
     registrationId: string | null
     type: $Enums.DocumentType | null
-    fileUrl: string | null
+    objectKey: string | null
     fileName: string | null
     fileSize: number | null
     mimeType: string | null
@@ -10803,7 +11071,7 @@ export namespace Prisma {
     id: string | null
     registrationId: string | null
     type: $Enums.DocumentType | null
-    fileUrl: string | null
+    objectKey: string | null
     fileName: string | null
     fileSize: number | null
     mimeType: string | null
@@ -10814,7 +11082,7 @@ export namespace Prisma {
     id: number
     registrationId: number
     type: number
-    fileUrl: number
+    objectKey: number
     fileName: number
     fileSize: number
     mimeType: number
@@ -10835,7 +11103,7 @@ export namespace Prisma {
     id?: true
     registrationId?: true
     type?: true
-    fileUrl?: true
+    objectKey?: true
     fileName?: true
     fileSize?: true
     mimeType?: true
@@ -10846,7 +11114,7 @@ export namespace Prisma {
     id?: true
     registrationId?: true
     type?: true
-    fileUrl?: true
+    objectKey?: true
     fileName?: true
     fileSize?: true
     mimeType?: true
@@ -10857,7 +11125,7 @@ export namespace Prisma {
     id?: true
     registrationId?: true
     type?: true
-    fileUrl?: true
+    objectKey?: true
     fileName?: true
     fileSize?: true
     mimeType?: true
@@ -10872,55 +11140,55 @@ export namespace Prisma {
     where?: DocumentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Documents to fetch.
      */
     orderBy?: DocumentOrderByWithRelationInput | DocumentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: DocumentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Documents from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Documents.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Documents
     **/
     _count?: true | DocumentCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: DocumentAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: DocumentSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: DocumentMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: DocumentMaxAggregateInputType
@@ -10955,7 +11223,7 @@ export namespace Prisma {
     id: string
     registrationId: string
     type: $Enums.DocumentType
-    fileUrl: string
+    objectKey: string
     fileName: string
     fileSize: number
     mimeType: string
@@ -10985,7 +11253,7 @@ export namespace Prisma {
     id?: boolean
     registrationId?: boolean
     type?: boolean
-    fileUrl?: boolean
+    objectKey?: boolean
     fileName?: boolean
     fileSize?: boolean
     mimeType?: boolean
@@ -10997,7 +11265,7 @@ export namespace Prisma {
     id?: boolean
     registrationId?: boolean
     type?: boolean
-    fileUrl?: boolean
+    objectKey?: boolean
     fileName?: boolean
     fileSize?: boolean
     mimeType?: boolean
@@ -11009,7 +11277,7 @@ export namespace Prisma {
     id?: boolean
     registrationId?: boolean
     type?: boolean
-    fileUrl?: boolean
+    objectKey?: boolean
     fileName?: boolean
     fileSize?: boolean
     mimeType?: boolean
@@ -11021,14 +11289,14 @@ export namespace Prisma {
     id?: boolean
     registrationId?: boolean
     type?: boolean
-    fileUrl?: boolean
+    objectKey?: boolean
     fileName?: boolean
     fileSize?: boolean
     mimeType?: boolean
     createdAt?: boolean
   }
 
-  export type DocumentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registrationId" | "type" | "fileUrl" | "fileName" | "fileSize" | "mimeType" | "createdAt", ExtArgs["result"]["document"]>
+  export type DocumentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registrationId" | "type" | "objectKey" | "fileName" | "fileSize" | "mimeType" | "createdAt", ExtArgs["result"]["document"]>
   export type DocumentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     registration?: boolean | RegistrationDefaultArgs<ExtArgs>
   }
@@ -11048,7 +11316,7 @@ export namespace Prisma {
       id: string
       registrationId: string
       type: $Enums.DocumentType
-      fileUrl: string
+      objectKey: string
       fileName: string
       fileSize: number
       mimeType: string
@@ -11132,13 +11400,13 @@ export namespace Prisma {
      * @example
      * // Get all Documents
      * const documents = await prisma.document.findMany()
-     * 
+     *
      * // Get first 10 Documents
      * const documents = await prisma.document.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const documentWithIdOnly = await prisma.document.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends DocumentFindManyArgs>(args?: SelectSubset<T, DocumentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -11152,7 +11420,7 @@ export namespace Prisma {
      *     // ... data to create a Document
      *   }
      * })
-     * 
+     *
      */
     create<T extends DocumentCreateArgs>(args: SelectSubset<T, DocumentCreateArgs<ExtArgs>>): Prisma__DocumentClient<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -11166,7 +11434,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends DocumentCreateManyArgs>(args?: SelectSubset<T, DocumentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -11180,7 +11448,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Documents and only return the `id`
      * const documentWithIdOnly = await prisma.document.createManyAndReturn({
      *   select: { id: true },
@@ -11190,7 +11458,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends DocumentCreateManyAndReturnArgs>(args?: SelectSubset<T, DocumentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -11204,7 +11472,7 @@ export namespace Prisma {
      *     // ... filter to delete one Document
      *   }
      * })
-     * 
+     *
      */
     delete<T extends DocumentDeleteArgs>(args: SelectSubset<T, DocumentDeleteArgs<ExtArgs>>): Prisma__DocumentClient<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -11221,7 +11489,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends DocumentUpdateArgs>(args: SelectSubset<T, DocumentUpdateArgs<ExtArgs>>): Prisma__DocumentClient<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -11235,7 +11503,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends DocumentDeleteManyArgs>(args?: SelectSubset<T, DocumentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -11254,7 +11522,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends DocumentUpdateManyArgs>(args: SelectSubset<T, DocumentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -11271,7 +11539,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Documents and only return the `id`
      * const documentWithIdOnly = await prisma.document.updateManyAndReturn({
      *   select: { id: true },
@@ -11284,7 +11552,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends DocumentUpdateManyAndReturnArgs>(args: SelectSubset<T, DocumentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -11373,7 +11641,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends DocumentGroupByArgs,
@@ -11480,13 +11748,13 @@ export namespace Prisma {
     readonly id: FieldRef<"Document", 'String'>
     readonly registrationId: FieldRef<"Document", 'String'>
     readonly type: FieldRef<"Document", 'DocumentType'>
-    readonly fileUrl: FieldRef<"Document", 'String'>
+    readonly objectKey: FieldRef<"Document", 'String'>
     readonly fileName: FieldRef<"Document", 'String'>
     readonly fileSize: FieldRef<"Document", 'Int'>
     readonly mimeType: FieldRef<"Document", 'String'>
     readonly createdAt: FieldRef<"Document", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -11555,31 +11823,31 @@ export namespace Prisma {
     where?: DocumentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Documents to fetch.
      */
     orderBy?: DocumentOrderByWithRelationInput | DocumentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Documents.
      */
     cursor?: DocumentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Documents from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Documents.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Documents.
      */
     distinct?: DocumentScalarFieldEnum | DocumentScalarFieldEnum[]
@@ -11607,31 +11875,31 @@ export namespace Prisma {
     where?: DocumentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Documents to fetch.
      */
     orderBy?: DocumentOrderByWithRelationInput | DocumentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Documents.
      */
     cursor?: DocumentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Documents from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Documents.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Documents.
      */
     distinct?: DocumentScalarFieldEnum | DocumentScalarFieldEnum[]
@@ -11659,25 +11927,25 @@ export namespace Prisma {
     where?: DocumentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Documents to fetch.
      */
     orderBy?: DocumentOrderByWithRelationInput | DocumentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Documents.
      */
     cursor?: DocumentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Documents from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Documents.
      */
     skip?: number
@@ -11973,43 +12241,43 @@ export namespace Prisma {
     where?: MedicalReferralWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of MedicalReferrals to fetch.
      */
     orderBy?: MedicalReferralOrderByWithRelationInput | MedicalReferralOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: MedicalReferralWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` MedicalReferrals from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` MedicalReferrals.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned MedicalReferrals
     **/
     _count?: true | MedicalReferralCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: MedicalReferralMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: MedicalReferralMaxAggregateInputType
@@ -12205,13 +12473,13 @@ export namespace Prisma {
      * @example
      * // Get all MedicalReferrals
      * const medicalReferrals = await prisma.medicalReferral.findMany()
-     * 
+     *
      * // Get first 10 MedicalReferrals
      * const medicalReferrals = await prisma.medicalReferral.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const medicalReferralWithIdOnly = await prisma.medicalReferral.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends MedicalReferralFindManyArgs>(args?: SelectSubset<T, MedicalReferralFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MedicalReferralPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -12225,7 +12493,7 @@ export namespace Prisma {
      *     // ... data to create a MedicalReferral
      *   }
      * })
-     * 
+     *
      */
     create<T extends MedicalReferralCreateArgs>(args: SelectSubset<T, MedicalReferralCreateArgs<ExtArgs>>): Prisma__MedicalReferralClient<$Result.GetResult<Prisma.$MedicalReferralPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -12239,7 +12507,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends MedicalReferralCreateManyArgs>(args?: SelectSubset<T, MedicalReferralCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -12253,7 +12521,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many MedicalReferrals and only return the `id`
      * const medicalReferralWithIdOnly = await prisma.medicalReferral.createManyAndReturn({
      *   select: { id: true },
@@ -12263,7 +12531,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends MedicalReferralCreateManyAndReturnArgs>(args?: SelectSubset<T, MedicalReferralCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MedicalReferralPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -12277,7 +12545,7 @@ export namespace Prisma {
      *     // ... filter to delete one MedicalReferral
      *   }
      * })
-     * 
+     *
      */
     delete<T extends MedicalReferralDeleteArgs>(args: SelectSubset<T, MedicalReferralDeleteArgs<ExtArgs>>): Prisma__MedicalReferralClient<$Result.GetResult<Prisma.$MedicalReferralPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -12294,7 +12562,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends MedicalReferralUpdateArgs>(args: SelectSubset<T, MedicalReferralUpdateArgs<ExtArgs>>): Prisma__MedicalReferralClient<$Result.GetResult<Prisma.$MedicalReferralPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -12308,7 +12576,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends MedicalReferralDeleteManyArgs>(args?: SelectSubset<T, MedicalReferralDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -12327,7 +12595,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends MedicalReferralUpdateManyArgs>(args: SelectSubset<T, MedicalReferralUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -12344,7 +12612,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more MedicalReferrals and only return the `id`
      * const medicalReferralWithIdOnly = await prisma.medicalReferral.updateManyAndReturn({
      *   select: { id: true },
@@ -12357,7 +12625,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends MedicalReferralUpdateManyAndReturnArgs>(args: SelectSubset<T, MedicalReferralUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MedicalReferralPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -12446,7 +12714,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends MedicalReferralGroupByArgs,
@@ -12557,7 +12825,7 @@ export namespace Prisma {
     readonly resultFileUrl: FieldRef<"MedicalReferral", 'String'>
     readonly issuedAt: FieldRef<"MedicalReferral", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -12626,31 +12894,31 @@ export namespace Prisma {
     where?: MedicalReferralWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of MedicalReferrals to fetch.
      */
     orderBy?: MedicalReferralOrderByWithRelationInput | MedicalReferralOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for MedicalReferrals.
      */
     cursor?: MedicalReferralWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` MedicalReferrals from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` MedicalReferrals.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of MedicalReferrals.
      */
     distinct?: MedicalReferralScalarFieldEnum | MedicalReferralScalarFieldEnum[]
@@ -12678,31 +12946,31 @@ export namespace Prisma {
     where?: MedicalReferralWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of MedicalReferrals to fetch.
      */
     orderBy?: MedicalReferralOrderByWithRelationInput | MedicalReferralOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for MedicalReferrals.
      */
     cursor?: MedicalReferralWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` MedicalReferrals from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` MedicalReferrals.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of MedicalReferrals.
      */
     distinct?: MedicalReferralScalarFieldEnum | MedicalReferralScalarFieldEnum[]
@@ -12730,25 +12998,25 @@ export namespace Prisma {
     where?: MedicalReferralWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of MedicalReferrals to fetch.
      */
     orderBy?: MedicalReferralOrderByWithRelationInput | MedicalReferralOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing MedicalReferrals.
      */
     cursor?: MedicalReferralWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` MedicalReferrals from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` MedicalReferrals.
      */
     skip?: number
@@ -13078,55 +13346,55 @@ export namespace Prisma {
     where?: ObservationScheduleWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ObservationSchedules to fetch.
      */
     orderBy?: ObservationScheduleOrderByWithRelationInput | ObservationScheduleOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: ObservationScheduleWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ObservationSchedules from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ObservationSchedules.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned ObservationSchedules
     **/
     _count?: true | ObservationScheduleCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: ObservationScheduleAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: ObservationScheduleSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: ObservationScheduleMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: ObservationScheduleMaxAggregateInputType
@@ -13343,13 +13611,13 @@ export namespace Prisma {
      * @example
      * // Get all ObservationSchedules
      * const observationSchedules = await prisma.observationSchedule.findMany()
-     * 
+     *
      * // Get first 10 ObservationSchedules
      * const observationSchedules = await prisma.observationSchedule.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const observationScheduleWithIdOnly = await prisma.observationSchedule.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends ObservationScheduleFindManyArgs>(args?: SelectSubset<T, ObservationScheduleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ObservationSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -13363,7 +13631,7 @@ export namespace Prisma {
      *     // ... data to create a ObservationSchedule
      *   }
      * })
-     * 
+     *
      */
     create<T extends ObservationScheduleCreateArgs>(args: SelectSubset<T, ObservationScheduleCreateArgs<ExtArgs>>): Prisma__ObservationScheduleClient<$Result.GetResult<Prisma.$ObservationSchedulePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -13377,7 +13645,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends ObservationScheduleCreateManyArgs>(args?: SelectSubset<T, ObservationScheduleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -13391,7 +13659,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many ObservationSchedules and only return the `id`
      * const observationScheduleWithIdOnly = await prisma.observationSchedule.createManyAndReturn({
      *   select: { id: true },
@@ -13401,7 +13669,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends ObservationScheduleCreateManyAndReturnArgs>(args?: SelectSubset<T, ObservationScheduleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ObservationSchedulePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -13415,7 +13683,7 @@ export namespace Prisma {
      *     // ... filter to delete one ObservationSchedule
      *   }
      * })
-     * 
+     *
      */
     delete<T extends ObservationScheduleDeleteArgs>(args: SelectSubset<T, ObservationScheduleDeleteArgs<ExtArgs>>): Prisma__ObservationScheduleClient<$Result.GetResult<Prisma.$ObservationSchedulePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -13432,7 +13700,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends ObservationScheduleUpdateArgs>(args: SelectSubset<T, ObservationScheduleUpdateArgs<ExtArgs>>): Prisma__ObservationScheduleClient<$Result.GetResult<Prisma.$ObservationSchedulePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -13446,7 +13714,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends ObservationScheduleDeleteManyArgs>(args?: SelectSubset<T, ObservationScheduleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -13465,7 +13733,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends ObservationScheduleUpdateManyArgs>(args: SelectSubset<T, ObservationScheduleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -13482,7 +13750,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more ObservationSchedules and only return the `id`
      * const observationScheduleWithIdOnly = await prisma.observationSchedule.updateManyAndReturn({
      *   select: { id: true },
@@ -13495,7 +13763,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends ObservationScheduleUpdateManyAndReturnArgs>(args: SelectSubset<T, ObservationScheduleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ObservationSchedulePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -13584,7 +13852,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends ObservationScheduleGroupByArgs,
@@ -13698,7 +13966,7 @@ export namespace Prisma {
     readonly booked: FieldRef<"ObservationSchedule", 'Int'>
     readonly createdAt: FieldRef<"ObservationSchedule", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -13767,31 +14035,31 @@ export namespace Prisma {
     where?: ObservationScheduleWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ObservationSchedules to fetch.
      */
     orderBy?: ObservationScheduleOrderByWithRelationInput | ObservationScheduleOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for ObservationSchedules.
      */
     cursor?: ObservationScheduleWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ObservationSchedules from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ObservationSchedules.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of ObservationSchedules.
      */
     distinct?: ObservationScheduleScalarFieldEnum | ObservationScheduleScalarFieldEnum[]
@@ -13819,31 +14087,31 @@ export namespace Prisma {
     where?: ObservationScheduleWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ObservationSchedules to fetch.
      */
     orderBy?: ObservationScheduleOrderByWithRelationInput | ObservationScheduleOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for ObservationSchedules.
      */
     cursor?: ObservationScheduleWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ObservationSchedules from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ObservationSchedules.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of ObservationSchedules.
      */
     distinct?: ObservationScheduleScalarFieldEnum | ObservationScheduleScalarFieldEnum[]
@@ -13871,25 +14139,25 @@ export namespace Prisma {
     where?: ObservationScheduleWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ObservationSchedules to fetch.
      */
     orderBy?: ObservationScheduleOrderByWithRelationInput | ObservationScheduleOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing ObservationSchedules.
      */
     cursor?: ObservationScheduleWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ObservationSchedules from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ObservationSchedules.
      */
     skip?: number
@@ -14197,43 +14465,43 @@ export namespace Prisma {
     where?: ObservationBookingWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ObservationBookings to fetch.
      */
     orderBy?: ObservationBookingOrderByWithRelationInput | ObservationBookingOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: ObservationBookingWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ObservationBookings from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ObservationBookings.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned ObservationBookings
     **/
     _count?: true | ObservationBookingCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: ObservationBookingMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: ObservationBookingMaxAggregateInputType
@@ -14424,13 +14692,13 @@ export namespace Prisma {
      * @example
      * // Get all ObservationBookings
      * const observationBookings = await prisma.observationBooking.findMany()
-     * 
+     *
      * // Get first 10 ObservationBookings
      * const observationBookings = await prisma.observationBooking.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const observationBookingWithIdOnly = await prisma.observationBooking.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends ObservationBookingFindManyArgs>(args?: SelectSubset<T, ObservationBookingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ObservationBookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -14444,7 +14712,7 @@ export namespace Prisma {
      *     // ... data to create a ObservationBooking
      *   }
      * })
-     * 
+     *
      */
     create<T extends ObservationBookingCreateArgs>(args: SelectSubset<T, ObservationBookingCreateArgs<ExtArgs>>): Prisma__ObservationBookingClient<$Result.GetResult<Prisma.$ObservationBookingPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -14458,7 +14726,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends ObservationBookingCreateManyArgs>(args?: SelectSubset<T, ObservationBookingCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -14472,7 +14740,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many ObservationBookings and only return the `id`
      * const observationBookingWithIdOnly = await prisma.observationBooking.createManyAndReturn({
      *   select: { id: true },
@@ -14482,7 +14750,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends ObservationBookingCreateManyAndReturnArgs>(args?: SelectSubset<T, ObservationBookingCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ObservationBookingPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -14496,7 +14764,7 @@ export namespace Prisma {
      *     // ... filter to delete one ObservationBooking
      *   }
      * })
-     * 
+     *
      */
     delete<T extends ObservationBookingDeleteArgs>(args: SelectSubset<T, ObservationBookingDeleteArgs<ExtArgs>>): Prisma__ObservationBookingClient<$Result.GetResult<Prisma.$ObservationBookingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -14513,7 +14781,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends ObservationBookingUpdateArgs>(args: SelectSubset<T, ObservationBookingUpdateArgs<ExtArgs>>): Prisma__ObservationBookingClient<$Result.GetResult<Prisma.$ObservationBookingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -14527,7 +14795,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends ObservationBookingDeleteManyArgs>(args?: SelectSubset<T, ObservationBookingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -14546,7 +14814,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends ObservationBookingUpdateManyArgs>(args: SelectSubset<T, ObservationBookingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -14563,7 +14831,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more ObservationBookings and only return the `id`
      * const observationBookingWithIdOnly = await prisma.observationBooking.updateManyAndReturn({
      *   select: { id: true },
@@ -14576,7 +14844,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends ObservationBookingUpdateManyAndReturnArgs>(args: SelectSubset<T, ObservationBookingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ObservationBookingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -14665,7 +14933,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends ObservationBookingGroupByArgs,
@@ -14775,7 +15043,7 @@ export namespace Prisma {
     readonly observationScheduleId: FieldRef<"ObservationBooking", 'String'>
     readonly createdAt: FieldRef<"ObservationBooking", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -14844,31 +15112,31 @@ export namespace Prisma {
     where?: ObservationBookingWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ObservationBookings to fetch.
      */
     orderBy?: ObservationBookingOrderByWithRelationInput | ObservationBookingOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for ObservationBookings.
      */
     cursor?: ObservationBookingWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ObservationBookings from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ObservationBookings.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of ObservationBookings.
      */
     distinct?: ObservationBookingScalarFieldEnum | ObservationBookingScalarFieldEnum[]
@@ -14896,31 +15164,31 @@ export namespace Prisma {
     where?: ObservationBookingWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ObservationBookings to fetch.
      */
     orderBy?: ObservationBookingOrderByWithRelationInput | ObservationBookingOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for ObservationBookings.
      */
     cursor?: ObservationBookingWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ObservationBookings from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ObservationBookings.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of ObservationBookings.
      */
     distinct?: ObservationBookingScalarFieldEnum | ObservationBookingScalarFieldEnum[]
@@ -14948,25 +15216,25 @@ export namespace Prisma {
     where?: ObservationBookingWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ObservationBookings to fetch.
      */
     orderBy?: ObservationBookingOrderByWithRelationInput | ObservationBookingOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing ObservationBookings.
      */
     cursor?: ObservationBookingWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ObservationBookings from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ObservationBookings.
      */
     skip?: number
@@ -15290,55 +15558,55 @@ export namespace Prisma {
     where?: ObservationResultWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ObservationResults to fetch.
      */
     orderBy?: ObservationResultOrderByWithRelationInput | ObservationResultOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: ObservationResultWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ObservationResults from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ObservationResults.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned ObservationResults
     **/
     _count?: true | ObservationResultCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: ObservationResultAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: ObservationResultSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: ObservationResultMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: ObservationResultMaxAggregateInputType
@@ -15551,13 +15819,13 @@ export namespace Prisma {
      * @example
      * // Get all ObservationResults
      * const observationResults = await prisma.observationResult.findMany()
-     * 
+     *
      * // Get first 10 ObservationResults
      * const observationResults = await prisma.observationResult.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const observationResultWithIdOnly = await prisma.observationResult.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends ObservationResultFindManyArgs>(args?: SelectSubset<T, ObservationResultFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ObservationResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -15571,7 +15839,7 @@ export namespace Prisma {
      *     // ... data to create a ObservationResult
      *   }
      * })
-     * 
+     *
      */
     create<T extends ObservationResultCreateArgs>(args: SelectSubset<T, ObservationResultCreateArgs<ExtArgs>>): Prisma__ObservationResultClient<$Result.GetResult<Prisma.$ObservationResultPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -15585,7 +15853,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends ObservationResultCreateManyArgs>(args?: SelectSubset<T, ObservationResultCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -15599,7 +15867,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many ObservationResults and only return the `id`
      * const observationResultWithIdOnly = await prisma.observationResult.createManyAndReturn({
      *   select: { id: true },
@@ -15609,7 +15877,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends ObservationResultCreateManyAndReturnArgs>(args?: SelectSubset<T, ObservationResultCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ObservationResultPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -15623,7 +15891,7 @@ export namespace Prisma {
      *     // ... filter to delete one ObservationResult
      *   }
      * })
-     * 
+     *
      */
     delete<T extends ObservationResultDeleteArgs>(args: SelectSubset<T, ObservationResultDeleteArgs<ExtArgs>>): Prisma__ObservationResultClient<$Result.GetResult<Prisma.$ObservationResultPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -15640,7 +15908,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends ObservationResultUpdateArgs>(args: SelectSubset<T, ObservationResultUpdateArgs<ExtArgs>>): Prisma__ObservationResultClient<$Result.GetResult<Prisma.$ObservationResultPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -15654,7 +15922,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends ObservationResultDeleteManyArgs>(args?: SelectSubset<T, ObservationResultDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -15673,7 +15941,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends ObservationResultUpdateManyArgs>(args: SelectSubset<T, ObservationResultUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -15690,7 +15958,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more ObservationResults and only return the `id`
      * const observationResultWithIdOnly = await prisma.observationResult.updateManyAndReturn({
      *   select: { id: true },
@@ -15703,7 +15971,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends ObservationResultUpdateManyAndReturnArgs>(args: SelectSubset<T, ObservationResultUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ObservationResultPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -15792,7 +16060,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends ObservationResultGroupByArgs,
@@ -15905,7 +16173,7 @@ export namespace Prisma {
     readonly rank: FieldRef<"ObservationResult", 'Int'>
     readonly createdAt: FieldRef<"ObservationResult", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -15974,31 +16242,31 @@ export namespace Prisma {
     where?: ObservationResultWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ObservationResults to fetch.
      */
     orderBy?: ObservationResultOrderByWithRelationInput | ObservationResultOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for ObservationResults.
      */
     cursor?: ObservationResultWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ObservationResults from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ObservationResults.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of ObservationResults.
      */
     distinct?: ObservationResultScalarFieldEnum | ObservationResultScalarFieldEnum[]
@@ -16026,31 +16294,31 @@ export namespace Prisma {
     where?: ObservationResultWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ObservationResults to fetch.
      */
     orderBy?: ObservationResultOrderByWithRelationInput | ObservationResultOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for ObservationResults.
      */
     cursor?: ObservationResultWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ObservationResults from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ObservationResults.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of ObservationResults.
      */
     distinct?: ObservationResultScalarFieldEnum | ObservationResultScalarFieldEnum[]
@@ -16078,25 +16346,25 @@ export namespace Prisma {
     where?: ObservationResultWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of ObservationResults to fetch.
      */
     orderBy?: ObservationResultOrderByWithRelationInput | ObservationResultOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing ObservationResults.
      */
     cursor?: ObservationResultWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` ObservationResults from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` ObservationResults.
      */
     skip?: number
@@ -16386,43 +16654,43 @@ export namespace Prisma {
     where?: SpmbObserverWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of SpmbObservers to fetch.
      */
     orderBy?: SpmbObserverOrderByWithRelationInput | SpmbObserverOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: SpmbObserverWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` SpmbObservers from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` SpmbObservers.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned SpmbObservers
     **/
     _count?: true | SpmbObserverCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: SpmbObserverMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: SpmbObserverMaxAggregateInputType
@@ -16598,13 +16866,13 @@ export namespace Prisma {
      * @example
      * // Get all SpmbObservers
      * const spmbObservers = await prisma.spmbObserver.findMany()
-     * 
+     *
      * // Get first 10 SpmbObservers
      * const spmbObservers = await prisma.spmbObserver.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const spmbObserverWithIdOnly = await prisma.spmbObserver.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends SpmbObserverFindManyArgs>(args?: SelectSubset<T, SpmbObserverFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SpmbObserverPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -16618,7 +16886,7 @@ export namespace Prisma {
      *     // ... data to create a SpmbObserver
      *   }
      * })
-     * 
+     *
      */
     create<T extends SpmbObserverCreateArgs>(args: SelectSubset<T, SpmbObserverCreateArgs<ExtArgs>>): Prisma__SpmbObserverClient<$Result.GetResult<Prisma.$SpmbObserverPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -16632,7 +16900,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends SpmbObserverCreateManyArgs>(args?: SelectSubset<T, SpmbObserverCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -16646,7 +16914,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many SpmbObservers and only return the `id`
      * const spmbObserverWithIdOnly = await prisma.spmbObserver.createManyAndReturn({
      *   select: { id: true },
@@ -16656,7 +16924,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends SpmbObserverCreateManyAndReturnArgs>(args?: SelectSubset<T, SpmbObserverCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SpmbObserverPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -16670,7 +16938,7 @@ export namespace Prisma {
      *     // ... filter to delete one SpmbObserver
      *   }
      * })
-     * 
+     *
      */
     delete<T extends SpmbObserverDeleteArgs>(args: SelectSubset<T, SpmbObserverDeleteArgs<ExtArgs>>): Prisma__SpmbObserverClient<$Result.GetResult<Prisma.$SpmbObserverPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -16687,7 +16955,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends SpmbObserverUpdateArgs>(args: SelectSubset<T, SpmbObserverUpdateArgs<ExtArgs>>): Prisma__SpmbObserverClient<$Result.GetResult<Prisma.$SpmbObserverPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -16701,7 +16969,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends SpmbObserverDeleteManyArgs>(args?: SelectSubset<T, SpmbObserverDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -16720,7 +16988,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends SpmbObserverUpdateManyArgs>(args: SelectSubset<T, SpmbObserverUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -16737,7 +17005,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more SpmbObservers and only return the `id`
      * const spmbObserverWithIdOnly = await prisma.spmbObserver.updateManyAndReturn({
      *   select: { id: true },
@@ -16750,7 +17018,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends SpmbObserverUpdateManyAndReturnArgs>(args: SelectSubset<T, SpmbObserverUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SpmbObserverPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -16839,7 +17107,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends SpmbObserverGroupByArgs,
@@ -16948,7 +17216,7 @@ export namespace Prisma {
     readonly isActive: FieldRef<"SpmbObserver", 'Boolean'>
     readonly createdAt: FieldRef<"SpmbObserver", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -17005,31 +17273,31 @@ export namespace Prisma {
     where?: SpmbObserverWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of SpmbObservers to fetch.
      */
     orderBy?: SpmbObserverOrderByWithRelationInput | SpmbObserverOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for SpmbObservers.
      */
     cursor?: SpmbObserverWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` SpmbObservers from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` SpmbObservers.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of SpmbObservers.
      */
     distinct?: SpmbObserverScalarFieldEnum | SpmbObserverScalarFieldEnum[]
@@ -17053,31 +17321,31 @@ export namespace Prisma {
     where?: SpmbObserverWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of SpmbObservers to fetch.
      */
     orderBy?: SpmbObserverOrderByWithRelationInput | SpmbObserverOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for SpmbObservers.
      */
     cursor?: SpmbObserverWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` SpmbObservers from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` SpmbObservers.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of SpmbObservers.
      */
     distinct?: SpmbObserverScalarFieldEnum | SpmbObserverScalarFieldEnum[]
@@ -17101,25 +17369,25 @@ export namespace Prisma {
     where?: SpmbObserverWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of SpmbObservers to fetch.
      */
     orderBy?: SpmbObserverOrderByWithRelationInput | SpmbObserverOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing SpmbObservers.
      */
     cursor?: SpmbObserverWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` SpmbObservers from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` SpmbObservers.
      */
     skip?: number
@@ -17314,6 +17582,2263 @@ export namespace Prisma {
 
 
   /**
+   * Model AdmissionPeriodCounter
+   */
+
+  export type AggregateAdmissionPeriodCounter = {
+    _count: AdmissionPeriodCounterCountAggregateOutputType | null
+    _avg: AdmissionPeriodCounterAvgAggregateOutputType | null
+    _sum: AdmissionPeriodCounterSumAggregateOutputType | null
+    _min: AdmissionPeriodCounterMinAggregateOutputType | null
+    _max: AdmissionPeriodCounterMaxAggregateOutputType | null
+  }
+
+  export type AdmissionPeriodCounterAvgAggregateOutputType = {
+    nextSequence: number | null
+    intakeReserved: number | null
+    acceptedCount: number | null
+  }
+
+  export type AdmissionPeriodCounterSumAggregateOutputType = {
+    nextSequence: number | null
+    intakeReserved: number | null
+    acceptedCount: number | null
+  }
+
+  export type AdmissionPeriodCounterMinAggregateOutputType = {
+    periodId: string | null
+    nextSequence: number | null
+    intakeReserved: number | null
+    acceptedCount: number | null
+  }
+
+  export type AdmissionPeriodCounterMaxAggregateOutputType = {
+    periodId: string | null
+    nextSequence: number | null
+    intakeReserved: number | null
+    acceptedCount: number | null
+  }
+
+  export type AdmissionPeriodCounterCountAggregateOutputType = {
+    periodId: number
+    nextSequence: number
+    intakeReserved: number
+    acceptedCount: number
+    _all: number
+  }
+
+
+  export type AdmissionPeriodCounterAvgAggregateInputType = {
+    nextSequence?: true
+    intakeReserved?: true
+    acceptedCount?: true
+  }
+
+  export type AdmissionPeriodCounterSumAggregateInputType = {
+    nextSequence?: true
+    intakeReserved?: true
+    acceptedCount?: true
+  }
+
+  export type AdmissionPeriodCounterMinAggregateInputType = {
+    periodId?: true
+    nextSequence?: true
+    intakeReserved?: true
+    acceptedCount?: true
+  }
+
+  export type AdmissionPeriodCounterMaxAggregateInputType = {
+    periodId?: true
+    nextSequence?: true
+    intakeReserved?: true
+    acceptedCount?: true
+  }
+
+  export type AdmissionPeriodCounterCountAggregateInputType = {
+    periodId?: true
+    nextSequence?: true
+    intakeReserved?: true
+    acceptedCount?: true
+    _all?: true
+  }
+
+  export type AdmissionPeriodCounterAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdmissionPeriodCounter to aggregate.
+     */
+    where?: AdmissionPeriodCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of AdmissionPeriodCounters to fetch.
+     */
+    orderBy?: AdmissionPeriodCounterOrderByWithRelationInput | AdmissionPeriodCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the start position
+     */
+    cursor?: AdmissionPeriodCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` AdmissionPeriodCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` AdmissionPeriodCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Count returned AdmissionPeriodCounters
+    **/
+    _count?: true | AdmissionPeriodCounterCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to average
+    **/
+    _avg?: AdmissionPeriodCounterAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to sum
+    **/
+    _sum?: AdmissionPeriodCounterSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to find the minimum value
+    **/
+    _min?: AdmissionPeriodCounterMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to find the maximum value
+    **/
+    _max?: AdmissionPeriodCounterMaxAggregateInputType
+  }
+
+  export type GetAdmissionPeriodCounterAggregateType<T extends AdmissionPeriodCounterAggregateArgs> = {
+        [P in keyof T & keyof AggregateAdmissionPeriodCounter]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAdmissionPeriodCounter[P]>
+      : GetScalarType<T[P], AggregateAdmissionPeriodCounter[P]>
+  }
+
+
+
+
+  export type AdmissionPeriodCounterGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdmissionPeriodCounterWhereInput
+    orderBy?: AdmissionPeriodCounterOrderByWithAggregationInput | AdmissionPeriodCounterOrderByWithAggregationInput[]
+    by: AdmissionPeriodCounterScalarFieldEnum[] | AdmissionPeriodCounterScalarFieldEnum
+    having?: AdmissionPeriodCounterScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AdmissionPeriodCounterCountAggregateInputType | true
+    _avg?: AdmissionPeriodCounterAvgAggregateInputType
+    _sum?: AdmissionPeriodCounterSumAggregateInputType
+    _min?: AdmissionPeriodCounterMinAggregateInputType
+    _max?: AdmissionPeriodCounterMaxAggregateInputType
+  }
+
+  export type AdmissionPeriodCounterGroupByOutputType = {
+    periodId: string
+    nextSequence: number
+    intakeReserved: number
+    acceptedCount: number
+    _count: AdmissionPeriodCounterCountAggregateOutputType | null
+    _avg: AdmissionPeriodCounterAvgAggregateOutputType | null
+    _sum: AdmissionPeriodCounterSumAggregateOutputType | null
+    _min: AdmissionPeriodCounterMinAggregateOutputType | null
+    _max: AdmissionPeriodCounterMaxAggregateOutputType | null
+  }
+
+  type GetAdmissionPeriodCounterGroupByPayload<T extends AdmissionPeriodCounterGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AdmissionPeriodCounterGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AdmissionPeriodCounterGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AdmissionPeriodCounterGroupByOutputType[P]>
+            : GetScalarType<T[P], AdmissionPeriodCounterGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AdmissionPeriodCounterSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    periodId?: boolean
+    nextSequence?: boolean
+    intakeReserved?: boolean
+    acceptedCount?: boolean
+    period?: boolean | AdmissionPeriodDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["admissionPeriodCounter"]>
+
+  export type AdmissionPeriodCounterSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    periodId?: boolean
+    nextSequence?: boolean
+    intakeReserved?: boolean
+    acceptedCount?: boolean
+    period?: boolean | AdmissionPeriodDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["admissionPeriodCounter"]>
+
+  export type AdmissionPeriodCounterSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    periodId?: boolean
+    nextSequence?: boolean
+    intakeReserved?: boolean
+    acceptedCount?: boolean
+    period?: boolean | AdmissionPeriodDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["admissionPeriodCounter"]>
+
+  export type AdmissionPeriodCounterSelectScalar = {
+    periodId?: boolean
+    nextSequence?: boolean
+    intakeReserved?: boolean
+    acceptedCount?: boolean
+  }
+
+  export type AdmissionPeriodCounterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"periodId" | "nextSequence" | "intakeReserved" | "acceptedCount", ExtArgs["result"]["admissionPeriodCounter"]>
+  export type AdmissionPeriodCounterInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    period?: boolean | AdmissionPeriodDefaultArgs<ExtArgs>
+  }
+  export type AdmissionPeriodCounterIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    period?: boolean | AdmissionPeriodDefaultArgs<ExtArgs>
+  }
+  export type AdmissionPeriodCounterIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    period?: boolean | AdmissionPeriodDefaultArgs<ExtArgs>
+  }
+
+  export type $AdmissionPeriodCounterPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AdmissionPeriodCounter"
+    objects: {
+      period: Prisma.$AdmissionPeriodPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      periodId: string
+      nextSequence: number
+      intakeReserved: number
+      acceptedCount: number
+    }, ExtArgs["result"]["admissionPeriodCounter"]>
+    composites: {}
+  }
+
+  type AdmissionPeriodCounterGetPayload<S extends boolean | null | undefined | AdmissionPeriodCounterDefaultArgs> = $Result.GetResult<Prisma.$AdmissionPeriodCounterPayload, S>
+
+  type AdmissionPeriodCounterCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AdmissionPeriodCounterFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AdmissionPeriodCounterCountAggregateInputType | true
+    }
+
+  export interface AdmissionPeriodCounterDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AdmissionPeriodCounter'], meta: { name: 'AdmissionPeriodCounter' } }
+    /**
+     * Find zero or one AdmissionPeriodCounter that matches the filter.
+     * @param {AdmissionPeriodCounterFindUniqueArgs} args - Arguments to find a AdmissionPeriodCounter
+     * @example
+     * // Get one AdmissionPeriodCounter
+     * const admissionPeriodCounter = await prisma.admissionPeriodCounter.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AdmissionPeriodCounterFindUniqueArgs>(args: SelectSubset<T, AdmissionPeriodCounterFindUniqueArgs<ExtArgs>>): Prisma__AdmissionPeriodCounterClient<$Result.GetResult<Prisma.$AdmissionPeriodCounterPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AdmissionPeriodCounter that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AdmissionPeriodCounterFindUniqueOrThrowArgs} args - Arguments to find a AdmissionPeriodCounter
+     * @example
+     * // Get one AdmissionPeriodCounter
+     * const admissionPeriodCounter = await prisma.admissionPeriodCounter.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AdmissionPeriodCounterFindUniqueOrThrowArgs>(args: SelectSubset<T, AdmissionPeriodCounterFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AdmissionPeriodCounterClient<$Result.GetResult<Prisma.$AdmissionPeriodCounterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdmissionPeriodCounter that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdmissionPeriodCounterFindFirstArgs} args - Arguments to find a AdmissionPeriodCounter
+     * @example
+     * // Get one AdmissionPeriodCounter
+     * const admissionPeriodCounter = await prisma.admissionPeriodCounter.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AdmissionPeriodCounterFindFirstArgs>(args?: SelectSubset<T, AdmissionPeriodCounterFindFirstArgs<ExtArgs>>): Prisma__AdmissionPeriodCounterClient<$Result.GetResult<Prisma.$AdmissionPeriodCounterPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdmissionPeriodCounter that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdmissionPeriodCounterFindFirstOrThrowArgs} args - Arguments to find a AdmissionPeriodCounter
+     * @example
+     * // Get one AdmissionPeriodCounter
+     * const admissionPeriodCounter = await prisma.admissionPeriodCounter.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AdmissionPeriodCounterFindFirstOrThrowArgs>(args?: SelectSubset<T, AdmissionPeriodCounterFindFirstOrThrowArgs<ExtArgs>>): Prisma__AdmissionPeriodCounterClient<$Result.GetResult<Prisma.$AdmissionPeriodCounterPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AdmissionPeriodCounters that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdmissionPeriodCounterFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AdmissionPeriodCounters
+     * const admissionPeriodCounters = await prisma.admissionPeriodCounter.findMany()
+     *
+     * // Get first 10 AdmissionPeriodCounters
+     * const admissionPeriodCounters = await prisma.admissionPeriodCounter.findMany({ take: 10 })
+     *
+     * // Only select the `periodId`
+     * const admissionPeriodCounterWithPeriodIdOnly = await prisma.admissionPeriodCounter.findMany({ select: { periodId: true } })
+     *
+     */
+    findMany<T extends AdmissionPeriodCounterFindManyArgs>(args?: SelectSubset<T, AdmissionPeriodCounterFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdmissionPeriodCounterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AdmissionPeriodCounter.
+     * @param {AdmissionPeriodCounterCreateArgs} args - Arguments to create a AdmissionPeriodCounter.
+     * @example
+     * // Create one AdmissionPeriodCounter
+     * const AdmissionPeriodCounter = await prisma.admissionPeriodCounter.create({
+     *   data: {
+     *     // ... data to create a AdmissionPeriodCounter
+     *   }
+     * })
+     *
+     */
+    create<T extends AdmissionPeriodCounterCreateArgs>(args: SelectSubset<T, AdmissionPeriodCounterCreateArgs<ExtArgs>>): Prisma__AdmissionPeriodCounterClient<$Result.GetResult<Prisma.$AdmissionPeriodCounterPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AdmissionPeriodCounters.
+     * @param {AdmissionPeriodCounterCreateManyArgs} args - Arguments to create many AdmissionPeriodCounters.
+     * @example
+     * // Create many AdmissionPeriodCounters
+     * const admissionPeriodCounter = await prisma.admissionPeriodCounter.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     */
+    createMany<T extends AdmissionPeriodCounterCreateManyArgs>(args?: SelectSubset<T, AdmissionPeriodCounterCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AdmissionPeriodCounters and returns the data saved in the database.
+     * @param {AdmissionPeriodCounterCreateManyAndReturnArgs} args - Arguments to create many AdmissionPeriodCounters.
+     * @example
+     * // Create many AdmissionPeriodCounters
+     * const admissionPeriodCounter = await prisma.admissionPeriodCounter.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     * // Create many AdmissionPeriodCounters and only return the `periodId`
+     * const admissionPeriodCounterWithPeriodIdOnly = await prisma.admissionPeriodCounter.createManyAndReturn({
+     *   select: { periodId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     *
+     */
+    createManyAndReturn<T extends AdmissionPeriodCounterCreateManyAndReturnArgs>(args?: SelectSubset<T, AdmissionPeriodCounterCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdmissionPeriodCounterPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AdmissionPeriodCounter.
+     * @param {AdmissionPeriodCounterDeleteArgs} args - Arguments to delete one AdmissionPeriodCounter.
+     * @example
+     * // Delete one AdmissionPeriodCounter
+     * const AdmissionPeriodCounter = await prisma.admissionPeriodCounter.delete({
+     *   where: {
+     *     // ... filter to delete one AdmissionPeriodCounter
+     *   }
+     * })
+     *
+     */
+    delete<T extends AdmissionPeriodCounterDeleteArgs>(args: SelectSubset<T, AdmissionPeriodCounterDeleteArgs<ExtArgs>>): Prisma__AdmissionPeriodCounterClient<$Result.GetResult<Prisma.$AdmissionPeriodCounterPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AdmissionPeriodCounter.
+     * @param {AdmissionPeriodCounterUpdateArgs} args - Arguments to update one AdmissionPeriodCounter.
+     * @example
+     * // Update one AdmissionPeriodCounter
+     * const admissionPeriodCounter = await prisma.admissionPeriodCounter.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     *
+     */
+    update<T extends AdmissionPeriodCounterUpdateArgs>(args: SelectSubset<T, AdmissionPeriodCounterUpdateArgs<ExtArgs>>): Prisma__AdmissionPeriodCounterClient<$Result.GetResult<Prisma.$AdmissionPeriodCounterPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AdmissionPeriodCounters.
+     * @param {AdmissionPeriodCounterDeleteManyArgs} args - Arguments to filter AdmissionPeriodCounters to delete.
+     * @example
+     * // Delete a few AdmissionPeriodCounters
+     * const { count } = await prisma.admissionPeriodCounter.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     *
+     */
+    deleteMany<T extends AdmissionPeriodCounterDeleteManyArgs>(args?: SelectSubset<T, AdmissionPeriodCounterDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdmissionPeriodCounters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdmissionPeriodCounterUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AdmissionPeriodCounters
+     * const admissionPeriodCounter = await prisma.admissionPeriodCounter.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     *
+     */
+    updateMany<T extends AdmissionPeriodCounterUpdateManyArgs>(args: SelectSubset<T, AdmissionPeriodCounterUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdmissionPeriodCounters and returns the data updated in the database.
+     * @param {AdmissionPeriodCounterUpdateManyAndReturnArgs} args - Arguments to update many AdmissionPeriodCounters.
+     * @example
+     * // Update many AdmissionPeriodCounters
+     * const admissionPeriodCounter = await prisma.admissionPeriodCounter.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     * // Update zero or more AdmissionPeriodCounters and only return the `periodId`
+     * const admissionPeriodCounterWithPeriodIdOnly = await prisma.admissionPeriodCounter.updateManyAndReturn({
+     *   select: { periodId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     *
+     */
+    updateManyAndReturn<T extends AdmissionPeriodCounterUpdateManyAndReturnArgs>(args: SelectSubset<T, AdmissionPeriodCounterUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdmissionPeriodCounterPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AdmissionPeriodCounter.
+     * @param {AdmissionPeriodCounterUpsertArgs} args - Arguments to update or create a AdmissionPeriodCounter.
+     * @example
+     * // Update or create a AdmissionPeriodCounter
+     * const admissionPeriodCounter = await prisma.admissionPeriodCounter.upsert({
+     *   create: {
+     *     // ... data to create a AdmissionPeriodCounter
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AdmissionPeriodCounter we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AdmissionPeriodCounterUpsertArgs>(args: SelectSubset<T, AdmissionPeriodCounterUpsertArgs<ExtArgs>>): Prisma__AdmissionPeriodCounterClient<$Result.GetResult<Prisma.$AdmissionPeriodCounterPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AdmissionPeriodCounters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdmissionPeriodCounterCountArgs} args - Arguments to filter AdmissionPeriodCounters to count.
+     * @example
+     * // Count the number of AdmissionPeriodCounters
+     * const count = await prisma.admissionPeriodCounter.count({
+     *   where: {
+     *     // ... the filter for the AdmissionPeriodCounters we want to count
+     *   }
+     * })
+    **/
+    count<T extends AdmissionPeriodCounterCountArgs>(
+      args?: Subset<T, AdmissionPeriodCounterCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AdmissionPeriodCounterCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AdmissionPeriodCounter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdmissionPeriodCounterAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AdmissionPeriodCounterAggregateArgs>(args: Subset<T, AdmissionPeriodCounterAggregateArgs>): Prisma.PrismaPromise<GetAdmissionPeriodCounterAggregateType<T>>
+
+    /**
+     * Group by AdmissionPeriodCounter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdmissionPeriodCounterGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     *
+    **/
+    groupBy<
+      T extends AdmissionPeriodCounterGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AdmissionPeriodCounterGroupByArgs['orderBy'] }
+        : { orderBy?: AdmissionPeriodCounterGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AdmissionPeriodCounterGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAdmissionPeriodCounterGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AdmissionPeriodCounter model
+   */
+  readonly fields: AdmissionPeriodCounterFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AdmissionPeriodCounter.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AdmissionPeriodCounterClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    period<T extends AdmissionPeriodDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AdmissionPeriodDefaultArgs<ExtArgs>>): Prisma__AdmissionPeriodClient<$Result.GetResult<Prisma.$AdmissionPeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AdmissionPeriodCounter model
+   */
+  interface AdmissionPeriodCounterFieldRefs {
+    readonly periodId: FieldRef<"AdmissionPeriodCounter", 'String'>
+    readonly nextSequence: FieldRef<"AdmissionPeriodCounter", 'Int'>
+    readonly intakeReserved: FieldRef<"AdmissionPeriodCounter", 'Int'>
+    readonly acceptedCount: FieldRef<"AdmissionPeriodCounter", 'Int'>
+  }
+
+
+  // Custom InputTypes
+  /**
+   * AdmissionPeriodCounter findUnique
+   */
+  export type AdmissionPeriodCounterFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterInclude<ExtArgs> | null
+    /**
+     * Filter, which AdmissionPeriodCounter to fetch.
+     */
+    where: AdmissionPeriodCounterWhereUniqueInput
+  }
+
+  /**
+   * AdmissionPeriodCounter findUniqueOrThrow
+   */
+  export type AdmissionPeriodCounterFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterInclude<ExtArgs> | null
+    /**
+     * Filter, which AdmissionPeriodCounter to fetch.
+     */
+    where: AdmissionPeriodCounterWhereUniqueInput
+  }
+
+  /**
+   * AdmissionPeriodCounter findFirst
+   */
+  export type AdmissionPeriodCounterFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterInclude<ExtArgs> | null
+    /**
+     * Filter, which AdmissionPeriodCounter to fetch.
+     */
+    where?: AdmissionPeriodCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of AdmissionPeriodCounters to fetch.
+     */
+    orderBy?: AdmissionPeriodCounterOrderByWithRelationInput | AdmissionPeriodCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for searching for AdmissionPeriodCounters.
+     */
+    cursor?: AdmissionPeriodCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` AdmissionPeriodCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` AdmissionPeriodCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     *
+     * Filter by unique combinations of AdmissionPeriodCounters.
+     */
+    distinct?: AdmissionPeriodCounterScalarFieldEnum | AdmissionPeriodCounterScalarFieldEnum[]
+  }
+
+  /**
+   * AdmissionPeriodCounter findFirstOrThrow
+   */
+  export type AdmissionPeriodCounterFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterInclude<ExtArgs> | null
+    /**
+     * Filter, which AdmissionPeriodCounter to fetch.
+     */
+    where?: AdmissionPeriodCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of AdmissionPeriodCounters to fetch.
+     */
+    orderBy?: AdmissionPeriodCounterOrderByWithRelationInput | AdmissionPeriodCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for searching for AdmissionPeriodCounters.
+     */
+    cursor?: AdmissionPeriodCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` AdmissionPeriodCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` AdmissionPeriodCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     *
+     * Filter by unique combinations of AdmissionPeriodCounters.
+     */
+    distinct?: AdmissionPeriodCounterScalarFieldEnum | AdmissionPeriodCounterScalarFieldEnum[]
+  }
+
+  /**
+   * AdmissionPeriodCounter findMany
+   */
+  export type AdmissionPeriodCounterFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterInclude<ExtArgs> | null
+    /**
+     * Filter, which AdmissionPeriodCounters to fetch.
+     */
+    where?: AdmissionPeriodCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of AdmissionPeriodCounters to fetch.
+     */
+    orderBy?: AdmissionPeriodCounterOrderByWithRelationInput | AdmissionPeriodCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for listing AdmissionPeriodCounters.
+     */
+    cursor?: AdmissionPeriodCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` AdmissionPeriodCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` AdmissionPeriodCounters.
+     */
+    skip?: number
+    distinct?: AdmissionPeriodCounterScalarFieldEnum | AdmissionPeriodCounterScalarFieldEnum[]
+  }
+
+  /**
+   * AdmissionPeriodCounter create
+   */
+  export type AdmissionPeriodCounterCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AdmissionPeriodCounter.
+     */
+    data: XOR<AdmissionPeriodCounterCreateInput, AdmissionPeriodCounterUncheckedCreateInput>
+  }
+
+  /**
+   * AdmissionPeriodCounter createMany
+   */
+  export type AdmissionPeriodCounterCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AdmissionPeriodCounters.
+     */
+    data: AdmissionPeriodCounterCreateManyInput | AdmissionPeriodCounterCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AdmissionPeriodCounter createManyAndReturn
+   */
+  export type AdmissionPeriodCounterCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * The data used to create many AdmissionPeriodCounters.
+     */
+    data: AdmissionPeriodCounterCreateManyInput | AdmissionPeriodCounterCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdmissionPeriodCounter update
+   */
+  export type AdmissionPeriodCounterUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AdmissionPeriodCounter.
+     */
+    data: XOR<AdmissionPeriodCounterUpdateInput, AdmissionPeriodCounterUncheckedUpdateInput>
+    /**
+     * Choose, which AdmissionPeriodCounter to update.
+     */
+    where: AdmissionPeriodCounterWhereUniqueInput
+  }
+
+  /**
+   * AdmissionPeriodCounter updateMany
+   */
+  export type AdmissionPeriodCounterUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AdmissionPeriodCounters.
+     */
+    data: XOR<AdmissionPeriodCounterUpdateManyMutationInput, AdmissionPeriodCounterUncheckedUpdateManyInput>
+    /**
+     * Filter which AdmissionPeriodCounters to update
+     */
+    where?: AdmissionPeriodCounterWhereInput
+    /**
+     * Limit how many AdmissionPeriodCounters to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdmissionPeriodCounter updateManyAndReturn
+   */
+  export type AdmissionPeriodCounterUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * The data used to update AdmissionPeriodCounters.
+     */
+    data: XOR<AdmissionPeriodCounterUpdateManyMutationInput, AdmissionPeriodCounterUncheckedUpdateManyInput>
+    /**
+     * Filter which AdmissionPeriodCounters to update
+     */
+    where?: AdmissionPeriodCounterWhereInput
+    /**
+     * Limit how many AdmissionPeriodCounters to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdmissionPeriodCounter upsert
+   */
+  export type AdmissionPeriodCounterUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AdmissionPeriodCounter to update in case it exists.
+     */
+    where: AdmissionPeriodCounterWhereUniqueInput
+    /**
+     * In case the AdmissionPeriodCounter found by the `where` argument doesn't exist, create a new AdmissionPeriodCounter with this data.
+     */
+    create: XOR<AdmissionPeriodCounterCreateInput, AdmissionPeriodCounterUncheckedCreateInput>
+    /**
+     * In case the AdmissionPeriodCounter was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AdmissionPeriodCounterUpdateInput, AdmissionPeriodCounterUncheckedUpdateInput>
+  }
+
+  /**
+   * AdmissionPeriodCounter delete
+   */
+  export type AdmissionPeriodCounterDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterInclude<ExtArgs> | null
+    /**
+     * Filter which AdmissionPeriodCounter to delete.
+     */
+    where: AdmissionPeriodCounterWhereUniqueInput
+  }
+
+  /**
+   * AdmissionPeriodCounter deleteMany
+   */
+  export type AdmissionPeriodCounterDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdmissionPeriodCounters to delete
+     */
+    where?: AdmissionPeriodCounterWhereInput
+    /**
+     * Limit how many AdmissionPeriodCounters to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdmissionPeriodCounter without action
+   */
+  export type AdmissionPeriodCounterDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdmissionPeriodCounter
+     */
+    select?: AdmissionPeriodCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdmissionPeriodCounter
+     */
+    omit?: AdmissionPeriodCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdmissionPeriodCounterInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model HandoffOutbox
+   */
+
+  export type AggregateHandoffOutbox = {
+    _count: HandoffOutboxCountAggregateOutputType | null
+    _avg: HandoffOutboxAvgAggregateOutputType | null
+    _sum: HandoffOutboxSumAggregateOutputType | null
+    _min: HandoffOutboxMinAggregateOutputType | null
+    _max: HandoffOutboxMaxAggregateOutputType | null
+  }
+
+  export type HandoffOutboxAvgAggregateOutputType = {
+    attempts: number | null
+  }
+
+  export type HandoffOutboxSumAggregateOutputType = {
+    attempts: number | null
+  }
+
+  export type HandoffOutboxMinAggregateOutputType = {
+    id: string | null
+    registrationId: string | null
+    idempotencyKey: string | null
+    payloadHash: string | null
+    status: string | null
+    attempts: number | null
+    lastError: string | null
+    destinationEnrollmentId: string | null
+    deliveredAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type HandoffOutboxMaxAggregateOutputType = {
+    id: string | null
+    registrationId: string | null
+    idempotencyKey: string | null
+    payloadHash: string | null
+    status: string | null
+    attempts: number | null
+    lastError: string | null
+    destinationEnrollmentId: string | null
+    deliveredAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type HandoffOutboxCountAggregateOutputType = {
+    id: number
+    registrationId: number
+    idempotencyKey: number
+    payloadHash: number
+    status: number
+    attempts: number
+    lastError: number
+    destinationEnrollmentId: number
+    deliveredAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type HandoffOutboxAvgAggregateInputType = {
+    attempts?: true
+  }
+
+  export type HandoffOutboxSumAggregateInputType = {
+    attempts?: true
+  }
+
+  export type HandoffOutboxMinAggregateInputType = {
+    id?: true
+    registrationId?: true
+    idempotencyKey?: true
+    payloadHash?: true
+    status?: true
+    attempts?: true
+    lastError?: true
+    destinationEnrollmentId?: true
+    deliveredAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type HandoffOutboxMaxAggregateInputType = {
+    id?: true
+    registrationId?: true
+    idempotencyKey?: true
+    payloadHash?: true
+    status?: true
+    attempts?: true
+    lastError?: true
+    destinationEnrollmentId?: true
+    deliveredAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type HandoffOutboxCountAggregateInputType = {
+    id?: true
+    registrationId?: true
+    idempotencyKey?: true
+    payloadHash?: true
+    status?: true
+    attempts?: true
+    lastError?: true
+    destinationEnrollmentId?: true
+    deliveredAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type HandoffOutboxAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which HandoffOutbox to aggregate.
+     */
+    where?: HandoffOutboxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of HandoffOutboxes to fetch.
+     */
+    orderBy?: HandoffOutboxOrderByWithRelationInput | HandoffOutboxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the start position
+     */
+    cursor?: HandoffOutboxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` HandoffOutboxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` HandoffOutboxes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Count returned HandoffOutboxes
+    **/
+    _count?: true | HandoffOutboxCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to average
+    **/
+    _avg?: HandoffOutboxAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to sum
+    **/
+    _sum?: HandoffOutboxSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to find the minimum value
+    **/
+    _min?: HandoffOutboxMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to find the maximum value
+    **/
+    _max?: HandoffOutboxMaxAggregateInputType
+  }
+
+  export type GetHandoffOutboxAggregateType<T extends HandoffOutboxAggregateArgs> = {
+        [P in keyof T & keyof AggregateHandoffOutbox]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateHandoffOutbox[P]>
+      : GetScalarType<T[P], AggregateHandoffOutbox[P]>
+  }
+
+
+
+
+  export type HandoffOutboxGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HandoffOutboxWhereInput
+    orderBy?: HandoffOutboxOrderByWithAggregationInput | HandoffOutboxOrderByWithAggregationInput[]
+    by: HandoffOutboxScalarFieldEnum[] | HandoffOutboxScalarFieldEnum
+    having?: HandoffOutboxScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: HandoffOutboxCountAggregateInputType | true
+    _avg?: HandoffOutboxAvgAggregateInputType
+    _sum?: HandoffOutboxSumAggregateInputType
+    _min?: HandoffOutboxMinAggregateInputType
+    _max?: HandoffOutboxMaxAggregateInputType
+  }
+
+  export type HandoffOutboxGroupByOutputType = {
+    id: string
+    registrationId: string
+    idempotencyKey: string
+    payloadHash: string
+    status: string
+    attempts: number
+    lastError: string | null
+    destinationEnrollmentId: string | null
+    deliveredAt: Date | null
+    createdAt: Date
+    updatedAt: Date | null
+    _count: HandoffOutboxCountAggregateOutputType | null
+    _avg: HandoffOutboxAvgAggregateOutputType | null
+    _sum: HandoffOutboxSumAggregateOutputType | null
+    _min: HandoffOutboxMinAggregateOutputType | null
+    _max: HandoffOutboxMaxAggregateOutputType | null
+  }
+
+  type GetHandoffOutboxGroupByPayload<T extends HandoffOutboxGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<HandoffOutboxGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof HandoffOutboxGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], HandoffOutboxGroupByOutputType[P]>
+            : GetScalarType<T[P], HandoffOutboxGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type HandoffOutboxSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    registrationId?: boolean
+    idempotencyKey?: boolean
+    payloadHash?: boolean
+    status?: boolean
+    attempts?: boolean
+    lastError?: boolean
+    destinationEnrollmentId?: boolean
+    deliveredAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    registration?: boolean | RegistrationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["handoffOutbox"]>
+
+  export type HandoffOutboxSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    registrationId?: boolean
+    idempotencyKey?: boolean
+    payloadHash?: boolean
+    status?: boolean
+    attempts?: boolean
+    lastError?: boolean
+    destinationEnrollmentId?: boolean
+    deliveredAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    registration?: boolean | RegistrationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["handoffOutbox"]>
+
+  export type HandoffOutboxSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    registrationId?: boolean
+    idempotencyKey?: boolean
+    payloadHash?: boolean
+    status?: boolean
+    attempts?: boolean
+    lastError?: boolean
+    destinationEnrollmentId?: boolean
+    deliveredAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    registration?: boolean | RegistrationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["handoffOutbox"]>
+
+  export type HandoffOutboxSelectScalar = {
+    id?: boolean
+    registrationId?: boolean
+    idempotencyKey?: boolean
+    payloadHash?: boolean
+    status?: boolean
+    attempts?: boolean
+    lastError?: boolean
+    destinationEnrollmentId?: boolean
+    deliveredAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type HandoffOutboxOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registrationId" | "idempotencyKey" | "payloadHash" | "status" | "attempts" | "lastError" | "destinationEnrollmentId" | "deliveredAt" | "createdAt" | "updatedAt", ExtArgs["result"]["handoffOutbox"]>
+  export type HandoffOutboxInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    registration?: boolean | RegistrationDefaultArgs<ExtArgs>
+  }
+  export type HandoffOutboxIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    registration?: boolean | RegistrationDefaultArgs<ExtArgs>
+  }
+  export type HandoffOutboxIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    registration?: boolean | RegistrationDefaultArgs<ExtArgs>
+  }
+
+  export type $HandoffOutboxPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "HandoffOutbox"
+    objects: {
+      registration: Prisma.$RegistrationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      registrationId: string
+      idempotencyKey: string
+      payloadHash: string
+      status: string
+      attempts: number
+      lastError: string | null
+      destinationEnrollmentId: string | null
+      deliveredAt: Date | null
+      createdAt: Date
+      updatedAt: Date | null
+    }, ExtArgs["result"]["handoffOutbox"]>
+    composites: {}
+  }
+
+  type HandoffOutboxGetPayload<S extends boolean | null | undefined | HandoffOutboxDefaultArgs> = $Result.GetResult<Prisma.$HandoffOutboxPayload, S>
+
+  type HandoffOutboxCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<HandoffOutboxFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: HandoffOutboxCountAggregateInputType | true
+    }
+
+  export interface HandoffOutboxDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['HandoffOutbox'], meta: { name: 'HandoffOutbox' } }
+    /**
+     * Find zero or one HandoffOutbox that matches the filter.
+     * @param {HandoffOutboxFindUniqueArgs} args - Arguments to find a HandoffOutbox
+     * @example
+     * // Get one HandoffOutbox
+     * const handoffOutbox = await prisma.handoffOutbox.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends HandoffOutboxFindUniqueArgs>(args: SelectSubset<T, HandoffOutboxFindUniqueArgs<ExtArgs>>): Prisma__HandoffOutboxClient<$Result.GetResult<Prisma.$HandoffOutboxPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one HandoffOutbox that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {HandoffOutboxFindUniqueOrThrowArgs} args - Arguments to find a HandoffOutbox
+     * @example
+     * // Get one HandoffOutbox
+     * const handoffOutbox = await prisma.handoffOutbox.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends HandoffOutboxFindUniqueOrThrowArgs>(args: SelectSubset<T, HandoffOutboxFindUniqueOrThrowArgs<ExtArgs>>): Prisma__HandoffOutboxClient<$Result.GetResult<Prisma.$HandoffOutboxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first HandoffOutbox that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HandoffOutboxFindFirstArgs} args - Arguments to find a HandoffOutbox
+     * @example
+     * // Get one HandoffOutbox
+     * const handoffOutbox = await prisma.handoffOutbox.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends HandoffOutboxFindFirstArgs>(args?: SelectSubset<T, HandoffOutboxFindFirstArgs<ExtArgs>>): Prisma__HandoffOutboxClient<$Result.GetResult<Prisma.$HandoffOutboxPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first HandoffOutbox that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HandoffOutboxFindFirstOrThrowArgs} args - Arguments to find a HandoffOutbox
+     * @example
+     * // Get one HandoffOutbox
+     * const handoffOutbox = await prisma.handoffOutbox.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends HandoffOutboxFindFirstOrThrowArgs>(args?: SelectSubset<T, HandoffOutboxFindFirstOrThrowArgs<ExtArgs>>): Prisma__HandoffOutboxClient<$Result.GetResult<Prisma.$HandoffOutboxPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more HandoffOutboxes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HandoffOutboxFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all HandoffOutboxes
+     * const handoffOutboxes = await prisma.handoffOutbox.findMany()
+     *
+     * // Get first 10 HandoffOutboxes
+     * const handoffOutboxes = await prisma.handoffOutbox.findMany({ take: 10 })
+     *
+     * // Only select the `id`
+     * const handoffOutboxWithIdOnly = await prisma.handoffOutbox.findMany({ select: { id: true } })
+     *
+     */
+    findMany<T extends HandoffOutboxFindManyArgs>(args?: SelectSubset<T, HandoffOutboxFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HandoffOutboxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a HandoffOutbox.
+     * @param {HandoffOutboxCreateArgs} args - Arguments to create a HandoffOutbox.
+     * @example
+     * // Create one HandoffOutbox
+     * const HandoffOutbox = await prisma.handoffOutbox.create({
+     *   data: {
+     *     // ... data to create a HandoffOutbox
+     *   }
+     * })
+     *
+     */
+    create<T extends HandoffOutboxCreateArgs>(args: SelectSubset<T, HandoffOutboxCreateArgs<ExtArgs>>): Prisma__HandoffOutboxClient<$Result.GetResult<Prisma.$HandoffOutboxPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many HandoffOutboxes.
+     * @param {HandoffOutboxCreateManyArgs} args - Arguments to create many HandoffOutboxes.
+     * @example
+     * // Create many HandoffOutboxes
+     * const handoffOutbox = await prisma.handoffOutbox.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     */
+    createMany<T extends HandoffOutboxCreateManyArgs>(args?: SelectSubset<T, HandoffOutboxCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many HandoffOutboxes and returns the data saved in the database.
+     * @param {HandoffOutboxCreateManyAndReturnArgs} args - Arguments to create many HandoffOutboxes.
+     * @example
+     * // Create many HandoffOutboxes
+     * const handoffOutbox = await prisma.handoffOutbox.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     * // Create many HandoffOutboxes and only return the `id`
+     * const handoffOutboxWithIdOnly = await prisma.handoffOutbox.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     *
+     */
+    createManyAndReturn<T extends HandoffOutboxCreateManyAndReturnArgs>(args?: SelectSubset<T, HandoffOutboxCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HandoffOutboxPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a HandoffOutbox.
+     * @param {HandoffOutboxDeleteArgs} args - Arguments to delete one HandoffOutbox.
+     * @example
+     * // Delete one HandoffOutbox
+     * const HandoffOutbox = await prisma.handoffOutbox.delete({
+     *   where: {
+     *     // ... filter to delete one HandoffOutbox
+     *   }
+     * })
+     *
+     */
+    delete<T extends HandoffOutboxDeleteArgs>(args: SelectSubset<T, HandoffOutboxDeleteArgs<ExtArgs>>): Prisma__HandoffOutboxClient<$Result.GetResult<Prisma.$HandoffOutboxPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one HandoffOutbox.
+     * @param {HandoffOutboxUpdateArgs} args - Arguments to update one HandoffOutbox.
+     * @example
+     * // Update one HandoffOutbox
+     * const handoffOutbox = await prisma.handoffOutbox.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     *
+     */
+    update<T extends HandoffOutboxUpdateArgs>(args: SelectSubset<T, HandoffOutboxUpdateArgs<ExtArgs>>): Prisma__HandoffOutboxClient<$Result.GetResult<Prisma.$HandoffOutboxPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more HandoffOutboxes.
+     * @param {HandoffOutboxDeleteManyArgs} args - Arguments to filter HandoffOutboxes to delete.
+     * @example
+     * // Delete a few HandoffOutboxes
+     * const { count } = await prisma.handoffOutbox.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     *
+     */
+    deleteMany<T extends HandoffOutboxDeleteManyArgs>(args?: SelectSubset<T, HandoffOutboxDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more HandoffOutboxes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HandoffOutboxUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many HandoffOutboxes
+     * const handoffOutbox = await prisma.handoffOutbox.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     *
+     */
+    updateMany<T extends HandoffOutboxUpdateManyArgs>(args: SelectSubset<T, HandoffOutboxUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more HandoffOutboxes and returns the data updated in the database.
+     * @param {HandoffOutboxUpdateManyAndReturnArgs} args - Arguments to update many HandoffOutboxes.
+     * @example
+     * // Update many HandoffOutboxes
+     * const handoffOutbox = await prisma.handoffOutbox.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     * // Update zero or more HandoffOutboxes and only return the `id`
+     * const handoffOutboxWithIdOnly = await prisma.handoffOutbox.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     *
+     */
+    updateManyAndReturn<T extends HandoffOutboxUpdateManyAndReturnArgs>(args: SelectSubset<T, HandoffOutboxUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HandoffOutboxPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one HandoffOutbox.
+     * @param {HandoffOutboxUpsertArgs} args - Arguments to update or create a HandoffOutbox.
+     * @example
+     * // Update or create a HandoffOutbox
+     * const handoffOutbox = await prisma.handoffOutbox.upsert({
+     *   create: {
+     *     // ... data to create a HandoffOutbox
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the HandoffOutbox we want to update
+     *   }
+     * })
+     */
+    upsert<T extends HandoffOutboxUpsertArgs>(args: SelectSubset<T, HandoffOutboxUpsertArgs<ExtArgs>>): Prisma__HandoffOutboxClient<$Result.GetResult<Prisma.$HandoffOutboxPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of HandoffOutboxes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HandoffOutboxCountArgs} args - Arguments to filter HandoffOutboxes to count.
+     * @example
+     * // Count the number of HandoffOutboxes
+     * const count = await prisma.handoffOutbox.count({
+     *   where: {
+     *     // ... the filter for the HandoffOutboxes we want to count
+     *   }
+     * })
+    **/
+    count<T extends HandoffOutboxCountArgs>(
+      args?: Subset<T, HandoffOutboxCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], HandoffOutboxCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a HandoffOutbox.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HandoffOutboxAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends HandoffOutboxAggregateArgs>(args: Subset<T, HandoffOutboxAggregateArgs>): Prisma.PrismaPromise<GetHandoffOutboxAggregateType<T>>
+
+    /**
+     * Group by HandoffOutbox.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HandoffOutboxGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     *
+    **/
+    groupBy<
+      T extends HandoffOutboxGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: HandoffOutboxGroupByArgs['orderBy'] }
+        : { orderBy?: HandoffOutboxGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, HandoffOutboxGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetHandoffOutboxGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the HandoffOutbox model
+   */
+  readonly fields: HandoffOutboxFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for HandoffOutbox.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__HandoffOutboxClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    registration<T extends RegistrationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RegistrationDefaultArgs<ExtArgs>>): Prisma__RegistrationClient<$Result.GetResult<Prisma.$RegistrationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the HandoffOutbox model
+   */
+  interface HandoffOutboxFieldRefs {
+    readonly id: FieldRef<"HandoffOutbox", 'String'>
+    readonly registrationId: FieldRef<"HandoffOutbox", 'String'>
+    readonly idempotencyKey: FieldRef<"HandoffOutbox", 'String'>
+    readonly payloadHash: FieldRef<"HandoffOutbox", 'String'>
+    readonly status: FieldRef<"HandoffOutbox", 'String'>
+    readonly attempts: FieldRef<"HandoffOutbox", 'Int'>
+    readonly lastError: FieldRef<"HandoffOutbox", 'String'>
+    readonly destinationEnrollmentId: FieldRef<"HandoffOutbox", 'String'>
+    readonly deliveredAt: FieldRef<"HandoffOutbox", 'DateTime'>
+    readonly createdAt: FieldRef<"HandoffOutbox", 'DateTime'>
+    readonly updatedAt: FieldRef<"HandoffOutbox", 'DateTime'>
+  }
+
+
+  // Custom InputTypes
+  /**
+   * HandoffOutbox findUnique
+   */
+  export type HandoffOutboxFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxInclude<ExtArgs> | null
+    /**
+     * Filter, which HandoffOutbox to fetch.
+     */
+    where: HandoffOutboxWhereUniqueInput
+  }
+
+  /**
+   * HandoffOutbox findUniqueOrThrow
+   */
+  export type HandoffOutboxFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxInclude<ExtArgs> | null
+    /**
+     * Filter, which HandoffOutbox to fetch.
+     */
+    where: HandoffOutboxWhereUniqueInput
+  }
+
+  /**
+   * HandoffOutbox findFirst
+   */
+  export type HandoffOutboxFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxInclude<ExtArgs> | null
+    /**
+     * Filter, which HandoffOutbox to fetch.
+     */
+    where?: HandoffOutboxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of HandoffOutboxes to fetch.
+     */
+    orderBy?: HandoffOutboxOrderByWithRelationInput | HandoffOutboxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for searching for HandoffOutboxes.
+     */
+    cursor?: HandoffOutboxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` HandoffOutboxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` HandoffOutboxes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     *
+     * Filter by unique combinations of HandoffOutboxes.
+     */
+    distinct?: HandoffOutboxScalarFieldEnum | HandoffOutboxScalarFieldEnum[]
+  }
+
+  /**
+   * HandoffOutbox findFirstOrThrow
+   */
+  export type HandoffOutboxFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxInclude<ExtArgs> | null
+    /**
+     * Filter, which HandoffOutbox to fetch.
+     */
+    where?: HandoffOutboxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of HandoffOutboxes to fetch.
+     */
+    orderBy?: HandoffOutboxOrderByWithRelationInput | HandoffOutboxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for searching for HandoffOutboxes.
+     */
+    cursor?: HandoffOutboxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` HandoffOutboxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` HandoffOutboxes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     *
+     * Filter by unique combinations of HandoffOutboxes.
+     */
+    distinct?: HandoffOutboxScalarFieldEnum | HandoffOutboxScalarFieldEnum[]
+  }
+
+  /**
+   * HandoffOutbox findMany
+   */
+  export type HandoffOutboxFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxInclude<ExtArgs> | null
+    /**
+     * Filter, which HandoffOutboxes to fetch.
+     */
+    where?: HandoffOutboxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of HandoffOutboxes to fetch.
+     */
+    orderBy?: HandoffOutboxOrderByWithRelationInput | HandoffOutboxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for listing HandoffOutboxes.
+     */
+    cursor?: HandoffOutboxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` HandoffOutboxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` HandoffOutboxes.
+     */
+    skip?: number
+    distinct?: HandoffOutboxScalarFieldEnum | HandoffOutboxScalarFieldEnum[]
+  }
+
+  /**
+   * HandoffOutbox create
+   */
+  export type HandoffOutboxCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxInclude<ExtArgs> | null
+    /**
+     * The data needed to create a HandoffOutbox.
+     */
+    data: XOR<HandoffOutboxCreateInput, HandoffOutboxUncheckedCreateInput>
+  }
+
+  /**
+   * HandoffOutbox createMany
+   */
+  export type HandoffOutboxCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many HandoffOutboxes.
+     */
+    data: HandoffOutboxCreateManyInput | HandoffOutboxCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * HandoffOutbox createManyAndReturn
+   */
+  export type HandoffOutboxCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * The data used to create many HandoffOutboxes.
+     */
+    data: HandoffOutboxCreateManyInput | HandoffOutboxCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * HandoffOutbox update
+   */
+  export type HandoffOutboxUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxInclude<ExtArgs> | null
+    /**
+     * The data needed to update a HandoffOutbox.
+     */
+    data: XOR<HandoffOutboxUpdateInput, HandoffOutboxUncheckedUpdateInput>
+    /**
+     * Choose, which HandoffOutbox to update.
+     */
+    where: HandoffOutboxWhereUniqueInput
+  }
+
+  /**
+   * HandoffOutbox updateMany
+   */
+  export type HandoffOutboxUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update HandoffOutboxes.
+     */
+    data: XOR<HandoffOutboxUpdateManyMutationInput, HandoffOutboxUncheckedUpdateManyInput>
+    /**
+     * Filter which HandoffOutboxes to update
+     */
+    where?: HandoffOutboxWhereInput
+    /**
+     * Limit how many HandoffOutboxes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * HandoffOutbox updateManyAndReturn
+   */
+  export type HandoffOutboxUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * The data used to update HandoffOutboxes.
+     */
+    data: XOR<HandoffOutboxUpdateManyMutationInput, HandoffOutboxUncheckedUpdateManyInput>
+    /**
+     * Filter which HandoffOutboxes to update
+     */
+    where?: HandoffOutboxWhereInput
+    /**
+     * Limit how many HandoffOutboxes to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * HandoffOutbox upsert
+   */
+  export type HandoffOutboxUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxInclude<ExtArgs> | null
+    /**
+     * The filter to search for the HandoffOutbox to update in case it exists.
+     */
+    where: HandoffOutboxWhereUniqueInput
+    /**
+     * In case the HandoffOutbox found by the `where` argument doesn't exist, create a new HandoffOutbox with this data.
+     */
+    create: XOR<HandoffOutboxCreateInput, HandoffOutboxUncheckedCreateInput>
+    /**
+     * In case the HandoffOutbox was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<HandoffOutboxUpdateInput, HandoffOutboxUncheckedUpdateInput>
+  }
+
+  /**
+   * HandoffOutbox delete
+   */
+  export type HandoffOutboxDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxInclude<ExtArgs> | null
+    /**
+     * Filter which HandoffOutbox to delete.
+     */
+    where: HandoffOutboxWhereUniqueInput
+  }
+
+  /**
+   * HandoffOutbox deleteMany
+   */
+  export type HandoffOutboxDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which HandoffOutboxes to delete
+     */
+    where?: HandoffOutboxWhereInput
+    /**
+     * Limit how many HandoffOutboxes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * HandoffOutbox without action
+   */
+  export type HandoffOutboxDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HandoffOutbox
+     */
+    select?: HandoffOutboxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HandoffOutbox
+     */
+    omit?: HandoffOutboxOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HandoffOutboxInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -17330,6 +19855,7 @@ export namespace Prisma {
   export const AdmissionPeriodScalarFieldEnum: {
     id: 'id',
     unitId: 'unitId',
+    sourceAcademicYearId: 'sourceAcademicYearId',
     unitName: 'unitName',
     unitSlug: 'unitSlug',
     label: 'label',
@@ -17366,6 +19892,7 @@ export namespace Prisma {
     source: 'source',
     externalRef: 'externalRef',
     status: 'status',
+    dossierReviewStatus: 'dossierReviewStatus',
     rejectionReason: 'rejectionReason',
     parentId: 'parentId',
     guardianName: 'guardianName',
@@ -17463,7 +19990,7 @@ export namespace Prisma {
     id: 'id',
     registrationId: 'registrationId',
     type: 'type',
-    fileUrl: 'fileUrl',
+    objectKey: 'objectKey',
     fileName: 'fileName',
     fileSize: 'fileSize',
     mimeType: 'mimeType',
@@ -17533,6 +20060,33 @@ export namespace Prisma {
   export type SpmbObserverScalarFieldEnum = (typeof SpmbObserverScalarFieldEnum)[keyof typeof SpmbObserverScalarFieldEnum]
 
 
+  export const AdmissionPeriodCounterScalarFieldEnum: {
+    periodId: 'periodId',
+    nextSequence: 'nextSequence',
+    intakeReserved: 'intakeReserved',
+    acceptedCount: 'acceptedCount'
+  };
+
+  export type AdmissionPeriodCounterScalarFieldEnum = (typeof AdmissionPeriodCounterScalarFieldEnum)[keyof typeof AdmissionPeriodCounterScalarFieldEnum]
+
+
+  export const HandoffOutboxScalarFieldEnum: {
+    id: 'id',
+    registrationId: 'registrationId',
+    idempotencyKey: 'idempotencyKey',
+    payloadHash: 'payloadHash',
+    status: 'status',
+    attempts: 'attempts',
+    lastError: 'lastError',
+    destinationEnrollmentId: 'destinationEnrollmentId',
+    deliveredAt: 'deliveredAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type HandoffOutboxScalarFieldEnum = (typeof HandoffOutboxScalarFieldEnum)[keyof typeof HandoffOutboxScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -17566,189 +20120,203 @@ export namespace Prisma {
    * Reference to a field of type 'String'
    */
   export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
-    
+
 
 
   /**
    * Reference to a field of type 'String[]'
    */
   export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
+
 
 
   /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
+
 
 
   /**
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
+
 
 
   /**
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'RegistrationSource'
    */
   export type EnumRegistrationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RegistrationSource'>
-    
+
 
 
   /**
    * Reference to a field of type 'RegistrationSource[]'
    */
   export type ListEnumRegistrationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RegistrationSource[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'RegistrationStatus'
    */
   export type EnumRegistrationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RegistrationStatus'>
-    
+
 
 
   /**
    * Reference to a field of type 'RegistrationStatus[]'
    */
   export type ListEnumRegistrationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RegistrationStatus[]'>
-    
+
+
+
+  /**
+   * Reference to a field of type 'DossierReviewStatus'
+   */
+  export type EnumDossierReviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DossierReviewStatus'>
+
+
+
+  /**
+   * Reference to a field of type 'DossierReviewStatus[]'
+   */
+  export type ListEnumDossierReviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DossierReviewStatus[]'>
+
 
 
   /**
    * Reference to a field of type 'HandoffStatus'
    */
   export type EnumHandoffStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'HandoffStatus'>
-    
+
 
 
   /**
    * Reference to a field of type 'HandoffStatus[]'
    */
   export type ListEnumHandoffStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'HandoffStatus[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'Decimal'
    */
   export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
-    
+
 
 
   /**
    * Reference to a field of type 'Decimal[]'
    */
   export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'PaymentMethod'
    */
   export type EnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentMethod'>
-    
+
 
 
   /**
    * Reference to a field of type 'PaymentMethod[]'
    */
   export type ListEnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentMethod[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'PaymentStatus'
    */
   export type EnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus'>
-    
+
 
 
   /**
    * Reference to a field of type 'PaymentStatus[]'
    */
   export type ListEnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'Gender'
    */
   export type EnumGenderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Gender'>
-    
+
 
 
   /**
    * Reference to a field of type 'Gender[]'
    */
   export type ListEnumGenderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Gender[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'ParentType'
    */
   export type EnumParentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ParentType'>
-    
+
 
 
   /**
    * Reference to a field of type 'ParentType[]'
    */
   export type ListEnumParentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ParentType[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'DocumentType'
    */
   export type EnumDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentType'>
-    
+
 
 
   /**
    * Reference to a field of type 'DocumentType[]'
    */
   export type ListEnumDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentType[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
+
 
 
   /**
    * Reference to a field of type 'Float[]'
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
+
   /**
    * Deep Input Types
    */
@@ -17760,6 +20328,7 @@ export namespace Prisma {
     NOT?: AdmissionPeriodWhereInput | AdmissionPeriodWhereInput[]
     id?: UuidFilter<"AdmissionPeriod"> | string
     unitId?: UuidFilter<"AdmissionPeriod"> | string
+    sourceAcademicYearId?: UuidNullableFilter<"AdmissionPeriod"> | string | null
     unitName?: StringFilter<"AdmissionPeriod"> | string
     unitSlug?: StringFilter<"AdmissionPeriod"> | string
     label?: StringFilter<"AdmissionPeriod"> | string
@@ -17775,11 +20344,13 @@ export namespace Prisma {
     updatedAt?: DateTimeNullableFilter<"AdmissionPeriod"> | Date | string | null
     registrations?: RegistrationListRelationFilter
     schedules?: ObservationScheduleListRelationFilter
+    counter?: XOR<AdmissionPeriodCounterNullableScalarRelationFilter, AdmissionPeriodCounterWhereInput> | null
   }
 
   export type AdmissionPeriodOrderByWithRelationInput = {
     id?: SortOrder
     unitId?: SortOrder
+    sourceAcademicYearId?: SortOrderInput | SortOrder
     unitName?: SortOrder
     unitSlug?: SortOrder
     label?: SortOrder
@@ -17795,6 +20366,7 @@ export namespace Prisma {
     updatedAt?: SortOrderInput | SortOrder
     registrations?: RegistrationOrderByRelationAggregateInput
     schedules?: ObservationScheduleOrderByRelationAggregateInput
+    counter?: AdmissionPeriodCounterOrderByWithRelationInput
   }
 
   export type AdmissionPeriodWhereUniqueInput = Prisma.AtLeast<{
@@ -17804,6 +20376,7 @@ export namespace Prisma {
     OR?: AdmissionPeriodWhereInput[]
     NOT?: AdmissionPeriodWhereInput | AdmissionPeriodWhereInput[]
     unitId?: UuidFilter<"AdmissionPeriod"> | string
+    sourceAcademicYearId?: UuidNullableFilter<"AdmissionPeriod"> | string | null
     unitName?: StringFilter<"AdmissionPeriod"> | string
     unitSlug?: StringFilter<"AdmissionPeriod"> | string
     label?: StringFilter<"AdmissionPeriod"> | string
@@ -17819,11 +20392,13 @@ export namespace Prisma {
     updatedAt?: DateTimeNullableFilter<"AdmissionPeriod"> | Date | string | null
     registrations?: RegistrationListRelationFilter
     schedules?: ObservationScheduleListRelationFilter
+    counter?: XOR<AdmissionPeriodCounterNullableScalarRelationFilter, AdmissionPeriodCounterWhereInput> | null
   }, "id" | "unitId_label">
 
   export type AdmissionPeriodOrderByWithAggregationInput = {
     id?: SortOrder
     unitId?: SortOrder
+    sourceAcademicYearId?: SortOrderInput | SortOrder
     unitName?: SortOrder
     unitSlug?: SortOrder
     label?: SortOrder
@@ -17850,6 +20425,7 @@ export namespace Prisma {
     NOT?: AdmissionPeriodScalarWhereWithAggregatesInput | AdmissionPeriodScalarWhereWithAggregatesInput[]
     id?: UuidWithAggregatesFilter<"AdmissionPeriod"> | string
     unitId?: UuidWithAggregatesFilter<"AdmissionPeriod"> | string
+    sourceAcademicYearId?: UuidNullableWithAggregatesFilter<"AdmissionPeriod"> | string | null
     unitName?: StringWithAggregatesFilter<"AdmissionPeriod"> | string
     unitSlug?: StringWithAggregatesFilter<"AdmissionPeriod"> | string
     label?: StringWithAggregatesFilter<"AdmissionPeriod"> | string
@@ -17933,6 +20509,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFilter<"Registration"> | $Enums.RegistrationSource
     externalRef?: StringNullableFilter<"Registration"> | string | null
     status?: EnumRegistrationStatusFilter<"Registration"> | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFilter<"Registration"> | $Enums.DossierReviewStatus
     rejectionReason?: StringNullableFilter<"Registration"> | string | null
     parentId?: UuidNullableFilter<"Registration"> | string | null
     guardianName?: StringNullableFilter<"Registration"> | string | null
@@ -17957,6 +20534,7 @@ export namespace Prisma {
     observationBooking?: XOR<ObservationBookingNullableScalarRelationFilter, ObservationBookingWhereInput> | null
     observationResult?: XOR<ObservationResultNullableScalarRelationFilter, ObservationResultWhereInput> | null
     events?: RegistrationEventListRelationFilter
+    handoffOutbox?: XOR<HandoffOutboxNullableScalarRelationFilter, HandoffOutboxWhereInput> | null
   }
 
   export type RegistrationOrderByWithRelationInput = {
@@ -17966,6 +20544,7 @@ export namespace Prisma {
     source?: SortOrder
     externalRef?: SortOrderInput | SortOrder
     status?: SortOrder
+    dossierReviewStatus?: SortOrder
     rejectionReason?: SortOrderInput | SortOrder
     parentId?: SortOrderInput | SortOrder
     guardianName?: SortOrderInput | SortOrder
@@ -17990,6 +20569,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingOrderByWithRelationInput
     observationResult?: ObservationResultOrderByWithRelationInput
     events?: RegistrationEventOrderByRelationAggregateInput
+    handoffOutbox?: HandoffOutboxOrderByWithRelationInput
   }
 
   export type RegistrationWhereUniqueInput = Prisma.AtLeast<{
@@ -18004,6 +20584,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFilter<"Registration"> | $Enums.RegistrationSource
     externalRef?: StringNullableFilter<"Registration"> | string | null
     status?: EnumRegistrationStatusFilter<"Registration"> | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFilter<"Registration"> | $Enums.DossierReviewStatus
     rejectionReason?: StringNullableFilter<"Registration"> | string | null
     parentId?: UuidNullableFilter<"Registration"> | string | null
     guardianName?: StringNullableFilter<"Registration"> | string | null
@@ -18027,6 +20608,7 @@ export namespace Prisma {
     observationBooking?: XOR<ObservationBookingNullableScalarRelationFilter, ObservationBookingWhereInput> | null
     observationResult?: XOR<ObservationResultNullableScalarRelationFilter, ObservationResultWhereInput> | null
     events?: RegistrationEventListRelationFilter
+    handoffOutbox?: XOR<HandoffOutboxNullableScalarRelationFilter, HandoffOutboxWhereInput> | null
   }, "id" | "registrationNumber" | "inviteToken" | "periodId_externalRef">
 
   export type RegistrationOrderByWithAggregationInput = {
@@ -18036,6 +20618,7 @@ export namespace Prisma {
     source?: SortOrder
     externalRef?: SortOrderInput | SortOrder
     status?: SortOrder
+    dossierReviewStatus?: SortOrder
     rejectionReason?: SortOrderInput | SortOrder
     parentId?: SortOrderInput | SortOrder
     guardianName?: SortOrderInput | SortOrder
@@ -18065,6 +20648,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceWithAggregatesFilter<"Registration"> | $Enums.RegistrationSource
     externalRef?: StringNullableWithAggregatesFilter<"Registration"> | string | null
     status?: EnumRegistrationStatusWithAggregatesFilter<"Registration"> | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusWithAggregatesFilter<"Registration"> | $Enums.DossierReviewStatus
     rejectionReason?: StringNullableWithAggregatesFilter<"Registration"> | string | null
     parentId?: UuidNullableWithAggregatesFilter<"Registration"> | string | null
     guardianName?: StringNullableWithAggregatesFilter<"Registration"> | string | null
@@ -18463,7 +21047,7 @@ export namespace Prisma {
     id?: UuidFilter<"Document"> | string
     registrationId?: UuidFilter<"Document"> | string
     type?: EnumDocumentTypeFilter<"Document"> | $Enums.DocumentType
-    fileUrl?: StringFilter<"Document"> | string
+    objectKey?: StringFilter<"Document"> | string
     fileName?: StringFilter<"Document"> | string
     fileSize?: IntFilter<"Document"> | number
     mimeType?: StringFilter<"Document"> | string
@@ -18475,7 +21059,7 @@ export namespace Prisma {
     id?: SortOrder
     registrationId?: SortOrder
     type?: SortOrder
-    fileUrl?: SortOrder
+    objectKey?: SortOrder
     fileName?: SortOrder
     fileSize?: SortOrder
     mimeType?: SortOrder
@@ -18490,7 +21074,7 @@ export namespace Prisma {
     NOT?: DocumentWhereInput | DocumentWhereInput[]
     registrationId?: UuidFilter<"Document"> | string
     type?: EnumDocumentTypeFilter<"Document"> | $Enums.DocumentType
-    fileUrl?: StringFilter<"Document"> | string
+    objectKey?: StringFilter<"Document"> | string
     fileName?: StringFilter<"Document"> | string
     fileSize?: IntFilter<"Document"> | number
     mimeType?: StringFilter<"Document"> | string
@@ -18502,7 +21086,7 @@ export namespace Prisma {
     id?: SortOrder
     registrationId?: SortOrder
     type?: SortOrder
-    fileUrl?: SortOrder
+    objectKey?: SortOrder
     fileName?: SortOrder
     fileSize?: SortOrder
     mimeType?: SortOrder
@@ -18521,7 +21105,7 @@ export namespace Prisma {
     id?: UuidWithAggregatesFilter<"Document"> | string
     registrationId?: UuidWithAggregatesFilter<"Document"> | string
     type?: EnumDocumentTypeWithAggregatesFilter<"Document"> | $Enums.DocumentType
-    fileUrl?: StringWithAggregatesFilter<"Document"> | string
+    objectKey?: StringWithAggregatesFilter<"Document"> | string
     fileName?: StringWithAggregatesFilter<"Document"> | string
     fileSize?: IntWithAggregatesFilter<"Document"> | number
     mimeType?: StringWithAggregatesFilter<"Document"> | string
@@ -18839,9 +21423,149 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"SpmbObserver"> | Date | string
   }
 
+  export type AdmissionPeriodCounterWhereInput = {
+    AND?: AdmissionPeriodCounterWhereInput | AdmissionPeriodCounterWhereInput[]
+    OR?: AdmissionPeriodCounterWhereInput[]
+    NOT?: AdmissionPeriodCounterWhereInput | AdmissionPeriodCounterWhereInput[]
+    periodId?: UuidFilter<"AdmissionPeriodCounter"> | string
+    nextSequence?: IntFilter<"AdmissionPeriodCounter"> | number
+    intakeReserved?: IntFilter<"AdmissionPeriodCounter"> | number
+    acceptedCount?: IntFilter<"AdmissionPeriodCounter"> | number
+    period?: XOR<AdmissionPeriodScalarRelationFilter, AdmissionPeriodWhereInput>
+  }
+
+  export type AdmissionPeriodCounterOrderByWithRelationInput = {
+    periodId?: SortOrder
+    nextSequence?: SortOrder
+    intakeReserved?: SortOrder
+    acceptedCount?: SortOrder
+    period?: AdmissionPeriodOrderByWithRelationInput
+  }
+
+  export type AdmissionPeriodCounterWhereUniqueInput = Prisma.AtLeast<{
+    periodId?: string
+    AND?: AdmissionPeriodCounterWhereInput | AdmissionPeriodCounterWhereInput[]
+    OR?: AdmissionPeriodCounterWhereInput[]
+    NOT?: AdmissionPeriodCounterWhereInput | AdmissionPeriodCounterWhereInput[]
+    nextSequence?: IntFilter<"AdmissionPeriodCounter"> | number
+    intakeReserved?: IntFilter<"AdmissionPeriodCounter"> | number
+    acceptedCount?: IntFilter<"AdmissionPeriodCounter"> | number
+    period?: XOR<AdmissionPeriodScalarRelationFilter, AdmissionPeriodWhereInput>
+  }, "periodId">
+
+  export type AdmissionPeriodCounterOrderByWithAggregationInput = {
+    periodId?: SortOrder
+    nextSequence?: SortOrder
+    intakeReserved?: SortOrder
+    acceptedCount?: SortOrder
+    _count?: AdmissionPeriodCounterCountOrderByAggregateInput
+    _avg?: AdmissionPeriodCounterAvgOrderByAggregateInput
+    _max?: AdmissionPeriodCounterMaxOrderByAggregateInput
+    _min?: AdmissionPeriodCounterMinOrderByAggregateInput
+    _sum?: AdmissionPeriodCounterSumOrderByAggregateInput
+  }
+
+  export type AdmissionPeriodCounterScalarWhereWithAggregatesInput = {
+    AND?: AdmissionPeriodCounterScalarWhereWithAggregatesInput | AdmissionPeriodCounterScalarWhereWithAggregatesInput[]
+    OR?: AdmissionPeriodCounterScalarWhereWithAggregatesInput[]
+    NOT?: AdmissionPeriodCounterScalarWhereWithAggregatesInput | AdmissionPeriodCounterScalarWhereWithAggregatesInput[]
+    periodId?: UuidWithAggregatesFilter<"AdmissionPeriodCounter"> | string
+    nextSequence?: IntWithAggregatesFilter<"AdmissionPeriodCounter"> | number
+    intakeReserved?: IntWithAggregatesFilter<"AdmissionPeriodCounter"> | number
+    acceptedCount?: IntWithAggregatesFilter<"AdmissionPeriodCounter"> | number
+  }
+
+  export type HandoffOutboxWhereInput = {
+    AND?: HandoffOutboxWhereInput | HandoffOutboxWhereInput[]
+    OR?: HandoffOutboxWhereInput[]
+    NOT?: HandoffOutboxWhereInput | HandoffOutboxWhereInput[]
+    id?: UuidFilter<"HandoffOutbox"> | string
+    registrationId?: UuidFilter<"HandoffOutbox"> | string
+    idempotencyKey?: UuidFilter<"HandoffOutbox"> | string
+    payloadHash?: StringFilter<"HandoffOutbox"> | string
+    status?: StringFilter<"HandoffOutbox"> | string
+    attempts?: IntFilter<"HandoffOutbox"> | number
+    lastError?: StringNullableFilter<"HandoffOutbox"> | string | null
+    destinationEnrollmentId?: UuidNullableFilter<"HandoffOutbox"> | string | null
+    deliveredAt?: DateTimeNullableFilter<"HandoffOutbox"> | Date | string | null
+    createdAt?: DateTimeFilter<"HandoffOutbox"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"HandoffOutbox"> | Date | string | null
+    registration?: XOR<RegistrationScalarRelationFilter, RegistrationWhereInput>
+  }
+
+  export type HandoffOutboxOrderByWithRelationInput = {
+    id?: SortOrder
+    registrationId?: SortOrder
+    idempotencyKey?: SortOrder
+    payloadHash?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrderInput | SortOrder
+    destinationEnrollmentId?: SortOrderInput | SortOrder
+    deliveredAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    registration?: RegistrationOrderByWithRelationInput
+  }
+
+  export type HandoffOutboxWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    registrationId?: string
+    idempotencyKey?: string
+    AND?: HandoffOutboxWhereInput | HandoffOutboxWhereInput[]
+    OR?: HandoffOutboxWhereInput[]
+    NOT?: HandoffOutboxWhereInput | HandoffOutboxWhereInput[]
+    payloadHash?: StringFilter<"HandoffOutbox"> | string
+    status?: StringFilter<"HandoffOutbox"> | string
+    attempts?: IntFilter<"HandoffOutbox"> | number
+    lastError?: StringNullableFilter<"HandoffOutbox"> | string | null
+    destinationEnrollmentId?: UuidNullableFilter<"HandoffOutbox"> | string | null
+    deliveredAt?: DateTimeNullableFilter<"HandoffOutbox"> | Date | string | null
+    createdAt?: DateTimeFilter<"HandoffOutbox"> | Date | string
+    updatedAt?: DateTimeNullableFilter<"HandoffOutbox"> | Date | string | null
+    registration?: XOR<RegistrationScalarRelationFilter, RegistrationWhereInput>
+  }, "id" | "registrationId" | "idempotencyKey">
+
+  export type HandoffOutboxOrderByWithAggregationInput = {
+    id?: SortOrder
+    registrationId?: SortOrder
+    idempotencyKey?: SortOrder
+    payloadHash?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrderInput | SortOrder
+    destinationEnrollmentId?: SortOrderInput | SortOrder
+    deliveredAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrderInput | SortOrder
+    _count?: HandoffOutboxCountOrderByAggregateInput
+    _avg?: HandoffOutboxAvgOrderByAggregateInput
+    _max?: HandoffOutboxMaxOrderByAggregateInput
+    _min?: HandoffOutboxMinOrderByAggregateInput
+    _sum?: HandoffOutboxSumOrderByAggregateInput
+  }
+
+  export type HandoffOutboxScalarWhereWithAggregatesInput = {
+    AND?: HandoffOutboxScalarWhereWithAggregatesInput | HandoffOutboxScalarWhereWithAggregatesInput[]
+    OR?: HandoffOutboxScalarWhereWithAggregatesInput[]
+    NOT?: HandoffOutboxScalarWhereWithAggregatesInput | HandoffOutboxScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"HandoffOutbox"> | string
+    registrationId?: UuidWithAggregatesFilter<"HandoffOutbox"> | string
+    idempotencyKey?: UuidWithAggregatesFilter<"HandoffOutbox"> | string
+    payloadHash?: StringWithAggregatesFilter<"HandoffOutbox"> | string
+    status?: StringWithAggregatesFilter<"HandoffOutbox"> | string
+    attempts?: IntWithAggregatesFilter<"HandoffOutbox"> | number
+    lastError?: StringNullableWithAggregatesFilter<"HandoffOutbox"> | string | null
+    destinationEnrollmentId?: UuidNullableWithAggregatesFilter<"HandoffOutbox"> | string | null
+    deliveredAt?: DateTimeNullableWithAggregatesFilter<"HandoffOutbox"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"HandoffOutbox"> | Date | string
+    updatedAt?: DateTimeNullableWithAggregatesFilter<"HandoffOutbox"> | Date | string | null
+  }
+
   export type AdmissionPeriodCreateInput = {
     id?: string
     unitId: string
+    sourceAcademicYearId?: string | null
     unitName: string
     unitSlug: string
     label: string
@@ -18857,11 +21581,13 @@ export namespace Prisma {
     updatedAt?: Date | string | null
     registrations?: RegistrationCreateNestedManyWithoutPeriodInput
     schedules?: ObservationScheduleCreateNestedManyWithoutPeriodInput
+    counter?: AdmissionPeriodCounterCreateNestedOneWithoutPeriodInput
   }
 
   export type AdmissionPeriodUncheckedCreateInput = {
     id?: string
     unitId: string
+    sourceAcademicYearId?: string | null
     unitName: string
     unitSlug: string
     label: string
@@ -18877,11 +21603,13 @@ export namespace Prisma {
     updatedAt?: Date | string | null
     registrations?: RegistrationUncheckedCreateNestedManyWithoutPeriodInput
     schedules?: ObservationScheduleUncheckedCreateNestedManyWithoutPeriodInput
+    counter?: AdmissionPeriodCounterUncheckedCreateNestedOneWithoutPeriodInput
   }
 
   export type AdmissionPeriodUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     unitId?: StringFieldUpdateOperationsInput | string
+    sourceAcademicYearId?: NullableStringFieldUpdateOperationsInput | string | null
     unitName?: StringFieldUpdateOperationsInput | string
     unitSlug?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
@@ -18897,11 +21625,13 @@ export namespace Prisma {
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registrations?: RegistrationUpdateManyWithoutPeriodNestedInput
     schedules?: ObservationScheduleUpdateManyWithoutPeriodNestedInput
+    counter?: AdmissionPeriodCounterUpdateOneWithoutPeriodNestedInput
   }
 
   export type AdmissionPeriodUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     unitId?: StringFieldUpdateOperationsInput | string
+    sourceAcademicYearId?: NullableStringFieldUpdateOperationsInput | string | null
     unitName?: StringFieldUpdateOperationsInput | string
     unitSlug?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
@@ -18917,11 +21647,13 @@ export namespace Prisma {
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registrations?: RegistrationUncheckedUpdateManyWithoutPeriodNestedInput
     schedules?: ObservationScheduleUncheckedUpdateManyWithoutPeriodNestedInput
+    counter?: AdmissionPeriodCounterUncheckedUpdateOneWithoutPeriodNestedInput
   }
 
   export type AdmissionPeriodCreateManyInput = {
     id?: string
     unitId: string
+    sourceAcademicYearId?: string | null
     unitName: string
     unitSlug: string
     label: string
@@ -18940,6 +21672,7 @@ export namespace Prisma {
   export type AdmissionPeriodUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     unitId?: StringFieldUpdateOperationsInput | string
+    sourceAcademicYearId?: NullableStringFieldUpdateOperationsInput | string | null
     unitName?: StringFieldUpdateOperationsInput | string
     unitSlug?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
@@ -18958,6 +21691,7 @@ export namespace Prisma {
   export type AdmissionPeriodUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     unitId?: StringFieldUpdateOperationsInput | string
+    sourceAcademicYearId?: NullableStringFieldUpdateOperationsInput | string | null
     unitName?: StringFieldUpdateOperationsInput | string
     unitSlug?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
@@ -19043,6 +21777,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -19066,6 +21801,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationUncheckedCreateInput = {
@@ -19075,6 +21811,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     parentId?: string | null
     guardianName?: string | null
@@ -19097,6 +21834,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultUncheckedCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventUncheckedCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxUncheckedCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationUpdateInput = {
@@ -19105,6 +21843,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19128,6 +21867,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateInput = {
@@ -19137,6 +21877,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19159,6 +21900,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUncheckedUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUncheckedUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUncheckedUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationCreateManyInput = {
@@ -19168,6 +21910,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     parentId?: string | null
     guardianName?: string | null
@@ -19190,6 +21933,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19212,6 +21956,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
@@ -19661,7 +22406,7 @@ export namespace Prisma {
   export type DocumentCreateInput = {
     id?: string
     type: $Enums.DocumentType
-    fileUrl: string
+    objectKey: string
     fileName: string
     fileSize: number
     mimeType: string
@@ -19673,7 +22418,7 @@ export namespace Prisma {
     id?: string
     registrationId: string
     type: $Enums.DocumentType
-    fileUrl: string
+    objectKey: string
     fileName: string
     fileSize: number
     mimeType: string
@@ -19683,7 +22428,7 @@ export namespace Prisma {
   export type DocumentUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
-    fileUrl?: StringFieldUpdateOperationsInput | string
+    objectKey?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
     fileSize?: IntFieldUpdateOperationsInput | number
     mimeType?: StringFieldUpdateOperationsInput | string
@@ -19695,7 +22440,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     registrationId?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
-    fileUrl?: StringFieldUpdateOperationsInput | string
+    objectKey?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
     fileSize?: IntFieldUpdateOperationsInput | number
     mimeType?: StringFieldUpdateOperationsInput | string
@@ -19706,7 +22451,7 @@ export namespace Prisma {
     id?: string
     registrationId: string
     type: $Enums.DocumentType
-    fileUrl: string
+    objectKey: string
     fileName: string
     fileSize: number
     mimeType: string
@@ -19716,7 +22461,7 @@ export namespace Prisma {
   export type DocumentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
-    fileUrl?: StringFieldUpdateOperationsInput | string
+    objectKey?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
     fileSize?: IntFieldUpdateOperationsInput | number
     mimeType?: StringFieldUpdateOperationsInput | string
@@ -19727,7 +22472,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     registrationId?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
-    fileUrl?: StringFieldUpdateOperationsInput | string
+    objectKey?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
     fileSize?: IntFieldUpdateOperationsInput | number
     mimeType?: StringFieldUpdateOperationsInput | string
@@ -20047,6 +22792,151 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AdmissionPeriodCounterCreateInput = {
+    nextSequence?: number
+    intakeReserved?: number
+    acceptedCount?: number
+    period: AdmissionPeriodCreateNestedOneWithoutCounterInput
+  }
+
+  export type AdmissionPeriodCounterUncheckedCreateInput = {
+    periodId: string
+    nextSequence?: number
+    intakeReserved?: number
+    acceptedCount?: number
+  }
+
+  export type AdmissionPeriodCounterUpdateInput = {
+    nextSequence?: IntFieldUpdateOperationsInput | number
+    intakeReserved?: IntFieldUpdateOperationsInput | number
+    acceptedCount?: IntFieldUpdateOperationsInput | number
+    period?: AdmissionPeriodUpdateOneRequiredWithoutCounterNestedInput
+  }
+
+  export type AdmissionPeriodCounterUncheckedUpdateInput = {
+    periodId?: StringFieldUpdateOperationsInput | string
+    nextSequence?: IntFieldUpdateOperationsInput | number
+    intakeReserved?: IntFieldUpdateOperationsInput | number
+    acceptedCount?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type AdmissionPeriodCounterCreateManyInput = {
+    periodId: string
+    nextSequence?: number
+    intakeReserved?: number
+    acceptedCount?: number
+  }
+
+  export type AdmissionPeriodCounterUpdateManyMutationInput = {
+    nextSequence?: IntFieldUpdateOperationsInput | number
+    intakeReserved?: IntFieldUpdateOperationsInput | number
+    acceptedCount?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type AdmissionPeriodCounterUncheckedUpdateManyInput = {
+    periodId?: StringFieldUpdateOperationsInput | string
+    nextSequence?: IntFieldUpdateOperationsInput | number
+    intakeReserved?: IntFieldUpdateOperationsInput | number
+    acceptedCount?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type HandoffOutboxCreateInput = {
+    id?: string
+    idempotencyKey: string
+    payloadHash: string
+    status?: string
+    attempts?: number
+    lastError?: string | null
+    destinationEnrollmentId?: string | null
+    deliveredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    registration: RegistrationCreateNestedOneWithoutHandoffOutboxInput
+  }
+
+  export type HandoffOutboxUncheckedCreateInput = {
+    id?: string
+    registrationId: string
+    idempotencyKey: string
+    payloadHash: string
+    status?: string
+    attempts?: number
+    lastError?: string | null
+    destinationEnrollmentId?: string | null
+    deliveredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type HandoffOutboxUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    payloadHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    destinationEnrollmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    registration?: RegistrationUpdateOneRequiredWithoutHandoffOutboxNestedInput
+  }
+
+  export type HandoffOutboxUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    registrationId?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    payloadHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    destinationEnrollmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type HandoffOutboxCreateManyInput = {
+    id?: string
+    registrationId: string
+    idempotencyKey: string
+    payloadHash: string
+    status?: string
+    attempts?: number
+    lastError?: string | null
+    destinationEnrollmentId?: string | null
+    deliveredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type HandoffOutboxUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    payloadHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    destinationEnrollmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type HandoffOutboxUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    registrationId?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    payloadHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    destinationEnrollmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type UuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -20057,6 +22947,18 @@ export namespace Prisma {
     gte?: string | StringFieldRefInput<$PrismaModel>
     mode?: QueryMode
     not?: NestedUuidFilter<$PrismaModel> | string
+  }
+
+  export type UuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -20139,6 +23041,11 @@ export namespace Prisma {
     none?: ObservationScheduleWhereInput
   }
 
+  export type AdmissionPeriodCounterNullableScalarRelationFilter = {
+    is?: AdmissionPeriodCounterWhereInput | null
+    isNot?: AdmissionPeriodCounterWhereInput | null
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -20160,6 +23067,7 @@ export namespace Prisma {
   export type AdmissionPeriodCountOrderByAggregateInput = {
     id?: SortOrder
     unitId?: SortOrder
+    sourceAcademicYearId?: SortOrder
     unitName?: SortOrder
     unitSlug?: SortOrder
     label?: SortOrder
@@ -20183,6 +23091,7 @@ export namespace Prisma {
   export type AdmissionPeriodMaxOrderByAggregateInput = {
     id?: SortOrder
     unitId?: SortOrder
+    sourceAcademicYearId?: SortOrder
     unitName?: SortOrder
     unitSlug?: SortOrder
     label?: SortOrder
@@ -20201,6 +23110,7 @@ export namespace Prisma {
   export type AdmissionPeriodMinOrderByAggregateInput = {
     id?: SortOrder
     unitId?: SortOrder
+    sourceAcademicYearId?: SortOrder
     unitName?: SortOrder
     unitSlug?: SortOrder
     label?: SortOrder
@@ -20234,6 +23144,21 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -20372,16 +23297,11 @@ export namespace Prisma {
     not?: NestedEnumRegistrationStatusFilter<$PrismaModel> | $Enums.RegistrationStatus
   }
 
-  export type UuidNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  export type EnumDossierReviewStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DossierReviewStatus | EnumDossierReviewStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DossierReviewStatus[] | ListEnumDossierReviewStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DossierReviewStatus[] | ListEnumDossierReviewStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDossierReviewStatusFilter<$PrismaModel> | $Enums.DossierReviewStatus
   }
 
   export type EnumHandoffStatusFilter<$PrismaModel = never> = {
@@ -20444,6 +23364,11 @@ export namespace Prisma {
     none?: RegistrationEventWhereInput
   }
 
+  export type HandoffOutboxNullableScalarRelationFilter = {
+    is?: HandoffOutboxWhereInput | null
+    isNot?: HandoffOutboxWhereInput | null
+  }
+
   export type ParentDataOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -20468,6 +23393,7 @@ export namespace Prisma {
     source?: SortOrder
     externalRef?: SortOrder
     status?: SortOrder
+    dossierReviewStatus?: SortOrder
     rejectionReason?: SortOrder
     parentId?: SortOrder
     guardianName?: SortOrder
@@ -20491,6 +23417,7 @@ export namespace Prisma {
     source?: SortOrder
     externalRef?: SortOrder
     status?: SortOrder
+    dossierReviewStatus?: SortOrder
     rejectionReason?: SortOrder
     parentId?: SortOrder
     guardianName?: SortOrder
@@ -20514,6 +23441,7 @@ export namespace Prisma {
     source?: SortOrder
     externalRef?: SortOrder
     status?: SortOrder
+    dossierReviewStatus?: SortOrder
     rejectionReason?: SortOrder
     parentId?: SortOrder
     guardianName?: SortOrder
@@ -20550,19 +23478,14 @@ export namespace Prisma {
     _max?: NestedEnumRegistrationStatusFilter<$PrismaModel>
   }
 
-  export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
+  export type EnumDossierReviewStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DossierReviewStatus | EnumDossierReviewStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DossierReviewStatus[] | ListEnumDossierReviewStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DossierReviewStatus[] | ListEnumDossierReviewStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDossierReviewStatusWithAggregatesFilter<$PrismaModel> | $Enums.DossierReviewStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDossierReviewStatusFilter<$PrismaModel>
+    _max?: NestedEnumDossierReviewStatusFilter<$PrismaModel>
   }
 
   export type EnumHandoffStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -20910,7 +23833,7 @@ export namespace Prisma {
     id?: SortOrder
     registrationId?: SortOrder
     type?: SortOrder
-    fileUrl?: SortOrder
+    objectKey?: SortOrder
     fileName?: SortOrder
     fileSize?: SortOrder
     mimeType?: SortOrder
@@ -20925,7 +23848,7 @@ export namespace Prisma {
     id?: SortOrder
     registrationId?: SortOrder
     type?: SortOrder
-    fileUrl?: SortOrder
+    objectKey?: SortOrder
     fileName?: SortOrder
     fileSize?: SortOrder
     mimeType?: SortOrder
@@ -20936,7 +23859,7 @@ export namespace Prisma {
     id?: SortOrder
     registrationId?: SortOrder
     type?: SortOrder
-    fileUrl?: SortOrder
+    objectKey?: SortOrder
     fileName?: SortOrder
     fileSize?: SortOrder
     mimeType?: SortOrder
@@ -21164,6 +24087,89 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type AdmissionPeriodCounterCountOrderByAggregateInput = {
+    periodId?: SortOrder
+    nextSequence?: SortOrder
+    intakeReserved?: SortOrder
+    acceptedCount?: SortOrder
+  }
+
+  export type AdmissionPeriodCounterAvgOrderByAggregateInput = {
+    nextSequence?: SortOrder
+    intakeReserved?: SortOrder
+    acceptedCount?: SortOrder
+  }
+
+  export type AdmissionPeriodCounterMaxOrderByAggregateInput = {
+    periodId?: SortOrder
+    nextSequence?: SortOrder
+    intakeReserved?: SortOrder
+    acceptedCount?: SortOrder
+  }
+
+  export type AdmissionPeriodCounterMinOrderByAggregateInput = {
+    periodId?: SortOrder
+    nextSequence?: SortOrder
+    intakeReserved?: SortOrder
+    acceptedCount?: SortOrder
+  }
+
+  export type AdmissionPeriodCounterSumOrderByAggregateInput = {
+    nextSequence?: SortOrder
+    intakeReserved?: SortOrder
+    acceptedCount?: SortOrder
+  }
+
+  export type HandoffOutboxCountOrderByAggregateInput = {
+    id?: SortOrder
+    registrationId?: SortOrder
+    idempotencyKey?: SortOrder
+    payloadHash?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrder
+    destinationEnrollmentId?: SortOrder
+    deliveredAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type HandoffOutboxAvgOrderByAggregateInput = {
+    attempts?: SortOrder
+  }
+
+  export type HandoffOutboxMaxOrderByAggregateInput = {
+    id?: SortOrder
+    registrationId?: SortOrder
+    idempotencyKey?: SortOrder
+    payloadHash?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrder
+    destinationEnrollmentId?: SortOrder
+    deliveredAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type HandoffOutboxMinOrderByAggregateInput = {
+    id?: SortOrder
+    registrationId?: SortOrder
+    idempotencyKey?: SortOrder
+    payloadHash?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    lastError?: SortOrder
+    destinationEnrollmentId?: SortOrder
+    deliveredAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type HandoffOutboxSumOrderByAggregateInput = {
+    attempts?: SortOrder
+  }
+
   export type RegistrationCreateNestedManyWithoutPeriodInput = {
     create?: XOR<RegistrationCreateWithoutPeriodInput, RegistrationUncheckedCreateWithoutPeriodInput> | RegistrationCreateWithoutPeriodInput[] | RegistrationUncheckedCreateWithoutPeriodInput[]
     connectOrCreate?: RegistrationCreateOrConnectWithoutPeriodInput | RegistrationCreateOrConnectWithoutPeriodInput[]
@@ -21176,6 +24182,12 @@ export namespace Prisma {
     connectOrCreate?: ObservationScheduleCreateOrConnectWithoutPeriodInput | ObservationScheduleCreateOrConnectWithoutPeriodInput[]
     createMany?: ObservationScheduleCreateManyPeriodInputEnvelope
     connect?: ObservationScheduleWhereUniqueInput | ObservationScheduleWhereUniqueInput[]
+  }
+
+  export type AdmissionPeriodCounterCreateNestedOneWithoutPeriodInput = {
+    create?: XOR<AdmissionPeriodCounterCreateWithoutPeriodInput, AdmissionPeriodCounterUncheckedCreateWithoutPeriodInput>
+    connectOrCreate?: AdmissionPeriodCounterCreateOrConnectWithoutPeriodInput
+    connect?: AdmissionPeriodCounterWhereUniqueInput
   }
 
   export type RegistrationUncheckedCreateNestedManyWithoutPeriodInput = {
@@ -21192,8 +24204,18 @@ export namespace Prisma {
     connect?: ObservationScheduleWhereUniqueInput | ObservationScheduleWhereUniqueInput[]
   }
 
+  export type AdmissionPeriodCounterUncheckedCreateNestedOneWithoutPeriodInput = {
+    create?: XOR<AdmissionPeriodCounterCreateWithoutPeriodInput, AdmissionPeriodCounterUncheckedCreateWithoutPeriodInput>
+    connectOrCreate?: AdmissionPeriodCounterCreateOrConnectWithoutPeriodInput
+    connect?: AdmissionPeriodCounterWhereUniqueInput
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
   }
 
   export type BoolFieldUpdateOperationsInput = {
@@ -21206,10 +24228,6 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
-  }
-
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -21248,6 +24266,16 @@ export namespace Prisma {
     deleteMany?: ObservationScheduleScalarWhereInput | ObservationScheduleScalarWhereInput[]
   }
 
+  export type AdmissionPeriodCounterUpdateOneWithoutPeriodNestedInput = {
+    create?: XOR<AdmissionPeriodCounterCreateWithoutPeriodInput, AdmissionPeriodCounterUncheckedCreateWithoutPeriodInput>
+    connectOrCreate?: AdmissionPeriodCounterCreateOrConnectWithoutPeriodInput
+    upsert?: AdmissionPeriodCounterUpsertWithoutPeriodInput
+    disconnect?: AdmissionPeriodCounterWhereInput | boolean
+    delete?: AdmissionPeriodCounterWhereInput | boolean
+    connect?: AdmissionPeriodCounterWhereUniqueInput
+    update?: XOR<XOR<AdmissionPeriodCounterUpdateToOneWithWhereWithoutPeriodInput, AdmissionPeriodCounterUpdateWithoutPeriodInput>, AdmissionPeriodCounterUncheckedUpdateWithoutPeriodInput>
+  }
+
   export type RegistrationUncheckedUpdateManyWithoutPeriodNestedInput = {
     create?: XOR<RegistrationCreateWithoutPeriodInput, RegistrationUncheckedCreateWithoutPeriodInput> | RegistrationCreateWithoutPeriodInput[] | RegistrationUncheckedCreateWithoutPeriodInput[]
     connectOrCreate?: RegistrationCreateOrConnectWithoutPeriodInput | RegistrationCreateOrConnectWithoutPeriodInput[]
@@ -21274,6 +24302,16 @@ export namespace Prisma {
     update?: ObservationScheduleUpdateWithWhereUniqueWithoutPeriodInput | ObservationScheduleUpdateWithWhereUniqueWithoutPeriodInput[]
     updateMany?: ObservationScheduleUpdateManyWithWhereWithoutPeriodInput | ObservationScheduleUpdateManyWithWhereWithoutPeriodInput[]
     deleteMany?: ObservationScheduleScalarWhereInput | ObservationScheduleScalarWhereInput[]
+  }
+
+  export type AdmissionPeriodCounterUncheckedUpdateOneWithoutPeriodNestedInput = {
+    create?: XOR<AdmissionPeriodCounterCreateWithoutPeriodInput, AdmissionPeriodCounterUncheckedCreateWithoutPeriodInput>
+    connectOrCreate?: AdmissionPeriodCounterCreateOrConnectWithoutPeriodInput
+    upsert?: AdmissionPeriodCounterUpsertWithoutPeriodInput
+    disconnect?: AdmissionPeriodCounterWhereInput | boolean
+    delete?: AdmissionPeriodCounterWhereInput | boolean
+    connect?: AdmissionPeriodCounterWhereUniqueInput
+    update?: XOR<XOR<AdmissionPeriodCounterUpdateToOneWithWhereWithoutPeriodInput, AdmissionPeriodCounterUpdateWithoutPeriodInput>, AdmissionPeriodCounterUncheckedUpdateWithoutPeriodInput>
   }
 
   export type RegistrationCreateNestedManyWithoutParentInput = {
@@ -21423,6 +24461,12 @@ export namespace Prisma {
     connect?: RegistrationEventWhereUniqueInput | RegistrationEventWhereUniqueInput[]
   }
 
+  export type HandoffOutboxCreateNestedOneWithoutRegistrationInput = {
+    create?: XOR<HandoffOutboxCreateWithoutRegistrationInput, HandoffOutboxUncheckedCreateWithoutRegistrationInput>
+    connectOrCreate?: HandoffOutboxCreateOrConnectWithoutRegistrationInput
+    connect?: HandoffOutboxWhereUniqueInput
+  }
+
   export type PaymentUncheckedCreateNestedOneWithoutRegistrationInput = {
     create?: XOR<PaymentCreateWithoutRegistrationInput, PaymentUncheckedCreateWithoutRegistrationInput>
     connectOrCreate?: PaymentCreateOrConnectWithoutRegistrationInput
@@ -21474,12 +24518,22 @@ export namespace Prisma {
     connect?: RegistrationEventWhereUniqueInput | RegistrationEventWhereUniqueInput[]
   }
 
+  export type HandoffOutboxUncheckedCreateNestedOneWithoutRegistrationInput = {
+    create?: XOR<HandoffOutboxCreateWithoutRegistrationInput, HandoffOutboxUncheckedCreateWithoutRegistrationInput>
+    connectOrCreate?: HandoffOutboxCreateOrConnectWithoutRegistrationInput
+    connect?: HandoffOutboxWhereUniqueInput
+  }
+
   export type EnumRegistrationSourceFieldUpdateOperationsInput = {
     set?: $Enums.RegistrationSource
   }
 
   export type EnumRegistrationStatusFieldUpdateOperationsInput = {
     set?: $Enums.RegistrationStatus
+  }
+
+  export type EnumDossierReviewStatusFieldUpdateOperationsInput = {
+    set?: $Enums.DossierReviewStatus
   }
 
   export type EnumHandoffStatusFieldUpdateOperationsInput = {
@@ -21596,6 +24650,16 @@ export namespace Prisma {
     deleteMany?: RegistrationEventScalarWhereInput | RegistrationEventScalarWhereInput[]
   }
 
+  export type HandoffOutboxUpdateOneWithoutRegistrationNestedInput = {
+    create?: XOR<HandoffOutboxCreateWithoutRegistrationInput, HandoffOutboxUncheckedCreateWithoutRegistrationInput>
+    connectOrCreate?: HandoffOutboxCreateOrConnectWithoutRegistrationInput
+    upsert?: HandoffOutboxUpsertWithoutRegistrationInput
+    disconnect?: HandoffOutboxWhereInput | boolean
+    delete?: HandoffOutboxWhereInput | boolean
+    connect?: HandoffOutboxWhereUniqueInput
+    update?: XOR<XOR<HandoffOutboxUpdateToOneWithWhereWithoutRegistrationInput, HandoffOutboxUpdateWithoutRegistrationInput>, HandoffOutboxUncheckedUpdateWithoutRegistrationInput>
+  }
+
   export type PaymentUncheckedUpdateOneWithoutRegistrationNestedInput = {
     create?: XOR<PaymentCreateWithoutRegistrationInput, PaymentUncheckedCreateWithoutRegistrationInput>
     connectOrCreate?: PaymentCreateOrConnectWithoutRegistrationInput
@@ -21686,6 +24750,16 @@ export namespace Prisma {
     update?: RegistrationEventUpdateWithWhereUniqueWithoutRegistrationInput | RegistrationEventUpdateWithWhereUniqueWithoutRegistrationInput[]
     updateMany?: RegistrationEventUpdateManyWithWhereWithoutRegistrationInput | RegistrationEventUpdateManyWithWhereWithoutRegistrationInput[]
     deleteMany?: RegistrationEventScalarWhereInput | RegistrationEventScalarWhereInput[]
+  }
+
+  export type HandoffOutboxUncheckedUpdateOneWithoutRegistrationNestedInput = {
+    create?: XOR<HandoffOutboxCreateWithoutRegistrationInput, HandoffOutboxUncheckedCreateWithoutRegistrationInput>
+    connectOrCreate?: HandoffOutboxCreateOrConnectWithoutRegistrationInput
+    upsert?: HandoffOutboxUpsertWithoutRegistrationInput
+    disconnect?: HandoffOutboxWhereInput | boolean
+    delete?: HandoffOutboxWhereInput | boolean
+    connect?: HandoffOutboxWhereUniqueInput
+    update?: XOR<XOR<HandoffOutboxUpdateToOneWithWhereWithoutRegistrationInput, HandoffOutboxUpdateWithoutRegistrationInput>, HandoffOutboxUncheckedUpdateWithoutRegistrationInput>
   }
 
   export type RegistrationCreateNestedOneWithoutEventsInput = {
@@ -21924,6 +24998,34 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutObservationResultInput, UserUpdateWithoutObservationResultInput>, UserUncheckedUpdateWithoutObservationResultInput>
   }
 
+  export type AdmissionPeriodCreateNestedOneWithoutCounterInput = {
+    create?: XOR<AdmissionPeriodCreateWithoutCounterInput, AdmissionPeriodUncheckedCreateWithoutCounterInput>
+    connectOrCreate?: AdmissionPeriodCreateOrConnectWithoutCounterInput
+    connect?: AdmissionPeriodWhereUniqueInput
+  }
+
+  export type AdmissionPeriodUpdateOneRequiredWithoutCounterNestedInput = {
+    create?: XOR<AdmissionPeriodCreateWithoutCounterInput, AdmissionPeriodUncheckedCreateWithoutCounterInput>
+    connectOrCreate?: AdmissionPeriodCreateOrConnectWithoutCounterInput
+    upsert?: AdmissionPeriodUpsertWithoutCounterInput
+    connect?: AdmissionPeriodWhereUniqueInput
+    update?: XOR<XOR<AdmissionPeriodUpdateToOneWithWhereWithoutCounterInput, AdmissionPeriodUpdateWithoutCounterInput>, AdmissionPeriodUncheckedUpdateWithoutCounterInput>
+  }
+
+  export type RegistrationCreateNestedOneWithoutHandoffOutboxInput = {
+    create?: XOR<RegistrationCreateWithoutHandoffOutboxInput, RegistrationUncheckedCreateWithoutHandoffOutboxInput>
+    connectOrCreate?: RegistrationCreateOrConnectWithoutHandoffOutboxInput
+    connect?: RegistrationWhereUniqueInput
+  }
+
+  export type RegistrationUpdateOneRequiredWithoutHandoffOutboxNestedInput = {
+    create?: XOR<RegistrationCreateWithoutHandoffOutboxInput, RegistrationUncheckedCreateWithoutHandoffOutboxInput>
+    connectOrCreate?: RegistrationCreateOrConnectWithoutHandoffOutboxInput
+    upsert?: RegistrationUpsertWithoutHandoffOutboxInput
+    connect?: RegistrationWhereUniqueInput
+    update?: XOR<XOR<RegistrationUpdateToOneWithWhereWithoutHandoffOutboxInput, RegistrationUpdateWithoutHandoffOutboxInput>, RegistrationUncheckedUpdateWithoutHandoffOutboxInput>
+  }
+
   export type NestedUuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -21933,6 +25035,17 @@ export namespace Prisma {
     gt?: string | StringFieldRefInput<$PrismaModel>
     gte?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedUuidFilter<$PrismaModel> | string
+  }
+
+  export type NestedUuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -22015,6 +25128,31 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -22084,17 +25222,6 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -22137,15 +25264,11 @@ export namespace Prisma {
     not?: NestedEnumRegistrationStatusFilter<$PrismaModel> | $Enums.RegistrationStatus
   }
 
-  export type NestedUuidNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  export type NestedEnumDossierReviewStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DossierReviewStatus | EnumDossierReviewStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DossierReviewStatus[] | ListEnumDossierReviewStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DossierReviewStatus[] | ListEnumDossierReviewStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDossierReviewStatusFilter<$PrismaModel> | $Enums.DossierReviewStatus
   }
 
   export type NestedEnumHandoffStatusFilter<$PrismaModel = never> = {
@@ -22175,18 +25298,14 @@ export namespace Prisma {
     _max?: NestedEnumRegistrationStatusFilter<$PrismaModel>
   }
 
-  export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
+  export type NestedEnumDossierReviewStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DossierReviewStatus | EnumDossierReviewStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DossierReviewStatus[] | ListEnumDossierReviewStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DossierReviewStatus[] | ListEnumDossierReviewStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDossierReviewStatusWithAggregatesFilter<$PrismaModel> | $Enums.DossierReviewStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDossierReviewStatusFilter<$PrismaModel>
+    _max?: NestedEnumDossierReviewStatusFilter<$PrismaModel>
   }
 
   export type NestedEnumHandoffStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -22361,6 +25480,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -22383,6 +25503,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationUncheckedCreateWithoutPeriodInput = {
@@ -22391,6 +25512,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     parentId?: string | null
     guardianName?: string | null
@@ -22413,6 +25535,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultUncheckedCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventUncheckedCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxUncheckedCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationCreateOrConnectWithoutPeriodInput = {
@@ -22457,6 +25580,23 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AdmissionPeriodCounterCreateWithoutPeriodInput = {
+    nextSequence?: number
+    intakeReserved?: number
+    acceptedCount?: number
+  }
+
+  export type AdmissionPeriodCounterUncheckedCreateWithoutPeriodInput = {
+    nextSequence?: number
+    intakeReserved?: number
+    acceptedCount?: number
+  }
+
+  export type AdmissionPeriodCounterCreateOrConnectWithoutPeriodInput = {
+    where: AdmissionPeriodCounterWhereUniqueInput
+    create: XOR<AdmissionPeriodCounterCreateWithoutPeriodInput, AdmissionPeriodCounterUncheckedCreateWithoutPeriodInput>
+  }
+
   export type RegistrationUpsertWithWhereUniqueWithoutPeriodInput = {
     where: RegistrationWhereUniqueInput
     update: XOR<RegistrationUpdateWithoutPeriodInput, RegistrationUncheckedUpdateWithoutPeriodInput>
@@ -22483,6 +25623,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFilter<"Registration"> | $Enums.RegistrationSource
     externalRef?: StringNullableFilter<"Registration"> | string | null
     status?: EnumRegistrationStatusFilter<"Registration"> | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFilter<"Registration"> | $Enums.DossierReviewStatus
     rejectionReason?: StringNullableFilter<"Registration"> | string | null
     parentId?: UuidNullableFilter<"Registration"> | string | null
     guardianName?: StringNullableFilter<"Registration"> | string | null
@@ -22529,12 +25670,36 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"ObservationSchedule"> | Date | string
   }
 
+  export type AdmissionPeriodCounterUpsertWithoutPeriodInput = {
+    update: XOR<AdmissionPeriodCounterUpdateWithoutPeriodInput, AdmissionPeriodCounterUncheckedUpdateWithoutPeriodInput>
+    create: XOR<AdmissionPeriodCounterCreateWithoutPeriodInput, AdmissionPeriodCounterUncheckedCreateWithoutPeriodInput>
+    where?: AdmissionPeriodCounterWhereInput
+  }
+
+  export type AdmissionPeriodCounterUpdateToOneWithWhereWithoutPeriodInput = {
+    where?: AdmissionPeriodCounterWhereInput
+    data: XOR<AdmissionPeriodCounterUpdateWithoutPeriodInput, AdmissionPeriodCounterUncheckedUpdateWithoutPeriodInput>
+  }
+
+  export type AdmissionPeriodCounterUpdateWithoutPeriodInput = {
+    nextSequence?: IntFieldUpdateOperationsInput | number
+    intakeReserved?: IntFieldUpdateOperationsInput | number
+    acceptedCount?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type AdmissionPeriodCounterUncheckedUpdateWithoutPeriodInput = {
+    nextSequence?: IntFieldUpdateOperationsInput | number
+    intakeReserved?: IntFieldUpdateOperationsInput | number
+    acceptedCount?: IntFieldUpdateOperationsInput | number
+  }
+
   export type RegistrationCreateWithoutParentInput = {
     id?: string
     registrationNumber: string
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -22557,6 +25722,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationUncheckedCreateWithoutParentInput = {
@@ -22566,6 +25732,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -22587,6 +25754,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultUncheckedCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventUncheckedCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxUncheckedCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationCreateOrConnectWithoutParentInput = {
@@ -22675,6 +25843,7 @@ export namespace Prisma {
   export type AdmissionPeriodCreateWithoutRegistrationsInput = {
     id?: string
     unitId: string
+    sourceAcademicYearId?: string | null
     unitName: string
     unitSlug: string
     label: string
@@ -22689,11 +25858,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string | null
     schedules?: ObservationScheduleCreateNestedManyWithoutPeriodInput
+    counter?: AdmissionPeriodCounterCreateNestedOneWithoutPeriodInput
   }
 
   export type AdmissionPeriodUncheckedCreateWithoutRegistrationsInput = {
     id?: string
     unitId: string
+    sourceAcademicYearId?: string | null
     unitName: string
     unitSlug: string
     label: string
@@ -22708,6 +25879,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string | null
     schedules?: ObservationScheduleUncheckedCreateNestedManyWithoutPeriodInput
+    counter?: AdmissionPeriodCounterUncheckedCreateNestedOneWithoutPeriodInput
   }
 
   export type AdmissionPeriodCreateOrConnectWithoutRegistrationsInput = {
@@ -22857,7 +26029,7 @@ export namespace Prisma {
   export type DocumentCreateWithoutRegistrationInput = {
     id?: string
     type: $Enums.DocumentType
-    fileUrl: string
+    objectKey: string
     fileName: string
     fileSize: number
     mimeType: string
@@ -22867,7 +26039,7 @@ export namespace Prisma {
   export type DocumentUncheckedCreateWithoutRegistrationInput = {
     id?: string
     type: $Enums.DocumentType
-    fileUrl: string
+    objectKey: string
     fileName: string
     fileSize: number
     mimeType: string
@@ -22975,6 +26147,37 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type HandoffOutboxCreateWithoutRegistrationInput = {
+    id?: string
+    idempotencyKey: string
+    payloadHash: string
+    status?: string
+    attempts?: number
+    lastError?: string | null
+    destinationEnrollmentId?: string | null
+    deliveredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type HandoffOutboxUncheckedCreateWithoutRegistrationInput = {
+    id?: string
+    idempotencyKey: string
+    payloadHash: string
+    status?: string
+    attempts?: number
+    lastError?: string | null
+    destinationEnrollmentId?: string | null
+    deliveredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+  }
+
+  export type HandoffOutboxCreateOrConnectWithoutRegistrationInput = {
+    where: HandoffOutboxWhereUniqueInput
+    create: XOR<HandoffOutboxCreateWithoutRegistrationInput, HandoffOutboxUncheckedCreateWithoutRegistrationInput>
+  }
+
   export type AdmissionPeriodUpsertWithoutRegistrationsInput = {
     update: XOR<AdmissionPeriodUpdateWithoutRegistrationsInput, AdmissionPeriodUncheckedUpdateWithoutRegistrationsInput>
     create: XOR<AdmissionPeriodCreateWithoutRegistrationsInput, AdmissionPeriodUncheckedCreateWithoutRegistrationsInput>
@@ -22989,6 +26192,7 @@ export namespace Prisma {
   export type AdmissionPeriodUpdateWithoutRegistrationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     unitId?: StringFieldUpdateOperationsInput | string
+    sourceAcademicYearId?: NullableStringFieldUpdateOperationsInput | string | null
     unitName?: StringFieldUpdateOperationsInput | string
     unitSlug?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
@@ -23003,11 +26207,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     schedules?: ObservationScheduleUpdateManyWithoutPeriodNestedInput
+    counter?: AdmissionPeriodCounterUpdateOneWithoutPeriodNestedInput
   }
 
   export type AdmissionPeriodUncheckedUpdateWithoutRegistrationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     unitId?: StringFieldUpdateOperationsInput | string
+    sourceAcademicYearId?: NullableStringFieldUpdateOperationsInput | string | null
     unitName?: StringFieldUpdateOperationsInput | string
     unitSlug?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
@@ -23022,6 +26228,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     schedules?: ObservationScheduleUncheckedUpdateManyWithoutPeriodNestedInput
+    counter?: AdmissionPeriodCounterUncheckedUpdateOneWithoutPeriodNestedInput
   }
 
   export type UserUpsertWithoutRegistrationsInput = {
@@ -23198,7 +26405,7 @@ export namespace Prisma {
     id?: UuidFilter<"Document"> | string
     registrationId?: UuidFilter<"Document"> | string
     type?: EnumDocumentTypeFilter<"Document"> | $Enums.DocumentType
-    fileUrl?: StringFilter<"Document"> | string
+    objectKey?: StringFilter<"Document"> | string
     fileName?: StringFilter<"Document"> | string
     fileSize?: IntFilter<"Document"> | number
     mimeType?: StringFilter<"Document"> | string
@@ -23314,12 +26521,50 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"RegistrationEvent"> | Date | string
   }
 
+  export type HandoffOutboxUpsertWithoutRegistrationInput = {
+    update: XOR<HandoffOutboxUpdateWithoutRegistrationInput, HandoffOutboxUncheckedUpdateWithoutRegistrationInput>
+    create: XOR<HandoffOutboxCreateWithoutRegistrationInput, HandoffOutboxUncheckedCreateWithoutRegistrationInput>
+    where?: HandoffOutboxWhereInput
+  }
+
+  export type HandoffOutboxUpdateToOneWithWhereWithoutRegistrationInput = {
+    where?: HandoffOutboxWhereInput
+    data: XOR<HandoffOutboxUpdateWithoutRegistrationInput, HandoffOutboxUncheckedUpdateWithoutRegistrationInput>
+  }
+
+  export type HandoffOutboxUpdateWithoutRegistrationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    payloadHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    destinationEnrollmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type HandoffOutboxUncheckedUpdateWithoutRegistrationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idempotencyKey?: StringFieldUpdateOperationsInput | string
+    payloadHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    destinationEnrollmentId?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type RegistrationCreateWithoutEventsInput = {
     id?: string
     registrationNumber: string
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -23342,6 +26587,7 @@ export namespace Prisma {
     medicalReferral?: MedicalReferralCreateNestedOneWithoutRegistrationInput
     observationBooking?: ObservationBookingCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultCreateNestedOneWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationUncheckedCreateWithoutEventsInput = {
@@ -23351,6 +26597,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     parentId?: string | null
     guardianName?: string | null
@@ -23372,6 +26619,7 @@ export namespace Prisma {
     medicalReferral?: MedicalReferralUncheckedCreateNestedOneWithoutRegistrationInput
     observationBooking?: ObservationBookingUncheckedCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultUncheckedCreateNestedOneWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxUncheckedCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationCreateOrConnectWithoutEventsInput = {
@@ -23396,6 +26644,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23418,6 +26667,7 @@ export namespace Prisma {
     medicalReferral?: MedicalReferralUpdateOneWithoutRegistrationNestedInput
     observationBooking?: ObservationBookingUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUpdateOneWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateWithoutEventsInput = {
@@ -23427,6 +26677,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23448,6 +26699,7 @@ export namespace Prisma {
     medicalReferral?: MedicalReferralUncheckedUpdateOneWithoutRegistrationNestedInput
     observationBooking?: ObservationBookingUncheckedUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUncheckedUpdateOneWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUncheckedUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationCreateWithoutPaymentInput = {
@@ -23456,6 +26708,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -23478,6 +26731,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationUncheckedCreateWithoutPaymentInput = {
@@ -23487,6 +26741,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     parentId?: string | null
     guardianName?: string | null
@@ -23508,6 +26763,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultUncheckedCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventUncheckedCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxUncheckedCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationCreateOrConnectWithoutPaymentInput = {
@@ -23532,6 +26788,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23554,6 +26811,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateWithoutPaymentInput = {
@@ -23563,6 +26821,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23584,6 +26843,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUncheckedUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUncheckedUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUncheckedUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationCreateWithoutStudentDataInput = {
@@ -23592,6 +26852,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -23614,6 +26875,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationUncheckedCreateWithoutStudentDataInput = {
@@ -23623,6 +26885,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     parentId?: string | null
     guardianName?: string | null
@@ -23644,6 +26907,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultUncheckedCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventUncheckedCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxUncheckedCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationCreateOrConnectWithoutStudentDataInput = {
@@ -23668,6 +26932,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23690,6 +26955,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateWithoutStudentDataInput = {
@@ -23699,6 +26965,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23720,6 +26987,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUncheckedUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUncheckedUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUncheckedUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationCreateWithoutParentDataInput = {
@@ -23728,6 +26996,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -23750,6 +27019,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationUncheckedCreateWithoutParentDataInput = {
@@ -23759,6 +27029,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     parentId?: string | null
     guardianName?: string | null
@@ -23780,6 +27051,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultUncheckedCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventUncheckedCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxUncheckedCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationCreateOrConnectWithoutParentDataInput = {
@@ -23804,6 +27076,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23826,6 +27099,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateWithoutParentDataInput = {
@@ -23835,6 +27109,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23856,6 +27131,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUncheckedUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUncheckedUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUncheckedUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationCreateWithoutDocumentsInput = {
@@ -23864,6 +27140,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -23886,6 +27163,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationUncheckedCreateWithoutDocumentsInput = {
@@ -23895,6 +27173,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     parentId?: string | null
     guardianName?: string | null
@@ -23916,6 +27195,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultUncheckedCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventUncheckedCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxUncheckedCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationCreateOrConnectWithoutDocumentsInput = {
@@ -23940,6 +27220,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23962,6 +27243,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateWithoutDocumentsInput = {
@@ -23971,6 +27253,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23992,6 +27275,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUncheckedUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUncheckedUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUncheckedUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationCreateWithoutMedicalReferralInput = {
@@ -24000,6 +27284,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -24022,6 +27307,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationUncheckedCreateWithoutMedicalReferralInput = {
@@ -24031,6 +27317,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     parentId?: string | null
     guardianName?: string | null
@@ -24052,6 +27339,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultUncheckedCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventUncheckedCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxUncheckedCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationCreateOrConnectWithoutMedicalReferralInput = {
@@ -24076,6 +27364,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24098,6 +27387,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateWithoutMedicalReferralInput = {
@@ -24107,6 +27397,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24128,11 +27419,13 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUncheckedUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUncheckedUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUncheckedUpdateOneWithoutRegistrationNestedInput
   }
 
   export type AdmissionPeriodCreateWithoutSchedulesInput = {
     id?: string
     unitId: string
+    sourceAcademicYearId?: string | null
     unitName: string
     unitSlug: string
     label: string
@@ -24147,11 +27440,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string | null
     registrations?: RegistrationCreateNestedManyWithoutPeriodInput
+    counter?: AdmissionPeriodCounterCreateNestedOneWithoutPeriodInput
   }
 
   export type AdmissionPeriodUncheckedCreateWithoutSchedulesInput = {
     id?: string
     unitId: string
+    sourceAcademicYearId?: string | null
     unitName: string
     unitSlug: string
     label: string
@@ -24166,6 +27461,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string | null
     registrations?: RegistrationUncheckedCreateNestedManyWithoutPeriodInput
+    counter?: AdmissionPeriodCounterUncheckedCreateNestedOneWithoutPeriodInput
   }
 
   export type AdmissionPeriodCreateOrConnectWithoutSchedulesInput = {
@@ -24209,6 +27505,7 @@ export namespace Prisma {
   export type AdmissionPeriodUpdateWithoutSchedulesInput = {
     id?: StringFieldUpdateOperationsInput | string
     unitId?: StringFieldUpdateOperationsInput | string
+    sourceAcademicYearId?: NullableStringFieldUpdateOperationsInput | string | null
     unitName?: StringFieldUpdateOperationsInput | string
     unitSlug?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
@@ -24223,11 +27520,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registrations?: RegistrationUpdateManyWithoutPeriodNestedInput
+    counter?: AdmissionPeriodCounterUpdateOneWithoutPeriodNestedInput
   }
 
   export type AdmissionPeriodUncheckedUpdateWithoutSchedulesInput = {
     id?: StringFieldUpdateOperationsInput | string
     unitId?: StringFieldUpdateOperationsInput | string
+    sourceAcademicYearId?: NullableStringFieldUpdateOperationsInput | string | null
     unitName?: StringFieldUpdateOperationsInput | string
     unitSlug?: StringFieldUpdateOperationsInput | string
     label?: StringFieldUpdateOperationsInput | string
@@ -24242,6 +27541,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     registrations?: RegistrationUncheckedUpdateManyWithoutPeriodNestedInput
+    counter?: AdmissionPeriodCounterUncheckedUpdateOneWithoutPeriodNestedInput
   }
 
   export type ObservationBookingUpsertWithWhereUniqueWithoutScheduleInput = {
@@ -24276,6 +27576,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -24298,6 +27599,7 @@ export namespace Prisma {
     medicalReferral?: MedicalReferralCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationUncheckedCreateWithoutObservationBookingInput = {
@@ -24307,6 +27609,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     parentId?: string | null
     guardianName?: string | null
@@ -24328,6 +27631,7 @@ export namespace Prisma {
     medicalReferral?: MedicalReferralUncheckedCreateNestedOneWithoutRegistrationInput
     observationResult?: ObservationResultUncheckedCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventUncheckedCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxUncheckedCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationCreateOrConnectWithoutObservationBookingInput = {
@@ -24379,6 +27683,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24401,6 +27706,7 @@ export namespace Prisma {
     medicalReferral?: MedicalReferralUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateWithoutObservationBookingInput = {
@@ -24410,6 +27716,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24431,6 +27738,7 @@ export namespace Prisma {
     medicalReferral?: MedicalReferralUncheckedUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUncheckedUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUncheckedUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUncheckedUpdateOneWithoutRegistrationNestedInput
   }
 
   export type ObservationScheduleUpsertWithoutBookingsInput = {
@@ -24472,6 +27780,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -24494,6 +27803,7 @@ export namespace Prisma {
     medicalReferral?: MedicalReferralCreateNestedOneWithoutRegistrationInput
     observationBooking?: ObservationBookingCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationUncheckedCreateWithoutObservationResultInput = {
@@ -24503,6 +27813,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     parentId?: string | null
     guardianName?: string | null
@@ -24524,6 +27835,7 @@ export namespace Prisma {
     medicalReferral?: MedicalReferralUncheckedCreateNestedOneWithoutRegistrationInput
     observationBooking?: ObservationBookingUncheckedCreateNestedOneWithoutRegistrationInput
     events?: RegistrationEventUncheckedCreateNestedManyWithoutRegistrationInput
+    handoffOutbox?: HandoffOutboxUncheckedCreateNestedOneWithoutRegistrationInput
   }
 
   export type RegistrationCreateOrConnectWithoutObservationResultInput = {
@@ -24571,6 +27883,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24593,6 +27906,7 @@ export namespace Prisma {
     medicalReferral?: MedicalReferralUpdateOneWithoutRegistrationNestedInput
     observationBooking?: ObservationBookingUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateWithoutObservationResultInput = {
@@ -24602,6 +27916,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24623,6 +27938,7 @@ export namespace Prisma {
     medicalReferral?: MedicalReferralUncheckedUpdateOneWithoutRegistrationNestedInput
     observationBooking?: ObservationBookingUncheckedUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUncheckedUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUncheckedUpdateOneWithoutRegistrationNestedInput
   }
 
   export type UserUpsertWithoutObservationResultInput = {
@@ -24654,12 +27970,257 @@ export namespace Prisma {
     registrations?: RegistrationUncheckedUpdateManyWithoutParentNestedInput
   }
 
+  export type AdmissionPeriodCreateWithoutCounterInput = {
+    id?: string
+    unitId: string
+    sourceAcademicYearId?: string | null
+    unitName: string
+    unitSlug: string
+    label: string
+    isOpen?: boolean
+    quota?: number
+    fee?: number
+    bankName?: string | null
+    bankNumber?: string | null
+    bankHolder?: string | null
+    opensAt?: Date | string | null
+    closesAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    registrations?: RegistrationCreateNestedManyWithoutPeriodInput
+    schedules?: ObservationScheduleCreateNestedManyWithoutPeriodInput
+  }
+
+  export type AdmissionPeriodUncheckedCreateWithoutCounterInput = {
+    id?: string
+    unitId: string
+    sourceAcademicYearId?: string | null
+    unitName: string
+    unitSlug: string
+    label: string
+    isOpen?: boolean
+    quota?: number
+    fee?: number
+    bankName?: string | null
+    bankNumber?: string | null
+    bankHolder?: string | null
+    opensAt?: Date | string | null
+    closesAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    registrations?: RegistrationUncheckedCreateNestedManyWithoutPeriodInput
+    schedules?: ObservationScheduleUncheckedCreateNestedManyWithoutPeriodInput
+  }
+
+  export type AdmissionPeriodCreateOrConnectWithoutCounterInput = {
+    where: AdmissionPeriodWhereUniqueInput
+    create: XOR<AdmissionPeriodCreateWithoutCounterInput, AdmissionPeriodUncheckedCreateWithoutCounterInput>
+  }
+
+  export type AdmissionPeriodUpsertWithoutCounterInput = {
+    update: XOR<AdmissionPeriodUpdateWithoutCounterInput, AdmissionPeriodUncheckedUpdateWithoutCounterInput>
+    create: XOR<AdmissionPeriodCreateWithoutCounterInput, AdmissionPeriodUncheckedCreateWithoutCounterInput>
+    where?: AdmissionPeriodWhereInput
+  }
+
+  export type AdmissionPeriodUpdateToOneWithWhereWithoutCounterInput = {
+    where?: AdmissionPeriodWhereInput
+    data: XOR<AdmissionPeriodUpdateWithoutCounterInput, AdmissionPeriodUncheckedUpdateWithoutCounterInput>
+  }
+
+  export type AdmissionPeriodUpdateWithoutCounterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    sourceAcademicYearId?: NullableStringFieldUpdateOperationsInput | string | null
+    unitName?: StringFieldUpdateOperationsInput | string
+    unitSlug?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    isOpen?: BoolFieldUpdateOperationsInput | boolean
+    quota?: IntFieldUpdateOperationsInput | number
+    fee?: IntFieldUpdateOperationsInput | number
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    bankHolder?: NullableStringFieldUpdateOperationsInput | string | null
+    opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    closesAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    registrations?: RegistrationUpdateManyWithoutPeriodNestedInput
+    schedules?: ObservationScheduleUpdateManyWithoutPeriodNestedInput
+  }
+
+  export type AdmissionPeriodUncheckedUpdateWithoutCounterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unitId?: StringFieldUpdateOperationsInput | string
+    sourceAcademicYearId?: NullableStringFieldUpdateOperationsInput | string | null
+    unitName?: StringFieldUpdateOperationsInput | string
+    unitSlug?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    isOpen?: BoolFieldUpdateOperationsInput | boolean
+    quota?: IntFieldUpdateOperationsInput | number
+    fee?: IntFieldUpdateOperationsInput | number
+    bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    bankHolder?: NullableStringFieldUpdateOperationsInput | string | null
+    opensAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    closesAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    registrations?: RegistrationUncheckedUpdateManyWithoutPeriodNestedInput
+    schedules?: ObservationScheduleUncheckedUpdateManyWithoutPeriodNestedInput
+  }
+
+  export type RegistrationCreateWithoutHandoffOutboxInput = {
+    id?: string
+    registrationNumber: string
+    source?: $Enums.RegistrationSource
+    externalRef?: string | null
+    status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
+    rejectionReason?: string | null
+    guardianName?: string | null
+    guardianPhone?: string | null
+    guardianEmail?: string | null
+    inviteToken?: string | null
+    inviteExpiresAt?: Date | string | null
+    claimedAt?: Date | string | null
+    handoffStatus?: $Enums.HandoffStatus
+    handoffError?: string | null
+    handoffAt?: Date | string | null
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    period: AdmissionPeriodCreateNestedOneWithoutRegistrationsInput
+    parent?: UserCreateNestedOneWithoutRegistrationsInput
+    payment?: PaymentCreateNestedOneWithoutRegistrationInput
+    studentData?: StudentDataCreateNestedOneWithoutRegistrationInput
+    parentData?: ParentDataCreateNestedManyWithoutRegistrationInput
+    documents?: DocumentCreateNestedManyWithoutRegistrationInput
+    medicalReferral?: MedicalReferralCreateNestedOneWithoutRegistrationInput
+    observationBooking?: ObservationBookingCreateNestedOneWithoutRegistrationInput
+    observationResult?: ObservationResultCreateNestedOneWithoutRegistrationInput
+    events?: RegistrationEventCreateNestedManyWithoutRegistrationInput
+  }
+
+  export type RegistrationUncheckedCreateWithoutHandoffOutboxInput = {
+    id?: string
+    registrationNumber: string
+    periodId: string
+    source?: $Enums.RegistrationSource
+    externalRef?: string | null
+    status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
+    rejectionReason?: string | null
+    parentId?: string | null
+    guardianName?: string | null
+    guardianPhone?: string | null
+    guardianEmail?: string | null
+    inviteToken?: string | null
+    inviteExpiresAt?: Date | string | null
+    claimedAt?: Date | string | null
+    handoffStatus?: $Enums.HandoffStatus
+    handoffError?: string | null
+    handoffAt?: Date | string | null
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string | null
+    payment?: PaymentUncheckedCreateNestedOneWithoutRegistrationInput
+    studentData?: StudentDataUncheckedCreateNestedOneWithoutRegistrationInput
+    parentData?: ParentDataUncheckedCreateNestedManyWithoutRegistrationInput
+    documents?: DocumentUncheckedCreateNestedManyWithoutRegistrationInput
+    medicalReferral?: MedicalReferralUncheckedCreateNestedOneWithoutRegistrationInput
+    observationBooking?: ObservationBookingUncheckedCreateNestedOneWithoutRegistrationInput
+    observationResult?: ObservationResultUncheckedCreateNestedOneWithoutRegistrationInput
+    events?: RegistrationEventUncheckedCreateNestedManyWithoutRegistrationInput
+  }
+
+  export type RegistrationCreateOrConnectWithoutHandoffOutboxInput = {
+    where: RegistrationWhereUniqueInput
+    create: XOR<RegistrationCreateWithoutHandoffOutboxInput, RegistrationUncheckedCreateWithoutHandoffOutboxInput>
+  }
+
+  export type RegistrationUpsertWithoutHandoffOutboxInput = {
+    update: XOR<RegistrationUpdateWithoutHandoffOutboxInput, RegistrationUncheckedUpdateWithoutHandoffOutboxInput>
+    create: XOR<RegistrationCreateWithoutHandoffOutboxInput, RegistrationUncheckedCreateWithoutHandoffOutboxInput>
+    where?: RegistrationWhereInput
+  }
+
+  export type RegistrationUpdateToOneWithWhereWithoutHandoffOutboxInput = {
+    where?: RegistrationWhereInput
+    data: XOR<RegistrationUpdateWithoutHandoffOutboxInput, RegistrationUncheckedUpdateWithoutHandoffOutboxInput>
+  }
+
+  export type RegistrationUpdateWithoutHandoffOutboxInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    registrationNumber?: StringFieldUpdateOperationsInput | string
+    source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
+    externalRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
+    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    guardianName?: NullableStringFieldUpdateOperationsInput | string | null
+    guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    guardianEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    inviteToken?: NullableStringFieldUpdateOperationsInput | string | null
+    inviteExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    handoffStatus?: EnumHandoffStatusFieldUpdateOperationsInput | $Enums.HandoffStatus
+    handoffError?: NullableStringFieldUpdateOperationsInput | string | null
+    handoffAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    period?: AdmissionPeriodUpdateOneRequiredWithoutRegistrationsNestedInput
+    parent?: UserUpdateOneWithoutRegistrationsNestedInput
+    payment?: PaymentUpdateOneWithoutRegistrationNestedInput
+    studentData?: StudentDataUpdateOneWithoutRegistrationNestedInput
+    parentData?: ParentDataUpdateManyWithoutRegistrationNestedInput
+    documents?: DocumentUpdateManyWithoutRegistrationNestedInput
+    medicalReferral?: MedicalReferralUpdateOneWithoutRegistrationNestedInput
+    observationBooking?: ObservationBookingUpdateOneWithoutRegistrationNestedInput
+    observationResult?: ObservationResultUpdateOneWithoutRegistrationNestedInput
+    events?: RegistrationEventUpdateManyWithoutRegistrationNestedInput
+  }
+
+  export type RegistrationUncheckedUpdateWithoutHandoffOutboxInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    registrationNumber?: StringFieldUpdateOperationsInput | string
+    periodId?: StringFieldUpdateOperationsInput | string
+    source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
+    externalRef?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
+    rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    guardianName?: NullableStringFieldUpdateOperationsInput | string | null
+    guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    guardianEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    inviteToken?: NullableStringFieldUpdateOperationsInput | string | null
+    inviteExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    claimedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    handoffStatus?: EnumHandoffStatusFieldUpdateOperationsInput | $Enums.HandoffStatus
+    handoffError?: NullableStringFieldUpdateOperationsInput | string | null
+    handoffAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    payment?: PaymentUncheckedUpdateOneWithoutRegistrationNestedInput
+    studentData?: StudentDataUncheckedUpdateOneWithoutRegistrationNestedInput
+    parentData?: ParentDataUncheckedUpdateManyWithoutRegistrationNestedInput
+    documents?: DocumentUncheckedUpdateManyWithoutRegistrationNestedInput
+    medicalReferral?: MedicalReferralUncheckedUpdateOneWithoutRegistrationNestedInput
+    observationBooking?: ObservationBookingUncheckedUpdateOneWithoutRegistrationNestedInput
+    observationResult?: ObservationResultUncheckedUpdateOneWithoutRegistrationNestedInput
+    events?: RegistrationEventUncheckedUpdateManyWithoutRegistrationNestedInput
+  }
+
   export type RegistrationCreateManyPeriodInput = {
     id?: string
     registrationNumber: string
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     parentId?: string | null
     guardianName?: string | null
@@ -24692,6 +28253,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24714,6 +28276,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateWithoutPeriodInput = {
@@ -24722,6 +28285,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24744,6 +28308,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUncheckedUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUncheckedUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUncheckedUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateManyWithoutPeriodInput = {
@@ -24752,6 +28317,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24807,6 +28373,7 @@ export namespace Prisma {
     source?: $Enums.RegistrationSource
     externalRef?: string | null
     status?: $Enums.RegistrationStatus
+    dossierReviewStatus?: $Enums.DossierReviewStatus
     rejectionReason?: string | null
     guardianName?: string | null
     guardianPhone?: string | null
@@ -24837,6 +28404,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24859,6 +28427,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateWithoutParentInput = {
@@ -24868,6 +28437,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24889,6 +28459,7 @@ export namespace Prisma {
     observationBooking?: ObservationBookingUncheckedUpdateOneWithoutRegistrationNestedInput
     observationResult?: ObservationResultUncheckedUpdateOneWithoutRegistrationNestedInput
     events?: RegistrationEventUncheckedUpdateManyWithoutRegistrationNestedInput
+    handoffOutbox?: HandoffOutboxUncheckedUpdateOneWithoutRegistrationNestedInput
   }
 
   export type RegistrationUncheckedUpdateManyWithoutParentInput = {
@@ -24898,6 +28469,7 @@ export namespace Prisma {
     source?: EnumRegistrationSourceFieldUpdateOperationsInput | $Enums.RegistrationSource
     externalRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumRegistrationStatusFieldUpdateOperationsInput | $Enums.RegistrationStatus
+    dossierReviewStatus?: EnumDossierReviewStatusFieldUpdateOperationsInput | $Enums.DossierReviewStatus
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     guardianName?: NullableStringFieldUpdateOperationsInput | string | null
     guardianPhone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24959,7 +28531,7 @@ export namespace Prisma {
   export type DocumentCreateManyRegistrationInput = {
     id?: string
     type: $Enums.DocumentType
-    fileUrl: string
+    objectKey: string
     fileName: string
     fileSize: number
     mimeType: string
@@ -25027,7 +28599,7 @@ export namespace Prisma {
   export type DocumentUpdateWithoutRegistrationInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
-    fileUrl?: StringFieldUpdateOperationsInput | string
+    objectKey?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
     fileSize?: IntFieldUpdateOperationsInput | number
     mimeType?: StringFieldUpdateOperationsInput | string
@@ -25037,7 +28609,7 @@ export namespace Prisma {
   export type DocumentUncheckedUpdateWithoutRegistrationInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
-    fileUrl?: StringFieldUpdateOperationsInput | string
+    objectKey?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
     fileSize?: IntFieldUpdateOperationsInput | number
     mimeType?: StringFieldUpdateOperationsInput | string
@@ -25047,7 +28619,7 @@ export namespace Prisma {
   export type DocumentUncheckedUpdateManyWithoutRegistrationInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: EnumDocumentTypeFieldUpdateOperationsInput | $Enums.DocumentType
-    fileUrl?: StringFieldUpdateOperationsInput | string
+    objectKey?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
     fileSize?: IntFieldUpdateOperationsInput | number
     mimeType?: StringFieldUpdateOperationsInput | string

@@ -8,6 +8,8 @@ import { DocumentsModule } from "./documents/documents.module";
 import { ObservationsModule } from "./observations/observations.module";
 import { DecisionsModule } from "./decisions/decisions.module";
 import { HandoffModule } from "./handoff/handoff.module";
+import { ObserversModule } from "./observers/observers.module";
+import { LettersModule } from "./letters/letters.module";
 
 @Module({
   imports: [
@@ -18,7 +20,9 @@ import { HandoffModule } from "./handoff/handoff.module";
     InvitesModule,
     DocumentsModule,
     ObservationsModule,
+    ObserversModule,
     DecisionsModule,
+    LettersModule,
     HandoffModule,
   ],
 })

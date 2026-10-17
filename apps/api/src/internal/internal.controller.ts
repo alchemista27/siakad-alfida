@@ -5,6 +5,7 @@ import {
   Body,
   Headers,
   UnauthorizedException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { InternalService } from './internal.service';
 
@@ -13,7 +14,11 @@ export class InternalController {
   constructor(private readonly internalService: InternalService) {}
 
   private verifySecret(secretKey?: string) {
-    const expectedKey = process.env.INTERNAL_SERVICE_SECRET || 'simalfida-internal-secret-2026';
+    const expectedKey = process.env.INTERNAL_SERVICE_SECRET;
+    if (!expectedKey || !expectedKey.trim()) {
+      throw new InternalServerErrorException('Layanan internal belum dikonfigurasi.');
+    }
+
     if (!secretKey || secretKey !== expectedKey) {
       throw new UnauthorizedException('Kunci layanan internal tidak valid.');
     }

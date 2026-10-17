@@ -7,6 +7,7 @@ import {
   Query,
   UseGuards,
   Req,
+  ValidationPipe,
 } from "@nestjs/common";
 import { RegistrationsService } from "./registrations.service";
 import {
@@ -16,6 +17,7 @@ import {
   SubmitParentDataDto,
   UploadPaymentDto,
   VerifyPaymentDto,
+  ReviewDossierDto,
 } from "./registrations.dto";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 import { SpmbRolesGuard, SpmbRoles } from "../common/guards";
@@ -25,13 +27,22 @@ import { RegistrationSource, RegistrationStatus } from "../generated/prisma";
 export class RegistrationsController {
   constructor(private readonly registrationsService: RegistrationsService) {}
 
-  // ================= PUBLIK TRACKING =================
+  // ================= TRACKING ORANG TUA =================
   @Get("track/:regNum")
-  async trackByNumber(@Param("regNum") regNum: string) {
-    return this.registrationsService.trackByNumber(regNum);
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("orang_tua")
+  async trackByNumber(@Param("regNum") regNum: string, @Req() req: any) {
+    return this.registrationsService.trackByNumber(regNum, req.user.id);
   }
 
   // ================= ORANG TUA =================
+  @Get("parent")
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("orang_tua")
+  async listForParent(@Req() req: any) {
+    return this.registrationsService.listForParent(req.user.id);
+  }
+
   @Get("parent/active")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
   @SpmbRoles("orang_tua")
@@ -39,11 +50,21 @@ export class RegistrationsController {
     return this.registrationsService.getActiveRegistrationForParent(req.user.id);
   }
 
+  @Get("parent/:id")
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("orang_tua")
+  async getForParent(@Param("id") id: string, @Req() req: any) {
+    return this.registrationsService.getForParent(id, req.user.id);
+  }
+
   @Post("online")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
   @SpmbRoles("orang_tua")
-  async createOnline(@Req() req: any, @Body() dto: CreateOnlineRegistrationDto) {
-    return this.registrationsService.createOnline(req.user.id, dto);
+  async createOnline(
+    @Req() req: any,
+    @Body() dto: CreateOnlineRegistrationDto
+  ) {
+    return this.registrationsService.createOnline(req.user, dto);
   }
 
   @Post(":id/student")
@@ -79,24 +100,36 @@ export class RegistrationsController {
     return this.registrationsService.uploadPayment(id, req.user.id, dto);
   }
 
+  @Post(":id/verify-documents")
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit", "tim_ppdb")
+  async verifyDocuments(
+    @Param("id") id: string,
+    @Req() req: any,
+    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) body: ReviewDossierDto
+  ) {
+    return this.registrationsService.verifyDocuments(id, req.user, body.isApproved, body.rejectionNote);
+  }
+
   // ================= ADMIN UNIT / TIM PPDB =================
   @Get()
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
   @SpmbRoles("admin_unit", "tim_ppdb")
   async findAll(
+    @Req() req: any,
     @Query("periodId") periodId?: string,
     @Query("status") status?: RegistrationStatus,
     @Query("source") source?: RegistrationSource,
     @Query("search") search?: string
   ) {
-    return this.registrationsService.findAll({ periodId, status, source, search });
+    return this.registrationsService.findAll({ periodId, status, source, search }, req.user);
   }
 
   @Get(":id")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
   @SpmbRoles("admin_unit", "tim_ppdb")
-  async findOne(@Param("id") id: string) {
-    return this.registrationsService.findOne(id);
+  async findOne(@Param("id") id: string, @Req() req: any) {
+    return this.registrationsService.findOne(id, req.user);
   }
 
   @Post("offline")
@@ -112,8 +145,8 @@ export class RegistrationsController {
   async verifyPayment(
     @Param("id") id: string,
     @Req() req: any,
-    @Body() dto: VerifyPaymentDto
+    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) dto: VerifyPaymentDto
   ) {
-    return this.registrationsService.verifyPayment(id, req.user.id, dto);
+    return this.registrationsService.verifyPayment(id, req.user, dto);
   }
 }

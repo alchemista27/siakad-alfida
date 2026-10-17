@@ -1,6 +1,6 @@
-import { Injectable, BadRequestException } from "@nestjs/common";
+import { Injectable, BadRequestException, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { BatchImportDto, ImportRowDto } from "./imports.dto";
+import { BatchImportDto } from "./imports.dto";
 import {
   RegistrationSource,
   RegistrationStatus,
@@ -9,16 +9,39 @@ import {
   Gender,
 } from "../generated/prisma";
 import { randomUUID } from "crypto";
+import { allowedUnitIds, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
+import { AdmissionCapacityService } from "../registrations/admission-capacity.service";
+import {
+  BackfillManifest,
+  deriveStatusFromManifest,
+  buildManifestEventTrail,
+} from "./backfill-manifest.policy";
 
 @Injectable()
 export class ImportsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly capacityService: AdmissionCapacityService;
 
-  async preview(dto: BatchImportDto) {
-    const period = await this.prisma.admissionPeriod.findUnique({
-      where: { id: dto.periodId },
-    });
+  constructor(
+    private readonly prisma: PrismaService,
+    capacityService?: AdmissionCapacityService,
+  ) {
+    this.capacityService = capacityService || new AdmissionCapacityService(prisma);
+  }
+
+  private assertExistingPeriodAccess(period: { unitId: string }, principal: SpmbPrincipal) {
+    if (isSuperAdmin(principal) || allowedUnitIds(principal, ["admin_unit", "tim_ppdb"]).has(period.unitId)) return;
+    throw new NotFoundException("Periode pendaftaran tidak ditemukan.");
+  }
+
+  private async findScopedPeriod(periodId: string, principal: SpmbPrincipal) {
+    const period = await this.prisma.admissionPeriod.findUnique({ where: { id: periodId } });
     if (!period) throw new BadRequestException("Periode pendaftaran tidak ditemukan.");
+    this.assertExistingPeriodAccess(period, principal);
+    return period;
+  }
+
+  async preview(principal: SpmbPrincipal, dto: BatchImportDto) {
+    const period = await this.findScopedPeriod(dto.periodId, principal);
 
     const existingRefs = new Set(
       (
@@ -28,7 +51,7 @@ export class ImportsService {
         })
       )
         .map((r) => r.externalRef)
-        .filter(Boolean)
+        .filter(Boolean),
     );
 
     const previewRows = dto.rows.map((row, index) => {
@@ -63,19 +86,14 @@ export class ImportsService {
     };
   }
 
-  async commit(actorId: string, dto: BatchImportDto) {
-    const period = await this.prisma.admissionPeriod.findUnique({
-      where: { id: dto.periodId },
-    });
-    if (!period) throw new BadRequestException("Periode pendaftaran tidak ditemukan.");
+  async commit(principal: SpmbPrincipal, dto: BatchImportDto) {
+    const period = await this.findScopedPeriod(dto.periodId, principal);
+    const actorId = principal.id;
 
     let successCount = 0;
     let skippedCount = 0;
     const errors: Array<{ rowNumber: number; reason: string }> = [];
-
-    let currentTotal = await this.prisma.registration.count({
-      where: { periodId: dto.periodId },
-    });
+    const seenBatchRefs = new Set<string>();
 
     for (let i = 0; i < dto.rows.length; i++) {
       const row = dto.rows[i];
@@ -87,39 +105,47 @@ export class ImportsService {
       }
 
       if (row.externalRef) {
+        if (seenBatchRefs.has(row.externalRef)) {
+          errors.push({ rowNumber: rowNum, reason: `Nomor referensi ${row.externalRef} duplikat dalam berkas impor.` });
+          continue;
+        }
         const exists = await this.prisma.registration.findUnique({
-          where: {
-            periodId_externalRef: {
-              periodId: dto.periodId,
-              externalRef: row.externalRef,
-            },
-          },
+          where: { periodId_externalRef: { periodId: dto.periodId, externalRef: row.externalRef } },
         });
         if (exists) {
           skippedCount++;
           continue;
         }
+        seenBatchRefs.add(row.externalRef);
       }
 
       try {
-        currentTotal++;
-        const seq = String(currentTotal).padStart(4, "0");
-        const yearStr = period.label.split("/")[0] || String(new Date().getFullYear());
-        const slugUpper = period.unitSlug.toUpperCase().substring(0, 8);
-        const regNum = `PPDB-${slugUpper}-${yearStr}-${seq}`;
+        const manifest: BackfillManifest = row.manifest || {
+          payment: row.isPaid ? { verified: true, paidAt: new Date().toISOString(), amount: row.paidAmount } : undefined,
+          student: {
+            fullName: row.studentName,
+            gender: (row.gender as any) || "male",
+            birthPlace: row.birthPlace || "Jakarta",
+            birthDate: row.birthDate || "2018-01-01",
+            address: "Data luring",
+          },
+          observation: row.observationScore !== undefined && row.observationScore !== null ? {
+            scheduleId: "import-offline",
+            score: row.observationScore,
+            notes: row.observationNotes,
+            observerId: actorId,
+          } : undefined,
+        };
+
+        const targetStatus = deriveStatusFromManifest(manifest);
 
         const inviteToken = randomUUID().replace(/-/g, "");
         const inviteExpiresAt = new Date();
         inviteExpiresAt.setDate(inviteExpiresAt.getDate() + 30);
 
-        let targetStatus: RegistrationStatus = RegistrationStatus.pending_payment;
-        if (row.status && Object.values(RegistrationStatus).includes(row.status as any)) {
-          targetStatus = row.status as RegistrationStatus;
-        } else if (row.isPaid) {
-          targetStatus = RegistrationStatus.payment_verified;
-        }
-
         await this.prisma.$transaction(async (tx) => {
+          const { registrationNumber: regNum } = await this.capacityService.allocateRegistrationNumber(tx, dto.periodId);
+
           const reg = await tx.registration.create({
             data: {
               periodId: period.id,
@@ -147,38 +173,65 @@ export class ImportsService {
             },
           });
 
+          const isPaid = Boolean(manifest.payment?.verified || row.isPaid);
           await tx.payment.create({
             data: {
               registrationId: reg.id,
-              amount: row.paidAmount ?? period.fee,
-              method: row.isPaid ? PaymentMethod.offline : PaymentMethod.transfer_proof,
-              status: row.isPaid ? PaymentStatus.verified : PaymentStatus.pending,
-              paidAt: row.isPaid ? new Date() : null,
-              verifiedAt: row.isPaid ? new Date() : null,
-              verifiedBy: row.isPaid ? actorId : null,
+              amount: manifest.payment?.amount ?? row.paidAmount ?? period.fee,
+              method: isPaid ? PaymentMethod.offline : PaymentMethod.transfer_proof,
+              status: isPaid ? PaymentStatus.verified : PaymentStatus.pending,
+              paidAt: isPaid ? new Date() : null,
+              verifiedAt: isPaid ? new Date() : null,
+              verifiedBy: isPaid ? actorId : null,
             },
           });
 
-          if (row.observationScore !== undefined && row.observationScore !== null) {
+          if (manifest.documents && manifest.documents.length > 0) {
+            for (const doc of manifest.documents) {
+              await tx.document.create({
+                data: {
+                  registrationId: reg.id,
+                  type: doc.type as any,
+                  objectKey: doc.objectKey,
+                  fileName: doc.fileName || doc.objectKey,
+                  mimeType: doc.mimeType || "application/octet-stream",
+                  fileSize: doc.fileSize || 0,
+                },
+              });
+            }
+          }
+
+          const obs = manifest.observation || (row.observationScore !== undefined && row.observationScore !== null ? {
+            score: row.observationScore,
+            notes: row.observationNotes,
+            observerId: actorId,
+          } : null);
+          if (obs) {
             await tx.observationResult.create({
               data: {
                 registrationId: reg.id,
-                observerId: actorId,
-                score: row.observationScore,
-                notes: row.observationNotes || null,
+                observerId: obs.observerId || actorId,
+                score: obs.score,
+                notes: obs.notes || null,
               },
             });
           }
 
-          await tx.registrationEvent.create({
-            data: {
-              registrationId: reg.id,
-              actorId,
-              toStatus: targetStatus,
-              kind: "import",
-              note: `Impor batch data pendaftar luring. Baris ke-${rowNum}`,
-            },
-          });
+          const eventTrail = buildManifestEventTrail(
+            manifest,
+            `Impor batch data pendaftar luring. Baris ke-${rowNum}`,
+          );
+          for (const ev of eventTrail) {
+            await tx.registrationEvent.create({
+              data: {
+                registrationId: reg.id,
+                actorId,
+                toStatus: ev.toStatus,
+                kind: ev.kind,
+                note: ev.note,
+              },
+            });
+          }
         });
 
         successCount++;

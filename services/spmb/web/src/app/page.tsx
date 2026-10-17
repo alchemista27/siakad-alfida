@@ -27,7 +27,7 @@ export default function SpmbHomePage() {
   useEffect(() => {
     async function fetchActivePeriods() {
       try {
-        const res = await fetch("/api/periods/active");
+        const res = await fetch("/api/periods/public");
         if (res.ok) {
           const data = await res.json();
           setPeriods(data);
@@ -69,7 +69,7 @@ export default function SpmbHomePage() {
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <a
-                href="/register"
+                href="/parent"
                 className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-[#06bfa2] text-white font-semibold text-sm hover:bg-[#05a88e] shadow-md transition-all"
               >
                 Mulai Pendaftaran Online
@@ -213,7 +213,7 @@ export default function SpmbHomePage() {
 
                   <div className="mt-6 pt-4 border-t border-gray-100">
                     <a
-                      href={`/register?periodId=${p.id}`}
+                      href="/parent"
                       className="w-full inline-flex items-center justify-center py-2.5 rounded-lg bg-[#06bfa2] text-white font-semibold text-xs hover:bg-[#05a88e] transition-colors"
                     >
                       Daftar Unit Ini

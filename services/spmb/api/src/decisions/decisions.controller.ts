@@ -4,7 +4,6 @@ import {
   Get,
   Body,
   Param,
-  Query,
   UseGuards,
   Req,
 } from "@nestjs/common";
@@ -21,21 +20,18 @@ export class DecisionsController {
   @Post("single")
   @SpmbRoles("admin_unit")
   async setSingleDecision(@Req() req: any, @Body() dto: SingleDecisionDto) {
-    return this.decisionsService.setSingleDecision(req.user.id, dto);
+    return this.decisionsService.setSingleDecision(req.user, dto);
   }
 
   @Post("batch")
   @SpmbRoles("admin_unit")
   async setBatchDecision(@Req() req: any, @Body() dto: BatchDecisionDto) {
-    return this.decisionsService.setBatchDecision(req.user.id, dto);
+    return this.decisionsService.setBatchDecision(req.user, dto);
   }
 
   @Get("statistics/:periodId")
   @SpmbRoles("admin_unit", "tim_ppdb")
-  async getStatistics(
-    @Param("periodId") periodId: string,
-    @Query("unitId") unitId?: string
-  ) {
-    return this.decisionsService.getStatistics(periodId, unitId);
+  async getStatistics(@Param("periodId") periodId: string, @Req() req: any) {
+    return this.decisionsService.getStatistics(periodId, req.user);
   }
 }

@@ -10,7 +10,7 @@ function getReturnUrl(request: NextRequest): string {
   return request.url;
 }
 
-const protectedPrefixes = ["/admin", "/observer"];
+const protectedPrefixes = ["/admin", "/observer", "/parent", "/status"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

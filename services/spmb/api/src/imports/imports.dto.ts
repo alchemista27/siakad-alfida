@@ -1,3 +1,5 @@
+import type { BackfillManifest } from "./backfill-manifest.policy";
+
 export class ImportRowDto {
   externalRef?: string;
   studentName: string;
@@ -11,7 +13,8 @@ export class ImportRowDto {
   paidAmount?: number;
   observationScore?: number;
   observationNotes?: string;
-  status?: string; // contoh: accepted, observation_done, payment_verified, dll.
+  status?: string; // deprecated: ignored in favor of manifest-derived status
+  manifest?: BackfillManifest;
 }
 
 export class BatchImportDto {

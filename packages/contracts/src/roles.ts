@@ -1,34 +1,11 @@
 import { z } from "zod";
+import { ROLE_CATALOG } from "./role-catalog";
 
-export const APP_NAMES = [
-  "admin",
-  "auth",
-  "simakin",
-  "simpeg",
-  "siyaum",
-  "spmb",
-  "siakad",
-  "siskeu",
-  "sisarpras",
-  "sisurat",
-  "core",
-] as const;
+export const APP_NAMES = Object.keys(ROLE_CATALOG) as Array<keyof typeof ROLE_CATALOG>;
 
 export type AppName = (typeof APP_NAMES)[number];
 
-export const APP_ROLES = {
-  admin: ["super_admin", "admin_users"],
-  auth: ["super_admin", "admin_users"],
-  simakin: ["admin_bidang", "admin_biro", "pengawas", "pimpinan", "pic_program"],
-  simpeg: ["admin_kepegawaian", "admin_unit", "murobbi", "pegawai"],
-  siyaum: ["admin_ymq", "musyrif", "peserta"],
-  spmb: ["admin_unit", "tim_ppdb", "observer", "orang_tua"],
-  siakad: ["admin_unit", "guru", "wali_kelas", "supervisor_kesiswaan", "orang_tua"],
-  siskeu: ["admin_keuangan", "bendahara", "pimpinan"],
-  sisarpras: ["admin_sarpras", "staff_sarpras"],
-  sisurat: ["admin_sekretariat", "staff_tata_usaha"],
-  core: ["super_admin", "admin_unit", "pimpinan"],
-} as const;
+export const APP_ROLES = ROLE_CATALOG;
 
 export type AppRoleMap = typeof APP_ROLES;
 

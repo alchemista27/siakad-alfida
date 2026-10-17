@@ -23,7 +23,7 @@ export class InvitesController {
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
   @SpmbRoles("orang_tua")
   async claim(@Param("token") token: string, @Req() req: any) {
-    return this.invitesService.claimInvite(token, req.user.id);
+    return this.invitesService.claimInvite(token, req.user);
   }
 
   @Get("share/:registrationId")

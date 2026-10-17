@@ -3,8 +3,15 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  ConflictException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { AdmissionCapacityService } from "./admission-capacity.service";
+import {
+  BackfillManifest,
+  deriveStatusFromManifest,
+  buildManifestEventTrail,
+} from "../imports/backfill-manifest.policy";
 import {
   CreateOnlineRegistrationDto,
   CreateOfflineRegistrationDto,
@@ -20,16 +27,41 @@ import {
   PaymentStatus,
   Gender,
   ParentType,
+  DossierReviewStatus,
 } from "../generated/prisma";
 import { randomUUID } from "crypto";
+import { canTransition, requiredDocumentTypes } from "../common/ppdb-workflow";
+import { ACTIVE_REGISTRATION_POLICY } from "../common/registration-policy";
+import { allowedUnitIds, assertUnitAccess, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
 
 @Injectable()
 export class RegistrationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly capacityService: AdmissionCapacityService;
+
+  constructor(
+    private readonly prisma: PrismaService,
+    capacityService?: AdmissionCapacityService,
+  ) {
+    this.capacityService = capacityService || new AdmissionCapacityService(prisma);
+  }
+
+  private sanitizeForParent(registration: any) {
+    if (!registration) return null;
+    const { handoffError, ...rest } = registration;
+    const sanitized: any = { ...rest };
+    if (Array.isArray(registration.documents)) {
+      sanitized.documents = registration.documents.map(({ objectKey, ...doc }: any) => doc);
+    }
+    if (registration.observationResult) {
+      sanitized.observationResult = { recorded: true };
+    }
+    return sanitized;
+  }
 
   // ================= ALUR ONLINE (ORANG TUA) =================
-  async getActiveRegistrationForParent(parentId: string) {
-    return this.prisma.registration.findFirst({
+  async getActiveRegistrationForParent(parentOrId: string | { id: string }) {
+    const parentId = typeof parentOrId === "string" ? parentOrId : parentOrId.id;
+    const registration = await this.prisma.registration.findFirst({
       where: {
         parentId,
         status: { notIn: [RegistrationStatus.rejected] },
@@ -40,17 +72,74 @@ export class RegistrationsService {
         parentData: true,
         payment: true,
         documents: true,
+        medicalReferral: true,
         observationBooking: {
           include: { schedule: true },
         },
         observationResult: true,
+        events: { orderBy: { createdAt: "asc" } },
       },
       orderBy: { createdAt: "desc" },
     });
+    return this.sanitizeForParent(registration);
   }
 
-  async createOnline(parentId: string, dto: CreateOnlineRegistrationDto) {
+  async listForParent(parentOrId: string | { id: string }) {
+    const parentId = typeof parentOrId === "string" ? parentOrId : parentOrId.id;
+    const registrations = await this.prisma.registration.findMany({
+      where: { parentId },
+      include: {
+        period: true,
+        studentData: true,
+        payment: true,
+        observationBooking: { include: { schedule: true } },
+        observationResult: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return registrations.map((reg) => (reg && ("handoffError" in reg || "observationResult" in reg || "documents" in reg) ? this.sanitizeForParent(reg) : reg));
+  }
+
+  async findForParent(principalOrId: string | { id: string }, registrationId: string) {
+    const parentId = typeof principalOrId === "string" ? principalOrId : principalOrId.id;
+    return this.getForParent(registrationId, parentId);
+  }
+
+  async getForParent(registrationId: string, parentOrId: string | { id: string }) {
+    const parentId = typeof parentOrId === "string" ? parentOrId : parentOrId.id;
+    const registration = await this.prisma.registration.findFirst({
+      where: { id: registrationId, parentId },
+      include: {
+        period: true,
+        studentData: true,
+        parentData: true,
+        payment: true,
+        documents: true,
+        medicalReferral: true,
+        observationBooking: { include: { schedule: true } },
+        observationResult: true,
+        events: { orderBy: { createdAt: "asc" } },
+      },
+    });
+    if (!registration) throw new NotFoundException("Pendaftaran tidak ditemukan.");
+    return this.sanitizeForParent(registration);
+  }
+
+  async createOnline(parent: { id: string; email: string; fullName: string }, dto: CreateOnlineRegistrationDto) {
+    const parentId = parent.id;
     return this.prisma.$transaction(async (tx) => {
+      await tx.user.upsert({
+        where: { id: parentId },
+        create: {
+          id: parentId,
+          email: parent.email,
+          fullName: parent.fullName || parent.email,
+        },
+        update: {
+          email: parent.email,
+          fullName: parent.fullName || parent.email,
+        },
+      });
       const period = await tx.admissionPeriod.findUnique({
         where: { id: dto.periodId },
       });
@@ -58,30 +147,39 @@ export class RegistrationsService {
         throw new BadRequestException("Periode pendaftaran tidak aktif atau telah ditutup.");
       }
 
-      // Pastikan orang tua belum memiliki pendaftaran aktif di periode ini
-      const existing = await tx.registration.findFirst({
-        where: {
-          parentId,
-          periodId: dto.periodId,
-          status: { notIn: [RegistrationStatus.rejected] },
-        },
-      });
-      if (existing) {
-        throw new BadRequestException("Anda sudah memiliki berkas pendaftaran aktif pada periode ini.");
+      if (ACTIVE_REGISTRATION_POLICY === "multiple_child_applications") {
+        const fullName = dto.applicantFullName?.trim();
+        if (!fullName) {
+          throw new BadRequestException("Identitas nama lengkap calon siswa wajib diisi untuk pendaftaran.");
+        }
+        const existingChild = await tx.registration.findFirst({
+          where: {
+            parentId,
+            periodId: dto.periodId,
+            status: { notIn: [RegistrationStatus.rejected] },
+            studentData: {
+              fullName: { equals: fullName, mode: "insensitive" },
+            },
+          },
+        });
+        if (existingChild) {
+          throw new BadRequestException("Calon siswa tersebut sudah memiliki pendaftaran aktif pada periode ini.");
+        }
+      } else {
+        const existing = await tx.registration.findFirst({
+          where: {
+            parentId,
+            periodId: dto.periodId,
+            status: { notIn: [RegistrationStatus.rejected] },
+          },
+        });
+        if (existing) {
+          throw new BadRequestException("Anda sudah memiliki berkas pendaftaran aktif pada periode ini.");
+        }
       }
 
-      // Cek kuota
-      const totalRegistered = await tx.registration.count({
-        where: { periodId: dto.periodId },
-      });
-      if (totalRegistered >= period.quota) {
-        throw new BadRequestException("Mohon maaf, kuota pendaftaran pada unit ini telah penuh.");
-      }
-
-      const seq = String(totalRegistered + 1).padStart(4, "0");
-      const yearStr = period.label.split("/")[0] || String(new Date().getFullYear());
-      const slugUpper = period.unitSlug.toUpperCase().substring(0, 8);
-      const regNum = `PPDB-${slugUpper}-${yearStr}-${seq}`;
+      // Cek kuota dan alokasi nomor pendaftaran secara concurrency-safe
+      const { registrationNumber: regNum } = await this.capacityService.allocateRegistrationNumber(tx, dto.periodId);
 
       const reg = await tx.registration.create({
         data: {
@@ -92,6 +190,20 @@ export class RegistrationsService {
           status: RegistrationStatus.pending_payment,
         },
       });
+
+      if (dto.applicantFullName?.trim()) {
+        await tx.studentData.create({
+          data: {
+            registrationId: reg.id,
+            fullName: dto.applicantFullName.trim(),
+            gender: (dto.applicantGender as Gender) || Gender.male,
+            birthPlace: dto.applicantBirthPlace?.trim() || "Belum diisi",
+            birthDate: dto.applicantBirthDate ? new Date(dto.applicantBirthDate) : new Date("2018-01-01"),
+            nisn: dto.applicantNisn?.trim() || null,
+            address: dto.applicantAddress?.trim() || "Belum diisi",
+          },
+        });
+      }
 
       // Buat tagihan pembayaran
       await tx.payment.create({
@@ -128,19 +240,39 @@ export class RegistrationsService {
         throw new BadRequestException("Periode pendaftaran tidak ditemukan.");
       }
 
-      const totalRegistered = await tx.registration.count({
-        where: { periodId: dto.periodId },
-      });
-      const seq = String(totalRegistered + 1).padStart(4, "0");
-      const yearStr = period.label.split("/")[0] || String(new Date().getFullYear());
-      const slugUpper = period.unitSlug.toUpperCase().substring(0, 8);
-      const regNum = `PPDB-${slugUpper}-${yearStr}-${seq}`;
+      if (dto.externalRef) {
+        const existing = await tx.registration.findUnique({
+          where: { periodId_externalRef: { periodId: dto.periodId, externalRef: dto.externalRef } },
+        });
+        if (existing) {
+          throw new ConflictException(`Pendaftar dengan nomor referensi ${dto.externalRef} sudah terdaftar.`);
+        }
+      }
+
+      const { registrationNumber: regNum } = await this.capacityService.allocateRegistrationNumber(tx, dto.periodId);
 
       const inviteToken = randomUUID().replace(/-/g, "");
       const inviteExpiresAt = new Date();
       inviteExpiresAt.setDate(inviteExpiresAt.getDate() + 30); // 30 hari
 
-      const targetStatus = dto.initialStatus || RegistrationStatus.pending_payment;
+      const manifest: BackfillManifest = dto.manifest || {
+        payment: dto.isPaid ? { verified: true, paidAt: dto.paidDate, amount: dto.paidAmount } : undefined,
+        student: dto.student ? {
+          fullName: dto.student.fullName,
+          gender: dto.student.gender as "male" | "female",
+          birthPlace: dto.student.birthPlace,
+          birthDate: dto.student.birthDate,
+          address: dto.student.address,
+        } : undefined,
+        observation: dto.observationScore !== undefined && dto.observationScore !== null ? {
+          scheduleId: "offline-manual",
+          score: dto.observationScore,
+          notes: dto.observationNotes,
+          observerId: actorId,
+        } : undefined,
+      };
+
+      const targetStatus = deriveStatusFromManifest(manifest);
 
       const reg = await tx.registration.create({
         data: {
@@ -159,56 +291,85 @@ export class RegistrationsService {
       });
 
       // Jika data siswa disertakan
-      if (dto.student) {
+      const studentData = manifest.student || dto.student;
+      if (studentData) {
         await tx.studentData.create({
           data: {
             registrationId: reg.id,
-            fullName: dto.student.fullName,
-            nickname: dto.student.nickname || null,
-            gender: dto.student.gender as Gender,
-            birthPlace: dto.student.birthPlace,
-            birthDate: new Date(dto.student.birthDate),
-            nisn: dto.student.nisn || null,
-            address: dto.student.address,
+            fullName: studentData.fullName,
+            nickname: (studentData as any).nickname || null,
+            gender: studentData.gender as Gender,
+            birthPlace: studentData.birthPlace,
+            birthDate: new Date(studentData.birthDate),
+            nisn: (studentData as any).nisn || null,
+            address: studentData.address,
           },
         });
       }
 
       // Pembayaran offline jika ada
+      const isPaid = Boolean(manifest.payment?.verified || dto.isPaid);
       await tx.payment.create({
         data: {
           registrationId: reg.id,
-          amount: dto.paidAmount ?? period.fee,
-          method: dto.isPaid ? PaymentMethod.offline : PaymentMethod.transfer_proof,
-          status: dto.isPaid ? PaymentStatus.verified : PaymentStatus.pending,
-          paidAt: dto.isPaid ? (dto.paidDate ? new Date(dto.paidDate) : new Date()) : null,
-          verifiedAt: dto.isPaid ? new Date() : null,
-          verifiedBy: dto.isPaid ? actorId : null,
+          amount: manifest.payment?.amount ?? dto.paidAmount ?? period.fee,
+          method: isPaid ? PaymentMethod.offline : PaymentMethod.transfer_proof,
+          status: isPaid ? PaymentStatus.verified : PaymentStatus.pending,
+          paidAt: isPaid ? (manifest.payment?.paidAt ? new Date(manifest.payment.paidAt) : dto.paidDate ? new Date(dto.paidDate) : new Date()) : null,
+          verifiedAt: isPaid ? new Date() : null,
+          verifiedBy: isPaid ? actorId : null,
         },
       });
 
+      // Berkas dokumen jika ada dalam manifest
+      if (manifest.documents && manifest.documents.length > 0) {
+        for (const doc of manifest.documents) {
+          await tx.document.create({
+            data: {
+              registrationId: reg.id,
+              type: doc.type as any,
+              objectKey: doc.objectKey,
+              fileName: doc.fileName || doc.objectKey,
+              mimeType: doc.mimeType || "application/octet-stream",
+              fileSize: doc.fileSize || 0,
+            },
+          });
+        }
+      }
+
       // Hasil observasi luring jika ada
-      if (dto.observationScore !== undefined && dto.observationScore !== null) {
+      const obs = manifest.observation || (dto.observationScore !== undefined && dto.observationScore !== null ? {
+        score: dto.observationScore,
+        notes: dto.observationNotes,
+        observerId: actorId,
+      } : null);
+      if (obs) {
         await tx.observationResult.create({
           data: {
             registrationId: reg.id,
-            observerId: actorId,
-            score: dto.observationScore,
-            notes: dto.observationNotes || null,
+            observerId: obs.observerId || actorId,
+            score: obs.score,
+            notes: obs.notes || null,
           },
         });
       }
 
-      // Audit log event
-      await tx.registrationEvent.create({
-        data: {
-          registrationId: reg.id,
-          actorId,
-          toStatus: targetStatus,
-          kind: "backfill",
-          note: `Entri data pendaftar luring oleh admin unit. Ref: ${dto.externalRef || "-"}`,
-        },
-      });
+      // Audit log event trail lengkap
+      const eventTrail = buildManifestEventTrail(
+        manifest,
+        `Entri data pendaftar luring oleh admin unit. Ref: ${dto.externalRef || "-"}`,
+      );
+      for (const ev of eventTrail) {
+        await tx.registrationEvent.create({
+          data: {
+            registrationId: reg.id,
+            actorId,
+            toStatus: ev.toStatus,
+            kind: ev.kind,
+            note: ev.note,
+          },
+        });
+      }
 
       return reg;
     });
@@ -218,8 +379,11 @@ export class RegistrationsService {
   async submitStudentData(registrationId: string, userId: string, dto: SubmitStudentDataDto) {
     const reg = await this.prisma.registration.findUnique({ where: { id: registrationId } });
     if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan.");
-    if (reg.parentId && reg.parentId !== userId) {
+    if (reg.parentId !== userId) {
       throw new ForbiddenException("Anda tidak berhak mengisi data pendaftaran ini.");
+    }
+    if (!([RegistrationStatus.payment_verified, RegistrationStatus.form_filling] as RegistrationStatus[]).includes(reg.status)) {
+      throw new BadRequestException("Tahap pendaftaran saat ini tidak dapat mengisi biodata siswa.");
     }
 
     await this.prisma.studentData.upsert({
@@ -253,7 +417,7 @@ export class RegistrationsService {
       },
     });
 
-    if (reg.status === RegistrationStatus.payment_verified) {
+    if (reg.status === RegistrationStatus.payment_verified && canTransition(reg.status, "form_filling")) {
       await this.prisma.registration.update({
         where: { id: registrationId },
         data: { status: RegistrationStatus.form_filling },
@@ -276,8 +440,11 @@ export class RegistrationsService {
   async submitParentData(registrationId: string, userId: string, dto: SubmitParentDataDto) {
     const reg = await this.prisma.registration.findUnique({ where: { id: registrationId } });
     if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan.");
-    if (reg.parentId && reg.parentId !== userId) {
+    if (reg.parentId !== userId) {
       throw new ForbiddenException("Anda tidak berhak mengisi data pendaftaran ini.");
+    }
+    if (reg.status !== RegistrationStatus.form_filling || !canTransition(reg.status, "documents_uploaded")) {
+      throw new BadRequestException("Data orang tua hanya dapat diisi setelah biodata siswa selesai.");
     }
 
     const parentsToUpsert: any[] = [];
@@ -320,7 +487,7 @@ export class RegistrationsService {
     });
 
     const hasStudent = await this.prisma.studentData.findUnique({ where: { registrationId } });
-    if (hasStudent && (reg.status === RegistrationStatus.form_filling || reg.status === RegistrationStatus.payment_verified)) {
+    if (hasStudent) {
       await this.prisma.registration.update({
         where: { id: registrationId },
         data: { status: RegistrationStatus.documents_uploaded },
@@ -347,8 +514,11 @@ export class RegistrationsService {
       include: { period: true },
     });
     if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan.");
-    if (reg.parentId && reg.parentId !== userId) {
+    if (reg.parentId !== userId) {
       throw new ForbiddenException("Akses ditolak.");
+    }
+    if (!canTransition(reg.status, "payment_uploaded")) {
+      throw new BadRequestException("Tahap pendaftaran saat ini tidak dapat mengunggah pembayaran.");
     }
 
     await this.prisma.$transaction([
@@ -389,13 +559,21 @@ export class RegistrationsService {
     return { success: true };
   }
 
-  async verifyPayment(registrationId: string, actorId: string, dto: VerifyPaymentDto) {
-    const reg = await this.prisma.registration.findUnique({ where: { id: registrationId } });
+  async verifyPayment(registrationId: string, principal: SpmbPrincipal, dto: VerifyPaymentDto) {
+    const actorId = principal.id;
+    const reg = await this.prisma.registration.findUnique({ where: { id: registrationId }, include: { period: true } });
     if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan.");
+    assertUnitAccess(principal, reg.period.unitId, ["admin_unit", "tim_ppdb"]);
+    if (typeof dto.isApproved !== "boolean") {
+      throw new BadRequestException("isApproved harus bernilai boolean.");
+    }
 
     const newStatus = dto.isApproved
       ? RegistrationStatus.payment_verified
       : RegistrationStatus.pending_payment;
+    if (!canTransition(reg.status, newStatus)) {
+      throw new BadRequestException("Tahap pendaftaran saat ini tidak dapat diverifikasi pembayarannya.");
+    }
 
     await this.prisma.$transaction([
       this.prisma.payment.update({
@@ -428,9 +606,98 @@ export class RegistrationsService {
     return { success: true };
   }
 
+  async verifyDocuments(registrationId: string, principal: SpmbPrincipal, isApproved: boolean, rejectionNote?: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const registration = await tx.registration.findUnique({
+        where: { id: registrationId },
+        include: { documents: true, period: true },
+      });
+      if (!registration) throw new NotFoundException("Pendaftaran tidak ditemukan.");
+      assertUnitAccess(principal, registration.period.unitId, ["admin_unit", "tim_ppdb"]);
+      if (typeof isApproved !== "boolean") {
+        throw new BadRequestException("isApproved harus bernilai boolean.");
+      }
+      if (registration.status !== RegistrationStatus.verification) {
+        throw new BadRequestException("Berkas hanya dapat diverifikasi setelah pemeriksaan kesehatan selesai.");
+      }
+
+      if (!isApproved) {
+        const note = rejectionNote?.trim();
+        if (!note || note.length < 3) {
+          throw new BadRequestException("Catatan revisi minimal 3 karakter.");
+        }
+        if (!canTransition(registration.status, "documents_uploaded")) {
+          throw new BadRequestException("Tahap pendaftaran saat ini tidak dapat dikembalikan untuk perbaikan berkas.");
+        }
+        const updated = await tx.registration.update({
+          where: { id: registrationId },
+          data: {
+            status: RegistrationStatus.documents_uploaded,
+            dossierReviewStatus: DossierReviewStatus.revision_required,
+            rejectionReason: note,
+          },
+        });
+        await tx.registrationEvent.create({
+          data: {
+            registrationId,
+            actorId: principal.id,
+            fromStatus: registration.status,
+            toStatus: RegistrationStatus.documents_uploaded,
+            kind: "verification_rejected",
+            note,
+          },
+        });
+        return {
+          success: true,
+          verified: false,
+          dossierReviewStatus: updated.dossierReviewStatus,
+          nextStage: RegistrationStatus.documents_uploaded,
+        };
+      }
+
+      const uploadedTypes = new Set(registration.documents.map((document) => document.type));
+      const missingTypes = requiredDocumentTypes.filter((type) => !uploadedTypes.has(type));
+      if (missingTypes.length > 0) {
+        throw new BadRequestException(`Dokumen wajib belum lengkap: ${missingTypes.join(", ")}.`);
+      }
+
+      const updated = await tx.registration.update({
+        where: { id: registrationId },
+        data: {
+          status: RegistrationStatus.verification,
+          dossierReviewStatus: DossierReviewStatus.approved,
+          rejectionReason: null,
+        },
+      });
+      await tx.registrationEvent.create({
+        data: {
+          registrationId,
+          actorId: principal.id,
+          fromStatus: registration.status,
+          toStatus: registration.status,
+          kind: "verification_approved",
+          note: "Berkas dan hasil kesehatan telah diverifikasi panitia. Orang tua dapat memilih jadwal observasi.",
+        },
+      });
+      return {
+        success: true,
+        verified: true,
+        dossierReviewStatus: updated.dossierReviewStatus,
+      };
+    });
+  }
+
   // ================= ADMIN LIST & DETAIL =================
-  async findAll(query: { periodId?: string; status?: RegistrationStatus; source?: RegistrationSource; search?: string }) {
+  async findAll(
+    query: { periodId?: string; status?: RegistrationStatus; source?: RegistrationSource; search?: string },
+    principal: SpmbPrincipal,
+  ) {
     const where: any = {};
+    if (!isSuperAdmin(principal)) {
+      const unitIds = [...allowedUnitIds(principal, ["admin_unit", "tim_ppdb"])];
+      if (unitIds.length === 0) return [];
+      where.period = { unitId: { in: unitIds } };
+    }
     if (query.periodId) where.periodId = query.periodId;
     if (query.status) where.status = query.status;
     if (query.source) where.source = query.source;
@@ -457,7 +724,7 @@ export class RegistrationsService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, principal: SpmbPrincipal) {
     const reg = await this.prisma.registration.findUnique({
       where: { id },
       include: {
@@ -474,12 +741,20 @@ export class RegistrationsService {
       },
     });
     if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan.");
+    assertUnitAccess(principal, reg.period.unitId, ["admin_unit", "tim_ppdb"]);
     return reg;
   }
 
-  async trackByNumber(regNum: string) {
-    const reg = await this.prisma.registration.findUnique({
-      where: { registrationNumber: regNum.trim().toUpperCase() },
+  async trackByNumber(regNum: string, parentId: string) {
+    if (!parentId) {
+      throw new ForbiddenException("Akses ditolak.");
+    }
+
+    const reg = await this.prisma.registration.findFirst({
+      where: {
+        registrationNumber: regNum.trim().toUpperCase(),
+        parentId,
+      },
       include: {
         period: true,
         studentData: true,

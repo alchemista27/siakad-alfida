@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { ConfirmActionModal } from "./confirm-action-modal";
+import { firstCatalogRole, getRoleScope, rolesForApp, ROLE_CATALOG_APPS } from "@/lib/role-catalog";
 
 type RoleAssignment = {
   id: string;
@@ -24,22 +25,6 @@ type UserRoleModalProps = {
   onChanged: (message: string) => Promise<void> | void;
 };
 
-const ROLE_CATALOG = {
-  auth: ["super_admin"],
-  simpeg: ["admin_kepegawaian", "pegawai", "admin_unit", "admin_unit_nondik"],
-  siakad: ["admin_unit", "guru"],
-  spmb: ["admin_unit", "tim_ppdb"],
-  simakin: ["admin_bidang", "admin_biro", "pic_program", "pic_task"],
-} as const;
-
-const UNIT_SCOPED_ROLES = new Set([
-  "simpeg:admin_unit",
-  "simpeg:admin_unit_nondik",
-  "siakad:admin_unit",
-  "spmb:admin_unit",
-]);
-const DEPARTMENT_SCOPED_ROLES = new Set(["simakin:admin_bidang", "simakin:admin_biro"]);
-
 function getErrorMessage(payload: unknown, fallback: string) {
   if (typeof payload === "object" && payload && "message" in payload) {
     const message = (payload as { message?: unknown }).message;
@@ -50,20 +35,15 @@ function getErrorMessage(payload: unknown, fallback: string) {
 }
 
 export function UserRoleModal({ user, onClose, onChanged }: UserRoleModalProps) {
-  const [app, setApp] = useState<keyof typeof ROLE_CATALOG>("simpeg");
-  const [role, setRole] = useState<string>(ROLE_CATALOG.simpeg[0]);
+  const [app, setApp] = useState("simpeg");
+  const [role, setRole] = useState<string>(firstCatalogRole("simpeg"));
   const [departmentId, setDepartmentId] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [pending, setPending] = useState<{ title: string; description: string; run: () => Promise<void> } | null>(null);
 
-  const roleKey = `${app}:${role}`;
-  const scope = UNIT_SCOPED_ROLES.has(roleKey)
-    ? "unit"
-    : DEPARTMENT_SCOPED_ROLES.has(roleKey)
-      ? "department"
-      : "generic";
-  const rolesForApp = useMemo(() => ROLE_CATALOG[app], [app]);
+  const scope = getRoleScope(app, role);
+  const rolesForSelectedApp = useMemo(() => rolesForApp(app), [app]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -73,9 +53,9 @@ export function UserRoleModal({ user, onClose, onChanged }: UserRoleModalProps) 
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose, pending, submitting]);
 
-  const selectApp = (nextApp: keyof typeof ROLE_CATALOG) => {
+  const selectApp = (nextApp: string) => {
     setApp(nextApp);
-    setRole(ROLE_CATALOG[nextApp][0]);
+    setRole(firstCatalogRole(nextApp));
     setDepartmentId("");
     setMessage(null);
   };
@@ -139,12 +119,7 @@ export function UserRoleModal({ user, onClose, onChanged }: UserRoleModalProps) 
   };
 
   const removeRole = (assignment: RoleAssignment) => {
-    const key = `${assignment.app}:${assignment.role}`;
-    const assignmentScope = UNIT_SCOPED_ROLES.has(key)
-      ? "unit"
-      : DEPARTMENT_SCOPED_ROLES.has(key)
-        ? "department"
-        : "generic";
+    const assignmentScope = getRoleScope(assignment.app, assignment.role);
     if (assignmentScope === "unit" || (assignmentScope === "department" && assignment.role !== "admin_bidang")) {
       setMessage("Peran ini hanya dapat dicabut dari Struktur Organisasi SIMPEG.");
       return;
@@ -205,13 +180,13 @@ export function UserRoleModal({ user, onClose, onChanged }: UserRoleModalProps) 
             <h3 className="text-xs font-semibold text-primary">Tambahkan peran</h3>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <label className="text-xs font-semibold text-primary">Aplikasi
-                <select value={app} onChange={(event) => selectApp(event.target.value as keyof typeof ROLE_CATALOG)} className="mt-1 w-full rounded border border-border bg-surface px-3 py-2 text-xs text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-tertiary">
-                  {Object.keys(ROLE_CATALOG).map((catalogApp) => <option key={catalogApp} value={catalogApp}>{catalogApp.toUpperCase()}</option>)}
+                <select value={app} onChange={(event) => selectApp(event.target.value)} className="mt-1 w-full rounded border border-border bg-surface px-3 py-2 text-xs text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-tertiary">
+                  {ROLE_CATALOG_APPS.map((catalogApp) => <option key={catalogApp} value={catalogApp}>{catalogApp.toUpperCase()}</option>)}
                 </select>
               </label>
               <label className="text-xs font-semibold text-primary">Peran
                 <select value={role} onChange={(event) => { setRole(event.target.value); setDepartmentId(""); setMessage(null); }} className="mt-1 w-full rounded border border-border bg-surface px-3 py-2 text-xs text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-tertiary">
-                  {rolesForApp.map((catalogRole) => <option key={catalogRole} value={catalogRole}>{catalogRole}</option>)}
+                  {rolesForSelectedApp.map((catalogRole) => <option key={catalogRole} value={catalogRole}>{catalogRole}</option>)}
                 </select>
               </label>
             </div>

@@ -17,13 +17,13 @@ export class ImportsController {
 
   @Post("preview")
   @SpmbRoles("admin_unit", "tim_ppdb")
-  async preview(@Body() dto: BatchImportDto) {
-    return this.importsService.preview(dto);
+  async preview(@Req() req: any, @Body() dto: BatchImportDto) {
+    return this.importsService.preview(req.user, dto);
   }
 
   @Post("commit")
   @SpmbRoles("admin_unit", "tim_ppdb")
   async commit(@Req() req: any, @Body() dto: BatchImportDto) {
-    return this.importsService.commit(req.user.id, dto);
+    return this.importsService.commit(req.user, dto);
   }
 }

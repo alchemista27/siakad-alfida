@@ -124,6 +124,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.AdmissionPeriodScalarFieldEnum = {
   id: 'id',
   unitId: 'unitId',
+  sourceAcademicYearId: 'sourceAcademicYearId',
   unitName: 'unitName',
   unitSlug: 'unitSlug',
   label: 'label',
@@ -154,6 +155,7 @@ exports.Prisma.RegistrationScalarFieldEnum = {
   source: 'source',
   externalRef: 'externalRef',
   status: 'status',
+  dossierReviewStatus: 'dossierReviewStatus',
   rejectionReason: 'rejectionReason',
   parentId: 'parentId',
   guardianName: 'guardianName',
@@ -236,7 +238,7 @@ exports.Prisma.DocumentScalarFieldEnum = {
   id: 'id',
   registrationId: 'registrationId',
   type: 'type',
-  fileUrl: 'fileUrl',
+  objectKey: 'objectKey',
   fileName: 'fileName',
   fileSize: 'fileSize',
   mimeType: 'mimeType',
@@ -288,6 +290,27 @@ exports.Prisma.SpmbObserverScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AdmissionPeriodCounterScalarFieldEnum = {
+  periodId: 'periodId',
+  nextSequence: 'nextSequence',
+  intakeReserved: 'intakeReserved',
+  acceptedCount: 'acceptedCount'
+};
+
+exports.Prisma.HandoffOutboxScalarFieldEnum = {
+  id: 'id',
+  registrationId: 'registrationId',
+  idempotencyKey: 'idempotencyKey',
+  payloadHash: 'payloadHash',
+  status: 'status',
+  attempts: 'attempts',
+  lastError: 'lastError',
+  destinationEnrollmentId: 'destinationEnrollmentId',
+  deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -314,12 +337,19 @@ exports.RegistrationStatus = exports.$Enums.RegistrationStatus = {
   form_filling: 'form_filling',
   documents_uploaded: 'documents_uploaded',
   medical_pending: 'medical_pending',
+  medical_uploaded: 'medical_uploaded',
   verification: 'verification',
   observation_scheduled: 'observation_scheduled',
   observation_done: 'observation_done',
   accepted: 'accepted',
   rejected: 'rejected',
   enrolled: 'enrolled'
+};
+
+exports.DossierReviewStatus = exports.$Enums.DossierReviewStatus = {
+  pending: 'pending',
+  approved: 'approved',
+  revision_required: 'revision_required'
 };
 
 exports.HandoffStatus = exports.$Enums.HandoffStatus = {
@@ -375,7 +405,9 @@ exports.Prisma.ModelName = {
   ObservationSchedule: 'ObservationSchedule',
   ObservationBooking: 'ObservationBooking',
   ObservationResult: 'ObservationResult',
-  SpmbObserver: 'SpmbObserver'
+  SpmbObserver: 'SpmbObserver',
+  AdmissionPeriodCounter: 'AdmissionPeriodCounter',
+  HandoffOutbox: 'HandoffOutbox'
 };
 
 /**

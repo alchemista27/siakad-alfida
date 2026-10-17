@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { AdminShell } from "@/components/admin-shell";
 import { ConfirmActionModal } from "@/components/confirm-action-modal";
 import { UserRoleModal } from "@/components/user-role-modal";
+import { MANUAL_ASSIGNABLE_ROLE_CATALOG, ROLE_CATALOG_APPS, firstManualRole } from "@/lib/role-catalog";
 import * as XLSX from "xlsx";
 
 interface UserItem {
@@ -22,19 +23,6 @@ interface UserItem {
     departmentId?: string | null;
   }>;
 }
-
-const APPS_LIST = [
-  "auth",
-  "simakin",
-  "simpeg",
-  "siyaum",
-  "spmb",
-  "siakad",
-  "siskeu",
-  "sisarpras",
-  "sisurat",
-  "core",
-];
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserItem[]>([]);
@@ -70,8 +58,10 @@ export default function UsersPage() {
     phone: "",
     password: "",
     app: "simpeg",
-    role: "pegawai",
+    role: firstManualRole("simpeg"),
   });
+
+  const manualRoles = MANUAL_ASSIGNABLE_ROLE_CATALOG[newUserData.app] ?? [];
 
   // Reset Password Form
   const [newPassword, setNewPassword] = useState("");
@@ -177,6 +167,13 @@ export default function UsersPage() {
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (manualRoles.length === 0 || !newUserData.role) {
+      setMessage({
+        text: "Peran berscope unit/bidang ditetapkan dari Struktur Organisasi SIMPEG.",
+        type: "error",
+      });
+      return;
+    }
     try {
       const res = await fetch("/api/admin/users/manual", {
         method: "POST",
@@ -207,7 +204,7 @@ export default function UsersPage() {
         phone: "",
         password: "",
         app: "simpeg",
-        role: "pegawai",
+        role: firstManualRole("simpeg"),
       });
       fetchUsers();
     } catch (err: any) {
@@ -355,7 +352,7 @@ export default function UsersPage() {
               className="px-3 py-2 text-xs rounded border border-border bg-white focus:ring-2 focus:ring-[#0f7f6d] outline-none"
             >
               <option value="">Semua Aplikasi</option>
-              {APPS_LIST.map((app) => (
+              {ROLE_CATALOG_APPS.map((app) => (
                 <option key={app} value={app}>
                   {app.toUpperCase()}
                 </option>
@@ -581,10 +578,17 @@ export default function UsersPage() {
                     </label>
                     <select
                       value={newUserData.app}
-                      onChange={(e) => setNewUserData({ ...newUserData, app: e.target.value })}
+                      onChange={(event) => {
+                        const app = event.target.value;
+                        setNewUserData((current) => ({
+                          ...current,
+                          app,
+                          role: firstManualRole(app),
+                        }));
+                      }}
                       className="w-full px-2 py-1.5 text-xs rounded border border-border bg-white"
                     >
-                      {APPS_LIST.map((app) => (
+                      {ROLE_CATALOG_APPS.map((app) => (
                         <option key={app} value={app}>
                           {app}
                         </option>
@@ -595,16 +599,27 @@ export default function UsersPage() {
                     <label className="block text-xs font-semibold text-primary mb-1">
                       Peran (Role) *
                     </label>
-                    <input
-                      type="text"
+                    <select
                       required
                       value={newUserData.role}
-                      onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
-                      className="w-full px-2 py-1.5 text-xs rounded border border-border"
-                      placeholder="Contoh: pegawai / guru"
-                    />
+                      onChange={(event) => setNewUserData((current) => ({ ...current, role: event.target.value }))}
+                      disabled={manualRoles.length === 0}
+                      className="w-full px-2 py-1.5 text-xs rounded border border-border bg-white"
+                    >
+                      {manualRoles.length > 0 ? (
+                        manualRoles.map((role) => <option key={role} value={role}>{role}</option>)
+                      ) : (
+                        <option value="">Tidak ada peran langsung untuk aplikasi ini</option>
+                      )}
+                    </select>
                   </div>
                 </div>
+
+                {manualRoles.length === 0 && (
+                  <p className="rounded border border-border bg-neutral p-2 text-xs text-primary">
+                    Peran berscope unit/bidang ditetapkan dari Struktur Organisasi SIMPEG.
+                  </p>
+                )}
 
                 <div className="flex justify-end gap-2 pt-3 border-t border-border">
                   <button
@@ -616,7 +631,8 @@ export default function UsersPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-1.5 rounded bg-tertiary hover:bg-[#0b6355] text-white text-xs font-semibold"
+                    disabled={manualRoles.length === 0}
+                    className="px-4 py-1.5 rounded bg-tertiary hover:bg-[#0b6355] text-white text-xs font-semibold disabled:opacity-60"
                   >
                     Simpan Pengguna
                   </button>

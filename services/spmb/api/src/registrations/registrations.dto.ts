@@ -1,7 +1,15 @@
 import { Gender, ParentType, RegistrationStatus } from "../generated/prisma";
+import { IsBoolean, IsOptional, IsString, Matches, MinLength, ValidateIf } from "class-validator";
+import type { BackfillManifest } from "../imports/backfill-manifest.policy";
 
 export class CreateOnlineRegistrationDto {
   periodId: string;
+  applicantFullName?: string;
+  applicantGender?: "male" | "female";
+  applicantBirthPlace?: string;
+  applicantBirthDate?: string;
+  applicantNisn?: string;
+  applicantAddress?: string;
 }
 
 export class CreateOfflineRegistrationDto {
@@ -10,7 +18,8 @@ export class CreateOfflineRegistrationDto {
   guardianName: string;
   guardianPhone: string;
   guardianEmail?: string;
-  initialStatus?: RegistrationStatus; // tahap yang sudah dicapai, default: pending_payment
+  initialStatus?: RegistrationStatus; // deprecated: ignored in favor of manifest-derived status
+  manifest?: BackfillManifest;
   // Data Siswa langsung (opsional jika sudah ada)
   student?: {
     fullName: string;
@@ -75,6 +84,21 @@ export class UploadPaymentDto {
 }
 
 export class VerifyPaymentDto {
+  @IsBoolean()
   isApproved: boolean;
+
+  @IsOptional()
+  @IsString()
+  rejectionNote?: string;
+}
+
+export class ReviewDossierDto {
+  @IsBoolean()
+  isApproved!: boolean;
+
+  @ValidateIf((dto) => dto.isApproved === false)
+  @IsString()
+  @MinLength(3)
+  @Matches(/\S/)
   rejectionNote?: string;
 }

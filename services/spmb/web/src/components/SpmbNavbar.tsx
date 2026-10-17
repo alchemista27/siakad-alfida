@@ -36,16 +36,16 @@ export function SpmbNavbar() {
             Beranda
           </a>
           <a
-            href="/register"
+            href="/parent"
             className="text-sm font-medium text-gray-700 hover:text-[#06bfa2] transition-colors"
           >
-            Daftar Online
+            Portal Orang Tua
           </a>
           <a
-            href="/status"
+            href="/parent"
             className="text-sm font-medium text-gray-700 hover:text-[#06bfa2] transition-colors"
           >
-            Cek Status
+            Status Pendaftaran
           </a>
           <a
             href="/admin"
@@ -57,7 +57,7 @@ export function SpmbNavbar() {
 
         <div className="flex items-center gap-3">
           <a
-            href="https://auth.alfida.or.id/login"
+            href="https://auth.alfida.or.id/login?return_to=https%3A%2F%2Fspmb.alfida.or.id%2Fparent"
             className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
           >
             <svg
