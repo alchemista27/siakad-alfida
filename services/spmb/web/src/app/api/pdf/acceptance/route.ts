@@ -1,4 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createAcceptancePdf, type AcceptanceLetterPdfInput } from "@/lib/letters/acceptance-pdf";
+
+function parseLetter(payload: unknown): AcceptanceLetterPdfInput | null {
+  if (!payload || typeof payload !== "object") return null;
+  const value = payload as Record<string, unknown>;
+  const required = ["registrationNumber", "unitName", "academicYearLabel", "studentName"] as const;
+  if (!required.every((key) => typeof value[key] === "string" && value[key].trim())) return null;
+
+  return {
+    registrationNumber: value.registrationNumber as string,
+    unitName: value.unitName as string,
+    academicYearLabel: value.academicYearLabel as string,
+    studentName: value.studentName as string,
+    decisionNote: typeof value.decisionNote === "string" ? value.decisionNote : null,
+  };
+}
+
+function safeFilenamePart(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "surat-diterima";
+}
 
 export async function GET(request: NextRequest) {
   const registrationId = request.nextUrl.searchParams.get("registrationId")?.trim();
@@ -26,37 +46,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(payload, { status: upstream.status });
   }
 
-  const letter = await upstream.json();
-  const html = `<!doctype html>
-<html lang="id">
-<head>
-  <meta charset="utf-8" />
-  <title>Surat Keterangan Diterima - ${letter.registrationNumber}</title>
-  <style>
-    body { font-family: Inter, sans-serif; color: #454545; background: #F7F8F8; padding: 32px; }
-    .sheet { max-width: 720px; margin: 0 auto; background: #FFFFFF; border: 1px solid #E3E8E7; padding: 32px; }
-    h1 { font-family: Lora, serif; color: #454545; margin-bottom: 8px; }
-    .badge { display: inline-block; padding: 4px 10px; background: #e6f4f1; color: #0f7f6d; font-weight: 700; font-size: 12px; }
-    .row { margin: 10px 0; font-size: 14px; }
-  </style>
-</head>
-<body>
-  <div class="sheet">
-    <span class="badge">SURAT KETERANGAN KELULUSAN SELEKSI SPMB</span>
-    <h1>${letter.unitName}</h1>
-    <p class="row">Tahun Ajaran: <strong>${letter.academicYearLabel}</strong></p>
-    <p class="row">Nomor Registrasi: <strong>${letter.registrationNumber}</strong></p>
-    <p class="row">Nama Calon Santri: <strong>${letter.studentName}</strong></p>
-    <p class="row">Status Seleksi: <strong>DITERIMA</strong></p>
-    <p class="row">Catatan Panitia: ${letter.decisionNote}</p>
-  </div>
-</body>
-</html>`;
+  const letter = parseLetter(await upstream.json());
+  if (!letter) {
+    return NextResponse.json({ message: "Data surat keterangan tidak valid." }, { status: 502 });
+  }
 
-  return new NextResponse(html, {
+  const pdf = createAcceptancePdf(letter);
+  const pdfBody = new Uint8Array(pdf).buffer as ArrayBuffer;
+  return new NextResponse(pdfBody, {
     status: 200,
     headers: {
-      "content-type": "text/html; charset=utf-8",
+      "content-type": "application/pdf",
+      "content-disposition": `inline; filename="surat-diterima-${safeFilenamePart(letter.registrationNumber)}.pdf"`,
+      "cache-control": "private, no-store",
+      "x-content-type-options": "nosniff",
     },
   });
 }

@@ -135,6 +135,7 @@ model User {
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   syncedAt  DateTime? @map("synced_at") @db.Timestamptz
+  sourceUpdatedAt DateTime? @map("source_updated_at") @db.Timestamptz
 
   departmentAdmins    DepartmentAdmin[]
   departmentMembers   DepartmentMember[]

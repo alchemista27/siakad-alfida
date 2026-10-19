@@ -27,6 +27,10 @@ interface RankingItem {
 }
 
 export default function ObserverPage() {
+  const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string; email?: string } | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [accessDenied, setAccessDenied] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>("");
   const [periods, setPeriods] = useState<Period[]>([]);
   const [selectedPeriodId, setSelectedPeriodId] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"assess" | "rankings">("assess");
@@ -39,20 +43,82 @@ export default function ObserverPage() {
   const [scoreInput, setScoreInput] = useState<number>(85);
   const [notesInput, setNotesInput] = useState<string>("");
 
+  const handleLogout = async () => {
+    const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
+    try {
+      await fetch(`${authUrl}/api/auth/logout`, {
+        credentials: "include",
+        method: "POST",
+      });
+    } catch {}
+    window.location.href = `${authUrl}/login`;
+  };
+
   useEffect(() => {
-    async function loadPeriods() {
+    async function loadUserAndInit() {
+      const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
       try {
-        const res = await fetch("/api/periods");
-        if (res.ok) {
-          const data = await res.json();
-          setPeriods(data);
-          if (data.length > 0) setSelectedPeriodId(data[0].id);
+        const res = await fetch(`${authUrl}/api/auth/me`, { credentials: "include" });
+        if (!res.ok) {
+          window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
+          return;
+        }
+        const data = await res.json();
+        if (!data?.user) {
+          window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
+          return;
+        }
+
+        setUserEmail(data.user.email || "");
+
+        // Validasi peran RBAC untuk portal Penguji Observasi SPMB
+        const allowedRoles = ["super_admin", "admin_unit", "tim_ppdb", "observer"];
+        const hasAccess = data.user.roles?.some((r: any) => {
+          const roleName = typeof r === "string" ? r : r.role;
+          const appName = typeof r === "string" ? "*" : r.app || "*";
+          if (roleName === "super_admin" && (appName === "*" || appName === "auth" || appName === "core")) {
+            return true;
+          }
+          if (appName === "*" || appName === "spmb") {
+            return allowedRoles.includes(roleName);
+          }
+          return false;
+        });
+
+        if (!hasAccess) {
+          setAccessDenied(true);
+          setAuthLoading(false);
+          return;
+        }
+
+        const primaryRole = data.user.roles?.find((r: any) => {
+          const roleName = typeof r === "string" ? r : r.role;
+          return allowedRoles.includes(roleName);
+        });
+        const roleRaw = (typeof primaryRole === "object" ? primaryRole?.role : primaryRole) || "OBSERVER";
+        const roleLabel = roleRaw.replace(/_/g, " ").toUpperCase();
+
+        setCurrentUser({
+          fullName: data.user.fullName || data.user.email || "Penguji SPMB",
+          role: roleLabel,
+        });
+        setAuthLoading(false);
+
+        try {
+          const resPeriods = await fetch("/api/periods");
+          if (resPeriods.ok) {
+            const dataPeriods = await resPeriods.json();
+            setPeriods(dataPeriods);
+            if (dataPeriods.length > 0) setSelectedPeriodId(dataPeriods[0].id);
+          }
+        } catch {
+          setNotice({ type: "error", message: "Gagal memuat daftar periode." });
         }
       } catch {
-        setNotice({ type: "error", message: "Gagal memuat daftar periode." });
+        window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
       }
     }
-    loadPeriods();
+    loadUserAndInit();
   }, []);
 
   const fetchData = async () => {
@@ -81,8 +147,10 @@ export default function ObserverPage() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [selectedPeriodId, activeTab]);
+    if (!authLoading && !accessDenied) {
+      fetchData();
+    }
+  }, [selectedPeriodId, activeTab, authLoading, accessDenied]);
 
   const handleOpenScoreModal = (candidate: ObserverCandidateItem) => {
     setActiveCandidate(candidate);
@@ -122,6 +190,46 @@ export default function ObserverPage() {
     }
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#F7F8F8] flex flex-col items-center justify-center p-6 text-[#454545] font-body">
+        <div className="w-10 h-10 border-3 border-[#0f7f6d] border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-sm font-medium text-gray-600">Memverifikasi sesi & wewenang penguji...</p>
+      </div>
+    );
+  }
+
+  if (accessDenied) {
+    return (
+      <div className="min-h-screen bg-[#F7F8F8] flex items-center justify-center p-6 text-[#454545] font-body">
+        <div className="max-w-md w-full bg-white border border-[#E3E8E7] rounded-xl p-8 shadow-sm text-center space-y-4">
+          <div className="w-14 h-14 mx-auto rounded-full bg-red-50 text-red-600 flex items-center justify-center">
+            <span className="material-symbols-rounded text-3xl">gpp_maybe</span>
+          </div>
+          <h2 className="text-xl font-bold font-heading text-[#454545]">Akses Ditolak</h2>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            Akun Anda ({userEmail || "pengguna"}) tidak terdaftar sebagai Penguji Observasi atau Panitia SPMB.
+          </p>
+          <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
+            <a
+              href="https://auth.alfida.or.id/modules"
+              className="px-4 py-2 bg-[#0f7f6d] text-white text-xs font-semibold rounded-lg hover:bg-[#0d6d5d] transition-colors"
+            >
+              Kembali ke Portal Modul
+            </a>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="px-4 py-2 border border-[#E3E8E7] text-xs font-semibold rounded-lg hover:bg-gray-50 text-gray-700"
+            >
+              Ganti Akun
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F7F8F8] text-[#454545] font-body flex flex-col justify-between">
       <header className="h-[60px] bg-white border-b border-[#E3E8E7] sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6">
@@ -129,9 +237,22 @@ export default function ObserverPage() {
           <span className="font-heading font-bold text-lg text-[#0f7f6d]">SPMB · Portal Penguji Observasi</span>
         </div>
         <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold text-[#454545] hidden sm:inline">{currentUser?.fullName}</span>
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-teal-50 text-[#0f7f6d] hidden sm:inline">
+            {currentUser?.role}
+          </span>
           <a href="/admin" className="text-xs font-semibold text-[#0f7f6d] hover:underline">
             Portal Admin
           </a>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="text-xs text-gray-600 hover:text-red-700 px-2 py-1 rounded border border-[#E3E8E7] hover:border-red-200 hover:bg-red-50 flex items-center gap-1 transition-colors"
+            title="Keluar dari sistem"
+          >
+            <span className="material-symbols-rounded text-[16px]">logout</span>
+            <span className="hidden sm:inline">Keluar</span>
+          </button>
         </div>
       </header>
 

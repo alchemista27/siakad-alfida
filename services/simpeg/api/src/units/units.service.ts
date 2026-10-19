@@ -18,7 +18,7 @@ type Principal = { roles?: unknown };
 export class UnitsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly sync: OrganizationSyncService,
+    private readonly sync?: OrganizationSyncService,
   ) {}
 
   async findAll(principal?: Principal) {
@@ -40,14 +40,22 @@ export class UnitsService {
     return unit;
   }
 
-  create(data: UnitInput) {
+  async create(data: UnitInput) {
     const normalized = this.normalizeInput(data, true);
-    return this.prisma.unit.create({ data: normalized });
+    return this.writeUnitAndProjection(async (tx) => {
+      const unit = await tx.unit.create({ data: normalized });
+      await this.enqueueUnitProjection(tx, unit);
+      return unit;
+    });
   }
 
   async update(id: string, data: UnitInput) {
     await this.ensureExists(id);
-    return this.prisma.unit.update({ where: { id }, data: this.normalizeInput(data, false) });
+    return this.writeUnitAndProjection(async (tx) => {
+      const unit = await tx.unit.update({ where: { id }, data: this.normalizeInput(data, false) });
+      await this.enqueueUnitProjection(tx, unit);
+      return unit;
+    });
   }
 
   async remove(id: string, principal?: Principal) {
@@ -88,45 +96,61 @@ export class UnitsService {
     }
 
     const assignments = (this.prisma as any).unitAdminAssignment;
-    const changed: Array<{ local: any; wasActive: boolean; app: UnitAdminApp }> = [];
-    const granted: UnitAdminApp[] = [];
+    const changed: Array<{ local: any; wasActive: boolean; app: UnitAdminApp; compensationId: string | null }> = [];
+    const granted: Array<{ app: UnitAdminApp; authAssignmentId: string; compensationId: string | null }> = [];
     try {
       for (const app of apps) {
         const compound = { unitId_userId_app_role: { unitId, userId: dto.userId, app, role } };
         const existing = await assignments.findUnique({ where: compound });
-        const local = await assignments.upsert({
-          where: compound,
-          create: {
-            unitId,
-            userId: dto.userId,
-            app,
-            role,
-            isActive: true,
-            assignedById: principal.id,
-            revokedAt: null,
-            revokedById: null,
-          },
-          update: {
-            isActive: true,
-            assignedById: principal.id,
-            assignedAt: new Date(),
-            revokedAt: null,
-            revokedById: null,
-          },
+        const prepared = await this.prisma.$transaction(async (tx: any) => {
+          const local = await tx.unitAdminAssignment.upsert({
+            where: compound,
+            create: { unitId, userId: dto.userId, app, role, isActive: true, assignedById: principal.id, revokedAt: null, revokedById: null },
+            update: { isActive: true, assignedById: principal.id, assignedAt: new Date(), revokedAt: null, revokedById: null },
+          });
+          let compensation: any = null;
+          if (typeof (this.sync as any)?.armAuthRoleRevocation === "function") {
+            compensation = await (this.sync as any).armAuthRoleRevocation(tx, {
+              localAssignmentId: local.id, scope: "unit", userId: dto.userId, scopeId: unitId, app, role, requestedById: principal.id,
+            });
+          }
+          return { local, compensationId: compensation?.id ?? null };
         });
-        changed.push({ local, wasActive: Boolean(existing?.isActive), app });
+        changed.push({ local: prepared.local, wasActive: Boolean(existing?.isActive), app, compensationId: prepared.compensationId });
         const authAssignmentId = await this.grantAuthUnitRole(dto.userId, unitId, app, role, authorization);
-        granted.push(app);
-        await assignments.update({ where: { id: local.id }, data: { authAssignmentId } });
+        granted.push({ app, authAssignmentId, compensationId: prepared.compensationId });
+        await this.prisma.$transaction(async (tx: any) => {
+          await tx.unitAdminAssignment.update({ where: { id: prepared.local.id }, data: { authAssignmentId } });
+          if (typeof (this.sync as any)?.completeAuthRoleGrant === "function") {
+            await (this.sync as any).completeAuthRoleGrant(tx, prepared.compensationId, authAssignmentId);
+          }
+        });
       }
     } catch {
-      await Promise.all(changed
-        .filter(({ wasActive }) => !wasActive)
-        .map(({ local }) => assignments.update({
-          where: { id: local.id },
-          data: { isActive: false, revokedAt: new Date(), revokedById: principal.id },
-        })));
-      await Promise.allSettled(granted.map((app) => this.revokeAuthUnitRole(dto.userId, unitId, app, role, authorization)));
+      await Promise.all(changed.filter(({ wasActive }) => !wasActive).map(({ local }) => assignments.update({
+        where: { id: local.id }, data: { isActive: false, revokedAt: new Date(), revokedById: principal.id },
+      })));
+      const grantedCompensations = new Set(granted.map(({ compensationId }) => compensationId).filter(Boolean));
+      if (typeof (this.sync as any)?.cancelAuthRoleRevocation === "function" || typeof (this.sync as any)?.scheduleAuthRoleRevocation === "function") {
+        await this.prisma.$transaction(async (tx: any) => {
+          if (typeof (this.sync as any)?.cancelAuthRoleRevocation === "function") {
+            await Promise.all(changed.filter(({ compensationId }) => compensationId && !grantedCompensations.has(compensationId)).map(({ compensationId }) => (this.sync as any).cancelAuthRoleRevocation(tx, compensationId)));
+          }
+          if (typeof (this.sync as any)?.scheduleAuthRoleRevocation === "function") {
+            await Promise.all(granted.map(({ compensationId, authAssignmentId }) => (this.sync as any).scheduleAuthRoleRevocation(tx, compensationId, authAssignmentId)));
+          }
+        });
+      }
+      await Promise.all(granted.map(async ({ app, compensationId }) => {
+        try {
+          await this.revokeAuthUnitRole(dto.userId, unitId, app, role, authorization);
+          if (typeof (this.sync as any)?.cancelAuthRoleRevocation === "function") {
+            await this.prisma.$transaction((tx: any) => (this.sync as any).cancelAuthRoleRevocation(tx, compensationId));
+          }
+        } catch {
+          // The durable compensation remains pending for the reconciler.
+        }
+      }));
       throw new BadGatewayException("Penetapan peran organisasi di layanan autentikasi gagal.");
     }
 
@@ -159,6 +183,28 @@ export class UnitsService {
       return updated;
     });
     return result;
+  }
+
+  private async writeUnitAndProjection<T>(operation: (tx: any) => Promise<T>) {
+    const transaction = (this.prisma as any).$transaction;
+    return typeof transaction === "function"
+      ? transaction.call(this.prisma, operation)
+      : operation(this.prisma);
+  }
+
+  private async enqueueUnitProjection(tx: any, unit: any) {
+    if (!this.sync) return;
+    if (!unit.updatedAt) throw new Error("Unit source update timestamp is required for synchronization.");
+    if (unit.category !== "pendidikan" && unit.category !== "nondik") {
+      throw new Error("Unit category is invalid for synchronization.");
+    }
+    await this.sync.enqueueUnit(tx, {
+      id: unit.id,
+      name: unit.name,
+      category: unit.category,
+      isActive: unit.isActive,
+      updatedAt: unit.updatedAt,
+    });
   }
 
   private async findActiveEmployee(userId: string) {

@@ -10,15 +10,14 @@ function getReturnUrl(request: NextRequest): string {
   return request.url;
 }
 
-const protectedPrefixes = ["/admin", "/teacher", "/parent"];
-
 export function middleware(request: NextRequest) {
-  const isProtected = protectedPrefixes.some((prefix) => request.nextUrl.pathname.startsWith(prefix));
+  const isProtected = true;
   if (!isProtected) return NextResponse.next();
 
   const sessionToken =
     request.cookies.get("alfida_session")?.value ||
-    request.cookies.get("better-auth.session_token")?.value;
+    request.cookies.get("better-auth.session_token")?.value ||
+    request.cookies.get("__Secure-better-auth.session_token")?.value;
   if (sessionToken) return NextResponse.next();
 
   const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";

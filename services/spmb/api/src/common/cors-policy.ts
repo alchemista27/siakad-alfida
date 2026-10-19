@@ -3,8 +3,7 @@ export function isAllowedCorsOrigin(origin: string | undefined, allowedOrigins: 
   if (allowedOrigins.includes(origin)) return true;
 
   try {
-    const url = new URL(origin);
-    return url.protocol === "https:" && url.hostname.endsWith(".alfida.or.id");
+    return allowedOrigins.includes(new URL(origin).origin);
   } catch {
     return false;
   }

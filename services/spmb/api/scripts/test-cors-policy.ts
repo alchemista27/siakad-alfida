@@ -11,7 +11,7 @@ const allowed = [
 
 for (const origin of [
   "https://spmb.alfida.or.id",
-  "https://admin.alfida.or.id",
+  "https://auth.alfida.or.id",
   "http://localhost:3000",
 ]) {
   if (!isAllowedCorsOrigin(origin, allowed)) {
@@ -20,6 +20,8 @@ for (const origin of [
 }
 
 for (const origin of [
+  "https://admin.alfida.or.id",
+  "https://untrusted.alfida.or.id",
   "https://spmb.alfida.or.id.evil.test",
   "https://alfida.or.id.evil.test",
   "https://evilalfida.or.id",

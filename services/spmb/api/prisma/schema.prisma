@@ -338,6 +338,9 @@ model HandoffOutbox {
   payloadHash             String    @map("payload_hash") @db.VarChar(128)
   status                  String    @default("pending") @db.VarChar(30)
   attempts                Int       @default(0)
+  availableAt             DateTime  @default(now()) @map("available_at") @db.Timestamptz
+  leasedAt                DateTime? @map("leased_at") @db.Timestamptz
+  leaseOwner              String?   @map("lease_owner") @db.VarChar(100)
   lastError               String?   @map("last_error") @db.Text
   destinationEnrollmentId String?   @map("destination_enrollment_id") @db.Uuid
   deliveredAt             DateTime? @map("delivered_at") @db.Timestamptz
@@ -345,5 +348,7 @@ model HandoffOutbox {
   updatedAt               DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
   registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  @@index([status, availableAt])
+  @@index([status, leasedAt])
   @@map("handoff_outbox")
 }

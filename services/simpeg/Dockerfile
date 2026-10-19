@@ -1,5 +1,5 @@
 FROM node:22-alpine AS base
-RUN apk add --no-cache libc6-compat \
+RUN apk add --no-cache libc6-compat openssl \
   && corepack enable pnpm \
   && corepack prepare pnpm@12.6.0 --activate
 ENV NEXT_TELEMETRY_DISABLED=1 \

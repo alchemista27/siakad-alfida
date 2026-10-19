@@ -61,7 +61,8 @@ assert.deepEqual(authRequests, [
 for (const event of outboxEvents) {
   assert.equal(event.create.aggregate, "user");
   assert.equal(event.create.eventType, "user.projected");
-  assert.deepEqual(Object.keys(event.create.payload).sort(), ["avatarUrl", "email", "fullName", "id", "isActive", "username"]);
+  assert.deepEqual(Object.keys(event.create.payload).sort(), ["avatarUrl", "email", "fullName", "id", "isActive", "sourceUpdatedAt", "username"]);
+  assert.equal(event.create.payload.sourceUpdatedAt, "1970-01-01T00:00:00.000Z", "legacy projections must use the oldest deterministic source version");
   assert.equal("passwordHash" in event.create.payload, false, "User projection event must not contain passwordHash");
 }
 

@@ -32,9 +32,9 @@ if (authenticatedResponse.headers.get("location")) {
   throw new Error("authenticated protected route must not redirect");
 }
 
-const publicResponse = middleware(request("/"));
-if (publicResponse.headers.get("location")) {
-  throw new Error("public route must not redirect");
+const rootResponse = middleware(request("/"));
+if (rootResponse.status !== 307 || !rootResponse.headers.get("location")?.startsWith("https://auth.alfida.or.id/login?")) {
+  throw new Error("SIAKAD root must be protected and redirect unauthenticated users to central auth");
 }
 
 console.log("SIAKAD auth route contract passed");

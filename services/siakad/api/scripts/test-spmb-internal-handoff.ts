@@ -81,6 +81,7 @@ function makeMockPrisma(state: {
       },
     },
     unitProjection: {
+      findUnique: async (args: any) => state.unitProjections.find((unit) => unit.id === args.where.id) ?? null,
       findMany: async () => state.unitProjections,
     },
     $transaction: async (cb: any) => cb(client),
@@ -110,6 +111,7 @@ async function main() {
         name: "SMP Islam Alfida",
         slug: "smp-islam-alfida",
         status: "active",
+        category: "pendidikan",
       },
     ],
   };
@@ -193,7 +195,20 @@ async function main() {
   assert.equal(state.students.length, 1, "Idempotent retry must not create duplicate student");
   assert.equal(state.enrollments.length, 1, "Idempotent retry must not create duplicate enrollment");
 
-  // 5. Conflict: Same registration ID with a different idempotencyKey throws ConflictException
+  // 5. A source academic year that is not projected for the same unit must fail closed;
+  // it must never fall back to another active or arbitrary academic year.
+  await assert.rejects(
+    () => controller.handleSpmbHandoff(secretKey, undefined, {
+      ...validPayload,
+      idempotencyKey: "55555555-5555-5555-5555-555555555555",
+      spmbRegistrationId: "66666666-6666-6666-6666-666666666666",
+      sourceAcademicYearId: "d4444444-0000-0000-0000-000000000099",
+    }),
+    BadRequestException,
+    "Unprojected source academic year must not be substituted during handoff",
+  );
+
+  // 6. Conflict: Same registration ID with a different idempotencyKey throws ConflictException
   await assert.rejects(
     () =>
       controller.handleSpmbHandoff(secretKey, undefined, {

@@ -14,6 +14,15 @@ const protectedPrefixes = ["/admin", "/observer", "/parent", "/status"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
+
+  if (pathname === "/login") {
+    const loginUrl = new URL("/login", authUrl);
+    const returnUrl = `${request.headers.get("x-forwarded-proto") || "https"}://${request.headers.get("x-forwarded-host") || request.headers.get("host") || "spmb.alfida.or.id"}/admin`;
+    loginUrl.searchParams.set("return_to", returnUrl);
+    return NextResponse.redirect(loginUrl);
+  }
+
   const isProtected = pathname === "/" || protectedPrefixes.some((prefix) => pathname.startsWith(prefix));
 
   if (isProtected) {
@@ -22,7 +31,6 @@ export function middleware(request: NextRequest) {
       request.cookies.get("better-auth.session_token")?.value;
 
     if (!sessionToken) {
-      const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
       const loginUrl = new URL("/login", authUrl);
       const returnUrl = pathname === "/"
         ? `${request.headers.get("x-forwarded-proto") || "https"}://${request.headers.get("x-forwarded-host") || request.headers.get("host") || "spmb.alfida.or.id"}/admin`

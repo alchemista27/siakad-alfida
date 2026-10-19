@@ -1,0 +1,33 @@
+{
+  "name": "siskeu-api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm run db:generate && nest build && cp -r src/generated dist/",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/main.js",
+    "typecheck": "pnpm run db:generate && tsc --noEmit",
+    "db:generate": "prisma generate",
+    "test:internal": "tsx scripts/test-internal-spp-contract.ts",
+    "test:generator": "tsx scripts/test-spp-generator-contract.ts",
+    "test:lifecycle": "tsx scripts/test-static-lifecycle.ts",
+    "test:contracts": "pnpm run test:internal && pnpm run test:generator && pnpm run test:lifecycle"
+  },
+  "dependencies": {
+    "@alfida/auth-sdk": "workspace:*",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/platform-express": "^11.0.1",
+    "@prisma/client": "^6.1.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@types/node": "^22.10.7",
+    "prisma": "^6.1.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

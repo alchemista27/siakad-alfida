@@ -49,10 +49,24 @@ enum DepartmentAdminRole {
 
 enum OrganizationSyncAggregate {
   department
+  unit
   user
 }
 
 enum OrganizationSyncStatus {
+  pending
+  processing
+  delivered
+  failed
+}
+
+enum AuthRoleCompensationScope {
+  unit
+  department
+}
+
+enum AuthRoleCompensationStatus {
+  armed
   pending
   processing
   delivered
@@ -69,6 +83,7 @@ model User {
   leaveQuota Int      @default(12) @map("leave_quota")
   isActive   Boolean  @default(true) @map("is_active")
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
   profile             EmployeeProfile?
   unitAssignments     EmployeeUnitAssignment[]
@@ -179,6 +194,29 @@ model OrganizationSyncOutbox {
   @@index([status, availableAt])
   @@index([aggregate, aggregateId])
   @@map("organization_sync_outbox")
+}
+
+model AuthRoleCompensation {
+  id                String                     @id @default(uuid()) @db.Uuid
+  localAssignmentId String                     @unique @map("local_assignment_id") @db.Uuid
+  scope             AuthRoleCompensationScope
+  userId            String                     @map("user_id") @db.Uuid
+  scopeId           String                     @map("scope_id") @db.Uuid
+  app               String                     @db.VarChar(30)
+  role              String                     @db.VarChar(50)
+  requestedById     String?                    @map("requested_by_id") @db.Uuid
+  authAssignmentId  String?                    @map("auth_assignment_id") @db.Uuid
+  idempotencyKey    String                     @unique @map("idempotency_key") @db.VarChar(220)
+  status            AuthRoleCompensationStatus @default(armed)
+  attemptCount      Int                        @default(0) @map("attempt_count")
+  lastError         String?                    @map("last_error") @db.Text
+  availableAt       DateTime                   @default(now()) @map("available_at") @db.Timestamptz
+  deliveredAt       DateTime?                  @map("delivered_at") @db.Timestamptz
+  createdAt         DateTime                   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime                   @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([status, availableAt])
+  @@map("auth_role_compensations")
 }
 
 model EmployeeUnitAssignment {

@@ -10,7 +10,7 @@ const allowedOrigins = [
 for (const origin of [
   undefined,
   "https://siakad.alfida.or.id",
-  "https://admin.alfida.or.id",
+  "https://auth.alfida.or.id",
   "http://localhost:3000",
 ]) {
   if (!isAllowedCorsOrigin(origin, allowedOrigins)) {
@@ -19,6 +19,7 @@ for (const origin of [
 }
 
 for (const origin of [
+  "https://admin.alfida.or.id",
   "https://alfida.or.id",
   "http://admin.alfida.or.id",
   "https://siakad.alfida.or.id.evil.test",

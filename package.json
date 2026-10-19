@@ -7,6 +7,7 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "test": "turbo test",
+    "test:contracts": "node scripts/test-contract-suite.mjs",
     "typecheck": "turbo typecheck",
     "db:push": "pnpm --filter @sim/database exec prisma db push",
     "db:seed": "pnpm --filter @sim/database exec tsx prisma/seed.ts",

@@ -90,21 +90,41 @@ export class DepartmentsService {
     if (!employee?.isActive) throw new BadRequestException("Pegawai aktif tidak ditemukan.");
 
     const assignments = (this.prisma as any).departmentAdminAssignment;
-    const local = await this.prisma.$transaction(async (tx) => (tx as any).departmentAdminAssignment.upsert({
-      where: { departmentId_userId_role: { departmentId, userId, role: "admin_bidang" } },
-      create: { departmentId, userId, role: "admin_bidang", assignedById, isActive: true, revokedAt: null, revokedById: null },
-      update: { isActive: true, assignedById, assignedAt: new Date(), revokedAt: null, revokedById: null },
-    }));
+    const prepared = await this.prisma.$transaction(async (tx: any) => {
+      const local = await tx.departmentAdminAssignment.upsert({
+        where: { departmentId_userId_role: { departmentId, userId, role: "admin_bidang" } },
+        create: { departmentId, userId, role: "admin_bidang", assignedById, isActive: true, revokedAt: null, revokedById: null },
+        update: { isActive: true, assignedById, assignedAt: new Date(), revokedAt: null, revokedById: null },
+      });
+      const compensation = await this.sync.armAuthRoleRevocation(tx, {
+        localAssignmentId: local.id, scope: "department", userId, scopeId: departmentId, app: "simakin", role: "admin_bidang", requestedById: assignedById,
+      });
+      return { local, compensationId: compensation?.id ?? null };
+    });
 
+    let authAssignmentId: string | null = null;
     try {
-      const authAssignmentId = await this.grantAuthRole({ userId, departmentId, role: "admin_bidang" }, authorization);
-      return this.prisma.$transaction(async (tx) => {
-        const updated = await (tx as any).departmentAdminAssignment.update({ where: { id: local.id }, data: { authAssignmentId } });
-        await this.sync.enqueueUser(tx as any, employee);
+      authAssignmentId = await this.grantAuthRole({ userId, departmentId, role: "admin_bidang" }, authorization);
+      return await this.prisma.$transaction(async (tx: any) => {
+        const updated = await tx.departmentAdminAssignment.update({ where: { id: prepared.local.id }, data: { authAssignmentId } });
+        await this.sync.completeAuthRoleGrant(tx, prepared.compensationId, authAssignmentId as string);
+        await this.sync.enqueueUser(tx, employee);
         return updated;
       });
-    } catch (error) {
-      await assignments.update({ where: { id: local.id }, data: { isActive: false, revokedAt: new Date(), revokedById: assignedById } });
+    } catch {
+      await assignments.update({ where: { id: prepared.local.id }, data: { isActive: false, revokedAt: new Date(), revokedById: assignedById } });
+      await this.prisma.$transaction(async (tx: any) => {
+        if (authAssignmentId) await this.sync.scheduleAuthRoleRevocation(tx, prepared.compensationId, authAssignmentId);
+        else await this.sync.cancelAuthRoleRevocation(tx, prepared.compensationId);
+      });
+      if (authAssignmentId) {
+        try {
+          await this.revokeAuthRole(userId, departmentId, authorization);
+          await this.prisma.$transaction((tx: any) => this.sync.cancelAuthRoleRevocation(tx, prepared.compensationId));
+        } catch {
+          // The durable compensation remains pending for the reconciler.
+        }
+      }
       throw new BadGatewayException("Penetapan peran organisasi di layanan autentikasi gagal.");
     }
   }

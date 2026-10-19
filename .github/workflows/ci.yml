@@ -35,3 +35,6 @@ jobs:
 
       - name: Run Unit Tests
         run: pnpm test
+
+      - name: Run Contract Tests
+        run: pnpm test:contracts

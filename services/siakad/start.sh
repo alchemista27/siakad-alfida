@@ -16,6 +16,10 @@ if [ -d "services/siakad/api/src/generated" ] && [ ! -d "services/siakad/api/dis
   cp -r services/siakad/api/src/generated services/siakad/api/dist/
 fi
 
+# Deploy migration versioned sebelum API menerima request. Jangan gunakan prisma db push di produksi.
+echo "Menerapkan migration Prisma SIAKAD..."
+pnpm --filter siakad-api exec prisma migrate deploy --schema services/siakad/api/prisma/schema.prisma
+
 echo "Memulai SIAKAD API (NestJS) pada port 3001..."
 PORT=3001 node services/siakad/api/dist/main.js &
 

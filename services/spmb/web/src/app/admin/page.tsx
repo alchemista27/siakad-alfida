@@ -56,6 +56,9 @@ export default function SpmbAdminPage() {
   const [filterSource, setFilterSource] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string } | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [accessDenied, setAccessDenied] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>("");
   const [adminTab, setAdminTab] = useState<"overview" | "registrations" | "verification" | "observations" | "decisions">("registrations");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -136,28 +139,79 @@ export default function SpmbAdminPage() {
     }
   };
 
+  const handleLogout = async () => {
+    const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
+    try {
+      await fetch(`${authUrl}/api/auth/logout`, {
+        credentials: "include",
+        method: "POST",
+      });
+    } catch {}
+    window.location.href = `${authUrl}/login`;
+  };
+
   useEffect(() => {
-    async function loadUser() {
+    async function loadUserAndInit() {
+      const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
       try {
-        const res = await fetch("/api/auth/session", { credentials: "include" });
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.user) {
-            setCurrentUser({
-              fullName: data.user.fullName || data.user.name || "Panitia SPMB",
-              role: data.user.role || "PANITIA",
-            });
-          }
+        const res = await fetch(`${authUrl}/api/auth/me`, { credentials: "include" });
+        if (!res.ok) {
+          window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
+          return;
         }
-      } catch {}
+        const data = await res.json();
+        if (!data?.user) {
+          window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
+          return;
+        }
+
+        setUserEmail(data.user.email || "");
+
+        // Validasi peran RBAC untuk portal Panitia SPMB
+        const allowedRoles = ["super_admin", "admin_unit", "tim_ppdb"];
+        const hasAccess = data.user.roles?.some((r: any) => {
+          const roleName = typeof r === "string" ? r : r.role;
+          const appName = typeof r === "string" ? "*" : r.app || "*";
+          if (roleName === "super_admin" && (appName === "*" || appName === "auth" || appName === "core")) {
+            return true;
+          }
+          if (appName === "*" || appName === "spmb") {
+            return allowedRoles.includes(roleName);
+          }
+          return false;
+        });
+
+        if (!hasAccess) {
+          setAccessDenied(true);
+          setAuthLoading(false);
+          return;
+        }
+
+        const primaryRole = data.user.roles?.find((r: any) => {
+          const roleName = typeof r === "string" ? r : r.role;
+          return allowedRoles.includes(roleName);
+        });
+        const roleRaw = (typeof primaryRole === "object" ? primaryRole?.role : primaryRole) || "PANITIA";
+        const roleLabel = roleRaw.replace(/_/g, " ").toUpperCase();
+
+        setCurrentUser({
+          fullName: data.user.fullName || data.user.email || "Panitia SPMB",
+          role: roleLabel,
+        });
+        setAuthLoading(false);
+        fetchPeriods();
+      } catch {
+        window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
+      }
     }
-    loadUser();
-    fetchPeriods();
+    loadUserAndInit();
   }, []);
 
   useEffect(() => {
-    fetchRegistrations();
-  }, [selectedPeriodId, filterStatus, filterSource]);
+    if (!authLoading && !accessDenied) {
+      fetchRegistrations();
+    }
+  }, [selectedPeriodId, filterStatus, filterSource, authLoading, accessDenied]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -348,15 +402,53 @@ export default function SpmbAdminPage() {
     },
   ];
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#F7F8F8] flex flex-col items-center justify-center p-6 text-[#454545] font-body">
+        <div className="w-10 h-10 border-3 border-[#0f7f6d] border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-sm font-medium text-gray-600">Memverifikasi sesi & wewenang SPMB...</p>
+      </div>
+    );
+  }
+
+  if (accessDenied) {
+    return (
+      <div className="min-h-screen bg-[#F7F8F8] flex items-center justify-center p-6 text-[#454545] font-body">
+        <div className="max-w-md w-full bg-white border border-[#E3E8E7] rounded-xl p-8 shadow-sm text-center space-y-4">
+          <div className="w-14 h-14 mx-auto rounded-full bg-red-50 text-red-600 flex items-center justify-center">
+            <span className="material-symbols-rounded text-3xl">gpp_maybe</span>
+          </div>
+          <h2 className="text-xl font-bold font-heading text-[#454545]">Akses Ditolak</h2>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            Akun Anda ({userEmail || "pengguna"}) tidak memiliki wewenang Panitia SPMB (Super Admin, Admin Unit, atau Tim PPDB).
+          </p>
+          <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
+            <a
+              href="https://auth.alfida.or.id/modules"
+              className="px-4 py-2 bg-[#0f7f6d] text-white text-xs font-semibold rounded-lg hover:bg-[#0d6d5d] transition-colors"
+            >
+              Kembali ke Portal Modul
+            </a>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="px-4 py-2 border border-[#E3E8E7] text-xs font-semibold rounded-lg hover:bg-gray-50 text-gray-700"
+            >
+              Ganti Akun
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AppShell
       serviceName="SPMB"
       userName={currentUser?.fullName || "Panitia SPMB"}
       userRole={currentUser?.role || "PANITIA"}
       sidebarGroups={sidebarGroups}
-      onLogout={() => {
-        window.location.href = "/login";
-      }}
+      onLogout={handleLogout}
     >
       <div className="max-w-7xl w-full mx-auto space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

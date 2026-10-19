@@ -67,6 +67,9 @@ export class HandoffService {
       },
       update: {
         status: "pending",
+        availableAt: new Date(),
+        leasedAt: null,
+        leaseOwner: null,
       },
     });
   }
@@ -168,9 +171,7 @@ export class HandoffService {
           await this.prisma.handoffOutbox.update({
             where: { id: outbox.id },
             data: {
-              attempts: (outbox.attempts || 0) + 1,
-              lastError: errorText,
-              status: "failed",
+              ...this.failedOutboxUpdate(outbox, errorText),
             },
           });
         }
@@ -225,9 +226,7 @@ export class HandoffService {
           await this.prisma.handoffOutbox.update({
             where: { id: outbox.id },
             data: {
-              attempts: (outbox.attempts || 0) + 1,
-              lastError: errorMessage,
-              status: "failed",
+              ...this.failedOutboxUpdate(outbox, errorMessage),
             },
           });
         }
@@ -246,6 +245,8 @@ export class HandoffService {
             deliveredAt: new Date(),
             destinationEnrollmentId: validatedReceipt.destinationEnrollmentId,
             lastError: null,
+            leasedAt: null,
+            leaseOwner: null,
           },
         });
       }
@@ -283,9 +284,7 @@ export class HandoffService {
         await this.prisma.handoffOutbox.update({
           where: { id: outbox.id },
           data: {
-            attempts: (outbox.attempts || 0) + 1,
-            lastError: err.message,
-            status: "failed",
+            ...this.failedOutboxUpdate(outbox, err.message),
           },
         });
       }
@@ -301,6 +300,20 @@ export class HandoffService {
         message: `Koneksi ke endpoint SIAKAD gagal: ${err.message}`,
       };
     }
+  }
+
+  private failedOutboxUpdate(outbox: { attempts?: number }, lastError: string) {
+    const attempts = (outbox.attempts || 0) + 1;
+    const delayMs = Math.min(2 ** Math.max(0, attempts - 1) * 30_000, 30 * 60_000);
+
+    return {
+      attempts,
+      lastError,
+      status: "failed",
+      availableAt: new Date(Date.now() + delayMs),
+      leasedAt: null,
+      leaseOwner: null,
+    };
   }
 
   async syncSingle(principal: SpmbPrincipal, dto: SyncHandoffDto) {

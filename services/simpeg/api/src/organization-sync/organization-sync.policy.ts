@@ -1,3 +1,5 @@
+import type { UnitProjectionPayload } from "@alfida/contracts";
+
 export type DepartmentProjection = {
   id: string;
   name: string;
@@ -7,8 +9,16 @@ export type DepartmentProjection = {
   updatedAt: Date;
 };
 
+export type UnitProjection = {
+  id: string;
+  name: string;
+  category: "pendidikan" | "nondik";
+  isActive: boolean;
+  updatedAt: Date;
+};
+
 export type OrganizationSyncEvent = {
-  aggregate: "department" | "user";
+  aggregate: "department" | "unit" | "user";
   aggregateId: string;
   eventType: string;
   payload: Record<string, unknown>;
@@ -34,6 +44,25 @@ export class OrganizationSyncOutboxPolicy {
       eventType: "department.deleted",
       payload: { id: department.id, deletedAt },
       updatedAt: deletedAt,
+    };
+  }
+
+  unitEvent(unit: UnitProjection): OrganizationSyncEvent {
+    const updatedAt = unit.updatedAt.toISOString();
+    const payload: UnitProjectionPayload = {
+      id: unit.id,
+      name: unit.name,
+      slug: `unit-${unit.id.toLowerCase()}`,
+      status: unit.isActive ? "active" : "archived",
+      category: unit.category,
+      sourceUpdatedAt: updatedAt,
+    };
+    return {
+      aggregate: "unit",
+      aggregateId: unit.id,
+      eventType: unit.isActive ? "unit.upserted" : "unit.archived",
+      payload,
+      updatedAt,
     };
   }
 

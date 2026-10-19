@@ -1,6 +1,6 @@
-import { Injectable, ConflictException, Logger } from "@nestjs/common";
+import { Injectable, ConflictException, BadRequestException, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import type { SpmbHandoffPayload, SpmbHandoffReceipt } from "@alfida/contracts";
+import type { SpmbHandoffPayload, SpmbHandoffReceipt, UnitProjectionPayload } from "@alfida/contracts";
 
 @Injectable()
 export class InternalService {
@@ -54,37 +54,27 @@ export class InternalService {
       );
     }
 
-    // 3. Resolusi Tahun Akademik target di SIAKAD
-    let targetAcademicYearId = payload.sourceAcademicYearId;
-    if (this.prisma.academicYear?.findFirst) {
-      const matchedAy = await this.prisma.academicYear.findFirst({
-        where: {
-          id: payload.sourceAcademicYearId,
-          unitId: payload.unitId,
-        },
-      });
-
-      if (matchedAy) {
-        targetAcademicYearId = matchedAy.id;
-      } else {
-        const activeAy = await this.prisma.academicYear.findFirst({
-          where: {
-            unitId: payload.unitId,
-            status: "active",
-          },
-        });
-        if (activeAy) {
-          targetAcademicYearId = activeAy.id;
-        } else {
-          const anyAy = await this.prisma.academicYear.findFirst({
-            where: { unitId: payload.unitId },
-          });
-          if (anyAy) {
-            targetAcademicYearId = anyAy.id;
-          }
-        }
-      }
+    // 3. Fail closed on the destination unit and exact academic-year projection.
+    // A handoff must never silently enroll a student into another active/latest year.
+    const unit = await this.prisma.unitProjection.findUnique({
+      where: { id: payload.unitId },
+      select: { id: true, status: true, category: true },
+    });
+    if (!unit || unit.status !== "active" || unit.category !== "pendidikan") {
+      throw new BadRequestException("Unit tujuan SIAKAD tidak aktif atau bukan unit pendidikan.");
     }
+
+    const targetAcademicYear = await this.prisma.academicYear.findFirst({
+      where: {
+        id: payload.sourceAcademicYearId,
+        unitId: payload.unitId,
+      },
+      select: { id: true },
+    });
+    if (!targetAcademicYear) {
+      throw new BadRequestException("Tahun akademik sumber belum diproyeksikan untuk unit tujuan SIAKAD.");
+    }
+    const targetAcademicYearId = targetAcademicYear.id;
 
     // 4. Eksekusi penyimpanan dalam transaksi atomik
     return this.prisma.$transaction(async (tx) => {
@@ -133,6 +123,34 @@ export class InternalService {
         status: "accepted" as const,
       };
     });
+  }
+
+  async receiveUnitProjection(payload: UnitProjectionPayload) {
+    const incomingUpdatedAt = new Date(payload.sourceUpdatedAt);
+    const existing = await this.prisma.unitProjection.findUnique({ where: { id: payload.id } });
+    if (existing?.sourceUpdatedAt && existing.sourceUpdatedAt >= incomingUpdatedAt) {
+      return { status: "stale" as const, unit: existing };
+    }
+
+    const unit = await this.prisma.unitProjection.upsert({
+      where: { id: payload.id },
+      create: {
+        id: payload.id,
+        name: payload.name,
+        slug: payload.slug,
+        status: payload.status,
+        category: payload.category,
+        sourceUpdatedAt: incomingUpdatedAt,
+      },
+      update: {
+        name: payload.name,
+        slug: payload.slug,
+        status: payload.status,
+        category: payload.category,
+        sourceUpdatedAt: incomingUpdatedAt,
+      },
+    });
+    return { status: "applied" as const, unit };
   }
 
   async getUnits() {

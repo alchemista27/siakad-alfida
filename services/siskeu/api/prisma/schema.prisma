@@ -1,0 +1,36 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["siskeu"]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["multiSchema"]
+}
+
+model SppInvoice {
+  id                       String    @id @default(uuid()) @db.Uuid
+  unitId                   String    @map("unit_id") @db.Uuid
+  academicYearId           String    @map("academic_year_id") @db.Uuid
+  enrollmentId             String    @map("enrollment_id") @db.Uuid
+  studentName              String    @map("student_name") @db.VarChar(160)
+  billingPeriod            String    @map("billing_period") @db.VarChar(7)
+  reference                String    @unique @db.VarChar(80)
+  description              String    @db.VarChar(300)
+  amount                   Decimal   @db.Decimal(15, 0)
+  currency                 String    @default("IDR") @db.Char(3)
+  dueDate                  DateTime  @map("due_date") @db.Date
+  status                   String    @default("unpaid") @db.VarChar(16)
+  paymentProviderReference String?   @unique @map("payment_provider_reference") @db.VarChar(200)
+  paidAt                   DateTime? @map("paid_at") @db.Timestamptz
+  createdAt                DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt                DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([enrollmentId, billingPeriod])
+  @@index([enrollmentId, status])
+  @@index([unitId, academicYearId, billingPeriod])
+  @@map("spp_invoices")
+  @@schema("siskeu")
+}

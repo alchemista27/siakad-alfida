@@ -33,6 +33,7 @@ sistem-data/
 
 # Generated Prisma Client
 src/generated/client/scratch/
+services/siskeu/api/src/generated/
 scratch/
 # Turborepo
 .turbo/
