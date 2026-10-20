@@ -23,5 +23,4 @@ export const UNIT_SCOPED_ROLE_KEYS = new Set<string>([
 
 export const DEPARTMENT_SCOPED_ROLE_KEYS = new Set<string>([
   "simakin:admin_bidang",
-  "simakin:admin_biro",
 ]);

@@ -7,7 +7,17 @@ export function hasScopedRole(user: StrategicUser, role: string, departmentId?: 
     if (entry.role === "super_admin" && ["*", "auth", "core", "simakin"].includes(app)) return true;
     if (app !== "*" && app !== "simakin") return false;
     if (entry.role !== role) return false;
+    if (role === "admin_biro" && entry.departmentId == null) return true;
     return departmentId === undefined || entry.departmentId === departmentId;
+  });
+}
+
+export function hasGlobalAdminBiro(user: StrategicUser) {
+  return (user.roles ?? []).some((entry) => {
+    const app = entry.app ?? "*";
+    return (app === "*" || app === "simakin")
+      && entry.role === "admin_biro"
+      && entry.departmentId == null;
   });
 }
 

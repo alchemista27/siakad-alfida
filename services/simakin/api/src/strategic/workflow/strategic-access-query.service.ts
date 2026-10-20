@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
-import { hasScopedRole, isExecutive, StrategicUser } from "./strategic-permissions";
+import { hasGlobalAdminBiro, hasScopedRole, isExecutive, StrategicUser } from "./strategic-permissions";
 
 export type StrategicScope = { where: Record<string, unknown> };
 
@@ -9,14 +9,14 @@ export class StrategicAccessQueryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async forPrograms(user: StrategicUser): Promise<StrategicScope> {
-    if (isExecutive(user) || hasScopedRole(user, "super_admin")) return { where: {} };
+    if (isExecutive(user) || hasScopedRole(user, "super_admin") || hasGlobalAdminBiro(user)) return { where: {} };
     const departmentIds = await this.departmentIds(user);
     if (departmentIds.length) return { where: { departmentId: { in: departmentIds } } };
     return { where: { OR: [{ coordinatorId: user.id }, { userId: user.id }] } };
   }
 
   async forTasks(user: StrategicUser): Promise<StrategicScope> {
-    if (isExecutive(user) || hasScopedRole(user, "super_admin")) return { where: {} };
+    if (isExecutive(user) || hasScopedRole(user, "super_admin") || hasGlobalAdminBiro(user)) return { where: {} };
     const departmentIds = await this.departmentIds(user);
     const scopes: Record<string, unknown>[] = [{ assigneeId: user.id }];
     if (departmentIds.length) scopes.push({ milestone: { program: { departmentId: { in: departmentIds } } } });
@@ -37,7 +37,7 @@ export class StrategicAccessQueryService {
   async forIssues(user: StrategicUser): Promise<StrategicScope> { return this.forTaskArtifact(user, "departmentId", "reporterId"); }
 
   async forActionItems(user: StrategicUser): Promise<StrategicScope> {
-    if (isExecutive(user) || hasScopedRole(user, "super_admin")) return { where: {} };
+    if (isExecutive(user) || hasScopedRole(user, "super_admin") || hasGlobalAdminBiro(user)) return { where: {} };
     const departmentIds = await this.departmentIds(user);
     const scopes: Record<string, unknown>[] = [{ picId: user.id }];
     if (departmentIds.length) {
@@ -81,7 +81,7 @@ export class StrategicAccessQueryService {
   }
 
   private async forTaskArtifact(user: StrategicUser, departmentField: string, ownerField: string): Promise<StrategicScope> {
-    if (isExecutive(user) || hasScopedRole(user, "super_admin")) return { where: {} };
+    if (isExecutive(user) || hasScopedRole(user, "super_admin") || hasGlobalAdminBiro(user)) return { where: {} };
     const departmentIds = await this.departmentIds(user);
     const scopes: Record<string, unknown>[] = [{ [ownerField]: user.id }, { task: { assigneeId: user.id } }];
     if (departmentIds.length) scopes.push({ [departmentField]: { in: departmentIds } });
