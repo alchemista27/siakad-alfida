@@ -11,7 +11,7 @@ import {
   InternalServerErrorException,
 } from "@nestjs/common";
 import { InternalService } from "./internal.service";
-import { SpmbHandoffPayloadSchema, UnitProjectionPayloadSchema, type SpmbHandoffReceipt } from "@alfida/contracts";
+import { SpmbHandoffPayloadSchema, UnitProjectionPayloadSchema, UserProjectionPayloadSchema, type SpmbHandoffReceipt } from "@alfida/contracts";
 
 @Controller("internal")
 export class InternalController {
@@ -65,6 +65,26 @@ export class InternalController {
       throw new BadRequestException("Unit pada path harus sama dengan payload.");
     }
     return this.internalService.receiveUnitProjection(parsed.data);
+  }
+
+  @Put("organization/users/:userId")
+  async putUserProjection(
+    @Headers("x-internal-service-token") token: string | undefined,
+    @Param("userId") userId: string,
+    @Body() rawPayload: unknown,
+  ) {
+    this.verifySecret(token);
+    const parsed = UserProjectionPayloadSchema.safeParse(rawPayload);
+    if (!parsed.success) {
+      throw new BadRequestException({
+        message: "Payload proyeksi pengguna tidak valid.",
+        errors: parsed.error.issues,
+      });
+    }
+    if (parsed.data.id !== userId) {
+      throw new BadRequestException("Pengguna pada path harus sama dengan payload.");
+    }
+    return this.internalService.receiveUserProjection(parsed.data);
   }
 
   @Get("units")

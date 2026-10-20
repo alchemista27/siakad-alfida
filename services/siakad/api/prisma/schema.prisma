@@ -65,13 +65,14 @@ model UnitIdentity {
 }
 
 model UserProjection {
-  id        String   @id @db.Uuid
-  name      String
-  email     String?  @unique
-  phone     String?
-  roles     Json     @default("[]")
-  status    String   @default("active")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id              String    @id @db.Uuid
+  name            String
+  email           String?   @unique
+  phone           String?
+  roles           Json      @default("[]")
+  status          String    @default("active")
+  sourceUpdatedAt DateTime? @map("source_updated_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   teacherAssignments  TeacherAssignment[]
   homeroomAssignments HomeroomAssignment[]

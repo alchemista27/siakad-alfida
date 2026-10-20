@@ -1,6 +1,6 @@
 import { Injectable, ConflictException, BadRequestException, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import type { SpmbHandoffPayload, SpmbHandoffReceipt, UnitProjectionPayload } from "@alfida/contracts";
+import type { SpmbHandoffPayload, SpmbHandoffReceipt, UnitProjectionPayload, UserProjectionPayload } from "@alfida/contracts";
 
 @Injectable()
 export class InternalService {
@@ -151,6 +151,36 @@ export class InternalService {
       },
     });
     return { status: "applied" as const, unit };
+  }
+
+  async receiveUserProjection(payload: UserProjectionPayload) {
+    const incomingUpdatedAt = new Date(payload.sourceUpdatedAt);
+    const existing = await this.prisma.userProjection.findUnique({ where: { id: payload.id } });
+    if (existing?.sourceUpdatedAt && existing.sourceUpdatedAt >= incomingUpdatedAt) {
+      return { status: "stale" as const, user: existing };
+    }
+
+    const user = await this.prisma.userProjection.upsert({
+      where: { id: payload.id },
+      create: {
+        id: payload.id,
+        name: payload.name,
+        email: payload.email,
+        phone: payload.phone,
+        roles: payload.roles,
+        status: payload.status,
+        sourceUpdatedAt: incomingUpdatedAt,
+      },
+      update: {
+        name: payload.name,
+        email: payload.email,
+        phone: payload.phone,
+        roles: payload.roles,
+        status: payload.status,
+        sourceUpdatedAt: incomingUpdatedAt,
+      },
+    });
+    return { status: "applied" as const, user };
   }
 
   async getUnits() {

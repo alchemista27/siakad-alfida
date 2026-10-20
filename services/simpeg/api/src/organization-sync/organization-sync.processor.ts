@@ -13,7 +13,7 @@ export class OrganizationSyncProcessor implements OnModuleInit {
     private readonly prisma: PrismaService,
     private readonly client: SimakinSyncClient,
     @Optional() private readonly siakadClient?: SiakadSyncClient,
-    @Optional() private readonly compensationClient?: AuthRoleCompensationClient,
+    @Optional() private readonly compensationClient?: AuthRoleCompensationClient
   ) {}
 
   onModuleInit() {
@@ -25,58 +25,136 @@ export class OrganizationSyncProcessor implements OnModuleInit {
     const now = new Date();
     await this.recoverExpiredLeases(now);
     const rows = await (this.prisma as any).organizationSyncOutbox.findMany({
-      where: { status: { in: ["pending", "failed"] }, availableAt: { lte: now } },
+      where: {
+        status: { in: ["pending", "failed"] },
+        availableAt: { lte: now },
+      },
       orderBy: { createdAt: "asc" },
       take: 20,
     });
-    await Promise.all(rows.map((row: any) => this.deliver(row)));
+    for (const row of [...rows].sort(
+      (left, right) =>
+        this.deliveryPriority(left) - this.deliveryPriority(right)
+    )) {
+      await this.deliver(row);
+    }
     await this.processAuthRoleCompensations(now);
   }
 
   async retry(id: string) {
-    await (this.prisma as any).organizationSyncOutbox.update({ where: { id }, data: { status: "pending", availableAt: new Date(), lastError: null } });
+    await (this.prisma as any).organizationSyncOutbox.update({
+      where: { id },
+      data: { status: "pending", availableAt: new Date(), lastError: null },
+    });
     await this.processBatch();
+  }
+
+  private deliveryPriority(row: { eventType?: string }) {
+    switch (row.eventType) {
+      case "user.projected":
+        return 0;
+      case "unit.upserted":
+      case "unit.archived":
+        return 1;
+      case "department.upserted":
+      case "department.archived":
+      case "department.deleted":
+        return 2;
+      case "department-member.upserted":
+        return 3;
+      default:
+        return 4;
+    }
   }
 
   private async recoverExpiredLeases(now: Date) {
     await (this.prisma as any).organizationSyncOutbox.updateMany({
       where: { status: "processing", availableAt: { lte: now } },
-      data: { status: "failed", availableAt: now, lastError: "Processing lease expired" },
+      data: {
+        status: "failed",
+        availableAt: now,
+        lastError: "Processing lease expired",
+      },
     });
     const compensations = (this.prisma as any).authRoleCompensation;
     if (!compensations) return;
     await compensations.updateMany({
       where: { status: "processing", availableAt: { lte: now } },
-      data: { status: "failed", availableAt: now, lastError: "Auth role compensation lease expired" },
+      data: {
+        status: "failed",
+        availableAt: now,
+        lastError: "Auth role compensation lease expired",
+      },
     });
   }
 
   private async deliver(row: any) {
     const claimedAt = new Date();
     const leaseExpiresAt = new Date(claimedAt.getTime() + PROCESSING_LEASE_MS);
-    const claimed = await (this.prisma as any).organizationSyncOutbox.updateMany({
-      where: { id: row.id, status: { in: ["pending", "failed"] }, availableAt: { lte: claimedAt } },
-      data: { status: "processing", attemptCount: { increment: 1 }, availableAt: leaseExpiresAt },
+    const claimed = await (
+      this.prisma as any
+    ).organizationSyncOutbox.updateMany({
+      where: {
+        id: row.id,
+        status: { in: ["pending", "failed"] },
+        availableAt: { lte: claimedAt },
+      },
+      data: {
+        status: "processing",
+        attemptCount: { increment: 1 },
+        availableAt: leaseExpiresAt,
+      },
     });
     if (claimed.count !== 1) return;
     try {
-      if (row.eventType === "unit.upserted" || row.eventType === "unit.archived") {
-        if (!this.siakadClient) throw new Error("SIAKAD synchronization client is unavailable.");
+      if (
+        row.eventType === "unit.upserted" ||
+        row.eventType === "unit.archived"
+      ) {
+        if (!this.siakadClient)
+          throw new Error("SIAKAD synchronization client is unavailable.");
         await this.siakadClient.deliver(row);
-      } else {
+      } else if (
+        [
+          "department.upserted",
+          "department.archived",
+          "department.deleted",
+          "department-member.upserted",
+          "user.projected",
+        ].includes(row.eventType)
+      ) {
         await this.client.deliver(row);
+      } else {
+        throw new Error(
+          `Unsupported organization synchronization event: ${row.eventType}`
+        );
       }
       await (this.prisma as any).organizationSyncOutbox.updateMany({
-        where: { id: row.id, status: "processing", availableAt: leaseExpiresAt },
+        where: {
+          id: row.id,
+          status: "processing",
+          availableAt: leaseExpiresAt,
+        },
         data: { status: "delivered", deliveredAt: new Date(), lastError: null },
       });
     } catch (error) {
       const attemptCount = row.attemptCount + 1;
-      const delay = Math.min(3_600_000, 30_000 * 2 ** Math.min(attemptCount, 7));
+      const delay = Math.min(
+        3_600_000,
+        30_000 * 2 ** Math.min(attemptCount, 7)
+      );
       const message = this.errorMessage(error, "Sync delivery failed");
       await (this.prisma as any).organizationSyncOutbox.updateMany({
-        where: { id: row.id, status: "processing", availableAt: leaseExpiresAt },
-        data: { status: "failed", lastError: message, availableAt: new Date(Date.now() + delay) },
+        where: {
+          id: row.id,
+          status: "processing",
+          availableAt: leaseExpiresAt,
+        },
+        data: {
+          status: "failed",
+          lastError: message,
+          availableAt: new Date(Date.now() + delay),
+        },
       });
     }
   }
@@ -85,11 +163,16 @@ export class OrganizationSyncProcessor implements OnModuleInit {
     const compensations = (this.prisma as any).authRoleCompensation;
     if (!compensations) return;
     const rows = await compensations.findMany({
-      where: { status: { in: ["armed", "pending", "failed"] }, availableAt: { lte: now } },
+      where: {
+        status: { in: ["armed", "pending", "failed"] },
+        availableAt: { lte: now },
+      },
       orderBy: { createdAt: "asc" },
       take: 20,
     });
-    await Promise.all(rows.map((row: any) => this.deliverAuthRoleCompensation(row)));
+    await Promise.all(
+      rows.map((row: any) => this.deliverAuthRoleCompensation(row))
+    );
   }
 
   private async deliverAuthRoleCompensation(row: any) {
@@ -97,37 +180,70 @@ export class OrganizationSyncProcessor implements OnModuleInit {
     const claimedAt = new Date();
     const leaseExpiresAt = new Date(claimedAt.getTime() + PROCESSING_LEASE_MS);
     const claimed = await compensations.updateMany({
-      where: { id: row.id, status: row.status, availableAt: { lte: claimedAt } },
-      data: { status: "processing", attemptCount: { increment: 1 }, availableAt: leaseExpiresAt },
+      where: {
+        id: row.id,
+        status: row.status,
+        availableAt: { lte: claimedAt },
+      },
+      data: {
+        status: "processing",
+        attemptCount: { increment: 1 },
+        availableAt: leaseExpiresAt,
+      },
     });
     if (claimed.count !== 1) return;
     try {
-      if (!this.compensationClient) throw new Error("Auth role compensation client is unavailable.");
+      if (!this.compensationClient)
+        throw new Error("Auth role compensation client is unavailable.");
       await this.compensationClient.revoke(row);
       await (this.prisma as any).$transaction(async (tx: any) => {
-        const assignmentStore = row.scope === "unit" ? tx.unitAdminAssignment : tx.departmentAdminAssignment;
+        const assignmentStore =
+          row.scope === "unit"
+            ? tx.unitAdminAssignment
+            : tx.departmentAdminAssignment;
         await assignmentStore.updateMany({
           where: { id: row.localAssignmentId, isActive: true },
-          data: { isActive: false, revokedAt: new Date(), revokedById: row.requestedById ?? null },
+          data: {
+            isActive: false,
+            revokedAt: new Date(),
+            revokedById: row.requestedById ?? null,
+          },
         });
         await tx.authRoleCompensation.update({
           where: { id: row.id },
-          data: { status: "delivered", deliveredAt: new Date(), lastError: null },
+          data: {
+            status: "delivered",
+            deliveredAt: new Date(),
+            lastError: null,
+          },
         });
       });
     } catch (error) {
       const attemptCount = row.attemptCount + 1;
-      const delay = Math.min(3_600_000, 30_000 * 2 ** Math.min(attemptCount, 7));
+      const delay = Math.min(
+        3_600_000,
+        30_000 * 2 ** Math.min(attemptCount, 7)
+      );
       await compensations.updateMany({
-        where: { id: row.id, status: "processing", availableAt: leaseExpiresAt },
-        data: { status: "failed", lastError: this.errorMessage(error, "Auth role compensation failed"), availableAt: new Date(Date.now() + delay) },
+        where: {
+          id: row.id,
+          status: "processing",
+          availableAt: leaseExpiresAt,
+        },
+        data: {
+          status: "failed",
+          lastError: this.errorMessage(error, "Auth role compensation failed"),
+          availableAt: new Date(Date.now() + delay),
+        },
       });
     }
   }
 
   private errorMessage(error: unknown, fallback: string) {
     return error instanceof Error
-      ? error.message.slice(0, 500).replace(/(?:token|authorization|cookie)=?[^\s]*/gi, "[REDACTED]")
+      ? error.message
+          .slice(0, 500)
+          .replace(/(?:token|authorization|cookie)=?[^\s]*/gi, "[REDACTED]")
       : fallback;
   }
 }

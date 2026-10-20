@@ -49,6 +49,7 @@ enum DepartmentAdminRole {
 
 enum OrganizationSyncAggregate {
   department
+  department_member
   unit
   user
 }
@@ -94,6 +95,8 @@ model User {
   liqoMemberships     LiqoMember[]
   liqoAttendances     LiqoAttendance[]
   mutabaahRecords     MutabaahRecord[]
+  departmentsLed      Department[]           @relation("DepartmentLeader")
+  departmentMembers   DepartmentMember[]
 
   @@map("users")
 }
@@ -124,19 +127,68 @@ model Unit {
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
+  departments Department[]
+
   @@map("units")
 }
 
 model Department {
   id          String    @id @default(uuid()) @db.Uuid
+  unitId      String?   @map("unit_id") @db.Uuid
   name        String    @unique @db.VarChar(150)
   code        String    @unique @db.VarChar(50)
   description String?   @db.Text
   isActive    Boolean   @default(true) @map("is_active")
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt   DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+  parentId    String?   @map("parent_id") @db.Uuid
+  leaderId    String?   @map("leader_id") @db.Uuid
 
+  unit     Unit?              @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  parent   Department?        @relation("DepartmentHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Department[]       @relation("DepartmentHierarchy")
+  leader   User?              @relation("DepartmentLeader", fields: [leaderId], references: [id], onDelete: SetNull)
+  members  DepartmentMember[]
+
+  @@index([unitId])
+  @@index([parentId])
+  @@index([leaderId])
   @@map("departments")
+}
+
+model DepartmentMember {
+  id              String    @id @default(uuid()) @db.Uuid
+  departmentId    String    @map("department_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  role            String?   @db.VarChar(50)
+  sourceCreatedAt DateTime? @map("source_created_at") @db.Timestamptz
+  sourceUpdatedAt DateTime  @map("source_updated_at") @db.Timestamptz
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([departmentId, userId])
+  @@index([userId])
+  @@index([sourceUpdatedAt])
+  @@map("department_members")
+}
+
+model OrganizationImportReceipt {
+  id            String   @id @default(uuid()) @db.Uuid
+  source        String   @db.VarChar(80)
+  entity        String   @db.VarChar(80)
+  sourceId      String   @map("source_id") @db.VarChar(200)
+  payloadHash   String   @map("payload_hash") @db.VarChar(64)
+  sourceVersion DateTime @map("source_version") @db.Timestamptz
+  appliedAt     DateTime @default(now()) @map("applied_at") @db.Timestamptz
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([source, entity, sourceId])
+  @@index([source, entity, sourceVersion])
+  @@map("organization_import_receipts")
 }
 
 model DepartmentAdminAssignment {

@@ -4,7 +4,7 @@ import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
 import { OrganizationUsersSyncService, UserProjection } from "./users.service";
 import { InternalServiceGuard } from "./internal-service.guard";
 
-const UserProjectionSchema = z.object({ id: z.string().uuid(), fullName: z.string().trim().min(1).max(200), email: z.string().email().max(255), username: z.string().trim().max(100).nullable().optional(), avatarUrl: z.string().url().nullable().optional(), isActive: z.boolean() });
+const UserProjectionSchema = z.object({ id: z.string().uuid(), fullName: z.string().trim().min(1).max(200), email: z.string().email().max(255), username: z.string().trim().max(100).nullable().optional(), avatarUrl: z.string().url().nullable().optional(), isActive: z.boolean(), sourceUpdatedAt: z.string().datetime() });
 @Controller("strategic/organization-sync/users")
 @UseGuards(InternalServiceGuard)
 export class OrganizationUsersSyncController {

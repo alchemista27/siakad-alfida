@@ -32,6 +32,8 @@ import { OrganizationSyncController } from './organization-sync/organization-syn
 import { OrganizationSyncService } from './organization-sync/organization-sync.service';
 import { OrganizationUsersSyncController } from './organization-sync/users.controller';
 import { OrganizationUsersSyncService } from './organization-sync/users.service';
+import { DepartmentMembersSyncController } from './organization-sync/department-members.controller';
+import { DepartmentMembersSyncService } from './organization-sync/department-members.service';
 import { StrategicNotificationService } from './notifications/strategic-notification.service';
 import { StrategicNotificationController } from './notifications/strategic-notification.controller';
 import { StrategicNotificationGateway } from './notifications/strategic-notification.gateway';
@@ -43,7 +45,7 @@ import { AuthOrganizationRoleClient } from './organization-role-broker/auth-orga
 import { StrategicAccessQueryService } from './workflow/strategic-access-query.service';
 
 @Module({
-  controllers: [StrategicDepartmentController, ExecutionProgramController, ExecutionKpiController, ExecutionMilestoneController, ExecutionTaskController, ExecutionLogController, ExecutionEvidenceController, ExecutionIssueController, ExecutionMeetingController, ExecutionActionItemController, ExecutionDashboardController, ExecutionReportController, StrategicWorkflowController, OrganizationSyncController, OrganizationUsersSyncController, StrategicNotificationController, ExecutiveMonitoringController],
-  providers: [StrategicDepartmentService, ExecutionProgramService, ExecutionKpiService, ExecutionMilestoneService, ExecutionTaskService, ExecutionLogService, ExecutionEvidenceService, ExecutionIssueService, ExecutionMeetingService, ExecutionActionItemService, ExecutionDashboardService, ExecutionDashboardCron, ExecutionReportService, StrategicAuthorizationService, StrategicAccessQueryService, StrategicWorkflowService, OrganizationSyncService, OrganizationUsersSyncService, InternalServiceGuard, AuthOrganizationRoleClient, StrategicNotificationService, StrategicNotificationGateway, ExecutiveMonitoringService, ExecutiveMonitoringCron]
+  controllers: [StrategicDepartmentController, ExecutionProgramController, ExecutionKpiController, ExecutionMilestoneController, ExecutionTaskController, ExecutionLogController, ExecutionEvidenceController, ExecutionIssueController, ExecutionMeetingController, ExecutionActionItemController, ExecutionDashboardController, ExecutionReportController, StrategicWorkflowController, OrganizationSyncController, OrganizationUsersSyncController, DepartmentMembersSyncController, StrategicNotificationController, ExecutiveMonitoringController],
+  providers: [StrategicDepartmentService, ExecutionProgramService, ExecutionKpiService, ExecutionMilestoneService, ExecutionTaskService, ExecutionLogService, ExecutionEvidenceService, ExecutionIssueService, ExecutionMeetingService, ExecutionActionItemService, ExecutionDashboardService, ExecutionDashboardCron, ExecutionReportService, StrategicAuthorizationService, StrategicAccessQueryService, StrategicWorkflowService, OrganizationSyncService, OrganizationUsersSyncService, DepartmentMembersSyncService, InternalServiceGuard, AuthOrganizationRoleClient, StrategicNotificationService, StrategicNotificationGateway, ExecutiveMonitoringService, ExecutiveMonitoringCron]
 })
 export class StrategicModule {}

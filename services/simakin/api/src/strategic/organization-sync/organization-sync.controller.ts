@@ -4,7 +4,7 @@ import { ZodValidationPipe } from "../../common/pipes/zod-validation.pipe";
 import { OrganizationSyncService, DepartmentSyncPayload } from "./organization-sync.service";
 import { InternalServiceGuard } from "./internal-service.guard";
 
-const DepartmentSyncSchema = z.object({ id: z.string().uuid(), name: z.string().trim().min(1).max(100), code: z.string().trim().min(1).max(50), description: z.string().trim().max(2000).nullable().optional(), isActive: z.boolean(), updatedAt: z.string().datetime() });
+const DepartmentSyncSchema = z.object({ id: z.string().uuid(), unitId: z.string().uuid().nullable().optional(), parentId: z.string().uuid().nullable().optional(), leaderId: z.string().uuid().nullable().optional(), name: z.string().trim().min(1).max(100), code: z.string().trim().min(1).max(50), description: z.string().trim().max(2000).nullable().optional(), isActive: z.boolean(), updatedAt: z.string().datetime() });
 
 const DepartmentDeletionSchema = z.object({ id: z.string().uuid(), deletedAt: z.string().datetime() });
 
