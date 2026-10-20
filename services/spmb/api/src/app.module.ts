@@ -3,7 +3,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { PrismaModule } from "./prisma/prisma.module";
 import { PeriodsModule } from "./periods/periods.module";
 import { RegistrationsModule } from "./registrations/registrations.module";
-import { ImportsModule } from "./imports/imports.module";
+
 import { InvitesModule } from "./invites/invites.module";
 import { DocumentsModule } from "./documents/documents.module";
 import { ObservationsModule } from "./observations/observations.module";
@@ -18,7 +18,7 @@ import { LettersModule } from "./letters/letters.module";
     PrismaModule,
     PeriodsModule,
     RegistrationsModule,
-    ImportsModule,
+
     InvitesModule,
     DocumentsModule,
     ObservationsModule,

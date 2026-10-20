@@ -17,7 +17,7 @@ fi
 
 # Deploy versioned migrations before the API accepts traffic. Do not use prisma db push in production.
 echo "Applying SIMPEG Prisma migrations..."
-pnpm --filter @alfida/simpeg-api exec prisma migrate deploy --schema services/simpeg/api/prisma/schema.prisma
+./services/simpeg/api/node_modules/.bin/prisma migrate deploy --schema services/simpeg/api/prisma/schema.prisma
 
 echo "Memulai SIMPEG API (NestJS) pada port 3001..."
 PORT=3001 node services/simpeg/api/dist/main.js &

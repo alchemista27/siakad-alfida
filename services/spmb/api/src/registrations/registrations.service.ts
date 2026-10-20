@@ -3,18 +3,11 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
-  ConflictException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { AdmissionCapacityService } from "./admission-capacity.service";
 import {
-  BackfillManifest,
-  deriveStatusFromManifest,
-  buildManifestEventTrail,
-} from "../imports/backfill-manifest.policy";
-import {
   CreateOnlineRegistrationDto,
-  CreateOfflineRegistrationDto,
   SubmitStudentDataDto,
   SubmitParentDataDto,
   UploadPaymentDto,
@@ -29,7 +22,7 @@ import {
   ParentType,
   DossierReviewStatus,
 } from "../generated/prisma";
-import { randomUUID } from "crypto";
+
 import { canTransition, requiredDocumentTypes } from "../common/ppdb-workflow";
 import { ACTIVE_REGISTRATION_POLICY } from "../common/registration-policy";
 import { allowedUnitIds, assertUnitAccess, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
@@ -230,150 +223,6 @@ export class RegistrationsService {
     });
   }
 
-  // ================= ALUR OFFLINE / MANUAL ENTRY (ADMIN UNIT) =================
-  async createOffline(actorId: string, dto: CreateOfflineRegistrationDto) {
-    return this.prisma.$transaction(async (tx) => {
-      const period = await tx.admissionPeriod.findUnique({
-        where: { id: dto.periodId },
-      });
-      if (!period) {
-        throw new BadRequestException("Periode pendaftaran tidak ditemukan.");
-      }
-
-      if (dto.externalRef) {
-        const existing = await tx.registration.findUnique({
-          where: { periodId_externalRef: { periodId: dto.periodId, externalRef: dto.externalRef } },
-        });
-        if (existing) {
-          throw new ConflictException(`Pendaftar dengan nomor referensi ${dto.externalRef} sudah terdaftar.`);
-        }
-      }
-
-      const { registrationNumber: regNum } = await this.capacityService.allocateRegistrationNumber(tx, dto.periodId);
-
-      const inviteToken = randomUUID().replace(/-/g, "");
-      const inviteExpiresAt = new Date();
-      inviteExpiresAt.setDate(inviteExpiresAt.getDate() + 30); // 30 hari
-
-      const manifest: BackfillManifest = dto.manifest || {
-        payment: dto.isPaid ? { verified: true, paidAt: dto.paidDate, amount: dto.paidAmount } : undefined,
-        student: dto.student ? {
-          fullName: dto.student.fullName,
-          gender: dto.student.gender as "male" | "female",
-          birthPlace: dto.student.birthPlace,
-          birthDate: dto.student.birthDate,
-          address: dto.student.address,
-        } : undefined,
-        observation: dto.observationScore !== undefined && dto.observationScore !== null ? {
-          scheduleId: "offline-manual",
-          score: dto.observationScore,
-          notes: dto.observationNotes,
-          observerId: actorId,
-        } : undefined,
-      };
-
-      const targetStatus = deriveStatusFromManifest(manifest);
-
-      const reg = await tx.registration.create({
-        data: {
-          periodId: period.id,
-          registrationNumber: regNum,
-          source: RegistrationSource.offline,
-          externalRef: dto.externalRef || null,
-          status: targetStatus,
-          guardianName: dto.guardianName,
-          guardianPhone: dto.guardianPhone,
-          guardianEmail: dto.guardianEmail || null,
-          inviteToken,
-          inviteExpiresAt,
-          createdById: actorId,
-        },
-      });
-
-      // Jika data siswa disertakan
-      const studentData = manifest.student || dto.student;
-      if (studentData) {
-        await tx.studentData.create({
-          data: {
-            registrationId: reg.id,
-            fullName: studentData.fullName,
-            nickname: (studentData as any).nickname || null,
-            gender: studentData.gender as Gender,
-            birthPlace: studentData.birthPlace,
-            birthDate: new Date(studentData.birthDate),
-            nisn: (studentData as any).nisn || null,
-            address: studentData.address,
-          },
-        });
-      }
-
-      // Pembayaran offline jika ada
-      const isPaid = Boolean(manifest.payment?.verified || dto.isPaid);
-      await tx.payment.create({
-        data: {
-          registrationId: reg.id,
-          amount: manifest.payment?.amount ?? dto.paidAmount ?? period.fee,
-          method: isPaid ? PaymentMethod.offline : PaymentMethod.transfer_proof,
-          status: isPaid ? PaymentStatus.verified : PaymentStatus.pending,
-          paidAt: isPaid ? (manifest.payment?.paidAt ? new Date(manifest.payment.paidAt) : dto.paidDate ? new Date(dto.paidDate) : new Date()) : null,
-          verifiedAt: isPaid ? new Date() : null,
-          verifiedBy: isPaid ? actorId : null,
-        },
-      });
-
-      // Berkas dokumen jika ada dalam manifest
-      if (manifest.documents && manifest.documents.length > 0) {
-        for (const doc of manifest.documents) {
-          await tx.document.create({
-            data: {
-              registrationId: reg.id,
-              type: doc.type as any,
-              objectKey: doc.objectKey,
-              fileName: doc.fileName || doc.objectKey,
-              mimeType: doc.mimeType || "application/octet-stream",
-              fileSize: doc.fileSize || 0,
-            },
-          });
-        }
-      }
-
-      // Hasil observasi luring jika ada
-      const obs = manifest.observation || (dto.observationScore !== undefined && dto.observationScore !== null ? {
-        score: dto.observationScore,
-        notes: dto.observationNotes,
-        observerId: actorId,
-      } : null);
-      if (obs) {
-        await tx.observationResult.create({
-          data: {
-            registrationId: reg.id,
-            observerId: obs.observerId || actorId,
-            score: obs.score,
-            notes: obs.notes || null,
-          },
-        });
-      }
-
-      // Audit log event trail lengkap
-      const eventTrail = buildManifestEventTrail(
-        manifest,
-        `Entri data pendaftar luring oleh admin unit. Ref: ${dto.externalRef || "-"}`,
-      );
-      for (const ev of eventTrail) {
-        await tx.registrationEvent.create({
-          data: {
-            registrationId: reg.id,
-            actorId,
-            toStatus: ev.toStatus,
-            kind: ev.kind,
-            note: ev.note,
-          },
-        });
-      }
-
-      return reg;
-    });
-  }
 
   // ================= FORM SUBMISSIONS =================
   async submitStudentData(registrationId: string, userId: string, dto: SubmitStudentDataDto) {

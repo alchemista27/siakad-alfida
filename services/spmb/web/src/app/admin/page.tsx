@@ -53,7 +53,7 @@ export default function SpmbAdminPage() {
   const [periods, setPeriods] = useState<AdminPeriodItem[]>([]);
   const [selectedPeriodId, setSelectedPeriodId] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("");
-  const [filterSource, setFilterSource] = useState<string>("");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string } | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -64,27 +64,6 @@ export default function SpmbAdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<AdminNoticeState | null>(null);
 
-  const [showOfflineModal, setShowOfflineModal] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
-
-  const [offlinePeriodId, setOfflinePeriodId] = useState("");
-  const [offlineExtRef, setOfflineExtRef] = useState("");
-  const [offlineGuardianName, setOfflineGuardianName] = useState("");
-  const [offlineGuardianPhone, setOfflineGuardianPhone] = useState("");
-  const [offlineStudentName, setOfflineStudentName] = useState("");
-  const [offlineGender, setOfflineGender] = useState<"male" | "female">("male");
-  const [offlineBirthPlace, setOfflineBirthPlace] = useState("");
-  const [offlineBirthDate, setOfflineBirthDate] = useState("");
-  const [offlineAddress, setOfflineAddress] = useState("");
-  const [offlineIsPaid, setOfflineIsPaid] = useState(true);
-  const [savingOffline, setSavingOffline] = useState(false);
-
-  const [importCsvText, setImportCsvText] = useState("");
-  const [importPeriodId, setImportPeriodId] = useState("");
-  const [importPreviewRows, setImportPreviewRows] = useState<any[]>([]);
-  const [importSummary, setImportSummary] = useState<any>(null);
-  const [importLoading, setImportLoading] = useState(false);
-  const [importCommitting, setImportCommitting] = useState(false);
 
   const [waLinkModal, setWaLinkModal] = useState<{
     waLink: string;
@@ -105,8 +84,7 @@ export default function SpmbAdminPage() {
         setPeriods(data);
         if (data.length > 0 && !selectedPeriodId) {
           setSelectedPeriodId(data[0].id);
-          setOfflinePeriodId(data[0].id);
-          setImportPeriodId(data[0].id);
+
         }
       }
     } catch {
@@ -121,7 +99,7 @@ export default function SpmbAdminPage() {
       const params = new URLSearchParams();
       if (selectedPeriodId) params.append("periodId", selectedPeriodId);
       if (filterStatus) params.append("status", filterStatus);
-      if (filterSource) params.append("source", filterSource);
+
       if (searchQuery) params.append("search", searchQuery);
 
       const res = await fetch(`/api/registrations?${params.toString()}`);
@@ -211,7 +189,7 @@ export default function SpmbAdminPage() {
     if (!authLoading && !accessDenied) {
       fetchRegistrations();
     }
-  }, [selectedPeriodId, filterStatus, filterSource, authLoading, accessDenied]);
+  }, [selectedPeriodId, filterStatus, authLoading, accessDenied]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -235,111 +213,6 @@ export default function SpmbAdminPage() {
     }
   };
 
-  const handleSaveOffline = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingOffline(true);
-    try {
-      const payload = {
-        periodId: offlinePeriodId || selectedPeriodId,
-        externalRef: offlineExtRef || undefined,
-        guardianName: offlineGuardianName,
-        guardianPhone: offlineGuardianPhone,
-        isPaid: offlineIsPaid,
-        student: {
-          fullName: offlineStudentName,
-          gender: offlineGender,
-          birthPlace: offlineBirthPlace || "Kota Asal",
-          birthDate: offlineBirthDate || "2018-01-01",
-          address: offlineAddress || "Alamat domisili",
-        },
-      };
-      const res = await fetch("/api/registrations/offline", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.message || "Gagal menyimpan entri luring");
-      }
-      const created = await res.json();
-      setShowOfflineModal(false);
-      setOfflineStudentName("");
-      setOfflineGuardianName("");
-      setOfflineGuardianPhone("");
-      setOfflineExtRef("");
-      await fetchRegistrations();
-      notify("success", "Pendaftar luring berhasil ditambahkan.");
-      if (created.id) {
-        await openWaShare(created.id, offlineGuardianName, offlineStudentName);
-      }
-    } catch (err: any) {
-      notify("error", err.message || "Gagal menyimpan entri luring.");
-    } finally {
-      setSavingOffline(false);
-    }
-  };
-
-  const handlePreviewImport = async () => {
-    if (!importCsvText.trim()) return;
-    setImportLoading(true);
-    try {
-      const res = await fetch("/api/imports/preview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          periodId: importPeriodId || selectedPeriodId,
-          csvContent: importCsvText,
-        }),
-      });
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.message || "Gagal memproses pratinjau CSV");
-      }
-      const data = await res.json();
-      setImportPreviewRows(data.rows);
-      setImportSummary({
-        total: data.totalRows,
-        valid: data.validRows,
-        invalid: data.invalidRows,
-      });
-    } catch (err: any) {
-      notify("error", err.message || "Gagal memproses CSV.");
-    } finally {
-      setImportLoading(false);
-    }
-  };
-
-  const handleCommitImport = async () => {
-    const validRows = importPreviewRows.filter((r) => r.isValid).map((r) => r.data);
-    if (validRows.length === 0) return;
-    setImportCommitting(true);
-    try {
-      const res = await fetch("/api/imports/commit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          periodId: importPeriodId || selectedPeriodId,
-          rows: validRows,
-        }),
-      });
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.message || "Gagal menyimpan data impor");
-      }
-      const data = await res.json();
-      setShowImportModal(false);
-      setImportCsvText("");
-      setImportPreviewRows([]);
-      setImportSummary(null);
-      await fetchRegistrations();
-      notify("success", `Berhasil mengimpor ${data.importedCount} data pendaftar luring.`);
-    } catch (err: any) {
-      notify("error", err.message || "Gagal menyimpan data impor.");
-    } finally {
-      setImportCommitting(false);
-    }
-  };
 
   const handleSyncSiakad = async (regId: string) => {
     try {
@@ -361,8 +234,6 @@ export default function SpmbAdminPage() {
   };
 
   const totalCount = registrations.length;
-  const offlineCount = registrations.filter((r) => r.source === "offline").length;
-  const onlineCount = totalCount - offlineCount;
   const acceptedCount = registrations.filter((r) => r.status === "accepted").length;
   const handedOffCount = registrations.filter((r) => r.handoffStatus === "done").length;
 
@@ -376,27 +247,25 @@ export default function SpmbAdminPage() {
           icon: "school",
           active: true,
         },
-        {
-          label: "Entri Offline",
-          href: "#offline",
-          icon: "person_add",
-          onClick: () => setShowOfflineModal(true),
-        },
-        {
-          label: "Impor CSV",
-          href: "#import",
-          icon: "upload_file",
-          onClick: () => setShowImportModal(true),
-        },
       ],
     },
     {
-      title: "Portal Penguji",
+      title: "Portal",
       items: [
         {
           label: "Portal Observer",
           href: "/observer",
           icon: "assignment_turned_in",
+        },
+      ],
+    },
+    {
+      title: "Sistem",
+      items: [
+        {
+          label: "Portal Modul",
+          href: "https://auth.alfida.or.id/modules",
+          icon: "apps",
         },
       ],
     },
@@ -449,6 +318,15 @@ export default function SpmbAdminPage() {
       userRole={currentUser?.role || "PANITIA"}
       sidebarGroups={sidebarGroups}
       onLogout={handleLogout}
+      topbarActions={
+        <a
+          href="https://auth.alfida.or.id/modules"
+          className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
+        >
+          <span className="material-symbols-rounded text-[16px]">apps</span>
+          <span className="hidden sm:inline">Pilih Modul</span>
+        </a>
+      }
     >
       <div className="max-w-7xl w-full mx-auto space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -460,38 +338,14 @@ export default function SpmbAdminPage() {
               Kelola gelombang pendaftaran, verifikasi pembayaran & berkas, penjadwalan observasi, dan keputusan kelulusan.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowOfflineModal(true)}
-              className="px-3.5 py-2 bg-[#0f7f6d] text-white font-semibold text-xs rounded-md"
-            >
-              + Entri Offline (Walk-in)
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowImportModal(true)}
-              className="px-3.5 py-2 bg-white border border-[#E3E8E7] text-[#454545] font-semibold text-xs rounded-md"
-            >
-              Impor CSV Massal
-            </button>
-          </div>
         </div>
 
         <AdminNotice notice={notice} onDismiss={() => setNotice(null)} />
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="bg-white p-4 rounded-lg border border-[#E3E8E7]">
             <span className="text-gray-500 text-xs block">Total Pendaftar</span>
             <span className="text-2xl font-bold text-[#454545]">{totalCount}</span>
-          </div>
-          <div className="bg-white p-4 rounded-lg border border-[#E3E8E7]">
-            <span className="text-gray-500 text-xs block">Pendaftar Offline</span>
-            <span className="text-2xl font-bold text-amber-700">{offlineCount}</span>
-          </div>
-          <div className="bg-white p-4 rounded-lg border border-[#E3E8E7]">
-            <span className="text-gray-500 text-xs block">Pendaftar Online</span>
-            <span className="text-2xl font-bold text-[#0f7f6d]">{onlineCount}</span>
           </div>
           <div className="bg-white p-4 rounded-lg border border-[#E3E8E7]">
             <span className="text-gray-500 text-xs block">Dinyatakan Lulus</span>
@@ -600,15 +454,6 @@ export default function SpmbAdminPage() {
               <option value="accepted">Diterima (Lulus)</option>
               <option value="rejected">Ditolak</option>
             </select>
-            <select
-              value={filterSource}
-              onChange={(e) => setFilterSource(e.target.value)}
-              className="px-3 py-1.5 text-xs font-semibold border border-[#E3E8E7] rounded bg-white"
-            >
-              <option value="">Semua Jalur</option>
-              <option value="offline">Luring (Offline Walk-in)</option>
-              <option value="online">Daring (Online Mandiri)</option>
-            </select>
           </div>
 
           <form onSubmit={handleSearch} className="flex gap-1.5 w-full sm:w-auto">
@@ -697,72 +542,6 @@ export default function SpmbAdminPage() {
           )}
         </div>
       </div>
-
-      {showOfflineModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-xl w-full p-6 border border-[#E3E8E7]">
-            <h2 className="font-heading font-bold text-base text-[#454545] mb-4">Entri Pendaftar Offline (Walk-in)</h2>
-            <form onSubmit={handleSaveOffline} className="space-y-3 text-xs">
-              <input
-                required
-                placeholder="Nama Calon Siswa"
-                value={offlineStudentName}
-                onChange={(e) => setOfflineStudentName(e.target.value)}
-                className="w-full px-3 py-2 border border-[#E3E8E7] rounded"
-              />
-              <input
-                required
-                placeholder="Nama Orang Tua / Wali"
-                value={offlineGuardianName}
-                onChange={(e) => setOfflineGuardianName(e.target.value)}
-                className="w-full px-3 py-2 border border-[#E3E8E7] rounded"
-              />
-              <input
-                required
-                placeholder="No. WhatsApp Wali"
-                value={offlineGuardianPhone}
-                onChange={(e) => setOfflineGuardianPhone(e.target.value)}
-                className="w-full px-3 py-2 border border-[#E3E8E7] rounded"
-              />
-              <div className="flex justify-end gap-2 pt-3 border-t border-[#E3E8E7]">
-                <button type="button" onClick={() => setShowOfflineModal(false)} className="px-4 py-2 border border-[#E3E8E7] rounded">
-                  Batal
-                </button>
-                <button type="submit" disabled={savingOffline} className="px-4 py-2 bg-[#0f7f6d] text-white rounded font-semibold">
-                  {savingOffline ? "Menyimpan..." : "Simpan"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showImportModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full p-6 border border-[#E3E8E7] space-y-4 text-xs">
-            <h2 className="font-heading font-bold text-base text-[#454545]">Impor Pendaftar Luring Massal (CSV)</h2>
-            <textarea
-              rows={5}
-              value={importCsvText}
-              onChange={(e) => setImportCsvText(e.target.value)}
-              className="w-full px-3 py-2 border border-[#E3E8E7] rounded font-mono"
-            />
-            <div className="flex justify-between">
-              <button type="button" onClick={handlePreviewImport} disabled={importLoading} className="px-3 py-1.5 border border-[#E3E8E7] rounded font-semibold">
-                Pratinjau
-              </button>
-              <div className="flex gap-2">
-                <button type="button" onClick={() => setShowImportModal(false)} className="px-3 py-1.5 border border-[#E3E8E7] rounded">
-                  Tutup
-                </button>
-                <button type="button" onClick={handleCommitImport} disabled={importCommitting} className="px-4 py-1.5 bg-[#0f7f6d] text-white rounded font-semibold">
-                  Simpan Impor
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {waLinkModal && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">

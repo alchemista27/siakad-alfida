@@ -4,11 +4,12 @@ import React, { useEffect, useState } from "react";
 
 export function SpmbNavbar() {
   const [user, setUser] = useState<{ fullName?: string; email?: string } | null>(null);
+  const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
+  const parentPortalUrl = process.env.NEXT_PUBLIC_SPMB_PARENT_URL || "https://spmb.alfida.or.id/parent";
 
   useEffect(() => {
     async function checkAuth() {
       try {
-        const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
         const res = await fetch(`${authUrl}/api/auth/me`, { credentials: "include" });
         if (res.ok) {
           const data = await res.json();
@@ -22,7 +23,6 @@ export function SpmbNavbar() {
   }, []);
 
   const handleLogout = async () => {
-    const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
     try {
       await fetch(`${authUrl}/api/auth/logout`, { credentials: "include", method: "POST" });
     } catch {}
@@ -98,7 +98,7 @@ export function SpmbNavbar() {
           ) : (
             <>
               <a
-                href="https://auth.alfida.or.id/login?return_to=https%3A%2F%2Fspmb.alfida.or.id%2Fparent"
+                href={`${authUrl}/login?return_to=${encodeURIComponent(parentPortalUrl)}`}
                 className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <svg
@@ -117,7 +117,7 @@ export function SpmbNavbar() {
                 Masuk Akun
               </a>
               <a
-                href="/register"
+                href={`${authUrl}/register?return_to=${encodeURIComponent(parentPortalUrl)}`}
                 className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-lg bg-[#06bfa2] text-white hover:bg-[#05a88e] shadow-sm transition-all"
               >
                 Daftar Sekarang

@@ -1,6 +1,5 @@
-import { Gender, ParentType, RegistrationStatus } from "../generated/prisma";
+import { Gender, ParentType } from "../generated/prisma";
 import { IsBoolean, IsOptional, IsString, Matches, MinLength, ValidateIf } from "class-validator";
-import type { BackfillManifest } from "../imports/backfill-manifest.policy";
 
 export class CreateOnlineRegistrationDto {
   periodId: string;
@@ -12,32 +11,6 @@ export class CreateOnlineRegistrationDto {
   applicantAddress?: string;
 }
 
-export class CreateOfflineRegistrationDto {
-  periodId: string;
-  externalRef?: string; // nomor pendaftaran manual/kertas
-  guardianName: string;
-  guardianPhone: string;
-  guardianEmail?: string;
-  initialStatus?: RegistrationStatus; // deprecated: ignored in favor of manifest-derived status
-  manifest?: BackfillManifest;
-  // Data Siswa langsung (opsional jika sudah ada)
-  student?: {
-    fullName: string;
-    nickname?: string;
-    gender: "male" | "female";
-    birthPlace: string;
-    birthDate: string;
-    nisn?: string;
-    address: string;
-  };
-  // Pembayaran offline (opsional jika sudah bayar di bendahara)
-  isPaid?: boolean;
-  paidAmount?: number;
-  paidDate?: string;
-  // Observasi offline (opsional jika sudah diobservasi)
-  observationScore?: number;
-  observationNotes?: string;
-}
 
 export class SubmitStudentDataDto {
   fullName: string;

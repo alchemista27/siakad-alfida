@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { AppShell } from "@alfida/ui";
 import { AdminNotice, type AdminNoticeState } from "@/components/admin/admin-notice";
 import {
   ObserverWorklist,
@@ -27,6 +28,8 @@ interface RankingItem {
 }
 
 export default function ObserverPage() {
+  const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
+  const modulePortalUrl = `${authUrl}/modules`;
   const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string; email?: string } | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
@@ -43,8 +46,30 @@ export default function ObserverPage() {
   const [scoreInput, setScoreInput] = useState<number>(85);
   const [notesInput, setNotesInput] = useState<string>("");
 
+  const sidebarGroups = [
+    {
+      title: "Portal",
+      items: [
+        {
+          label: "Portal Admin",
+          href: "/admin",
+          icon: "admin_panel_settings",
+        },
+      ],
+    },
+    {
+      title: "Sistem",
+      items: [
+        {
+          label: "Portal Modul",
+          href: modulePortalUrl,
+          icon: "apps",
+        },
+      ],
+    },
+  ];
+
   const handleLogout = async () => {
-    const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
     try {
       await fetch(`${authUrl}/api/auth/logout`, {
         credentials: "include",
@@ -56,7 +81,6 @@ export default function ObserverPage() {
 
   useEffect(() => {
     async function loadUserAndInit() {
-      const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
       try {
         const res = await fetch(`${authUrl}/api/auth/me`, { credentials: "include" });
         if (!res.ok) {
@@ -212,7 +236,7 @@ export default function ObserverPage() {
           </p>
           <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
             <a
-              href="https://auth.alfida.or.id/modules"
+              href={modulePortalUrl}
               className="px-4 py-2 bg-[#0f7f6d] text-white text-xs font-semibold rounded-lg hover:bg-[#0d6d5d] transition-colors"
             >
               Kembali ke Portal Modul
@@ -231,32 +255,32 @@ export default function ObserverPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F8F8] text-[#454545] font-body flex flex-col justify-between">
-      <header className="h-[60px] bg-white border-b border-[#E3E8E7] sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-3">
-          <span className="font-heading font-bold text-lg text-[#0f7f6d]">SPMB · Portal Penguji Observasi</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold text-[#454545] hidden sm:inline">{currentUser?.fullName}</span>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-teal-50 text-[#0f7f6d] hidden sm:inline">
-            {currentUser?.role}
-          </span>
-          <a href="/admin" className="text-xs font-semibold text-[#0f7f6d] hover:underline">
-            Portal Admin
-          </a>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="text-xs text-gray-600 hover:text-red-700 px-2 py-1 rounded border border-[#E3E8E7] hover:border-red-200 hover:bg-red-50 flex items-center gap-1 transition-colors"
-            title="Keluar dari sistem"
+    <AppShell
+      serviceName="SPMB · Penguji"
+      userName={currentUser?.fullName || "Penguji SPMB"}
+      userRole={currentUser?.role || "OBSERVER"}
+      sidebarGroups={sidebarGroups}
+      onLogout={handleLogout}
+      topbarActions={
+        <>
+          <a
+            href="/admin"
+            className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
           >
-            <span className="material-symbols-rounded text-[16px]">logout</span>
-            <span className="hidden sm:inline">Keluar</span>
-          </button>
-        </div>
-      </header>
-
-      <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-5">
+            <span className="material-symbols-rounded text-[16px]">admin_panel_settings</span>
+            <span className="hidden sm:inline">Portal Admin</span>
+          </a>
+          <a
+            href={modulePortalUrl}
+            className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
+          >
+            <span className="material-symbols-rounded text-[16px]">apps</span>
+            <span className="hidden sm:inline">Portal Modul</span>
+          </a>
+        </>
+      }
+    >
+      <div className="max-w-6xl w-full mx-auto space-y-5">
         <div className="bg-white border border-[#E3E8E7] rounded-lg p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="font-heading font-bold text-xl text-[#454545]">Penilaian & Observasi Calon Santri</h1>
@@ -328,7 +352,7 @@ export default function ObserverPage() {
             </table>
           </div>
         )}
-      </main>
+      </div>
 
       <ObserverScoreModal
         candidate={activeCandidate}
@@ -340,6 +364,6 @@ export default function ObserverPage() {
         onClose={() => setActiveCandidate(null)}
         onSubmit={handleSubmitScore}
       />
-    </div>
+    </AppShell>
   );
 }

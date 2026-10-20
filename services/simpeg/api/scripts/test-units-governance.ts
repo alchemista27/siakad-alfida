@@ -41,6 +41,7 @@ async function main() {
     gpsAttendanceConfig: { async count() { return 0; } },
     gpsAttendance: { async count() { return 0; } },
     holiday: { async count() { return 0; } },
+    saturdayDutyAssignment: { async count() { return 0; } },
   };
   const service = new UnitsService(prisma);
 
@@ -80,6 +81,16 @@ async function main() {
     () => new UnitsService(unitAdminDependentPrisma as any).remove(unitId, hrPrincipal),
     (error: unknown) => error instanceof BadRequestException && /tidak dapat dihapus/.test(error.message),
     "an active unit administrator must block unit deletion",
+  );
+
+  const dutyDependentPrisma = {
+    ...prisma,
+    saturdayDutyAssignment: { async count() { return 1; } },
+  };
+  await assert.rejects(
+    () => new UnitsService(dutyDependentPrisma as any).remove(unitId, hrPrincipal),
+    (error: unknown) => error instanceof BadRequestException && /tidak dapat dihapus/.test(error.message),
+    "a Saturday duty assignment must block unit deletion",
   );
 
   const own = await service.findOne(unitId, scopedPrincipal);

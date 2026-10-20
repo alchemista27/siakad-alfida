@@ -63,15 +63,16 @@ export class UnitsService {
       throw new ForbiddenException("Hanya administrator kepegawaian yang dapat menghapus unit.");
     }
     await this.ensureExists(id);
-    const [assignmentCount, unitAdminAssignmentCount, configCount, attendanceCount, holidayCount] = await Promise.all([
+    const [assignmentCount, unitAdminAssignmentCount, configCount, attendanceCount, holidayCount, saturdayDutyCount] = await Promise.all([
       this.prisma.employeeUnitAssignment.count({ where: { unitId: id } }),
       (this.prisma as any).unitAdminAssignment.count({ where: { unitId: id, isActive: true } }),
       this.prisma.gpsAttendanceConfig.count({ where: { unitId: id } }),
       this.prisma.gpsAttendance.count({ where: { unitId: id } }),
       this.prisma.holiday.count({ where: { unitId: id } }),
+      this.prisma.saturdayDutyAssignment.count({ where: { unitId: id } }),
     ]);
-    if (assignmentCount + unitAdminAssignmentCount + configCount + attendanceCount + holidayCount > 0) {
-      throw new BadRequestException("Unit tidak dapat dihapus karena sudah dipakai penugasan, admin unit, presensi, konfigurasi GPS, atau hari libur. Nonaktifkan unit sebagai gantinya.");
+    if (assignmentCount + unitAdminAssignmentCount + configCount + attendanceCount + holidayCount + saturdayDutyCount > 0) {
+      throw new BadRequestException("Unit tidak dapat dihapus karena sudah dipakai penugasan, admin unit, presensi, konfigurasi GPS, hari libur, atau piket Sabtu. Nonaktifkan unit sebagai gantinya.");
     }
     return this.prisma.unit.delete({ where: { id } });
   }

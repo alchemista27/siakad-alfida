@@ -281,7 +281,23 @@ model Holiday {
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   @@unique([unitId, date])
+  @@index([date])
   @@map("holidays")
+}
+
+model SaturdayDutyAssignment {
+  id        String   @id @default(uuid()) @db.Uuid
+  unitId    String   @map("unit_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  date      DateTime @db.Date
+  notes     String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([unitId, userId, date])
+  @@index([unitId, date])
+  @@index([userId, date])
+  @@map("saturday_duty_assignments")
 }
 
 model LeaveRequest {

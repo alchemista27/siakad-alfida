@@ -2,7 +2,6 @@ import { BadRequestException, ForbiddenException, NotFoundException } from "@nes
 import type { SpmbPrincipal } from "../src/common/spmb-scope-policy";
 import { DecisionsService } from "../src/decisions/decisions.service";
 import { HandoffService } from "../src/handoff/handoff.service";
-import { ImportsService } from "../src/imports/imports.service";
 import { ObservationsService } from "../src/observations/observations.service";
 import { PeriodsService } from "../src/periods/periods.service";
 
@@ -95,12 +94,6 @@ async function run() {
     (decisions.setSingleDecision as any)(adminA, { registrationId: "registration-b", status: "accepted" }),
   );
 
-  const imports = new ImportsService({
-    admissionPeriod: { findUnique: async () => foreignPeriod() },
-  } as any);
-  await expectException("foreign import preview", NotFoundException, () =>
-    (imports.preview as any)(adminA, { periodId: "period-b", rows: [] }),
-  );
 
   const schedules = new ObservationsService({
     admissionPeriod: { findUnique: async () => foreignPeriod() },

@@ -7,5 +7,5 @@ if [ -d "services/siskeu/api/src/generated" ] && [ ! -d "services/siskeu/api/dis
   cp -r services/siskeu/api/src/generated services/siskeu/api/dist/
 fi
 
-pnpm --filter siskeu-api exec prisma migrate deploy --schema services/siskeu/api/prisma/schema.prisma
+./services/siskeu/api/node_modules/.bin/prisma migrate deploy --schema services/siskeu/api/prisma/schema.prisma
 exec node services/siskeu/api/dist/main.js

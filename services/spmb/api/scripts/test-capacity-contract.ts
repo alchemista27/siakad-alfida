@@ -1,7 +1,5 @@
 import { BadRequestException, ConflictException } from "@nestjs/common";
 import { AdmissionCapacityService } from "../src/registrations/admission-capacity.service";
-import { RegistrationsService } from "../src/registrations/registrations.service";
-import { ImportsService } from "../src/imports/imports.service";
 import { InvitesService } from "../src/invites/invites.service";
 import { ObservationsService } from "../src/observations/observations.service";
 
@@ -251,45 +249,7 @@ async function run() {
   assert(counterState.intakeReserved === quota, `intakeReserved must be ${quota}, got ${counterState.intakeReserved}`);
   assert(counterState.nextSequence === quota + 1, `nextSequence must be ${quota + 1}, got ${counterState.nextSequence}`);
 
-  // 2. Offline registration and import obey quota
-  const regService = new RegistrationsService(harness.client, capacityService);
-  try {
-    await regService.createOffline("staff-1", {
-      periodId: "period-concurrency-1",
-      guardianName: "Wali Offline Over Quota",
-      guardianPhone: "08999999999",
-    });
-    throw new Error("offline registration unexpectedly succeeded when quota is exhausted");
-  } catch (err: any) {
-    assert(
-      err instanceof BadRequestException && err.message.toLowerCase().includes("kuota"),
-      `offline registration must reject with quota error, got: ${err.message}`,
-    );
-  }
-
-  const importService = new ImportsService(harness.client, capacityService);
-  const importResult = await importService.commit(
-    { id: "staff-1", roles: [{ app: "spmb", role: "admin_unit", unitId: "unit-1" }] } as any,
-    {
-      periodId: "period-concurrency-1",
-      rows: [
-        {
-          studentName: "Santri Impor Over Quota",
-          gender: "male",
-          guardianName: "Wali Impor",
-          guardianPhone: "0888888888",
-        },
-      ],
-    },
-  );
-  assert(importResult.successCount === 0, "import must not succeed when quota is exhausted");
-  assert(importResult.errorCount === 1, "import must record error when quota is exhausted");
-  assert(
-    importResult.errors[0].reason.toLowerCase().includes("kuota"),
-    `import error must be quota-related, got: ${importResult.errors[0].reason}`,
-  );
-
-  // 3. Claims have one winner
+  // 2. Legacy claims have one winner
   const inviteToken = "claim-token-uuid-12345";
   const claimRegId = "reg-claimable-1";
   const claimReg = {
@@ -325,7 +285,7 @@ async function run() {
     `claim loser must receive ConflictException, got: ${claimFailures[0].reason}`,
   );
 
-  // 4. Last-slot bookings have one winner
+  // 3. Last-slot bookings have one winner
   const scheduleId = "sched-last-slot";
   harness.observationSchedules.set(scheduleId, {
     id: scheduleId,

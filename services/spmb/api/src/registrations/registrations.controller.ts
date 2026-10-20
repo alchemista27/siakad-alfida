@@ -12,7 +12,6 @@ import {
 import { RegistrationsService } from "./registrations.service";
 import {
   CreateOnlineRegistrationDto,
-  CreateOfflineRegistrationDto,
   SubmitStudentDataDto,
   SubmitParentDataDto,
   UploadPaymentDto,
@@ -132,12 +131,6 @@ export class RegistrationsController {
     return this.registrationsService.findOne(id, req.user);
   }
 
-  @Post("offline")
-  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
-  async createOffline(@Req() req: any, @Body() dto: CreateOfflineRegistrationDto) {
-    return this.registrationsService.createOffline(req.user.id, dto);
-  }
 
   @Post(":id/verify-payment")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)

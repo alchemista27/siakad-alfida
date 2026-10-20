@@ -7,6 +7,7 @@ import { UnitAdminModal } from "../components/organization/unit-admin-modal";
 import { DepartmentManagementPanel } from "../components/organization/department-management-panel";
 import { DepartmentAdminModal } from "../components/organization/department-admin-modal";
 import { OrganizationDepartment, OrganizationEmployee, OrganizationUnit } from "../components/organization/types";
+import { WorkdayManagementPanel } from "../components/attendance/workday-management-panel";
 
 interface Assignment {
   id: string;
@@ -40,7 +41,23 @@ interface LeaveRequest {
   };
 }
 
-type SimpegTab = "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings";
+interface Holiday {
+  id: string;
+  unitId: string | null;
+  date: string;
+  name: string;
+  description?: string | null;
+}
+
+interface SaturdayDuty {
+  id: string;
+  unitId: string;
+  userId: string;
+  date: string;
+  notes?: string | null;
+}
+
+type SimpegTab = "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings" | "workday";
 
 export default function SimpegDashboard() {
   const [activeTab, setActiveTab] = useState<SimpegTab>("assignments");
@@ -56,6 +73,8 @@ export default function SimpegDashboard() {
   const [units, setUnits] = useState<OrganizationUnit[]>([]);
   const [departments, setDepartments] = useState<OrganizationDepartment[]>([]);
   const [gpsConfigs, setGpsConfigs] = useState<any[]>([]);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const [saturdayDuties, setSaturdayDuties] = useState<SaturdayDuty[]>([]);
 
   // Form states
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -90,7 +109,7 @@ export default function SimpegDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const [resAssignments, resLeaves, resEmployees, resUnits, resDepartments, resAttendanceContext, resGpsConfigs] = await Promise.all([
+      const [resAssignments, resLeaves, resEmployees, resUnits, resDepartments, resAttendanceContext, resGpsConfigs, resHolidays, resSaturdayDuties] = await Promise.all([
         fetch("/api/assignments").then((r) => (r.ok ? r.json() : [])),
         fetch("/api/leaves").then((r) => (r.ok ? r.json() : [])),
         fetch("/api/employees").then((r) => (r.ok ? r.json() : [])),
@@ -98,6 +117,8 @@ export default function SimpegDashboard() {
         fetch("/api/departments").then((r) => (r.ok ? r.json() : [])),
         fetch("/api/attendance/context").then((r) => (r.ok ? r.json() : null)),
         fetch("/api/attendance/configs").then((r) => (r.ok ? r.json() : [])),
+        fetch("/api/attendance/holidays").then((r) => (r.ok ? r.json() : [])),
+        fetch("/api/attendance/saturday-duties").then((r) => (r.ok ? r.json() : [])),
       ]);
 
       setAssignments(resAssignments || []);
@@ -107,6 +128,8 @@ export default function SimpegDashboard() {
       setDepartments(resDepartments || []);
       setAttendanceContext(resAttendanceContext);
       setGpsConfigs(resGpsConfigs || []);
+      setHolidays(resHolidays || []);
+      setSaturdayDuties(resSaturdayDuties || []);
       if (resEmployees && resEmployees.length > 0 && !newAssignment.userId) {
         setNewAssignment((prev) => ({ ...prev, userId: resEmployees[0].id }));
       }
@@ -385,6 +408,13 @@ export default function SimpegDashboard() {
           active: activeTab === "gps-settings",
           onClick: () => setActiveTab("gps-settings"),
         },
+        {
+          label: "Hari Libur & Piket Sabtu",
+          href: "#workday",
+          icon: "calendar_month",
+          active: activeTab === "workday",
+          onClick: () => setActiveTab("workday"),
+        },
       ],
     },
     {
@@ -648,7 +678,7 @@ export default function SimpegDashboard() {
                     <Button
                       variant="primary"
                       onClick={handleCheckInGps}
-                      disabled={isSubmitting || !attendanceContext?.config}
+                      disabled={isSubmitting || !attendanceContext?.config || !attendanceContext?.workday?.required}
                       className="flex-1"
                     >
                       Check-In Masuk (GPS)
@@ -656,7 +686,7 @@ export default function SimpegDashboard() {
                     <Button
                       variant="secondary"
                       onClick={handleCheckOutGps}
-                      disabled={isSubmitting || !attendanceContext?.config}
+                      disabled={isSubmitting || !attendanceContext?.config || !attendanceContext?.workday?.required}
                       className="flex-1"
                     >
                       Check-Out Pulang (GPS)
@@ -668,11 +698,20 @@ export default function SimpegDashboard() {
                   <h3 className="text-lg font-semibold text-slate-900">
                     Status Presensi Hari Ini
                   </h3>
-                  <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-lg text-sm text-emerald-900">
-                    Presensi hari ini aktif dan terhubung dengan server sinkronisasi SIMPEG.
-                  </div>
+                  {attendanceContext?.workday ? (
+                    <div className={`rounded-lg border p-4 text-sm ${attendanceContext.workday.required ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-sky-200 bg-sky-50 text-sky-900"}`}>
+                      <p className="font-semibold">{attendanceContext.workday.required ? "Presensi diwajibkan hari ini" : "Presensi tidak diwajibkan hari ini"}</p>
+                      <p className="mt-1">Status: {attendanceContext.workday.reason.replace(/_/g, " ")}</p>
+                      {attendanceContext.holiday && <p className="mt-1">Hari libur: {attendanceContext.holiday.name}</p>}
+                      {attendanceContext.dutyAssignment && <p className="mt-1">Anda terdaftar piket Sabtu untuk unit ini.</p>}
+                      {attendanceContext.leave && <p className="mt-1">Anda memiliki cuti/izin yang telah disetujui.</p>}
+                      {attendanceContext.attendance?.checkInTime && <p className="mt-1">Check-in sudah tercatat{attendanceContext.attendance.checkOutTime ? "; check-out juga sudah tercatat." : "."}</p>}
+                    </div>
+                  ) : (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">Status hari ini belum dapat dimuat. Segarkan data atau hubungi admin kepegawaian.</div>
+                  )}
                   <p className="text-xs text-slate-500">
-                    Catatan kehadiran akan diselaraskan dengan perhitungan jam mengajar guru dan evaluasi bulanan karyawan.
+                    Hari Minggu selalu dikecualikan. Senin–Jumat wajib kecuali libur atau cuti/izin disetujui; Sabtu wajib hanya jika ada piket untuk tanggal ini.
                   </p>
                 </Card>
               </div>
@@ -854,7 +893,18 @@ export default function SimpegDashboard() {
               </div>
             )}
 
-            {/* TAB 7: PEMBINAAN & BPI */}
+            {/* TAB 7: HARI LIBUR & PIKET SABTU */}
+            {activeTab === "workday" && (
+              <WorkdayManagementPanel
+                holidays={holidays}
+                duties={saturdayDuties}
+                units={units}
+                employees={employees}
+                onChanged={fetchData}
+              />
+            )}
+
+            {/* TAB 8: PEMBINAAN & BPI */}
             {activeTab === "liqo" && (
               <div className="space-y-4">
                 <Card className="p-6 bg-white border border-slate-200">

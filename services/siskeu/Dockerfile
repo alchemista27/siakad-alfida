@@ -18,7 +18,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 appuser
-COPY --from=builder /app ./
+COPY --from=builder --chown=appuser:nodejs /app ./
 RUN chmod +x services/siskeu/start.sh
 USER appuser
 EXPOSE 3001
