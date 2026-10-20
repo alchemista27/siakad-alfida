@@ -15,6 +15,9 @@ if [ -d "services/spmb/api/src/generated" ] && [ ! -d "services/spmb/api/dist/ge
   cp -r services/spmb/api/src/generated services/spmb/api/dist/
 fi
 
+echo "Menerapkan migrasi Prisma SPMB..."
+./services/spmb/api/node_modules/.bin/prisma migrate deploy --schema services/spmb/api/prisma/schema.prisma
+
 echo "Memulai SPMB API (NestJS) pada port 3001..."
 PORT=3001 node services/spmb/api/dist/main.js &
 
