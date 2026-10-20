@@ -28,6 +28,7 @@ async function main() {
   assert.match(migration, /CHECK \("amount" > 0\)/);
   assert.match(dockerfile, /pnpm install --frozen-lockfile --ignore-scripts/);
   assert.match(dockerfile, /openssl/);
+  assert.match(dockerfile, /apk add --no-cache libc6-compat openssl curl/, "the Coolify HTTP health check requires curl in the runtime image");
   assert.match(dockerfile, /COPY --from=builder --chown=appuser:nodejs \/app \.\//, "runner files must be readable by appuser");
 
   const migrationCommand = "./services/siskeu/api/node_modules/.bin/prisma migrate deploy --schema services/siskeu/api/prisma/schema.prisma";

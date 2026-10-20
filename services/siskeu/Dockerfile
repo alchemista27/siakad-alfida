@@ -1,5 +1,5 @@
 FROM node:22-alpine AS base
-RUN apk add --no-cache libc6-compat openssl \
+RUN apk add --no-cache libc6-compat openssl curl \
   && corepack enable pnpm \
   && corepack prepare pnpm@12.6.0 --activate
 ENV TURBO_TELEMETRY_DISABLED=1
