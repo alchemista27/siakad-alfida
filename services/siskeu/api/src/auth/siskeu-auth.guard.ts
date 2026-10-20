@@ -25,7 +25,7 @@ function normalizeSignedSessionToken(token: string): string {
 export class SiskeuAuthGuard implements CanActivate {
   private readonly verificationKey = process.env.AUTH_JWKS_URL || process.env.AUTH_SECRET || process.env.BETTER_AUTH_SECRET || process.env.JWT_SECRET || "";
   private readonly issuer = process.env.AUTH_JWT_ISSUER || "";
-  private readonly audience = process.env.AUTH_JWT_AUDIENCE || "siskeu";
+  private readonly audience = process.env.AUTH_JWT_AUDIENCE || undefined;
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<{
@@ -34,7 +34,7 @@ export class SiskeuAuthGuard implements CanActivate {
       user?: SiskeuPrincipal;
     }>();
     if (request.user?.id) return true;
-    if (!this.verificationKey || !this.issuer || !this.audience) {
+    if (!this.verificationKey || !this.issuer) {
       throw new UnauthorizedException("Konfigurasi verifikasi SSO SISKEU belum lengkap.");
     }
     const authorization = request.headers?.authorization;

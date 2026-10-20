@@ -12,7 +12,8 @@
     "test:internal": "tsx scripts/test-internal-spp-contract.ts",
     "test:generator": "tsx scripts/test-spp-generator-contract.ts",
     "test:lifecycle": "tsx scripts/test-static-lifecycle.ts",
-    "test:contracts": "pnpm run test:internal && pnpm run test:generator && pnpm run test:lifecycle"
+    "test:auth": "tsx scripts/test-auth-audience-contract.ts",
+    "test:contracts": "pnpm run test:internal && pnpm run test:generator && pnpm run test:lifecycle && pnpm run test:auth"
   },
   "dependencies": {
     "@alfida/auth-sdk": "workspace:*",
