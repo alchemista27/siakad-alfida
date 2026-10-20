@@ -1,4 +1,4 @@
-import { BadGatewayException, Injectable, NotFoundException, ServiceUnavailableException } from "@nestjs/common";
+import { BadGatewayException, Inject, Injectable, NotFoundException, ServiceUnavailableException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import type { SiakadPrincipal } from "../common/siakad-scope-policy";
 
@@ -17,6 +17,8 @@ export type SppInvoice = {
 type ParentEnrollment = { id: string; student: { fullName: string }; classroom: { name: string } | null };
 type FetchImplementation = typeof fetch;
 
+export const SISKEU_BILLING_FETCH = Symbol("SISKEU_BILLING_FETCH");
+
 function isInvoice(value: unknown): value is SppInvoice {
   if (!value || typeof value !== "object") return false;
   const item = value as Record<string, unknown>;
@@ -28,7 +30,10 @@ function isInvoice(value: unknown): value is SppInvoice {
 
 @Injectable()
 export class SppBillingService {
-  constructor(private readonly prisma: PrismaService, private readonly fetchImplementation: FetchImplementation = fetch) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(SISKEU_BILLING_FETCH) private readonly fetchImplementation: FetchImplementation = fetch,
+  ) {}
 
   async listForParent(principal: SiakadPrincipal) {
     const enrollments = await this.parentEnrollments(principal.id);
