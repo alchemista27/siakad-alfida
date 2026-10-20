@@ -1,8 +1,10 @@
-import { Injectable, OnModuleDestroy, OnModuleInit, ServiceUnavailableException } from "@nestjs/common";
+import { Inject, Injectable, OnModuleDestroy, OnModuleInit, ServiceUnavailableException } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 import { PrismaService } from "../prisma/prisma.service";
 
 type FetchImplementation = (input: string, init?: RequestInit) => Promise<Response>;
+
+export const SPMB_CONFIRMATION_FETCH = Symbol("SPMB_CONFIRMATION_FETCH");
 
 function requiredEnvironment(name: "SPMB_CONFIRMATION_URL" | "SPMB_CONFIRMATION_SECRET"): string {
   const value = process.env[name]?.trim();
@@ -23,7 +25,10 @@ function retryAt(now: Date, attempts: number): Date {
 export class SpmbConfirmationService implements OnModuleInit, OnModuleDestroy {
   private timer?: NodeJS.Timeout;
 
-  constructor(private readonly prisma: PrismaService, private readonly fetchImplementation: FetchImplementation = fetch) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(SPMB_CONFIRMATION_FETCH) private readonly fetchImplementation: FetchImplementation = fetch,
+  ) {}
 
   onModuleInit() {
     if (!this.isConfigured()) return;
