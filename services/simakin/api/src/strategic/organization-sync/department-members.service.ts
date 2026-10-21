@@ -22,7 +22,11 @@ type DepartmentMemberData = {
 };
 
 type DepartmentMemberStore = {
-  findUnique(input: { where: { id: string } }): Promise<unknown>;
+  findUnique(input: {
+    where:
+      | { id: string }
+      | { departmentId_userId: { departmentId: string; userId: string } };
+  }): Promise<{ id: string } | null>;
   updateMany(input: { where: SourceVersionWhere; data: DepartmentMemberData }): Promise<{ count: number }>;
   create(input: { data: DepartmentMemberData & { id: string } }): Promise<unknown>;
 };
@@ -57,10 +61,24 @@ export class DepartmentMembersSyncService {
     try {
       return await db.departmentMember.create({ data: { id, ...data } });
     } catch (error: unknown) {
-      if (!isUniqueViolation(error) || !(await db.departmentMember.findUnique({ where: { id } }))) throw error;
-      const retried = await db.departmentMember.updateMany({ where, data });
-      if (retried.count === 1) return db.departmentMember.findUnique({ where: { id } });
-      return db.departmentMember.findUnique({ where: { id } });
+      if (!isUniqueViolation(error)) throw error;
+      const existingByPair = await db.departmentMember.findUnique({
+        where: {
+          departmentId_userId: {
+            departmentId: member.departmentId,
+            userId: member.userId,
+          },
+        },
+      });
+      if (!existingByPair) throw error;
+      const retried = await db.departmentMember.updateMany({
+        where: { ...where, id: existingByPair.id },
+        data,
+      });
+      if (retried.count === 1) {
+        return db.departmentMember.findUnique({ where: { id: existingByPair.id } });
+      }
+      return db.departmentMember.findUnique({ where: { id: existingByPair.id } });
     }
   }
 }

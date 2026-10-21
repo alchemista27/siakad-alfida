@@ -54,6 +54,30 @@ async function main() {
     stale,
     "a stale member projection must leave the newer row unchanged",
   );
+  const crosswiredExisting = { id: "00000000-0000-4000-8000-000000000499", sourceUpdatedAt: null };
+  const crosswiredUpdates: unknown[] = [];
+  const crosswiredPrisma = {
+    departmentMember: {
+      async updateMany(input: any) {
+        crosswiredUpdates.push(input);
+        return { count: input.where.id === crosswiredExisting.id ? 1 : 0 };
+      },
+      async findUnique({ where }: any) {
+        if (where.departmentId_userId) return crosswiredExisting;
+        return where.id === crosswiredExisting.id ? crosswiredExisting : null;
+      },
+      async create() {
+        throw { code: "P2002" };
+      },
+    },
+  };
+  const crosswiredService = new DepartmentMembersSyncService(crosswiredPrisma as never);
+  assert.equal(
+    await crosswiredService.sync(id, { id, departmentId, userId, role: null, sourceUpdatedAt }),
+    crosswiredExisting,
+    "a legacy row with the same department/user pair but another ID must be updated instead of causing a retry loop",
+  );
+  assert.equal(crosswiredUpdates.length, 2, "the compound-key recovery must update the existing member row");
   await assert.rejects(
     () => service.sync(id, { id: "00000000-0000-4000-8000-000000000404", departmentId, userId, role: null, sourceUpdatedAt }),
     /ID path dan body harus sama/,
