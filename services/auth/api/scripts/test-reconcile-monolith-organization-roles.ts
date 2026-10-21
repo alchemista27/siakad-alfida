@@ -85,8 +85,8 @@ async function main() {
     counts.set(roleName, (counts.get(roleName) ?? 0) + 1);
   }
 
-  assert.equal(plan.desiredRoles.length, 56, "raw source export must produce the expected desired grants");
-  assert.equal(plan.sourceDuplicateRoles, 5, "duplicate admin_biro source rows must collapse to one global grant per user");
+  assert.equal(plan.desiredRoles.length, 49, "only deterministically scoped source roles may become grants");
+  assert.equal(plan.sourceDuplicateRoles, 5, "duplicate source role rows must be reported without generating duplicate grants");
   assert.deepEqual(Object.fromEntries(counts), {
     "core:admin_unit": 7,
     "simpeg:admin_unit": 7,
@@ -98,20 +98,33 @@ async function main() {
     "spmb:orang_tua": 6,
     "siakad:orang_tua": 6,
     "simakin:pengawas": 2,
-    "simakin:admin_biro": 7,
     "simakin:admin_bidang": 3,
   });
   assert.equal(
-    plan.desiredRoles.filter((role) => role.email === "biro.quran@alfida.or.id" && role.role === "admin_biro").length,
-    1,
-    "duplicate admin_biro source rows must be deduplicated",
+    plan.desiredRoles.some((role) => role.role === "admin_biro"),
+    false,
+    "admin_biro must not become a global privilege without an explicit target Biro scope",
   );
-  assert.deepEqual(plan.quarantines, [{
+  const expectedQuarantines = [{
     sourceUserId: "d59f7552-a9ab-44c5-8631-2385b86f925c",
     email: "gurniims@gmail.com",
     sourceRole: "admin_bidang",
-    reason: "admin_bidang_not_department_admin",
-  }]);
+    reason: "admin_bidang_not_department_admin" as const,
+  }, ...[...new Map((raw as { users: Array<{ id: string; email: string; roles: Array<{ role: string }> }> }).users
+    .filter((user) => user.roles.some((role) => role.role === "admin_biro"))
+    .map((user) => [user.id, {
+      sourceUserId: user.id,
+      email: user.email.trim().toLowerCase(),
+      sourceRole: "admin_biro",
+      reason: "admin_biro_requires_bureau_scope" as const,
+    }])).values()]];
+  const quarantineSort = (left: { reason: string; email: string }, right: { reason: string; email: string }) =>
+    `${left.reason}\u001f${left.email}`.localeCompare(`${right.reason}\u001f${right.email}`);
+  assert.deepEqual(
+    [...plan.quarantines].sort(quarantineSort),
+    expectedQuarantines.sort(quarantineSort),
+    "admin_biro must be quarantined once per affected user",
+  );
   assert.deepEqual(plan.reports, [{
     sourceUserId: "ccb10a71-b9da-44c9-9c55-11767c44c38c",
     email: "dummy@gmail.com",
@@ -160,27 +173,28 @@ async function main() {
     departmentId: null,
   });
 
+  const affectedUserCount = new Set(plan.desiredRoles.map((role) => role.email)).size;
   const dryRun = await reconcileMonolithOrganizationRoles(mock.prisma as never, raw, false);
-  assert.equal(dryRun.missingRoles, 56);
+  assert.equal(dryRun.missingRoles, 49);
   assert.equal(dryRun.createdRoles, 0, "dry runs must not create roles");
   assert.equal(dryRun.invalidatedSessions, 0, "dry runs must not delete sessions");
   assert.equal(mock.calls.creates, 0);
   assert.deepEqual(mock.calls.sessionDeletes, []);
 
   const firstApply = await reconcileMonolithOrganizationRoles(mock.prisma as never, raw, true);
-  assert.equal(firstApply.createdRoles, 56, "apply must create every missing desired grant once");
-  assert.equal(mock.roles.length, 57, "existing microservice-only roles must be retained");
+  assert.equal(firstApply.createdRoles, 49, "apply must create every missing deterministic grant once");
+  assert.equal(mock.roles.length, 50, "existing microservice-only roles must be retained");
   assert.ok(mock.roles.some((role) => role.id === "microservice-only-role"), "the script must not remove existing identities or roles");
-  assert.equal(mock.calls.sessionDeletes.length, 28, "only users receiving new grants may have sessions invalidated");
-  assert.equal(new Set(mock.calls.sessionDeletes).size, 28, "each changed user must have sessions invalidated once");
-  assert.equal(new Set(mock.roles.map(key)).size, 57, "nullable scopes must be compared in memory without duplicate grants");
+  assert.equal(mock.calls.sessionDeletes.length, affectedUserCount, "only users receiving new grants may have sessions invalidated once");
+  assert.equal(new Set(mock.calls.sessionDeletes).size, affectedUserCount, "each changed user must have sessions invalidated once");
+  assert.equal(new Set(mock.roles.map(key)).size, 50, "nullable scopes must be compared in memory without duplicate grants");
 
   const secondApply = await reconcileMonolithOrganizationRoles(mock.prisma as never, raw, true);
   assert.equal(secondApply.missingRoles, 0, "a rerun must find existing nullable-scoped roles in memory");
   assert.equal(secondApply.createdRoles, 0, "a rerun must be idempotent");
   assert.equal(secondApply.invalidatedSessions, 0, "unchanged roles must not invalidate sessions");
-  assert.equal(mock.calls.creates, 56);
-  assert.equal(mock.calls.sessionDeletes.length, 28);
+  assert.equal(mock.calls.creates, 49);
+  assert.equal(mock.calls.sessionDeletes.length, affectedUserCount);
   assert.equal(mock.calls.modelAccesses.includes("account"), false, "account rows must never be accessed");
   assert.equal(mock.calls.modelAccesses.includes("verification"), false, "verification rows must never be accessed");
   assert.equal(mock.calls.modelAccesses.includes("session"), false, "sessions may only be deleted inside a role-write transaction");

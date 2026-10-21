@@ -97,7 +97,6 @@ export class OrganizationSyncOutboxPolicy {
         departmentId: member.departmentId,
         userId: member.userId,
         role: member.role,
-        sourceCreatedAt: member.sourceCreatedAt?.toISOString() ?? null,
         sourceUpdatedAt,
       },
       updatedAt: sourceUpdatedAt,

@@ -32,7 +32,10 @@ export type Quarantine = {
   sourceUserId: string;
   email: string;
   sourceRole: string;
-  reason: "admin_bidang_not_department_admin" | "role_requires_unit";
+  reason:
+    | "admin_bidang_not_department_admin"
+    | "role_requires_unit"
+    | "admin_biro_requires_bureau_scope";
 };
 
 export type Report = {
@@ -214,26 +217,36 @@ export function buildReconciliationPlan(raw: unknown): ReconciliationPlan {
 
   const desiredByKey = new Map<string, DesiredRole>();
   const quarantines: Quarantine[] = [];
+  const quarantineKeys = new Set<string>();
   const reports: Report[] = [];
-  let generatedRoles = 0;
+  const sourceRoleKeys = new Set<string>();
+  let sourceDuplicateRoles = 0;
+  const quarantine = (user: SourceUser, sourceRole: string, reason: Quarantine["reason"]): void => {
+    const key = `${user.id}\u001f${sourceRole}\u001f${reason}`;
+    if (quarantineKeys.has(key)) return;
+    quarantineKeys.add(key);
+    quarantines.push({
+      sourceUserId: user.id,
+      email: normalizeEmail(user.email),
+      sourceRole,
+      reason,
+    });
+  };
   const add = (user: SourceUser, role: ScopedRole): void => {
-    generatedRoles += 1;
     const desired = { ...role, sourceUserId: user.id, email: normalizeEmail(user.email) };
     desiredByKey.set(roleKey({ ...role, userId: user.id }), desired);
   };
   const requireUnit = (user: SourceUser, sourceRole: SourceRole): string | null => {
     if (sourceRole.unitId !== null) return sourceRole.unitId;
-    quarantines.push({
-      sourceUserId: user.id,
-      email: normalizeEmail(user.email),
-      sourceRole: sourceRole.role,
-      reason: "role_requires_unit",
-    });
+    quarantine(user, sourceRole.role, "role_requires_unit");
     return null;
   };
 
   for (const user of source.users) {
     for (const sourceRole of user.roles) {
+      const sourceRoleKey = `${user.id}\u001f${sourceRole.role}\u001f${sourceRole.unitId ?? ""}`;
+      if (sourceRoleKeys.has(sourceRoleKey)) sourceDuplicateRoles += 1;
+      sourceRoleKeys.add(sourceRoleKey);
       switch (sourceRole.role) {
         case "admin_unit": {
           const unitId = requireUnit(user, sourceRole);
@@ -274,17 +287,12 @@ export function buildReconciliationPlan(raw: unknown): ReconciliationPlan {
           add(user, { app: "simakin", role: "pengawas", unitId: null, departmentId: null });
           break;
         case "admin_biro":
-          add(user, { app: "simakin", role: "admin_biro", unitId: null, departmentId: null });
+          quarantine(user, sourceRole.role, "admin_biro_requires_bureau_scope");
           break;
         case "admin_bidang": {
           const departmentIds = departmentIdsByAdmin.get(user.id) ?? [];
           if (departmentIds.length === 0) {
-            quarantines.push({
-              sourceUserId: user.id,
-              email: normalizeEmail(user.email),
-              sourceRole: sourceRole.role,
-              reason: "admin_bidang_not_department_admin",
-            });
+            quarantine(user, sourceRole.role, "admin_bidang_not_department_admin");
           } else {
             for (const departmentId of departmentIds) {
               add(user, { app: "simakin", role: "admin_bidang", unitId: null, departmentId });
@@ -307,7 +315,7 @@ export function buildReconciliationPlan(raw: unknown): ReconciliationPlan {
     desiredRoles: [...desiredByKey.values()],
     quarantines,
     reports,
-    sourceDuplicateRoles: generatedRoles - desiredByKey.size,
+    sourceDuplicateRoles,
   };
 }
 

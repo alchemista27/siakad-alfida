@@ -75,6 +75,17 @@ async function main() {
     sourceCreatedAt: new Date("2026-10-20T11:00:00.000Z"),
     sourceUpdatedAt: version,
   });
+  assert.deepEqual(
+    member.payload,
+    {
+      id: "00000000-0000-4000-8000-000000000205",
+      departmentId: "00000000-0000-4000-8000-000000000201",
+      userId: "00000000-0000-4000-8000-000000000204",
+      role: "member",
+      sourceUpdatedAt: version.toISOString(),
+    },
+    "the member event must contain exactly the strict SIMAKIN receiver contract",
+  );
   assert.equal(member.aggregate, "department_member");
   assert.equal(member.eventType, "department-member.upserted");
   assert.equal(
