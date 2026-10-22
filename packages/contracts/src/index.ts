@@ -5,3 +5,4 @@ export * from "./siakad";
 export * from "./spmb-handoff";
 export * from "./unit-projection";
 export * from "./user-projection";
+export * from "./ymq-employee-projection";

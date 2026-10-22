@@ -8,6 +8,7 @@ import { UnitsModule } from "./units/units.module";
 import { DepartmentsModule } from "./departments/departments.module";
 import { OrganizationSyncModule } from "./organization-sync/organization-sync.module";
 import { BpiModule } from "./bpi/bpi.module";
+import { YmqEmployeeProjectionModule } from "./ymq-projection/ymq-employee-projection.module";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { BpiModule } from "./bpi/bpi.module";
     DepartmentsModule,
     OrganizationSyncModule,
     BpiModule,
+    YmqEmployeeProjectionModule,
   ],
 })
 export class AppModule {}

@@ -1,32 +1,15 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import cookieParser from "cookie-parser";
+import { isTrustedSiyaumOrigin } from "./ymq/cors.policy";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser());
   app.setGlobalPrefix("api");
-
-  const allowedOrigins = [
-    "https://siyaum.alfida.or.id",
-    "https://auth.alfida.or.id",
-    "https://sim.alfida.or.id",
-    "https://simakin.alfida.or.id",
-    "https://simpeg.alfida.or.id",
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:3002",
-  ];
-
   app.enableCors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".alfida.or.id")) {
-        callback(null, true);
-      } else {
-        callback(null, true);
-      }
-    },
+    origin: (origin, callback) => callback(null, isTrustedSiyaumOrigin(origin) ? true : false),
     credentials: true,
   });
 

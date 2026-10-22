@@ -20,53 +20,99 @@ enum VerificationStatus {
   revision
 }
 
+enum YmqGroupLevel {
+  pra_tahsin
+  tahsin
+  tahfiz
+}
+
+enum IwrLevel {
+  iwr_1
+  iwr_2
+}
+
+enum AttendanceStatus {
+  hadir
+  izin
+  sakit
+  alpa
+}
+
+enum LearningTrack {
+  pra_tahsin
+  tahsin
+  ziyadah
+}
+
+enum YmqGroupStaffRole {
+  admin_kelompok
+}
+
 model User {
-  id        String   @id @default(uuid()) @db.Uuid
-  fullName  String   @map("full_name") @db.VarChar(200)
-  username  String?  @unique @db.VarChar(100)
-  email     String   @unique @db.VarChar(255)
-  phone     String?  @db.VarChar(30)
-  avatarUrl String?  @map("avatar_url") @db.Text
-  unitName  String?  @map("unit_name") @db.VarChar(150)
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  id              String   @id @default(uuid()) @db.Uuid
+  fullName        String   @map("full_name") @db.VarChar(200)
+  username        String?  @unique @db.VarChar(100)
+  email           String   @unique @db.VarChar(255)
+  phone           String?  @db.VarChar(30)
+  avatarUrl       String?  @map("avatar_url") @db.Text
+  unitName        String?  @map("unit_name") @db.VarChar(150)
+  unitId          String?  @map("unit_id") @db.Uuid
+  sourceUpdatedAt DateTime? @map("source_updated_at") @db.Timestamptz
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  groupsAsMusyrif  YmqGroup[]
-  memberships      YmqMember[]
-  setoranList      YmqSetoran[] @relation("UserSetoran")
-  verifiedSetorans YmqSetoran[] @relation("MusyrifVerifications")
-  targets          YmqTarget[]
+  groupsAsMusyrif       YmqGroup[]                @relation("LegacyMusyrif")
+  groupsAsPembina       YmqGroup[]                @relation("YmqPembina")
+  memberships           YmqMember[]
+  groupAdminAssignments YmqGroupAdminAssignment[]
+  setoranList           YmqSetoran[]              @relation("UserSetoran")
+  verifiedSetorans      YmqSetoran[]              @relation("MusyrifVerifications")
+  targets               YmqTarget[]
 
+  @@index([unitId, isActive])
   @@map("users")
 }
 
 model YmqGroup {
-  id           String   @id @default(uuid()) @db.Uuid
-  name         String   @db.VarChar(200)
-  musyrifId    String   @map("musyrif_id") @db.Uuid
-  description  String?  @db.Text
-  scheduleDay  String?  @map("schedule_day") @db.VarChar(30)
-  scheduleTime String?  @map("schedule_time") @db.VarChar(50)
-  whatsappLink String?  @map("whatsapp_link") @db.VarChar(255)
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  id            String         @id @default(uuid()) @db.Uuid
+  name          String         @db.VarChar(200)
+  musyrifId     String?        @map("musyrif_id") @db.Uuid
+  pembinaUserId String?        @map("pembina_user_id") @db.Uuid
+  level         YmqGroupLevel?
+  unitId        String?        @map("unit_id") @db.Uuid
+  unitName      String?        @map("unit_name") @db.VarChar(150)
+  description   String?        @db.Text
+  scheduleDay   String?        @map("schedule_day") @db.VarChar(30)
+  scheduleTime  String?        @map("schedule_time") @db.VarChar(50)
+  whatsappLink  String?        @map("whatsapp_link") @db.VarChar(255)
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz
 
-  musyrif User        @relation(fields: [musyrifId], references: [id], onDelete: Restrict)
-  members YmqMember[]
+  musyrif          User?                     @relation("LegacyMusyrif", fields: [musyrifId], references: [id], onDelete: SetNull)
+  pembina          User?                     @relation("YmqPembina", fields: [pembinaUserId], references: [id], onDelete: SetNull)
+  members          YmqMember[]
+  groupAdmins      YmqGroupAdminAssignment[]
+  learningSessions YmqLearningSession[]
 
+  @@index([unitId, level])
+  @@index([pembinaUserId])
   @@map("ymq_groups")
 }
 
 model YmqMember {
-  id       String   @id @default(uuid()) @db.Uuid
-  groupId  String   @map("group_id") @db.Uuid
-  userId   String   @map("user_id") @db.Uuid
-  joinedAt DateTime @default(now()) @map("joined_at") @db.Timestamptz
+  id       String    @id @default(uuid()) @db.Uuid
+  groupId  String    @map("group_id") @db.Uuid
+  userId   String    @map("user_id") @db.Uuid
+  joinedAt DateTime  @default(now()) @map("joined_at") @db.Timestamptz
+  leftAt   DateTime? @map("left_at") @db.Timestamptz
 
-  group YmqGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group      YmqGroup               @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attendance YmqSessionAttendance[]
+  progress   YmqLearningProgress[]
 
   @@unique([groupId, userId])
+  @@index([userId, leftAt])
   @@map("ymq_members")
 }
 
@@ -100,12 +146,120 @@ model YmqTarget {
   userId           String   @map("user_id") @db.Uuid
   periodeBulan     Int      @map("periode_bulan")
   periodeTahun     Int      @map("periode_tahun")
-  targetKhatam     Int      @default(1) @map("target_khatam") // Berapa kali khatam dalam periode
-  targetHafalanJuz Int      @default(0) @map("target_hafalan_juz") // Tambahan juz hafalan
+  targetKhatam     Int      @default(1) @map("target_khatam")
+  targetHafalanJuz Int      @default(0) @map("target_hafalan_juz")
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, periodeBulan, periodeTahun])
   @@map("ymq_targets")
+}
+
+model YmqIwrCurriculumUnit {
+  id         String   @id @default(uuid()) @db.Uuid
+  iwrLevel   IwrLevel @map("iwr_level")
+  topicCode  String   @map("topic_code") @db.VarChar(40)
+  topicTitle String   @map("topic_title") @db.VarChar(200)
+  pageStart  Int      @map("page_start")
+  pageEnd    Int      @map("page_end")
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  progress YmqLearningProgress[]
+
+  @@unique([iwrLevel, topicCode])
+  @@map("ymq_iwr_curriculum_units")
+}
+
+model YmqGroupAdminAssignment {
+  id           String            @id @default(uuid()) @db.Uuid
+  groupId      String            @map("group_id") @db.Uuid
+  userId       String            @map("user_id") @db.Uuid
+  role         YmqGroupStaffRole @default(admin_kelompok)
+  assignedById String            @map("assigned_by_id") @db.Uuid
+  assignedAt   DateTime          @default(now()) @map("assigned_at") @db.Timestamptz
+  revokedAt    DateTime?         @map("revoked_at") @db.Timestamptz
+
+  group YmqGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, revokedAt])
+  @@map("ymq_group_admin_assignments")
+}
+
+model YmqLearningSession {
+  id          String   @id @default(uuid()) @db.Uuid
+  groupId     String   @map("group_id") @db.Uuid
+  sessionDate DateTime @map("session_date") @db.Date
+  notes       String?  @db.Text
+  createdById String   @map("created_by_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  group      YmqGroup               @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  attendance YmqSessionAttendance[]
+  progress   YmqLearningProgress[]
+
+  @@unique([groupId, sessionDate])
+  @@index([sessionDate])
+  @@map("ymq_learning_sessions")
+}
+
+model YmqSessionAttendance {
+  id        String           @id @default(uuid()) @db.Uuid
+  sessionId String           @map("session_id") @db.Uuid
+  memberId  String           @map("member_id") @db.Uuid
+  status    AttendanceStatus
+  note      String?          @db.Text
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime         @updatedAt @map("updated_at") @db.Timestamptz
+
+  session YmqLearningSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  member  YmqMember          @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, memberId])
+  @@map("ymq_session_attendance")
+}
+
+model YmqLearningProgress {
+  id                  String        @id @default(uuid()) @db.Uuid
+  sessionId           String        @map("session_id") @db.Uuid
+  memberId            String        @map("member_id") @db.Uuid
+  track               LearningTrack
+  sequence            Int           @default(1)
+  iwrCurriculumUnitId String?       @map("iwr_curriculum_unit_id") @db.Uuid
+  surahNumber         Int?          @map("surah_number")
+  ayahStart           Int?          @map("ayah_start")
+  ayahEnd             Int?          @map("ayah_end")
+  note                String?       @db.Text
+  createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  session           YmqLearningSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  member            YmqMember             @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  iwrCurriculumUnit YmqIwrCurriculumUnit? @relation(fields: [iwrCurriculumUnitId], references: [id], onDelete: Restrict)
+  evidence          YmqProgressEvidence[]
+
+  @@unique([sessionId, memberId, track, sequence])
+  @@index([track, surahNumber])
+  @@map("ymq_learning_progress")
+}
+
+model YmqProgressEvidence {
+  id                 String   @id @default(uuid()) @db.Uuid
+  progressId         String   @map("progress_id") @db.Uuid
+  cloudinaryPublicId String   @map("cloudinary_public_id") @db.VarChar(500)
+  secureUrl          String   @map("secure_url") @db.Text
+  resourceType       String   @map("resource_type") @db.VarChar(20)
+  originalFilename   String?  @map("original_filename") @db.VarChar(255)
+  bytes              Int?
+  uploadedById       String   @map("uploaded_by_id") @db.Uuid
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  progress YmqLearningProgress @relation(fields: [progressId], references: [id], onDelete: Cascade)
+
+  @@unique([progressId, cloudinaryPublicId])
+  @@map("ymq_progress_evidence")
 }

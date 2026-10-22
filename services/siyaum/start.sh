@@ -15,8 +15,11 @@ if [ -d "services/siyaum/api/src/generated" ] && [ ! -d "services/siyaum/api/dis
   cp -r services/siyaum/api/src/generated services/siyaum/api/dist/
 fi
 
+# Jalankan migration versioned sebelum API menerima traffic.
+./services/siyaum/api/node_modules/.bin/prisma migrate deploy --schema services/siyaum/api/prisma/schema.prisma
+
 echo "Memulai SIYAUM API (NestJS) pada port 3001..."
 PORT=3001 node services/siyaum/api/dist/main.js &
 
 echo "Memulai SIYAUM Web (Next.js) pada port 3000..."
-HOSTNAME=0.0.0.0 PORT=3000 node services/siyaum/web/.next/standalone/services/siyaum/web/server.js
+exec env HOSTNAME=0.0.0.0 PORT=3000 node services/siyaum/web/.next/standalone/services/siyaum/web/server.js

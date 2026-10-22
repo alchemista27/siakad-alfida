@@ -1,0 +1,31 @@
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+
+const root = path.resolve(import.meta.dirname, "..");
+const read = (relativePath: string) => {
+  const target = path.join(root, relativePath);
+  assert.ok(existsSync(target), `Expected ${relativePath} to exist`);
+  return readFileSync(target, "utf8");
+};
+
+const api = read("src/lib/api.ts");
+const modal = read("src/components/notification-modal.tsx");
+const monitoring = read("src/app/(dashboard)/monitoring/monitoring-client.tsx");
+const groups = read("src/app/(dashboard)/groups/group-staff-manager.tsx");
+const executive = read("src/app/(dashboard)/executive/executive-dashboard-client.tsx");
+
+assert.match(api, /const API_BASE_URL\s*=\s*["']\/api/);
+assert.match(api, /content-type/i);
+assert.match(api, /application\/json/i);
+assert.match(api, /response\.text\(\)/);
+assert.ok(!/https:\/\/\d{1,3}\./.test(api), "API client must not use a public IP");
+assert.match(modal, /role="dialog"/);
+assert.match(monitoring, /canManageSessions/);
+assert.match(groups, /isAdminYmq/);
+assert.match(executive, /canViewExecutive/);
+assert.ok(!/method:\s*["'](?:POST|PUT|PATCH|DELETE)["']/.test(executive), "Executive dashboard must be read-only");
+assert.ok(!/\balert\s*\(/.test([monitoring, groups, executive].join("\n")), "Operational UI must not use alert()");
+assert.ok(!/\bconfirm\s*\(/.test([monitoring, groups, executive].join("\n")), "Operational UI must not use confirm()");
+
+console.log("SIYAUM YMQ access UI contract passed");
