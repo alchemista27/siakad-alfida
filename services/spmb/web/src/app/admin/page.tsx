@@ -48,6 +48,12 @@ interface Registration {
   } | null;
 }
 
+type RegistrationLoadState =
+  | { kind: "loading" }
+  | { kind: "ready"; data: Registration[] }
+  | { kind: "forbidden"; message: string }
+  | { kind: "error"; message: string };
+
 export default function SpmbAdminPage() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [periods, setPeriods] = useState<AdminPeriodItem[]>([]);
@@ -61,7 +67,7 @@ export default function SpmbAdminPage() {
   const [userEmail, setUserEmail] = useState<string>("");
   const [adminTab, setAdminTab] = useState<"overview" | "registrations" | "verification" | "observations" | "decisions">("registrations");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [registrationLoadState, setRegistrationLoadState] = useState<RegistrationLoadState>({ kind: "loading" });
   const [notice, setNotice] = useState<AdminNoticeState | null>(null);
 
 
@@ -94,7 +100,7 @@ export default function SpmbAdminPage() {
 
   const fetchRegistrations = async () => {
     setLoading(true);
-    setError(null);
+    setRegistrationLoadState({ kind: "loading" });
     try {
       const params = new URLSearchParams();
       if (selectedPeriodId) params.append("periodId", selectedPeriodId);
@@ -104,14 +110,19 @@ export default function SpmbAdminPage() {
 
       const res = await fetch(`/api/registrations?${params.toString()}`);
       if (res.status === 401 || res.status === 403) {
-        setError("Akses terbatas untuk panitia / admin unit SPMB.");
+        setRegistrationLoadState({ kind: "forbidden", message: "Akses terbatas untuk panitia / admin unit SPMB." });
         return;
       }
-      if (!res.ok) throw new Error("Gagal mengambil data pendaftar.");
+      if (!res.ok) {
+        setRegistrationLoadState({ kind: "error", message: "Gagal mengambil data pendaftar." });
+        return;
+      }
       const data = await res.json();
-      setRegistrations(data);
-    } catch (err: any) {
-      setError(err.message);
+      const normalized = Array.isArray(data) ? data as Registration[] : [];
+      setRegistrations(normalized);
+      setRegistrationLoadState({ kind: "ready", data: normalized });
+    } catch {
+      setRegistrationLoadState({ kind: "error", message: "Gagal mengambil data pendaftar." });
     } finally {
       setLoading(false);
     }
@@ -329,6 +340,13 @@ export default function SpmbAdminPage() {
       }
     >
       <div className="max-w-7xl w-full mx-auto space-y-6">
+        <div className="rounded-lg border border-border bg-surface p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tertiary">Funnel seleksi santri</p>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-primary/75">
+            {['Pendaftaran', 'Berkas', 'Observasi', 'Keputusan', 'SIAKAD'].map((stage, index) => <React.Fragment key={stage}><span className="rounded-sm border border-border bg-neutral px-2.5 py-1.5">{stage}</span>{index < 4 ? <span className="material-symbols-rounded text-base text-tertiary" aria-hidden="true">arrow_forward</span> : null}</React.Fragment>)}
+          </div>
+        </div>
+
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold font-heading text-[#454545]">
@@ -474,13 +492,18 @@ export default function SpmbAdminPage() {
         </div>
 
         <div className="bg-white rounded-lg border border-[#E3E8E7] overflow-hidden">
-          {loading ? (
+          {loading || registrationLoadState.kind === "loading" ? (
             <div className="py-12 text-center text-xs text-gray-500">Memuat data pendaftar...</div>
-          ) : error ? (
-            <div className="p-8 text-center text-xs text-red-700 bg-red-50">{error}</div>
+          ) : registrationLoadState.kind === "forbidden" ? (
+            <div className="p-8 text-center text-xs text-red-700 bg-red-50">{registrationLoadState.message}</div>
+          ) : registrationLoadState.kind === "error" ? (
+            <div className="space-y-3 p-8 text-center text-xs text-red-700 bg-red-50">
+              <p>{registrationLoadState.message}</p>
+              <button type="button" onClick={fetchRegistrations} className="rounded-sm border border-red-200 bg-white px-3 py-1.5 font-semibold text-red-700">Coba lagi</button>
+            </div>
           ) : registrations.length === 0 ? (
             <div className="py-12 text-center text-gray-500 text-xs">
-              Tidak ada data pendaftar yang sesuai filter.
+              {!filterStatus && !searchQuery ? "Belum ada pendaftar" : "Tidak ada pendaftar yang sesuai filter."}
             </div>
           ) : (
             <div className="overflow-x-auto">
