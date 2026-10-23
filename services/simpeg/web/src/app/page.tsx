@@ -59,6 +59,16 @@ interface SaturdayDuty {
 
 type SimpegTab = "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings" | "workday";
 
+async function readManagementJson<T>(url: string): Promise<T> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    const body = await response.json().catch(() => null) as { message?: string | string[] } | null;
+    const message = Array.isArray(body?.message) ? body.message.join(" ") : body?.message;
+    throw new Error(message || `Gagal memuat data (${response.status}).`);
+  }
+  return response.json() as Promise<T>;
+}
+
 export default function SimpegDashboard() {
   const [activeTab, setActiveTab] = useState<SimpegTab>("assignments");
   const [loading, setLoading] = useState(true);
@@ -117,8 +127,8 @@ export default function SimpegDashboard() {
         fetch("/api/departments").then((r) => (r.ok ? r.json() : [])),
         fetch("/api/attendance/context").then((r) => (r.ok ? r.json() : null)),
         fetch("/api/attendance/configs").then((r) => (r.ok ? r.json() : [])),
-        fetch("/api/attendance/holidays").then((r) => (r.ok ? r.json() : [])),
-        fetch("/api/attendance/saturday-duties").then((r) => (r.ok ? r.json() : [])),
+        readManagementJson<Holiday[]>("/api/attendance/holidays"),
+        readManagementJson<SaturdayDuty[]>("/api/attendance/saturday-duties"),
       ]);
 
       setAssignments(resAssignments || []);
