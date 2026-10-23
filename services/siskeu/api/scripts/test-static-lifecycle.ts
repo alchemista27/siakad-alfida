@@ -9,7 +9,7 @@ async function source(relativePath: string) {
 }
 
 async function main() {
-  const [internalController, schema, migration, dockerfile, start, healthController, appModule, main] = await Promise.all([
+  const [internalController, schema, migration, dockerfile, start, healthController, appModule, main, envExample] = await Promise.all([
     source("src/internal/internal-spp.controller.ts"),
     source("prisma/schema.prisma"),
     source("prisma/migrations/20261019000000_initial_siskeu_invoices/migration.sql"),
@@ -18,6 +18,7 @@ async function main() {
     source("src/health.controller.ts").catch((error: NodeJS.ErrnoException) => error.code === "ENOENT" ? "" : Promise.reject(error)),
     source("src/app.module.ts"),
     source("src/main.ts"),
+    source(".env.example"),
   ]);
   assert.match(internalController, /@Get\("spp\/invoices"\)/);
   assert.match(internalController, /@Post\("spp\/invoices\/:id\/payment-session"\)/);
@@ -45,6 +46,8 @@ async function main() {
   assert.doesNotMatch(healthController, /@UseGuards|process\.env|secret|token|password/i, "health endpoint must remain public and secret-free");
   assert.match(appModule, /import\s+\{\s*HealthController\s*\}\s+from\s+["']\.\/health\.controller["'];/, "app module must register the health controller");
   assert.match(appModule, /controllers:\s*\[\s*HealthController\s*\]/, "health controller must be registered without an auth guard");
+  assert.match(envExample, /SISKEU_PAYMENT_MODE="gateway"/, "the default compatible gateway payment mode must be documented");
+  assert.match(envExample, /SISKEU_MANUAL_TRANSFER_INSTRUCTIONS="replace-with-approved-manual-transfer-instructions"/, "manual transfer instructions must be documented without account data");
 
   console.log("SISKEU static lifecycle and health contract passed");
 }

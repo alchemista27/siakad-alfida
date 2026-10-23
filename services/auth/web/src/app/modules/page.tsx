@@ -57,6 +57,14 @@ export default function ModulesPage() {
   const roles = user?.roles || [];
   const isSuperAdmin = roles.some((r) => r.role === "super_admin");
   const primaryRole = roles[0]?.role ? roles[0].role.replace(/_/g, " ").toUpperCase() : "STAFF";
+  const SERVICE_URL = {
+    spmb: "https://spmb.alfida.or.id/admin",
+    simakin: "https://simakin.alfida.or.id",
+    simpeg: "https://simpeg.alfida.or.id",
+    siyaum: "https://siyaum.alfida.or.id",
+    siakad: "https://siakad.alfida.or.id",
+    siskeu: "https://siskeu.alfida.or.id",
+  } as const;
 
   const sidebarGroups = [
     {
@@ -85,28 +93,33 @@ export default function ModulesPage() {
       items: [
         {
           label: "SPMB (Siswa Baru)",
-          href: "https://spmb.alfida.or.id/admin",
+          href: SERVICE_URL.spmb,
           icon: "school",
         },
         {
           label: "SIMAKIN (Kinerja)",
-          href: "https://simakin.alfida.or.id",
+          href: SERVICE_URL.simakin,
           icon: "trending_up",
         },
         {
           label: "SIMPEG (Kepegawaian)",
-          href: "https://simpeg.alfida.or.id",
+          href: SERVICE_URL.simpeg,
           icon: "badge",
         },
         {
           label: "SIYAUM (Tilawah Quran)",
-          href: "https://siyaum.alfida.or.id",
+          href: SERVICE_URL.siyaum,
           icon: "menu_book",
         },
         {
           label: "SIAKAD (Akademik)",
-          href: "https://sim.alfida.or.id",
+          href: SERVICE_URL.siakad,
           icon: "auto_stories",
+        },
+        {
+          label: "SISKEU (Keuangan & SPP)",
+          href: SERVICE_URL.siskeu,
+          icon: "payments",
         },
       ],
     },
@@ -132,7 +145,7 @@ export default function ModulesPage() {
       title: "SPMB (Penerimaan Siswa Baru)",
       description: "Pendaftaran, berkas, pembayaran, observasi, dan pengumuman seleksi murid baru.",
       icon: "school",
-      url: "https://spmb.alfida.or.id/admin",
+      url: SERVICE_URL.spmb,
       isActive: true,
       badge: "Aktif",
       external: true,
@@ -142,7 +155,7 @@ export default function ModulesPage() {
       title: "SIMAKIN (Manajemen Kinerja)",
       description: "Perencanaan strategis, program kerja, monitoring KPI, dan log realisasi kegiatan.",
       icon: "trending_up",
-      url: "https://simakin.alfida.or.id",
+      url: SERVICE_URL.simakin,
       isActive: true,
       badge: "Aktif",
       external: true,
@@ -152,7 +165,7 @@ export default function ModulesPage() {
       title: "SIMPEG (Kepegawaian & SDM)",
       description: "Data kepegawaian, penugasan unit, presensi GPS, pengajuan cuti, dan mentoring BPI.",
       icon: "badge",
-      url: "https://simpeg.alfida.or.id",
+      url: SERVICE_URL.simpeg,
       isActive: true,
       badge: "Aktif",
       external: true,
@@ -162,7 +175,7 @@ export default function ModulesPage() {
       title: "SIYAUM (Yaum Ma'al Quran)",
       description: "Pencatatan setoran tilawah Al-Quran harian serta rekapan kelompok halaqah YMQ.",
       icon: "menu_book",
-      url: "https://siyaum.alfida.or.id",
+      url: SERVICE_URL.siyaum,
       isActive: true,
       badge: "Aktif",
       external: true,
@@ -172,7 +185,7 @@ export default function ModulesPage() {
       title: "SIAKAD (Akademik & Sekolah)",
       description: "Jadwal mengajar, jurnal kelas, absensi siswa, dan input nilai raport pendidikan.",
       icon: "auto_stories",
-      url: "https://sim.alfida.or.id",
+      url: SERVICE_URL.siakad,
       isActive: true,
       badge: "Aktif",
       external: true,
@@ -180,11 +193,12 @@ export default function ModulesPage() {
     {
       id: "siskeu",
       title: "SISKEU (Keuangan & SPP)",
-      description: "Pembayaran SPP terpadu, rekonsiliasi bank, dan anggaran keuangan yayasan.",
+      description: "Tagihan SPP, status pembayaran, rekonsiliasi, dan laporan keuangan yayasan.",
       icon: "payments",
-      url: "#",
-      isActive: false,
-      badge: "Segera Hadir",
+      url: SERVICE_URL.siskeu,
+      isActive: true,
+      badge: "Aktif",
+      external: true,
     },
     {
       id: "sisarpras",

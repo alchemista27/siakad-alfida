@@ -52,17 +52,52 @@ async function main() {
   const listed = await service.list(`${enrollmentA},${enrollmentB}`);
   assert.deepEqual(listed.invoices.map((invoice) => invoice.enrollmentId), [enrollmentA]);
   const originalTemplate = process.env.SISKEU_PAYMENT_URL_TEMPLATE;
+  const originalPaymentMode = process.env.SISKEU_PAYMENT_MODE;
+  const originalInstructions = process.env.SISKEU_MANUAL_TRANSFER_INSTRUCTIONS;
   delete process.env.SISKEU_PAYMENT_URL_TEMPLATE;
+  delete process.env.SISKEU_PAYMENT_MODE;
+  delete process.env.SISKEU_MANUAL_TRANSFER_INSTRUCTIONS;
   await assert.rejects(() => service.createPaymentSession("invoice-a", enrollmentA), ServiceUnavailableException);
+
   process.env.SISKEU_PAYMENT_URL_TEMPLATE = "https://payments.example.test/pay/{invoiceId}?reference={reference}";
-  const session = await service.createPaymentSession("invoice-a", enrollmentA);
-  assert.equal(session.invoiceId, "invoice-a");
-  assert.equal(session.paymentUrl, "https://payments.example.test/pay/invoice-a?reference=SPP-202610-A");
+  const gatewaySession = await service.createPaymentSession("invoice-a", enrollmentA);
+  assert.deepEqual(gatewaySession, {
+    invoiceId: "invoice-a",
+    paymentMethod: "gateway",
+    paymentUrl: "https://payments.example.test/pay/invoice-a?reference=SPP-202610-A",
+    instructions: null,
+    reference: "SPP-202610-A",
+    amount: 250000,
+    currency: "IDR",
+  });
+
+  process.env.SISKEU_PAYMENT_MODE = "manual_transfer";
+  process.env.SISKEU_MANUAL_TRANSFER_INSTRUCTIONS = "Transfer sesuai instruksi resmi sekolah, lalu simpan bukti pembayaran.";
+  const manualSession = await service.createPaymentSession("invoice-a", enrollmentA);
+  assert.deepEqual(manualSession, {
+    invoiceId: "invoice-a",
+    paymentMethod: "manual_transfer",
+    paymentUrl: null,
+    instructions: "Transfer sesuai instruksi resmi sekolah, lalu simpan bukti pembayaran.",
+    reference: "SPP-202610-A",
+    amount: 250000,
+    currency: "IDR",
+  });
+  process.env.SISKEU_MANUAL_TRANSFER_INSTRUCTIONS = "   ";
+  await assert.rejects(() => service.createPaymentSession("invoice-a", enrollmentA), ServiceUnavailableException);
+  process.env.SISKEU_PAYMENT_MODE = "unsupported";
+  await assert.rejects(() => service.createPaymentSession("invoice-a", enrollmentA), ServiceUnavailableException);
+
   await assert.rejects(() => service.createPaymentSession("invoice-a", enrollmentB));
+  delete process.env.SISKEU_PAYMENT_MODE;
   process.env.SISKEU_PAYMENT_URL_TEMPLATE = "http://payments.example.test/{invoiceId}";
   await assert.rejects(() => service.createPaymentSession("invoice-a", enrollmentA));
   if (originalTemplate === undefined) delete process.env.SISKEU_PAYMENT_URL_TEMPLATE;
   else process.env.SISKEU_PAYMENT_URL_TEMPLATE = originalTemplate;
+  if (originalPaymentMode === undefined) delete process.env.SISKEU_PAYMENT_MODE;
+  else process.env.SISKEU_PAYMENT_MODE = originalPaymentMode;
+  if (originalInstructions === undefined) delete process.env.SISKEU_MANUAL_TRANSFER_INSTRUCTIONS;
+  else process.env.SISKEU_MANUAL_TRANSFER_INSTRUCTIONS = originalInstructions;
 
   console.log("SISKEU internal SPP contract passed");
 }

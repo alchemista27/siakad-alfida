@@ -37,6 +37,35 @@ type InvoiceRecord = {
   paymentProviderReference: string | null;
 };
 
+const INVOICE_STATUSES = ["unpaid", "pending", "paid", "cancelled", "overdue"] as const;
+type InvoiceStatusFilter = (typeof INVOICE_STATUSES)[number];
+
+export type FinanceInvoiceQuery = {
+  unitId?: string;
+  status?: InvoiceStatusFilter;
+  page: number;
+  limit: number;
+};
+
+export type FinanceInvoiceListItem = {
+  id: string;
+  unitId: string;
+  studentName: string;
+  billingPeriod: string;
+  dueDate: string;
+  reference: string;
+  amount: number;
+  currency: "IDR";
+  status: InvoiceStatusFilter;
+  paidAt: string | null;
+};
+
+export type FinanceDashboard = {
+  unpaid: { count: number; amount: number };
+  paid: { count: number; amount: number };
+  overdue: { count: number; amount: number };
+};
+
 type InvoiceTransaction = {
   findByEnrollmentAndPeriod(enrollmentIds: string[], billingPeriod: string): Promise<GeneratedInvoice[]>;
   createMany(input: { data: InvoiceCreateInput[] }): Promise<{ count: number }>;
@@ -46,6 +75,9 @@ export type SppInvoiceRepository = {
   $transaction<T>(callback: (transaction: InvoiceTransaction) => Promise<T>): Promise<T>;
   findById(id: string): Promise<InvoiceRecord | null>;
   markPaid(id: string, providerReference: string): Promise<InvoiceRecord | null>;
+  markPaidManually(id: string, manualReference: string): Promise<InvoiceRecord | null>;
+  listInvoices(query: FinanceInvoiceQuery): Promise<{ data: FinanceInvoiceListItem[]; total: number }>;
+  getDashboard(query: Pick<FinanceInvoiceQuery, "unitId">): Promise<FinanceDashboard>;
 };
 
 function isDate(value: string): boolean {
@@ -61,6 +93,43 @@ function stringField(value: unknown, field: string, max: number): string {
     throw new BadRequestException(`${field} wajib berupa teks 1-${max} karakter.`);
   }
   return value.trim();
+}
+
+function optionalUuid(value: unknown, field: string): string | undefined {
+  if (value === undefined || value === "") return undefined;
+  if (typeof value !== "string" || !UUID_PATTERN.test(value)) {
+    throw new BadRequestException(`${field} wajib UUID.`);
+  }
+  return value.toLowerCase();
+}
+
+function pageField(value: unknown, field: "page" | "limit", fallback: number, maximum: number): number {
+  if (value === undefined || value === "") return fallback;
+  if (typeof value !== "string" || !/^\d+$/.test(value)) {
+    throw new BadRequestException(`${field} wajib bilangan bulat positif.`);
+  }
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < 1 || parsed > maximum) {
+    throw new BadRequestException(`${field} wajib bernilai 1-${maximum}.`);
+  }
+  return parsed;
+}
+
+export function parseFinanceInvoiceQuery(input: unknown): FinanceInvoiceQuery {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    throw new BadRequestException("Query tagihan tidak valid.");
+  }
+  const query = input as Record<string, unknown>;
+  const rawStatus = query.status;
+  if (rawStatus !== undefined && rawStatus !== "" && (typeof rawStatus !== "string" || !INVOICE_STATUSES.includes(rawStatus as InvoiceStatusFilter))) {
+    throw new BadRequestException("status tagihan tidak valid.");
+  }
+  return {
+    unitId: optionalUuid(query.unitId, "unitId"),
+    status: typeof rawStatus === "string" && rawStatus !== "" ? rawStatus as InvoiceStatusFilter : undefined,
+    page: pageField(query.page, "page", 1, 1_000_000),
+    limit: pageField(query.limit, "limit", 20, 100),
+  };
 }
 
 export function deterministicReference(enrollmentId: string, billingPeriod: string): string {
@@ -126,6 +195,25 @@ export class SppInvoiceService {
     });
   }
 
+  async listInvoices(query: unknown): Promise<{ data: FinanceInvoiceListItem[]; meta: { total: number; page: number; limit: number; totalPages: number } }> {
+    const parsed = parseFinanceInvoiceQuery(query);
+    const result = await this.invoices.listInvoices(parsed);
+    return {
+      data: result.data,
+      meta: {
+        total: result.total,
+        page: parsed.page,
+        limit: parsed.limit,
+        totalPages: Math.ceil(result.total / parsed.limit),
+      },
+    };
+  }
+
+  async getDashboard(query: unknown): Promise<FinanceDashboard> {
+    const parsed = parseFinanceInvoiceQuery(query);
+    return this.invoices.getDashboard({ unitId: parsed.unitId });
+  }
+
   async markPaidFromProvider(invoiceId: string, payload: unknown): Promise<{ invoiceId: string; status: "paid" }> {
     if (!UUID_PATTERN.test(invoiceId)) throw new BadRequestException("invoiceId wajib UUID.");
     if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new BadRequestException("Payload webhook pembayaran tidak valid.");
@@ -140,5 +228,24 @@ export class SppInvoiceService {
     const paid = await this.invoices.markPaid(invoiceId, providerReference);
     if (!paid || paid.status !== "paid") throw new ConflictException("Tagihan tidak dapat ditandai lunas.");
     return { invoiceId: paid.id, status: "paid" };
+  }
+
+  async markPaidManually(invoiceId: string, payload: unknown): Promise<{ invoiceId: string; status: "paid"; paymentMethod: "manual_transfer"; manualReference: string }> {
+    if (!UUID_PATTERN.test(invoiceId)) throw new BadRequestException("invoiceId wajib UUID.");
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new BadRequestException("Payload konfirmasi transfer manual tidak valid.");
+    const manualReference = stringField((payload as Record<string, unknown>).manualReference, "manualReference", 180);
+    const persistedReference = `manual_transfer:${manualReference}`;
+    const existing = await this.invoices.findById(invoiceId);
+    if (!existing) throw new NotFoundException("Tagihan tidak ditemukan.");
+    if (existing.status === "paid") {
+      if (existing.paymentProviderReference !== persistedReference) throw new ConflictException("Referensi transfer manual tidak sesuai dengan pembayaran yang sudah tercatat.");
+      return { invoiceId, status: "paid", paymentMethod: "manual_transfer", manualReference };
+    }
+    if (existing.status !== "unpaid") throw new ConflictException("Hanya tagihan berstatus belum dibayar yang dapat dikonfirmasi manual.");
+    const paid = await this.invoices.markPaidManually(invoiceId, persistedReference);
+    if (!paid || paid.status !== "paid" || paid.paymentProviderReference !== persistedReference) {
+      throw new ConflictException("Tagihan tidak dapat dikonfirmasi lunas secara manual.");
+    }
+    return { invoiceId: paid.id, status: "paid", paymentMethod: "manual_transfer", manualReference };
   }
 }

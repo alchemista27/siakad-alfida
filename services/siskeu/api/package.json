@@ -10,6 +10,7 @@
     "typecheck": "pnpm run db:generate && tsc --noEmit",
     "db:generate": "prisma generate",
     "test:internal": "tsx scripts/test-internal-spp-contract.ts",
+    "test:manual-payment": "tsx scripts/test-manual-payment-confirmation-contract.ts",
     "test:generator": "tsx scripts/test-spp-generator-contract.ts",
     "test:lifecycle": "tsx scripts/test-static-lifecycle.ts",
     "test:auth": "tsx scripts/test-auth-audience-contract.ts",

@@ -63,6 +63,16 @@ function outputInvoice(invoice: StoredInvoice) {
   };
 }
 
+export type PaymentSession = {
+  invoiceId: string;
+  paymentMethod: "gateway" | "manual_transfer";
+  paymentUrl: string | null;
+  instructions: string | null;
+  reference: string;
+  amount: number;
+  currency: "IDR";
+};
+
 function paymentUrl(invoice: StoredInvoice): string {
   const template = process.env.SISKEU_PAYMENT_URL_TEMPLATE;
   if (!template) throw new ServiceUnavailableException("Gateway pembayaran SISKEU belum dikonfigurasi.");
@@ -76,6 +86,37 @@ function paymentUrl(invoice: StoredInvoice): string {
     throw new ServiceUnavailableException("Konfigurasi URL pembayaran SISKEU tidak valid.");
   }
   return rendered;
+}
+
+function paymentSession(invoice: StoredInvoice): PaymentSession {
+  const amount = amountAsNumber(invoice.amount);
+  if (invoice.currency !== "IDR" || !Number.isFinite(amount)) {
+    throw new ServiceUnavailableException("Data tagihan SISKEU tidak valid.");
+  }
+  const mode = process.env.SISKEU_PAYMENT_MODE?.trim() || "gateway";
+  if (mode === "manual_transfer") {
+    const instructions = process.env.SISKEU_MANUAL_TRANSFER_INSTRUCTIONS?.trim();
+    if (!instructions) throw new ServiceUnavailableException("Instruksi transfer manual SISKEU belum dikonfigurasi.");
+    return {
+      invoiceId: invoice.id,
+      paymentMethod: "manual_transfer",
+      paymentUrl: null,
+      instructions,
+      reference: invoice.reference,
+      amount,
+      currency: "IDR",
+    };
+  }
+  if (mode !== "gateway") throw new ServiceUnavailableException("Mode pembayaran SISKEU tidak valid.");
+  return {
+    invoiceId: invoice.id,
+    paymentMethod: "gateway",
+    paymentUrl: paymentUrl(invoice),
+    instructions: null,
+    reference: invoice.reference,
+    amount,
+    currency: "IDR",
+  };
 }
 
 @Injectable()
@@ -100,6 +141,6 @@ export class InternalSppService {
     if (invoice.status === "paid" || invoice.status === "cancelled") {
       throw new NotFoundException("Tagihan tidak tersedia untuk pembayaran.");
     }
-    return { invoiceId: invoice.id, paymentUrl: paymentUrl(invoice) };
+    return paymentSession(invoice);
   }
 }
