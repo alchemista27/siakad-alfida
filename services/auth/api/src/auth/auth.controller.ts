@@ -8,6 +8,8 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Query,
+  BadRequestException,
 } from "@nestjs/common";
 import { Response, Request } from "express";
 import { AuthService } from "./auth.service";
@@ -90,6 +92,34 @@ export class AuthController {
       success: true,
       message: "Berhasil keluar dari sistem",
     };
+  }
+
+  @Get("mobile/authorize")
+  @UseGuards(ServiceJwtAuthGuard)
+  async authorizeMobile(
+    @CurrentUser("id") userId: string,
+    @Query("redirect_uri") redirectUri: string,
+    @Query("state") state: string,
+    @Query("code_challenge") codeChallenge: string,
+    @Res() res: Response,
+  ) {
+    if (redirectUri !== "simpeg-absensi://auth") {
+      throw new BadRequestException("Redirect URI aplikasi mobile tidak diizinkan.");
+    }
+    if (!state || !codeChallenge) {
+      throw new BadRequestException("State dan PKCE code challenge wajib diisi.");
+    }
+    const code = await this.authService.createMobileAuthorizationCode(userId, codeChallenge);
+    const callback = new URL(redirectUri);
+    callback.searchParams.set("code", code);
+    callback.searchParams.set("state", state);
+    return res.redirect(HttpStatus.FOUND, callback.toString());
+  }
+
+  @Post("mobile/token")
+  @HttpCode(HttpStatus.OK)
+  async exchangeMobileCode(@Body() body: { code: string; code_verifier: string }) {
+    return this.authService.exchangeMobileAuthorizationCode(body.code, body.code_verifier);
   }
 
   @Get("me")

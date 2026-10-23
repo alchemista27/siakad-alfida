@@ -5,10 +5,11 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import * as bcrypt from "bcryptjs";
-import { randomUUID } from "crypto";
-import { createAuthToken, AuthUser } from "@alfida/auth-sdk";
+import { randomUUID, createHash } from "crypto";
+import { createAuthToken, AuthUser, verifyAuthToken } from "@alfida/auth-sdk";
 import { UserRoleScope } from "@alfida/contracts";
 import { RegisterParentDto, RegisterStaffDto } from "./dto/register.dto";
+import { isValidPkceVerifier, pkceChallengeForVerifier } from "./mobile-pkce";
 
 export const ALFIDA_UNITS = [
   { id: "0f3505db-ba0b-48e3-a500-2de9790bdd63", name: "TK Islam Terpadu Auladuna 1", slug: "tk-auladuna-1" },
@@ -25,6 +26,7 @@ export const ALFIDA_UNITS = [
 @Injectable()
 export class AuthService {
   private secretKey: string;
+  private readonly usedMobileAuthorizationCodes = new Map<string, number>();
 
   constructor(private readonly prisma: PrismaService) {
     this.secretKey =
@@ -229,6 +231,47 @@ export class AuthService {
         expiresIn: "7d",
       }
     );
+  }
+
+  async createMobileAuthorizationCode(userId: string, codeChallenge: string): Promise<string> {
+    if (!/^[A-Za-z0-9_-]{43,128}$/.test(codeChallenge)) {
+      throw new BadRequestException("PKCE code challenge tidak valid.");
+    }
+    const user = await this.getMe(userId);
+    return createAuthToken(
+      { sub: user.id, email: user.email, name: user.fullName, roles: user.roles },
+      this.secretKey,
+      { issuer: "https://auth.alfida.or.id", audience: `mobile:${codeChallenge}`, expiresIn: "60s" },
+    );
+  }
+
+  async exchangeMobileAuthorizationCode(code: string, verifier: string) {
+    if (!code || !isValidPkceVerifier(verifier)) {
+      throw new UnauthorizedException("Kode otorisasi mobile tidak valid.");
+    }
+    const payload = await verifyAuthToken(code, this.secretKey, { issuer: "https://auth.alfida.or.id" });
+    const audience = typeof payload?.aud === "string" ? payload.aud : "";
+    const expectedChallenge = audience.startsWith("mobile:") ? audience.slice("mobile:".length) : "";
+    if (!payload?.sub || !expectedChallenge || pkceChallengeForVerifier(verifier) !== expectedChallenge) {
+      throw new UnauthorizedException("Kode otorisasi mobile tidak valid.");
+    }
+
+    const codeHash = createHash("sha256").update(code).digest("hex");
+    const now = Date.now();
+    for (const [hash, expiry] of this.usedMobileAuthorizationCodes) {
+      if (expiry <= now) this.usedMobileAuthorizationCodes.delete(hash);
+    }
+    if (this.usedMobileAuthorizationCodes.has(codeHash)) {
+      throw new UnauthorizedException("Kode otorisasi mobile sudah digunakan.");
+    }
+    this.usedMobileAuthorizationCodes.set(codeHash, now + 60_000);
+
+    const user = await this.getMe(payload.sub);
+    return {
+      token: await this.createJwtToken(user, user.roles),
+      user,
+      expiresAt: new Date(now + 7 * 24 * 60 * 60 * 1000),
+    };
   }
 
   async logout(sessionToken: string) {
