@@ -70,27 +70,30 @@ export default function UsersPage() {
   const [importing, setImporting] = useState(false);
   const [importStats, setImportStats] = useState<string | null>(null);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (pageOverride = page) => {
     setLoading(true);
     try {
       const query = new URLSearchParams();
       if (search) query.set("search", search);
       if (appFilter) query.set("app", appFilter);
       if (statusFilter) query.set("isActive", statusFilter);
-      query.set("page", page.toString());
+      query.set("page", pageOverride.toString());
       query.set("limit", limit.toString());
 
       const res = await fetch(`/api/admin/users?${query.toString()}`, {
         credentials: "include",
       });
-
-      if (res.ok) {
-        const json = await res.json();
-        setUsers(json.data || []);
-        setTotal(json.meta?.total || 0);
+      if (!res.ok) {
+        const body = await res.json().catch(() => null) as { message?: string | string[] } | null;
+        const detail = Array.isArray(body?.message) ? body.message.join(" ") : body?.message;
+        throw new Error(detail || "Gagal memuat data pengguna.");
       }
-    } catch (e) {
-      setMessage({ text: "Gagal memuat data pengguna.", type: "error" });
+
+      const json = await res.json();
+      setUsers(json.data || []);
+      setTotal(json.meta?.total || 0);
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : "Gagal memuat data pengguna.", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -206,7 +209,8 @@ export default function UsersPage() {
         app: "simpeg",
         role: firstManualRole("simpeg"),
       });
-      fetchUsers();
+      setPage(1);
+      await fetchUsers(1);
     } catch (err: any) {
       setMessage({ text: err.message || "Gagal membuat pengguna.", type: "error" });
     }
@@ -253,7 +257,8 @@ export default function UsersPage() {
 
         setImportStats(`Berhasil: ${resJson.successCount}, Gagal: ${resJson.failedCount}`);
         setMessage({ text: resJson.message, type: "success" });
-        fetchUsers();
+        setPage(1);
+        await fetchUsers(1);
       } catch (err: any) {
         setMessage({ text: err.message || "Gagal membaca file spreadsheet.", type: "error" });
       } finally {
