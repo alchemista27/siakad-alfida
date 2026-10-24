@@ -13,4 +13,8 @@ assert.match(start, /HOSTNAME=0\.0\.0\.0 PORT=3000/, "SIYAUM Next.js must bind t
 const baseline = resolve(serviceRoot, "api/prisma/migrations/20261020000000_baseline_legacy_ymq/migration.sql");
 assert.equal(existsSync(baseline), true, "SIYAUM must record the legacy database baseline before incremental migrations");
 
+const packageJson = readFileSync(resolve(serviceRoot, "api/package.json"), "utf8");
+assert.match(packageJson, /"@nestjs\/common": "\^10\.0\.0"/, "SIYAUM API must use the same Nest major as the shared authentication guard");
+assert.match(packageJson, /"@nestjs\/core": "\^10\.0\.0"/, "SIYAUM API must use the same Nest major as the shared authentication guard");
+
 console.log("SIYAUM deployment lifecycle contract passed");
