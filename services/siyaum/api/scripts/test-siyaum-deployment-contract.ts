@@ -16,5 +16,6 @@ assert.equal(existsSync(baseline), true, "SIYAUM must record the legacy database
 const packageJson = readFileSync(resolve(serviceRoot, "api/package.json"), "utf8");
 assert.match(packageJson, /"@nestjs\/common": "\^10\.0\.0"/, "SIYAUM API must use the same Nest major as the shared authentication guard");
 assert.match(packageJson, /"@nestjs\/core": "\^10\.0\.0"/, "SIYAUM API must use the same Nest major as the shared authentication guard");
+assert.match(packageJson, /"class-validator": "\^0\.15\.1"/, "SIYAUM API must share the auth guard's Nest peer context");
 
 console.log("SIYAUM deployment lifecycle contract passed");
