@@ -1,0 +1,4 @@
+-- Baseline only: the legacy SIYAUM tables (users, ymq_groups, ymq_members,
+-- ymq_setoran, and ymq_targets) predate Prisma migration tracking.
+-- This migration is marked as applied once during production instance setup;
+-- subsequent migrations evolve that verified legacy schema.
