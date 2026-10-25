@@ -9,6 +9,10 @@ const migration = readFileSync(
   resolve(serviceRoot, "api/prisma/migrations/20261018110000_handoff_outbox_dispatcher/migration.sql"),
   "utf8",
 );
+const parentDashboardMigration = readFileSync(
+  resolve(serviceRoot, "api/prisma/migrations/20261025180000_add_parent_dashboard_columns/migration.sql"),
+  "utf8",
+);
 
 function assertIncludes(source: string, expected: string, message: string) {
   assert.ok(source.includes(expected), message);
@@ -98,6 +102,22 @@ assertIncludes(
   migration,
   'CREATE INDEX IF NOT EXISTS "handoff_outbox_status_leased_at_idx"',
   "the dispatcher lease index must exist",
+);
+
+assertIncludes(
+  parentDashboardMigration,
+  'ADD COLUMN IF NOT EXISTS "source_academic_year_id" UUID',
+  "the parent dashboard migration must add the admission-period source academic year column",
+);
+assertIncludes(
+  parentDashboardMigration,
+  'CREATE TYPE "DossierReviewStatus" AS ENUM (\'pending\', \'approved\', \'revision_required\')',
+  "the parent dashboard migration must define its dossier-review enum",
+);
+assertIncludes(
+  parentDashboardMigration,
+  'ADD COLUMN IF NOT EXISTS "dossier_review_status" "DossierReviewStatus" NOT NULL DEFAULT \'pending\'',
+  "the parent dashboard migration must add the registration dossier-review status column",
 );
 
 console.log("SPMB runtime and migration lifecycle contract passed");

@@ -16,7 +16,10 @@ for (const file of [
 }
 
 const helper = read("src/lib/foundation-settings.ts");
-assert.match(helper, /ADMIN_PUBLIC_API_URL\s*\|\|\s*process\.env\.INTERNAL_ADMIN_API_URL/);
+assert.match(
+  helper,
+  /ADMIN_PUBLIC_API_URL\s*\|\|\s*process\.env\.INTERNAL_ADMIN_API_URL\s*\|\|\s*process\.env\.NEXT_PUBLIC_ADMIN_URL/,
+);
 assert.match(helper, /\/api\/public\/foundation-settings/);
 assert.match(helper, /cache:\s*["']no-store["']/);
 assert.match(helper, /connection\s*\(\s*\)/);
