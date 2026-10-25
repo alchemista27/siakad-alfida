@@ -3,6 +3,7 @@ export * from "./roles";
 export * from "./events";
 export * from "./siakad";
 export * from "./spmb-handoff";
+export * from "./spmb-entry";
 export * from "./unit-projection";
 export * from "./user-projection";
 export * from "./ymq-employee-projection";
