@@ -10,6 +10,12 @@ function getReturnUrl(request: NextRequest): string {
   return request.url;
 }
 
+function getServiceRootUrl(request: NextRequest): string {
+  const forwardedHost = request.headers.get("x-forwarded-host") || request.headers.get("host") || "spmb.alfida.or.id";
+  const forwardedProto = request.headers.get("x-forwarded-proto") || "https";
+  return `${forwardedProto}://${forwardedHost}/`;
+}
+
 const protectedPrefixes = ["/admin", "/observer", "/parent", "/status"];
 
 export function middleware(request: NextRequest) {
@@ -18,8 +24,7 @@ export function middleware(request: NextRequest) {
 
   if (pathname === "/login") {
     const loginUrl = new URL("/login", authUrl);
-    const returnUrl = `${request.headers.get("x-forwarded-proto") || "https"}://${request.headers.get("x-forwarded-host") || request.headers.get("host") || "spmb.alfida.or.id"}/admin`;
-    loginUrl.searchParams.set("return_to", returnUrl);
+    loginUrl.searchParams.set("return_to", getServiceRootUrl(request));
     return NextResponse.redirect(loginUrl);
   }
 
@@ -32,9 +37,7 @@ export function middleware(request: NextRequest) {
 
     if (!sessionToken) {
       const loginUrl = new URL("/login", authUrl);
-      const returnUrl = pathname === "/"
-        ? `${request.headers.get("x-forwarded-proto") || "https"}://${request.headers.get("x-forwarded-host") || request.headers.get("host") || "spmb.alfida.or.id"}/admin`
-        : getReturnUrl(request);
+      const returnUrl = getReturnUrl(request);
       loginUrl.searchParams.set("return_to", returnUrl);
       return NextResponse.redirect(loginUrl);
     }

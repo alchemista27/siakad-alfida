@@ -73,12 +73,6 @@ export function SpmbNavbar() {
           >
             Status Pendaftaran
           </a>
-          <a
-            href="/admin"
-            className="text-sm font-semibold text-[#0f7f6d] bg-teal-50 px-3 py-1.5 rounded-md hover:bg-teal-100 transition-colors"
-          >
-            Portal Panitia / Admin
-          </a>
         </nav>
 
         <div className="flex items-center gap-3">

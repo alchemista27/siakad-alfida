@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { SpmbEntrySelector } from "@/components/spmb-entry-selector";
 
 export default function SpmbHomePage() {
-  redirect("/admin");
+  return <SpmbEntrySelector />;
 }
