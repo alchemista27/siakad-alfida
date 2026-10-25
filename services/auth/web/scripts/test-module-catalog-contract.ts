@@ -10,6 +10,9 @@ async function main() {
   assert.match(source, /getSpmbEntries\(roles\)/, "SPMB entry must be resolved from actual SSO roles");
   assert.doesNotMatch(source, /spmb:\s*["']https:\/\/spmb\.alfida\.or\.id\/admin["']/, "SPMB must not have a universal admin URL");
   assert.match(source, /spmbEntries\.map/, "SPMB cards must be rendered from role-specific entries");
+  assert.match(source, /isParentOnlyPortalUser\(roles\)/, "page must derive parent-only visibility from scopes");
+  assert.match(source, /\$\{SERVICE_URL\.siakad\}\/parent/, "parent SIAKAD entry must target /parent");
+  assert.match(source, /isParentOnly\s*\?/, "both catalog variants must be selected explicitly");
   assert.match(
     source,
     /id:\s*"siskeu"[\s\S]*?url:\s*SERVICE_URL\.siskeu[\s\S]*?isActive:\s*true/,

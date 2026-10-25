@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@alfida/ui";
 import { getSpmbEntries, type UserRoleScope } from "@alfida/contracts";
+import { isParentOnlyPortalUser } from "@/lib/module-visibility";
 
 interface UserInfo {
   id: string;
@@ -77,6 +78,33 @@ export default function ModulesPage() {
     siakad: "https://siakad.alfida.or.id",
     siskeu: "https://siskeu.alfida.or.id",
   } as const;
+  const isParentOnly = isParentOnlyPortalUser(roles);
+  const parentSpmbModuleCards = spmbModuleCards.filter((entry) => entry.id === "spmb-parent");
+  const parentSiakadModule: ModuleItem = {
+    id: "siakad-parent",
+    title: "SIAKAD — Akademik Anak",
+    description: "Pantau ringkasan akademik, perkembangan, kegiatan, dan tagihan SPP anak.",
+    icon: "auto_stories",
+    url: `${SERVICE_URL.siakad}/parent`,
+    isActive: true,
+    badge: "Aktif",
+    external: true,
+  };
+  const serviceNavItems = isParentOnly
+    ? [
+        ...spmbEntries
+          .filter((entry) => entry.id === "parent")
+          .map((entry) => ({ label: entry.label, href: `${spmbOrigin}${entry.path}`, icon: entry.icon })),
+        { label: "SIAKAD — Akademik Anak", href: `${SERVICE_URL.siakad}/parent`, icon: "auto_stories" },
+      ]
+    : [
+        ...spmbEntries.map((entry) => ({ label: entry.label, href: `${spmbOrigin}${entry.path}`, icon: entry.icon })),
+        { label: "SIMAKIN (Kinerja)", href: SERVICE_URL.simakin, icon: "trending_up" },
+        { label: "SIMPEG (Kepegawaian)", href: SERVICE_URL.simpeg, icon: "badge" },
+        { label: "SIYAUM (Tilawah Quran)", href: SERVICE_URL.siyaum, icon: "menu_book" },
+        { label: "SIAKAD (Akademik)", href: SERVICE_URL.siakad, icon: "auto_stories" },
+        { label: "SISKEU (Keuangan & SPP)", href: SERVICE_URL.siskeu, icon: "payments" },
+      ];
 
   const sidebarGroups = [
     {
@@ -102,42 +130,11 @@ export default function ModulesPage() {
     },
     {
       title: "Layanan Aktif",
-      items: [
-        ...spmbEntries.map((entry) => ({
-          label: entry.label,
-          href: `${spmbOrigin}${entry.path}`,
-          icon: entry.icon,
-        })),
-        {
-          label: "SIMAKIN (Kinerja)",
-          href: SERVICE_URL.simakin,
-          icon: "trending_up",
-        },
-        {
-          label: "SIMPEG (Kepegawaian)",
-          href: SERVICE_URL.simpeg,
-          icon: "badge",
-        },
-        {
-          label: "SIYAUM (Tilawah Quran)",
-          href: SERVICE_URL.siyaum,
-          icon: "menu_book",
-        },
-        {
-          label: "SIAKAD (Akademik)",
-          href: SERVICE_URL.siakad,
-          icon: "auto_stories",
-        },
-        {
-          label: "SISKEU (Keuangan & SPP)",
-          href: SERVICE_URL.siskeu,
-          icon: "payments",
-        },
-      ],
+      items: serviceNavItems,
     },
   ];
 
-  const modules: ModuleItem[] = [
+  const allModules: ModuleItem[] = [
     ...(isSuperAdmin
       ? [
           {
@@ -222,6 +219,8 @@ export default function ModulesPage() {
       badge: "Segera Hadir",
     },
   ];
+
+  const modules: ModuleItem[] = isParentOnly ? [...parentSpmbModuleCards, parentSiakadModule] : allModules;
 
   if (loading) {
     return (

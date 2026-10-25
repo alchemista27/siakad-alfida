@@ -37,8 +37,10 @@ assert.match(navbar, /surface=["']topbar["']/);
 assert.doesNotMatch(navbar, /w-9 h-9 rounded-lg bg-\[#06bfa2\]/);
 assert.match(selector, /SpmbBrandMark/);
 assert.match(selector, /surface=["']content["']/);
-assert.match(brand, /bg-tertiary/);
+assert.match(brand, /isTopbar\s*\?\s*"h-9 w-9 border-border bg-white text-tertiary"/);
+assert.match(brand, /"text-tertiary text-\[22px\]"/);
 assert.match(brand, /bg-surface/);
+assert.doesNotMatch(brand, /isTopbar[\s\S]*?bg-tertiary/);
 assert.match(brand, /onError/);
 assert.match(brand, /foundationName/);
 

@@ -9,8 +9,11 @@ assert(existsSync(resolve(root, "src/TopbarFoundationLogo.tsx")), "missing share
 const logo = read("src/TopbarFoundationLogo.tsx");
 assert.match(logo, /export function TopbarFoundationLogo/);
 assert.match(logo, /DEFAULT_FOUNDATION_LOGO_URL/);
-assert.match(logo, /bg-tertiary/);
-assert.match(logo, /text-on-tertiary/);
+assert.match(logo, /bg-white/);
+assert.match(logo, /border-border/);
+assert.match(logo, /text-tertiary/);
+assert.doesNotMatch(logo, /bg-tertiary/);
+assert.doesNotMatch(logo, /text-on-tertiary/);
 assert.match(logo, /object-contain/);
 assert.match(logo, /rounded-(sm|md)/);
 assert.doesNotMatch(logo, /rounded-lg/);

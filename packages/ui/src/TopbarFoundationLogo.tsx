@@ -15,7 +15,7 @@ export function TopbarFoundationLogo({
   const [imageFailed, setImageFailed] = useState(false);
 
   return (
-    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-tertiary bg-tertiary p-1.5 text-on-tertiary">
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-white p-1.5 text-tertiary">
       {logoUrl && !imageFailed ? (
         <img
           src={logoUrl}
@@ -24,7 +24,7 @@ export function TopbarFoundationLogo({
           className="h-full w-full object-contain"
         />
       ) : (
-        <span className="material-symbols-rounded text-[22px] text-on-tertiary" aria-hidden="true">hub</span>
+        <span className="material-symbols-rounded text-[22px] text-tertiary" aria-hidden="true">hub</span>
       )}
     </span>
   );

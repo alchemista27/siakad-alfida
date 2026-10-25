@@ -16,7 +16,7 @@ export function SpmbBrandMark({
     <span
       className={`flex shrink-0 items-center justify-center overflow-hidden rounded-md border p-1.5 ${
         isTopbar
-          ? "h-9 w-9 border-tertiary bg-tertiary text-on-tertiary"
+          ? "h-9 w-9 border-border bg-white text-tertiary"
           : "h-16 w-16 border-border bg-surface text-tertiary"
       }`}
     >
@@ -29,7 +29,7 @@ export function SpmbBrandMark({
         />
       ) : (
         <span
-          className={`material-symbols-rounded ${isTopbar ? "text-on-tertiary text-[22px]" : "text-tertiary text-[38px]"}`}
+          className={`material-symbols-rounded ${isTopbar ? "text-tertiary text-[22px]" : "text-tertiary text-[38px]"}`}
           aria-hidden="true"
         >
           school
