@@ -71,20 +71,20 @@ export function StudentRegistrationForm({ registration }: { registration: Parent
 
   return (
     <form onSubmit={submit} className="mt-5 space-y-5">
-      {notice && <div className="border border-red-200 bg-red-50 text-red-800 rounded-md p-3 text-sm">{notice}</div>}
+      {notice && <div className="spmb-notice-error">{notice}</div>}
       <div className="grid sm:grid-cols-2 gap-4">
-        <label className="block text-xs"><span className="font-semibold block mb-1">Nama Lengkap *</span><input required value={form.fullName} onChange={(e) => update("fullName", e.target.value)} className="w-full px-3 py-2 border border-border rounded-sm bg-white text-sm" /></label>
-        <label className="block text-xs"><span className="font-semibold block mb-1">Nama Panggilan *</span><input required value={form.nickname} onChange={(e) => update("nickname", e.target.value)} className="w-full px-3 py-2 border border-border rounded-sm bg-white text-sm" /></label>
-        <label className="block text-xs"><span className="font-semibold block mb-1">Jenis Kelamin *</span><select value={form.gender} onChange={(e) => update("gender", e.target.value as StudentFormState["gender"])} className="w-full px-3 py-2 border border-border rounded-sm bg-white text-sm"><option value="male">Laki-laki</option><option value="female">Perempuan</option></select></label>
-        <label className="block text-xs"><span className="font-semibold block mb-1">Agama *</span><input required value={form.religion} onChange={(e) => update("religion", e.target.value)} className="w-full px-3 py-2 border border-border rounded-sm bg-white text-sm" /></label>
-        <label className="block text-xs"><span className="font-semibold block mb-1">Tempat Lahir *</span><input required value={form.birthPlace} onChange={(e) => update("birthPlace", e.target.value)} className="w-full px-3 py-2 border border-border rounded-sm bg-white text-sm" /></label>
-        <label className="block text-xs"><span className="font-semibold block mb-1">Tanggal Lahir *</span><input type="date" required value={form.birthDate} onChange={(e) => update("birthDate", e.target.value)} className="w-full px-3 py-2 border border-border rounded-sm bg-white text-sm" /></label>
-        <label className="block text-xs"><span className="font-semibold block mb-1">NISN (Jika ada)</span><input value={form.nisn} onChange={(e) => update("nisn", e.target.value)} className="w-full px-3 py-2 border border-border rounded-sm bg-white text-sm" /></label>
-        <label className="block text-xs"><span className="font-semibold block mb-1">Jumlah Saudara *</span><input type="number" min="0" required value={form.siblingsCount} onChange={(e) => update("siblingsCount", e.target.value)} className="w-full px-3 py-2 border border-border rounded-sm bg-white text-sm" /></label>
-        <label className="block text-xs sm:col-span-2"><span className="font-semibold block mb-1">Alamat Lengkap *</span><textarea required rows={3} value={form.address} onChange={(e) => update("address", e.target.value)} className="w-full px-3 py-2 border border-border rounded-sm bg-white text-sm" /></label>
-        <label className="block text-xs sm:col-span-2"><span className="font-semibold block mb-1">Transportasi ke Sekolah *</span><input required value={form.transportation} onChange={(e) => update("transportation", e.target.value)} placeholder={TRANSPORTATION_EXAMPLES} className="w-full px-3 py-2 border border-border rounded-sm bg-white text-sm" /></label>
+        <label className="block text-xs"><span className="font-semibold block mb-1">Nama Lengkap *</span><input required value={form.fullName} onChange={(e) => update("fullName", e.target.value)} className="w-full spmb-input" /></label>
+        <label className="block text-xs"><span className="font-semibold block mb-1">Nama Panggilan *</span><input required value={form.nickname} onChange={(e) => update("nickname", e.target.value)} className="w-full spmb-input" /></label>
+        <label className="block text-xs"><span className="font-semibold block mb-1">Jenis Kelamin *</span><select value={form.gender} onChange={(e) => update("gender", e.target.value as StudentFormState["gender"])} className="w-full spmb-input"><option value="male">Laki-laki</option><option value="female">Perempuan</option></select></label>
+        <label className="block text-xs"><span className="font-semibold block mb-1">Agama *</span><input required value={form.religion} onChange={(e) => update("religion", e.target.value)} className="w-full spmb-input" /></label>
+        <label className="block text-xs"><span className="font-semibold block mb-1">Tempat Lahir *</span><input required value={form.birthPlace} onChange={(e) => update("birthPlace", e.target.value)} className="w-full spmb-input" /></label>
+        <label className="block text-xs"><span className="font-semibold block mb-1">Tanggal Lahir *</span><input type="date" required value={form.birthDate} onChange={(e) => update("birthDate", e.target.value)} className="w-full spmb-input" /></label>
+        <label className="block text-xs"><span className="font-semibold block mb-1">NISN (Jika ada)</span><input value={form.nisn} onChange={(e) => update("nisn", e.target.value)} className="w-full spmb-input" /></label>
+        <label className="block text-xs"><span className="font-semibold block mb-1">Jumlah Saudara *</span><input type="number" min="0" required value={form.siblingsCount} onChange={(e) => update("siblingsCount", e.target.value)} className="w-full spmb-input" /></label>
+        <label className="block text-xs sm:col-span-2"><span className="font-semibold block mb-1">Alamat Lengkap *</span><textarea required rows={3} value={form.address} onChange={(e) => update("address", e.target.value)} className="w-full spmb-input" /></label>
+        <label className="block text-xs sm:col-span-2"><span className="font-semibold block mb-1">Transportasi ke Sekolah *</span><input required value={form.transportation} onChange={(e) => update("transportation", e.target.value)} placeholder={TRANSPORTATION_EXAMPLES} className="w-full spmb-input" /></label>
       </div>
-      <button type="submit" disabled={busy} className="px-4 py-2 bg-tertiary hover:bg-[#0b6355] disabled:opacity-50 text-white rounded-sm text-sm font-semibold">{busy ? "Menyimpan..." : "Simpan Data Siswa"}</button>
+      <button type="submit" disabled={busy} className="spmb-button-primary">{busy ? "Menyimpan..." : "Simpan Data Siswa"}</button>
     </form>
   );
 }

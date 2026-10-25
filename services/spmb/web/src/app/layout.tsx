@@ -1,20 +1,24 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { FoundationBrandingProvider } from "@/components/foundation-branding-provider";
+import { getFoundationBranding } from "@/lib/foundation-settings";
 
 export const metadata: Metadata = {
   title: "SPMB Yayasan Alfida - Penerimaan Peserta Didik Baru",
   description: "Sistem Penerimaan Peserta Didik Baru (SPMB) Yayasan Alfida",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const branding = await getFoundationBranding();
+
   return (
     <html lang="id">
       <head>
-        <link rel="icon" type="image/png" href="https://s3.alfida.or.id/sim-alfida/sim-alfida/foundation/logo-1790054535826" />
+        <link rel="icon" href={branding.faviconUrl || branding.logoUrl || "/favicon.ico"} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -27,7 +31,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-neutral text-primary font-body antialiased">
-        {children}
+        <FoundationBrandingProvider branding={branding}>{children}</FoundationBrandingProvider>
       </body>
     </html>
   );

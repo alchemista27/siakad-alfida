@@ -3,6 +3,7 @@ export * from "./Button";
 export * from "./Card";
 export * from "./Badge";
 export * from "./Navbar";
+export * from "./TopbarFoundationLogo";
 export * from "./Sidebar";
 export * from "./AppShell";
 export * from "./EmptyState";

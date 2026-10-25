@@ -28,7 +28,7 @@ export function ParentRegistrationStepper({
   const query = `?registrationId=${encodeURIComponent(registration.id)}`;
 
   return (
-    <section className="mt-6 bg-surface border border-border rounded-lg p-5">
+    <section className="spmb-card mt-6 p-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
         <div>
           <div className="flex items-center gap-2">
@@ -47,7 +47,7 @@ export function ParentRegistrationStepper({
           </span>
           <Link
             href="/parent"
-            className="text-xs font-semibold text-tertiary hover:underline px-2 py-1"
+            className="spmb-button-secondary px-2 py-1 text-xs"
           >
             Semua Pendaftaran
           </Link>

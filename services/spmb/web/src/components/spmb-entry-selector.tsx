@@ -1,8 +1,11 @@
 "use client";
 
-import { getSpmbEntries, type SpmbEntry, type UserRoleScope } from "@alfida/contracts";
+import { getSpmbEntries, type SpmbEntry } from "@alfida/contracts";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getCurrentSsoUser, SsoClientError } from "@/lib/sso-client";
+import { SpmbBrandMark } from "@/components/spmb-brand-mark";
+import { useFoundationBranding } from "@/components/foundation-branding-provider";
 
 type LoadState =
   | { kind: "loading" }
@@ -11,34 +14,22 @@ type LoadState =
   | { kind: "no-spmb-role" }
   | { kind: "error"; message: string };
 
-type AuthMeResponse = {
-  user?: {
-    roles?: UserRoleScope[];
-  };
-};
-
 export function SpmbEntrySelector() {
   const router = useRouter();
+  const { foundationName } = useFoundationBranding();
   const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
   const [state, setState] = useState<LoadState>({ kind: "loading" });
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     let active = true;
 
     async function resolveEntry() {
-      try {
-        const response = await fetch(`${authUrl}/api/auth/me`, { credentials: "include" });
-        if (response.status === 401) {
-          if (active) setState({ kind: "unauthorized" });
-          window.location.replace(`${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`);
-          return;
-        }
-        if (!response.ok) {
-          throw new Error("Layanan identitas tidak dapat memuat hak akses SPMB.");
-        }
+      setState({ kind: "loading" });
 
-        const payload = (await response.json()) as AuthMeResponse;
-        const entries = getSpmbEntries(payload.user?.roles || []);
+      try {
+        const user = await getCurrentSsoUser();
+        const entries = getSpmbEntries(user.roles || []);
         if (!active) return;
 
         if (entries.length === 0) {
@@ -51,12 +42,18 @@ export function SpmbEntrySelector() {
         }
         setState({ kind: "entries", entries });
       } catch (error) {
-        if (active) {
-          setState({
-            kind: "error",
-            message: error instanceof Error ? error.message : "Terjadi kesalahan saat mengarahkan akses SPMB.",
-          });
+        if (!active) return;
+
+        if (error instanceof SsoClientError && error.kind === "unauthorized") {
+          setState({ kind: "unauthorized" });
+          window.location.replace(`${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`);
+          return;
         }
+
+        setState({
+          kind: "error",
+          message: error instanceof Error ? error.message : "Layanan identitas belum dapat memuat akses SPMB.",
+        });
       }
     }
 
@@ -64,7 +61,7 @@ export function SpmbEntrySelector() {
     return () => {
       active = false;
     };
-  }, [authUrl, router]);
+  }, [authUrl, retryKey, router]);
 
   if (state.kind === "loading" || state.kind === "unauthorized") {
     return (
@@ -104,12 +101,21 @@ export function SpmbEntrySelector() {
           <span className="material-symbols-rounded text-red-600 text-4xl" aria-hidden="true">error</span>
           <h1 className="font-heading font-bold text-2xl mt-3">Akses SPMB Belum Dapat Dimuat</h1>
           <p className="text-sm text-gray-600 mt-2 leading-relaxed">{state.message}</p>
-          <a
-            href={`${authUrl}/modules`}
-            className="inline-flex mt-5 px-4 py-2 rounded-sm border border-tertiary text-tertiary text-sm font-semibold hover:bg-[#e6f4f1]"
-          >
-            Kembali ke Portal Modul
-          </a>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => setRetryKey((value) => value + 1)}
+              className="inline-flex px-4 py-2 rounded-sm bg-tertiary text-white text-sm font-semibold hover:bg-[#0b6355]"
+            >
+              Coba lagi
+            </button>
+            <a
+              href={`${authUrl}/modules`}
+              className="inline-flex px-4 py-2 rounded-sm border border-tertiary text-tertiary text-sm font-semibold hover:bg-[#e6f4f1]"
+            >
+              Kembali ke Portal Modul
+            </a>
+          </div>
         </section>
       </main>
     );
@@ -119,7 +125,10 @@ export function SpmbEntrySelector() {
     <main className="min-h-screen bg-neutral text-primary font-body p-6 grid place-items-center">
       <section className="w-full max-w-3xl">
         <header className="text-center mb-6">
-          <p className="text-xs font-semibold tracking-wider uppercase text-tertiary">SPMB Alfida</p>
+          <div className="mb-4 flex justify-center">
+            <SpmbBrandMark surface="content" />
+          </div>
+          <p className="text-xs font-semibold tracking-wider uppercase text-tertiary">SPMB {foundationName}</p>
           <h1 className="font-heading font-bold text-3xl mt-2">Pilih Ruang Kerja SPMB</h1>
           <p className="text-sm text-gray-600 mt-2">Pilih akses sesuai peran Anda pada proses penerimaan siswa baru.</p>
         </header>

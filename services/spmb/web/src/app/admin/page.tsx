@@ -8,6 +8,7 @@ import { ObservationSchedulePanel } from "@/components/admin/observation-schedul
 import { ObserverAssignmentPanel } from "@/components/admin/observer-assignment-panel";
 import { RegistrationReviewPanel } from "@/components/admin/registration-review-panel";
 import { DecisionPanel } from "@/components/admin/decision-panel";
+import { getCurrentSsoUser, SsoClientError } from "@/lib/sso-client";
 
 interface Registration {
   id: string;
@@ -64,6 +65,8 @@ export default function SpmbAdminPage() {
   const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string } | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authRetry, setAuthRetry] = useState(0);
   const [userEmail, setUserEmail] = useState<string>("");
   const [adminTab, setAdminTab] = useState<"overview" | "registrations" | "verification" | "observations" | "decisions">("registrations");
   const [loading, setLoading] = useState(true);
@@ -143,13 +146,8 @@ export default function SpmbAdminPage() {
     async function loadUserAndInit() {
       const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
       try {
-        const res = await fetch(`${authUrl}/api/auth/me`, { credentials: "include" });
-        if (!res.ok) {
-          window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
-          return;
-        }
-        const data = await res.json();
-        if (!data?.user) {
+        const data = { user: await getCurrentSsoUser() };
+        if (!data.user) {
           window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
           return;
         }
@@ -189,18 +187,23 @@ export default function SpmbAdminPage() {
         });
         setAuthLoading(false);
         fetchPeriods();
-      } catch {
-        window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
+      } catch (error) {
+        if (error instanceof SsoClientError && error.kind === "unauthorized") {
+          window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
+          return;
+        }
+        setAuthError(error instanceof Error ? error.message : "Layanan identitas belum dapat dimuat.");
+        setAuthLoading(false);
       }
     }
-    loadUserAndInit();
-  }, []);
+    void loadUserAndInit();
+  }, [authRetry]);
 
   useEffect(() => {
-    if (!authLoading && !accessDenied) {
+    if (!authLoading && !accessDenied && !authError) {
       fetchRegistrations();
     }
-  }, [selectedPeriodId, filterStatus, authLoading, accessDenied]);
+  }, [selectedPeriodId, filterStatus, authLoading, accessDenied, authError]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -291,10 +294,33 @@ export default function SpmbAdminPage() {
     );
   }
 
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-[#F7F8F8] flex items-center justify-center p-6 text-[#454545] font-body">
+        <div className="spmb-card max-w-md w-full p-6 text-center space-y-4">
+          <span className="material-symbols-rounded text-3xl text-red-600" aria-hidden="true">cloud_off</span>
+          <h2 className="text-xl font-bold font-heading text-[#454545]">Akses SPMB Belum Dapat Dimuat</h2>
+          <p className="text-xs text-gray-500 leading-relaxed">{authError}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setAuthError(null);
+              setAuthLoading(true);
+              setAuthRetry((value) => value + 1);
+            }}
+            className="spmb-button-primary text-xs"
+          >
+            Coba lagi
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (accessDenied) {
     return (
       <div className="min-h-screen bg-[#F7F8F8] flex items-center justify-center p-6 text-[#454545] font-body">
-        <div className="max-w-md w-full bg-white border border-[#E3E8E7] rounded-xl p-8 shadow-sm text-center space-y-4">
+        <div className="spmb-card max-w-md w-full p-6 text-center space-y-4">
           <div className="w-14 h-14 mx-auto rounded-full bg-red-50 text-red-600 flex items-center justify-center">
             <span className="material-symbols-rounded text-3xl">gpp_maybe</span>
           </div>
@@ -305,14 +331,14 @@ export default function SpmbAdminPage() {
           <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
             <a
               href="https://auth.alfida.or.id/modules"
-              className="px-4 py-2 bg-[#0f7f6d] text-white text-xs font-semibold rounded-lg hover:bg-[#0d6d5d] transition-colors"
+              className="spmb-button-primary text-xs"
             >
               Kembali ke Portal Modul
             </a>
             <button
               type="button"
               onClick={handleLogout}
-              className="px-4 py-2 border border-[#E3E8E7] text-xs font-semibold rounded-lg hover:bg-gray-50 text-gray-700"
+              className="spmb-button-secondary text-xs"
             >
               Ganti Akun
             </button>
@@ -340,7 +366,7 @@ export default function SpmbAdminPage() {
       }
     >
       <div className="max-w-7xl w-full mx-auto space-y-6">
-        <div className="rounded-lg border border-border bg-surface p-4">
+        <div className="spmb-card rounded-md p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tertiary">Funnel seleksi santri</p>
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-primary/75">
             {['Pendaftaran', 'Berkas', 'Observasi', 'Keputusan', 'SIAKAD'].map((stage, index) => <React.Fragment key={stage}><span className="rounded-sm border border-border bg-neutral px-2.5 py-1.5">{stage}</span>{index < 4 ? <span className="material-symbols-rounded text-base text-tertiary" aria-hidden="true">arrow_forward</span> : null}</React.Fragment>)}
@@ -361,15 +387,15 @@ export default function SpmbAdminPage() {
         <AdminNotice notice={notice} onDismiss={() => setNotice(null)} />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="bg-white p-4 rounded-lg border border-[#E3E8E7]">
+          <div className="spmb-card p-4">
             <span className="text-gray-500 text-xs block">Total Pendaftar</span>
             <span className="text-2xl font-bold text-[#454545]">{totalCount}</span>
           </div>
-          <div className="bg-white p-4 rounded-lg border border-[#E3E8E7]">
+          <div className="spmb-card p-4">
             <span className="text-gray-500 text-xs block">Dinyatakan Lulus</span>
             <span className="text-2xl font-bold text-emerald-700">{acceptedCount}</span>
           </div>
-          <div className="bg-white p-4 rounded-lg border border-[#E3E8E7]">
+          <div className="spmb-card p-4">
             <span className="text-gray-500 text-xs block">Masuk ke SIAKAD</span>
             <span className="text-2xl font-bold text-[#0f7f6d]">{handedOffCount}</span>
           </div>
@@ -444,7 +470,7 @@ export default function SpmbAdminPage() {
           />
         )}
 
-        <div className="bg-white p-4 rounded-lg border border-[#E3E8E7] flex flex-wrap items-center justify-between gap-3">
+        <div className="spmb-card flex flex-wrap items-center justify-between gap-3 p-4">
           <div className="flex flex-wrap items-center gap-2">
             <select
               value={selectedPeriodId}

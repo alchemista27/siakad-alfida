@@ -15,7 +15,8 @@ async function main() {
   assert.match(page, /SpmbEntrySelector/, "SPMB root must render a role-aware entry selector");
   assert.doesNotMatch(page, /redirect\(\s*["']\/admin["']\s*\)/, "SPMB root must not send every account to admin");
   assert.match(selector, /getSpmbEntries/, "root selector must use the shared role resolver");
-  assert.match(selector, /\/api\/auth\/me/, "root selector must inspect authenticated SSO role claims");
+  assert.match(selector, /getCurrentSsoUser/, "root selector must inspect authenticated SSO claims through its same-origin proxy client");
+  assert.doesNotMatch(selector, /\$\{authUrl\}\/api\/auth\/me/, "root selector must not call Auth cross-origin from the browser");
   assert.match(selector, /router\.replace\(entries\[0\]\.path\)/, "one allowed workspace must redirect directly");
   assert.match(selector, /no-spmb-role/, "users without an SPMB role must receive an explicit safe state");
   assert.match(middleware, /getServiceRootUrl\(request\)/, "legacy SPMB login must return to the role-aware root");

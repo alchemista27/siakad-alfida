@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Sidebar, NavGroup } from "./Sidebar";
+import { TopbarFoundationLogo } from "./TopbarFoundationLogo";
 import { cn } from "./utils";
 
 export interface AppShellProps {
@@ -30,7 +31,6 @@ export const AppShell: React.FC<AppShellProps> = ({
   topbarActions,
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [imgError, setImgError] = useState(false);
 
   // Ambil inisial huruf dari nama pengguna
   const initials = userName
@@ -64,18 +64,7 @@ export const AppShell: React.FC<AppShellProps> = ({
             href="https://auth.alfida.or.id/modules"
             className="flex items-center gap-2 text-[#0f7f6d] font-bold text-lg font-heading"
           >
-            {logoUrl && !imgError ? (
-              <img
-                src={logoUrl}
-                alt={foundationName}
-                onError={() => setImgError(true)}
-                className="h-8 w-auto max-w-[120px] object-contain"
-              />
-            ) : (
-              <span className="material-symbols-rounded text-[#0f7f6d] text-[22px]">
-                hub
-              </span>
-            )}
+            <TopbarFoundationLogo logoUrl={logoUrl} foundationName={foundationName} />
             <span className="font-heading tracking-tight">{foundationName}</span>
           </a>
           <span className="text-gray-300 hidden sm:inline">|</span>

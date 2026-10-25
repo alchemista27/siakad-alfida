@@ -1,8 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useFoundationBranding } from "@/components/foundation-branding-provider";
+import { SpmbBrandMark } from "@/components/spmb-brand-mark";
+import { getCurrentSsoUser } from "@/lib/sso-client";
 
 export function SpmbNavbar() {
+  const { foundationName } = useFoundationBranding();
   const [user, setUser] = useState<{ fullName?: string; email?: string } | null>(null);
   const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
   const parentPortalUrl = process.env.NEXT_PUBLIC_SPMB_PARENT_URL || "https://spmb.alfida.or.id/parent";
@@ -10,16 +14,13 @@ export function SpmbNavbar() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const res = await fetch(`${authUrl}/api/auth/me`, { credentials: "include" });
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.user) {
-            setUser(data.user);
-          }
-        }
-      } catch {}
+        const currentUser = await getCurrentSsoUser();
+        setUser(currentUser);
+      } catch {
+        // Navigation remains available when identity lookup is temporarily unavailable.
+      }
     }
-    checkAuth();
+    void checkAuth();
   }, []);
 
   const handleLogout = async () => {
@@ -34,18 +35,10 @@ export function SpmbNavbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <a href="/" className="flex items-center gap-2 text-decoration-none">
-            <div className="w-9 h-9 rounded-lg bg-[#06bfa2] flex items-center justify-center text-white font-bold text-lg shadow-sm">
-              <svg
-                className="w-5 h-5 fill-current"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z" />
-              </svg>
-            </div>
+            <SpmbBrandMark surface="topbar" />
             <div>
               <span className="font-bold text-lg text-gray-900 tracking-tight block leading-tight">
-                SPMB Alfida
+                SPMB {foundationName}
               </span>
               <span className="text-xs text-gray-500 font-medium block">
                 Penerimaan Peserta Didik Baru
@@ -84,7 +77,7 @@ export function SpmbNavbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-300 text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors"
+                className="spmb-button-secondary text-xs"
               >
                 Keluar
               </button>
@@ -93,7 +86,7 @@ export function SpmbNavbar() {
             <>
               <a
                 href={`${authUrl}/login?return_to=${encodeURIComponent(parentPortalUrl)}`}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                className="spmb-button-secondary text-xs"
               >
                 <svg
                   className="w-3.5 h-3.5"
@@ -112,7 +105,7 @@ export function SpmbNavbar() {
               </a>
               <a
                 href={`${authUrl}/register?return_to=${encodeURIComponent(parentPortalUrl)}`}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-lg bg-[#06bfa2] text-white hover:bg-[#05a88e] shadow-sm transition-all"
+                className="spmb-button-primary text-xs"
               >
                 Daftar Sekarang
               </a>

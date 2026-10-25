@@ -49,7 +49,7 @@ function ParentFields({
   const update = <K extends keyof ParentIdentityForm>(key: K, nextValue: ParentIdentityForm[K]) => {
     onChange({ ...value, [key]: nextValue });
   };
-  const inputClass = "w-full px-3 py-2 border border-border rounded-sm bg-white text-sm";
+  const inputClass = "spmb-input";
 
   return (
     <fieldset className="border border-border rounded-md p-4">
@@ -103,10 +103,10 @@ export function ParentRegistrationForm({ registration }: { registration: ParentR
 
   return (
     <form onSubmit={submit} className="mt-5 space-y-5">
-      {notice && <div className="border border-red-200 bg-red-50 text-red-800 rounded-md p-3 text-sm">{notice}</div>}
+      {notice && <div className="spmb-notice-error">{notice}</div>}
       <ParentFields title="Ayah" value={father} onChange={setFather} />
       <ParentFields title="Ibu" value={mother} onChange={setMother} />
-      <button type="submit" disabled={busy} className="px-4 py-2 bg-tertiary hover:bg-[#0b6355] disabled:opacity-50 text-white rounded-sm text-sm font-semibold">{busy ? "Menyimpan..." : "Simpan Data Orang Tua"}</button>
+      <button type="submit" disabled={busy} className="spmb-button-primary">{busy ? "Menyimpan..." : "Simpan Data Orang Tua"}</button>
     </form>
   );
 }

@@ -22,3 +22,29 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Lora', serif;
 }
+
+@layer components {
+  .spmb-card {
+    @apply rounded-md border border-border bg-surface text-primary;
+  }
+
+  .spmb-input {
+    @apply w-full rounded-sm border border-border bg-surface px-3 py-2.5 text-sm text-primary outline-none transition-colors placeholder:text-gray-400 focus:border-tertiary focus:ring-1 focus:ring-tertiary;
+  }
+
+  .spmb-button-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-tertiary px-4 py-2.5 text-sm font-semibold text-on-tertiary transition-colors hover:bg-[#0b6355] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .spmb-button-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-tertiary bg-transparent px-4 py-2.5 text-sm font-semibold text-tertiary transition-colors hover:bg-[#e6f4f1];
+  }
+
+  .spmb-notice-error {
+    @apply rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800;
+  }
+
+  .spmb-notice-success {
+    @apply rounded-md border border-[#b9ded7] bg-[#e6f4f1] p-4 text-sm text-[#0b6355];
+  }
+}

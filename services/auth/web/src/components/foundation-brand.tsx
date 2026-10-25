@@ -19,16 +19,16 @@ export function FoundationBrand({
 
   return (
     <>
-      <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center mb-6 shadow-md border border-white/20 overflow-hidden">
+      <div className="mb-6 flex h-16 w-16 items-center justify-center overflow-hidden rounded-md border border-border bg-white p-2">
         {logoUrl && !imageFailed ? (
           <img
             src={logoUrl}
             alt={`Logo ${foundationName}`}
-            className="h-full w-full object-contain p-2"
+            className="h-full w-full object-contain"
             onError={() => setImageFailed(true)}
           />
         ) : (
-          <span className="material-symbols-rounded text-white text-[38px] select-none" aria-hidden="true">
+          <span className="material-symbols-rounded text-[38px] text-tertiary select-none" aria-hidden="true">
             {fallbackIcon}
           </span>
         )}

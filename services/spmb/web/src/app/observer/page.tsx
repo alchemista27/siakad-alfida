@@ -8,6 +8,7 @@ import {
   type ObserverCandidateItem,
 } from "@/components/observer/observer-worklist";
 import { ObserverScoreModal } from "@/components/observer/observer-score-modal";
+import { getCurrentSsoUser, SsoClientError } from "@/lib/sso-client";
 
 interface Period {
   id: string;
@@ -33,6 +34,8 @@ export default function ObserverPage() {
   const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string; email?: string } | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authRetry, setAuthRetry] = useState(0);
   const [userEmail, setUserEmail] = useState<string>("");
   const [periods, setPeriods] = useState<Period[]>([]);
   const [selectedPeriodId, setSelectedPeriodId] = useState<string>("");
@@ -82,13 +85,8 @@ export default function ObserverPage() {
   useEffect(() => {
     async function loadUserAndInit() {
       try {
-        const res = await fetch(`${authUrl}/api/auth/me`, { credentials: "include" });
-        if (!res.ok) {
-          window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
-          return;
-        }
-        const data = await res.json();
-        if (!data?.user) {
+        const data = { user: await getCurrentSsoUser() };
+        if (!data.user) {
           window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
           return;
         }
@@ -138,12 +136,17 @@ export default function ObserverPage() {
         } catch {
           setNotice({ type: "error", message: "Gagal memuat daftar periode." });
         }
-      } catch {
-        window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
+      } catch (error) {
+        if (error instanceof SsoClientError && error.kind === "unauthorized") {
+          window.location.href = `${authUrl}/login?return_to=${encodeURIComponent(window.location.href)}`;
+          return;
+        }
+        setAuthError(error instanceof Error ? error.message : "Layanan identitas belum dapat dimuat.");
+        setAuthLoading(false);
       }
     }
-    loadUserAndInit();
-  }, []);
+    void loadUserAndInit();
+  }, [authRetry]);
 
   const fetchData = async () => {
     if (!selectedPeriodId) return;
@@ -171,10 +174,10 @@ export default function ObserverPage() {
   };
 
   useEffect(() => {
-    if (!authLoading && !accessDenied) {
+    if (!authLoading && !accessDenied && !authError) {
       fetchData();
     }
-  }, [selectedPeriodId, activeTab, authLoading, accessDenied]);
+  }, [selectedPeriodId, activeTab, authLoading, accessDenied, authError]);
 
   const handleOpenScoreModal = (candidate: ObserverCandidateItem) => {
     setActiveCandidate(candidate);
@@ -223,10 +226,33 @@ export default function ObserverPage() {
     );
   }
 
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-[#F7F8F8] flex items-center justify-center p-6 text-[#454545] font-body">
+        <div className="spmb-card max-w-md w-full p-6 text-center space-y-4">
+          <span className="material-symbols-rounded text-3xl text-red-600" aria-hidden="true">cloud_off</span>
+          <h2 className="text-xl font-bold font-heading text-[#454545]">Akses Penguji Belum Dapat Dimuat</h2>
+          <p className="text-xs text-gray-500 leading-relaxed">{authError}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setAuthError(null);
+              setAuthLoading(true);
+              setAuthRetry((value) => value + 1);
+            }}
+            className="spmb-button-primary text-xs"
+          >
+            Coba lagi
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (accessDenied) {
     return (
       <div className="min-h-screen bg-[#F7F8F8] flex items-center justify-center p-6 text-[#454545] font-body">
-        <div className="max-w-md w-full bg-white border border-[#E3E8E7] rounded-xl p-8 shadow-sm text-center space-y-4">
+        <div className="spmb-card max-w-md w-full p-6 text-center space-y-4">
           <div className="w-14 h-14 mx-auto rounded-full bg-red-50 text-red-600 flex items-center justify-center">
             <span className="material-symbols-rounded text-3xl">gpp_maybe</span>
           </div>
@@ -237,14 +263,14 @@ export default function ObserverPage() {
           <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
             <a
               href={modulePortalUrl}
-              className="px-4 py-2 bg-[#0f7f6d] text-white text-xs font-semibold rounded-lg hover:bg-[#0d6d5d] transition-colors"
+              className="spmb-button-primary text-xs"
             >
               Kembali ke Portal Modul
             </a>
             <button
               type="button"
               onClick={handleLogout}
-              className="px-4 py-2 border border-[#E3E8E7] text-xs font-semibold rounded-lg hover:bg-gray-50 text-gray-700"
+              className="spmb-button-secondary text-xs"
             >
               Ganti Akun
             </button>
@@ -281,7 +307,7 @@ export default function ObserverPage() {
       }
     >
       <div className="max-w-6xl w-full mx-auto space-y-5">
-        <div className="bg-white border border-[#E3E8E7] rounded-lg p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="spmb-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="font-heading font-bold text-xl text-[#454545]">Penilaian & Observasi Calon Santri</h1>
             <p className="text-xs text-gray-500 mt-1">
@@ -291,7 +317,7 @@ export default function ObserverPage() {
           <select
             value={selectedPeriodId}
             onChange={(e) => setSelectedPeriodId(e.target.value)}
-            className="px-3 py-2 text-xs rounded border border-[#E3E8E7] bg-white font-semibold"
+            className="spmb-input max-w-xs font-semibold"
           >
             {periods.map((p) => (
               <option key={p.id} value={p.id}>

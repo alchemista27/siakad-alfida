@@ -1,10 +1,13 @@
 import React from "react";
 import { cn } from "./utils";
+import { TopbarFoundationLogo } from "./TopbarFoundationLogo";
 
 export interface NavbarProps {
   serviceName: string;
   userName?: string;
   userRole?: string;
+  logoUrl?: string;
+  foundationName?: string;
   onLogout?: () => void;
   className?: string;
   children?: React.ReactNode;
@@ -14,6 +17,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   serviceName,
   userName,
   userRole,
+  logoUrl,
+  foundationName,
   onLogout,
   className,
   children,
@@ -27,10 +32,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               href="https://sim.alfida.or.id"
               className="flex items-center space-x-2 text-gray-900 font-bold hover:text-emerald-700 transition-colors"
             >
-              <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
-                A
-              </div>
-              <span className="text-base tracking-tight">SIM Alfida</span>
+              <TopbarFoundationLogo logoUrl={logoUrl} foundationName={foundationName} />
+              <span className="text-base tracking-tight">{foundationName || "SIM Alfida"}</span>
             </a>
             <span className="text-gray-300">/</span>
             <span className="text-sm font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">

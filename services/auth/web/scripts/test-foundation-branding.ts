@@ -53,6 +53,11 @@ async function main() {
   assert.match(brand, /foundationName/);
   assert.match(brand, /onError=\{\(\)\s*=>\s*setImageFailed\(true\)\}/);
   assert.match(brand, /fallbackIcon/);
+  assert.match(brand, /bg-white/);
+  assert.doesNotMatch(brand, /bg-white\/15/);
+  assert.match(brand, /rounded-md/);
+  assert.doesNotMatch(brand, /rounded-2xl|shadow-/);
+  assert.match(brand, /text-tertiary/);
 
   const layout = await source("src/app/layout.tsx");
   assert.doesNotMatch(layout, /s3\.alfida\.or\.id/);
