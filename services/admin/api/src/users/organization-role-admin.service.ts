@@ -2,6 +2,7 @@ import {
   BadGatewayException,
   BadRequestException,
   HttpException,
+  Inject,
   Injectable,
   NotFoundException,
   ServiceUnavailableException,
@@ -15,12 +16,14 @@ export type DepartmentOrganizationRoleRequest = {
 };
 
 type FetchLike = typeof fetch;
+export const ORGANIZATION_ROLE_FETCH = Symbol("ORGANIZATION_ROLE_FETCH");
 
 @Injectable()
 export class OrganizationRoleAdminService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly fetchImpl: FetchLike = fetch,
+    @Inject(ORGANIZATION_ROLE_FETCH)
+    private readonly fetchImpl: FetchLike,
   ) {}
 
   async assign(userId: string, input: DepartmentOrganizationRoleRequest, authorization?: string) {

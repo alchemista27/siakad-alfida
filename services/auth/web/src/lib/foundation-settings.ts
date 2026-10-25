@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 export type FoundationBranding = {
   foundationName: string;
   logoUrl: string | null;
@@ -10,7 +12,7 @@ const fallback: FoundationBranding = {
   faviconUrl: null,
 };
 
-export async function getFoundationBranding(): Promise<FoundationBranding> {
+export const getFoundationBranding = cache(async (): Promise<FoundationBranding> => {
   const baseUrl = process.env.ADMIN_PUBLIC_API_URL || process.env.INTERNAL_ADMIN_API_URL;
   if (!baseUrl) return fallback;
 
@@ -34,4 +36,4 @@ export async function getFoundationBranding(): Promise<FoundationBranding> {
   } catch {
     return fallback;
   }
-}
+});

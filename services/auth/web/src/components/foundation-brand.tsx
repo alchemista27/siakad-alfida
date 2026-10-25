@@ -3,7 +3,17 @@
 import { useState } from "react";
 import type { FoundationBranding } from "../lib/foundation-settings";
 
-export function FoundationBrand({ branding }: { branding: FoundationBranding }) {
+type FoundationBrandProps = {
+  branding: FoundationBranding;
+  subtitle?: string;
+  fallbackIcon?: string;
+};
+
+export function FoundationBrand({
+  branding,
+  subtitle = "Sistem Informasi Manajemen Terpadu Yayasan Alfida",
+  fallbackIcon = "hub",
+}: FoundationBrandProps) {
   const [imageFailed, setImageFailed] = useState(false);
   const { foundationName, logoUrl } = branding;
 
@@ -18,14 +28,16 @@ export function FoundationBrand({ branding }: { branding: FoundationBranding }) 
             onError={() => setImageFailed(true)}
           />
         ) : (
-          <span className="material-symbols-rounded text-white text-[38px] select-none" aria-hidden="true">hub</span>
+          <span className="material-symbols-rounded text-white text-[38px] select-none" aria-hidden="true">
+            {fallbackIcon}
+          </span>
         )}
       </div>
       <h1 className="text-3xl md:text-4xl font-bold font-heading tracking-tight mb-3">
         {foundationName}
       </h1>
       <p className="text-sm md:text-base text-white/90 max-w-xs font-normal leading-relaxed">
-        Sistem Informasi Manajemen Terpadu Yayasan Alfida
+        {subtitle}
       </p>
     </>
   );
