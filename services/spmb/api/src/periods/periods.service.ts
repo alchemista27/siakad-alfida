@@ -68,7 +68,7 @@ export class PeriodsService {
   }
 
   async findActivePublic() {
-    return this.prisma.admissionPeriod.findMany({
+    const periods = await this.prisma.admissionPeriod.findMany({
       where: { isOpen: true },
       select: {
         id: true,
@@ -89,6 +89,17 @@ export class PeriodsService {
         },
       },
       orderBy: { unitName: "asc" },
+    });
+
+    return periods.map(({ _count, ...period }) => {
+      const registeredCount = _count.registrations;
+      const availableSlots = Math.max(0, period.quota - registeredCount);
+      return {
+        ...period,
+        registeredCount,
+        availableSlots,
+        isFull: period.quota > 0 && availableSlots === 0,
+      };
     });
   }
 

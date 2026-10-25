@@ -7,3 +7,4 @@ export * from "./spmb-entry";
 export * from "./unit-projection";
 export * from "./user-projection";
 export * from "./ymq-employee-projection";
+export * from "./spmb-parent-form";

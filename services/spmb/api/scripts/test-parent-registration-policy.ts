@@ -6,109 +6,103 @@ function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
+const periodId = "11111111-1111-4111-8111-111111111111";
+const parent = { id: "parent-multi", email: "parent@example.test", fullName: "Orang Tua" };
+const student = {
+  fullName: "Ahmad Fauzi",
+  nickname: "Ahmad",
+  gender: "male",
+  religion: "Islam",
+  birthPlace: "Bandung",
+  birthDate: "2019-05-10",
+  nisn: "",
+  siblingsCount: 2,
+  address: "Jl. Melati Nomor 10, Bandung",
+  transportation: "Diantar orang tua",
+};
+
 async function run() {
   assert(
     ACTIVE_REGISTRATION_POLICY === "multiple_child_applications",
     "active registration policy must be multiple_child_applications",
   );
 
-  if (ACTIVE_REGISTRATION_POLICY !== ("single_parent_application" as string)) {
-    console.log("SKIPPED: product policy not selected (one-parent-one-active-application)");
-  }
+  const registrations: any[] = [];
+  const tx = {
+    user: { upsert: async () => ({ id: parent.id }) },
+    admissionPeriod: {
+      findUnique: async () => ({ id: periodId, unitSlug: "sd", label: "2026/2027", isOpen: true, quota: 10, fee: 250000 }),
+    },
+    registration: {
+      findFirst: async ({ where }: any) => {
+        return registrations.find((record) => {
+          if (record.parentId !== where?.parentId || record.periodId !== where?.periodId) return false;
+          if (where?.studentData?.is === null) return !record.studentData;
+          if (where?.studentData?.is?.fullName?.equals) {
+            return record.studentData?.fullName?.toLowerCase() === String(where.studentData.is.fullName.equals).toLowerCase()
+              && record.status !== "rejected";
+          }
+          return true;
+        }) ?? null;
+      },
+      create: async ({ data }: any) => {
+        const record = { id: `reg-${registrations.length + 1}`, ...data };
+        registrations.push(record);
+        return record;
+      },
+      findUnique: async ({ where }: any) => registrations.find((record) => record.id === where.id) ?? null,
+      update: async ({ where, data }: any) => {
+        const record = registrations.find((item) => item.id === where.id);
+        Object.assign(record, data);
+        return record;
+      },
+    },
+    studentData: {
+      upsert: async ({ where, update, create }: any) => {
+        const record = registrations.find((item) => item.id === where.registrationId);
+        record.studentData = { ...(record.studentData || {}), ...(record.studentData ? update : create) };
+        return record.studentData;
+      },
+    },
+    payment: { create: async () => ({}) },
+    registrationEvent: { create: async () => ({}) },
+  };
 
-  const createdRegistrations: any[] = [];
-  const createdStudents: any[] = [];
-  const parent = { id: "parent-multi", email: "parent@example.test", fullName: "Orang Tua" };
+  const service = new RegistrationsService(
+    {
+      ...tx,
+      $transaction: async (callback: any) => callback(tx),
+    } as any,
+    { allocateRegistrationNumber: async () => ({ registrationNumber: `PPDB-SD-2026-${String(registrations.length + 1).padStart(4, "0")}` }) } as any,
+  );
 
-  const service = new RegistrationsService({
-    $transaction: async (callback: any) =>
-      callback({
-        user: { upsert: async () => ({ id: parent.id }) },
-        admissionPeriod: {
-          findUnique: async () => ({
-            id: "period-1",
-            unitSlug: "sd",
-            label: "2026/2027",
-            isOpen: true,
-            quota: 10,
-            fee: 250000,
-          }),
-        },
-        registration: {
-          findFirst: async ({ where }: any) => {
-            return createdRegistrations.find((reg) => {
-              if (reg.parentId !== where?.parentId || reg.periodId !== where?.periodId) return false;
-              if (where?.studentData?.fullName?.equals) {
-                return reg.studentFullName?.toLowerCase() === String(where.studentData.fullName.equals).toLowerCase();
-              }
-              return true;
-            }) ?? null;
-          },
-          count: async () => createdRegistrations.length,
-          create: async ({ data }: any) => {
-            const record = { id: `reg-${createdRegistrations.length + 1}`, ...data };
-            createdRegistrations.push(record);
-            return record;
-          },
-        },
-        studentData: {
-          create: async ({ data }: any) => {
-            createdStudents.push(data);
-            const reg = createdRegistrations.find((r) => r.id === data.registrationId);
-            if (reg) reg.studentFullName = data.fullName;
-            return data;
-          },
-        },
-        payment: { create: async () => ({}) },
-        registrationEvent: { create: async () => ({}) },
-      }),
-  } as any);
+  const firstDraft = await (service as any).createOnline(parent, { periodId });
+  assert(firstDraft.id === "reg-1", "first anonymous draft must succeed");
+  assert(!registrations[0].studentData, "creating a draft must not persist fake student data");
 
-  // Case: one-parent-many-child-applications
-  // 1. Missing child identity must be rejected
-  let missingChildRejected = false;
+  let duplicateDraftRejected = false;
   try {
-    await (service as any).createOnline(parent, { periodId: "period-1" });
+    await (service as any).createOnline(parent, { periodId });
   } catch (error) {
-    missingChildRejected = error instanceof BadRequestException;
+    duplicateDraftRejected = error instanceof BadRequestException;
   }
-  assert(missingChildRejected, "multiple_child_applications must require applicant/child identity on registration");
+  assert(duplicateDraftRejected, "a parent may have only one anonymous pending-payment draft per period");
 
-  // 2. First child registration succeeds
-  const firstChild = await (service as any).createOnline(parent, {
-    periodId: "period-1",
-    applicantFullName: "Ahmad Fauzi",
-    applicantGender: "male",
-    applicantBirthPlace: "Bandung",
-    applicantBirthDate: "2019-05-10",
-  });
-  assert(firstChild.id === "reg-1", "first child registration must succeed");
+  registrations[0].status = "payment_verified";
+  await (service as any).submitStudentData(firstDraft.id, parent.id, student);
+  assert(registrations[0].studentData?.fullName === student.fullName, "student identity must be persisted after payment verification");
 
-  // 3. Second sibling registration under same parent in same period succeeds
-  const secondChild = await (service as any).createOnline(parent, {
-    periodId: "period-1",
-    applicantFullName: "Siti Aminah",
-    applicantGender: "female",
-    applicantBirthPlace: "Bandung",
-    applicantBirthDate: "2020-08-15",
-  });
-  assert(secondChild.id === "reg-2", "second sibling registration must succeed under multiple_child_applications");
-  assert(createdStudents.length === 2, "each child application must persist its initial student identity");
+  const secondDraft = await (service as any).createOnline(parent, { periodId });
+  assert(secondDraft.id === "reg-2", "a second child draft must be allowed after the first child is identified");
 
-  // 4. Duplicate active application for the same child in the same period is rejected
+  registrations[1].status = "payment_verified";
   let duplicateChildRejected = false;
   try {
-    await (service as any).createOnline(parent, {
-      periodId: "period-1",
-      applicantFullName: "Ahmad Fauzi",
-      applicantGender: "male",
-      applicantBirthPlace: "Bandung",
-      applicantBirthDate: "2019-05-10",
-    });
+    await (service as any).submitStudentData(secondDraft.id, parent.id, { ...student, fullName: "ahmad fauzi" });
   } catch (error) {
     duplicateChildRejected = error instanceof BadRequestException;
   }
-  assert(duplicateChildRejected, "duplicate active application for the same child in the same period must be rejected");
+  assert(duplicateChildRejected, "duplicate active child names must be rejected case-insensitively during student submission");
 
   console.log("SPMB parent registration policy contract passed");
 }

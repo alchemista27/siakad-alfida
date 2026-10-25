@@ -8,12 +8,15 @@ import {
 } from "@/lib/spmb-registration";
 
 const STEPS = [
+  { label: "Pilih Unit", path: "/parent/select-unit" },
   { label: "Pembayaran", path: "/parent/payment" },
-  { label: "Biodata", path: "/parent/biodata" },
+  { label: "Data Siswa", path: "/parent/form-student" },
+  { label: "Data Orang Tua", path: "/parent/form-parents" },
   { label: "Berkas", path: "/parent/documents" },
   { label: "Kesehatan", path: "/parent/medical" },
+  { label: "Verifikasi", path: "/parent/medical" },
   { label: "Observasi", path: "/parent/observation" },
-  { label: "Keputusan", path: "/parent/result" },
+  { label: "Hasil", path: "/parent/result" },
 ] as const;
 
 export function ParentRegistrationStepper({
@@ -57,7 +60,7 @@ export function ParentRegistrationStepper({
         </div>
       )}
 
-      <ol className="grid grid-cols-2 sm:grid-cols-6 gap-3">
+      <ol className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-3">
         {STEPS.map((step, index) => {
           const completed = index < activeStep;
           const current = index === activeStep;

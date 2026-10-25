@@ -8,7 +8,10 @@ function assert(condition: unknown, message: string): asserts condition {
 const root = resolve(import.meta.dirname, "..");
 const requiredFiles = [
   "src/app/parent/page.tsx",
+  "src/app/parent/select-unit/page.tsx",
   "src/app/parent/payment/page.tsx",
+  "src/app/parent/form-student/page.tsx",
+  "src/app/parent/form-parents/page.tsx",
   "src/app/parent/biodata/page.tsx",
   "src/app/parent/documents/page.tsx",
   "src/app/parent/medical/page.tsx",
@@ -29,11 +32,19 @@ for (const file of requiredFiles) {
 }
 
 const parentHome = readFileSync(resolve(root, "src/app/parent/page.tsx"), "utf8");
-assert(parentHome.includes("/api/registrations/parent"), "parent selection page must load parent registrations");
-assert(parentHome.includes("applicantFullName"), "parent selection page must support multi-child registration creation");
+assert(parentHome.includes("/api/registrations/parent"), "parent dashboard must load owner-scoped registrations");
+assert(parentHome.includes('href="/parent/select-unit"'), "parent dashboard must link to dedicated unit selection");
+assert(!parentHome.includes("applicantFullName"), "parent dashboard must not collect child biodata before unit selection");
+
+const selection = readFileSync(resolve(root, "src/app/parent/select-unit/page.tsx"), "utf8");
+assert(selection.includes("/api/periods/public"), "unit selection must load public periods");
+assert(selection.includes("/api/registrations/online"), "unit selection must create a server-owned draft");
+assert(!selection.includes("applicantFullName"), "unit selection must not collect child biodata");
 
 for (const stagePage of [
   "src/app/parent/payment/page.tsx",
+  "src/app/parent/form-student/page.tsx",
+  "src/app/parent/form-parents/page.tsx",
   "src/app/parent/biodata/page.tsx",
   "src/app/parent/documents/page.tsx",
   "src/app/parent/medical/page.tsx",
@@ -41,10 +52,7 @@ for (const stagePage of [
   "src/app/parent/result/page.tsx",
 ]) {
   const content = readFileSync(resolve(root, stagePage), "utf8");
-  assert(
-    content.includes("/api/registrations/parent/") || content.includes("loadParentRegistration"),
-    `stage page ${stagePage} must load owner-scoped registration via /api/registrations/parent/:id`,
-  );
+  assert(content.includes("/api/registrations/parent/") || content.includes("loadParentRegistration"), `stage page ${stagePage} must load owner-scoped registration via /api/registrations/parent/:id`);
 }
 
 console.log("SPMB parent route contract passed");

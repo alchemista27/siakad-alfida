@@ -1,55 +1,9 @@
-import { Gender, ParentType } from "../generated/prisma";
 import { IsBoolean, IsOptional, IsString, Matches, MinLength, ValidateIf } from "class-validator";
+import type { ParentRegistrationForm, StudentRegistrationForm } from "@alfida/contracts";
 
-export class CreateOnlineRegistrationDto {
-  periodId: string;
-  applicantFullName?: string;
-  applicantGender?: "male" | "female";
-  applicantBirthPlace?: string;
-  applicantBirthDate?: string;
-  applicantNisn?: string;
-  applicantAddress?: string;
-}
-
-
-export class SubmitStudentDataDto {
-  fullName: string;
-  nickname?: string;
-  gender: "male" | "female";
-  birthPlace: string;
-  birthDate: string;
-  nisn?: string;
-  siblingsCount?: number;
-  address: string;
-  transportation?: string;
-  hobby?: string;
-  ambition?: string;
-}
-
-export class SubmitParentDataDto {
-  father?: {
-    fullName: string;
-    nik?: string;
-    birthPlace?: string;
-    birthDate?: string;
-    education?: string;
-    occupation?: string;
-    phone?: string;
-    incomeRange?: string;
-    address?: string;
-  };
-  mother?: {
-    fullName: string;
-    nik?: string;
-    birthPlace?: string;
-    birthDate?: string;
-    education?: string;
-    occupation?: string;
-    phone?: string;
-    incomeRange?: string;
-    address?: string;
-  };
-}
+export type CreateOnlineRegistrationDto = { periodId: string };
+export type SubmitStudentDataDto = StudentRegistrationForm;
+export type SubmitParentDataDto = ParentRegistrationForm;
 
 export class UploadPaymentDto {
   proofUrl: string;

@@ -1,3 +1,5 @@
+import { isStudentRegistrationComplete } from "@alfida/contracts";
+
 export type RegistrationStatus =
   | "pending_payment"
   | "payment_uploaded"
@@ -31,6 +33,9 @@ export interface PeriodSummary {
   unitSlug: string;
   label: string;
   quota: number;
+  registeredCount: number;
+  availableSlots: number;
+  isFull: boolean;
   fee: number;
   bankName: string | null;
   bankNumber: string | null;
@@ -67,6 +72,7 @@ export interface ParentRegistration {
     fullName: string;
     nickname: string | null;
     gender: "male" | "female";
+    religion: string;
     birthPlace: string;
     birthDate: string;
     nisn: string | null;
@@ -138,6 +144,7 @@ export function getStageRouteForRegistration(reg: {
   id: string;
   status: RegistrationStatus;
   dossierReviewStatus?: DossierReviewStatus;
+  studentData?: unknown | null;
 }): string {
   const q = `?registrationId=${encodeURIComponent(reg.id)}`;
   switch (reg.status) {
@@ -145,8 +152,11 @@ export function getStageRouteForRegistration(reg: {
     case "payment_uploaded":
       return `/parent/payment${q}`;
     case "payment_verified":
+      return `/parent/form-student${q}`;
     case "form_filling":
-      return `/parent/biodata${q}`;
+      return isStudentRegistrationComplete(reg.studentData)
+        ? `/parent/form-parents${q}`
+        : `/parent/form-student${q}`;
     case "documents_uploaded":
       return `/parent/documents${q}`;
     case "medical_pending":
@@ -169,28 +179,30 @@ export function getStageRouteForRegistration(reg: {
 export function getStepIndexForRegistration(reg: {
   status: RegistrationStatus;
   dossierReviewStatus?: DossierReviewStatus;
+  studentData?: unknown | null;
 }): number {
   switch (reg.status) {
     case "pending_payment":
     case "payment_uploaded":
-      return 0;
-    case "payment_verified":
-    case "form_filling":
       return 1;
-    case "documents_uploaded":
+    case "payment_verified":
       return 2;
+    case "form_filling":
+      return isStudentRegistrationComplete(reg.studentData) ? 3 : 2;
+    case "documents_uploaded":
+      return 4;
     case "medical_pending":
     case "medical_uploaded":
-      return 3;
+      return 5;
     case "verification":
-      return reg.dossierReviewStatus === "approved" ? 4 : 3;
+      return reg.dossierReviewStatus === "approved" ? 7 : 6;
     case "observation_scheduled":
     case "observation_done":
-      return 4;
+      return 7;
     case "accepted":
     case "rejected":
     case "enrolled":
-      return 5;
+      return 8;
   }
 }
 
