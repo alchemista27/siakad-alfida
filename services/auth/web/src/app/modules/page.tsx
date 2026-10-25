@@ -3,12 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@alfida/ui";
+import { getSpmbEntries, type UserRoleScope } from "@alfida/contracts";
 
 interface UserInfo {
   id: string;
   email: string;
   fullName: string;
-  roles?: Array<{ app: string; role: string; unitId?: string | null }>;
+  roles?: UserRoleScope[];
 }
 
 interface ModuleItem {
@@ -57,8 +58,19 @@ export default function ModulesPage() {
   const roles = user?.roles || [];
   const isSuperAdmin = roles.some((r) => r.role === "super_admin");
   const primaryRole = roles[0]?.role ? roles[0].role.replace(/_/g, " ").toUpperCase() : "STAFF";
+  const spmbOrigin = "https://spmb.alfida.or.id";
+  const spmbEntries = getSpmbEntries(roles);
+  const spmbModuleCards: ModuleItem[] = spmbEntries.map((entry) => ({
+    id: `spmb-${entry.id}`,
+    title: entry.label,
+    description: entry.description,
+    icon: entry.icon,
+    url: `${spmbOrigin}${entry.path}`,
+    isActive: true,
+    badge: "Aktif",
+    external: true,
+  }));
   const SERVICE_URL = {
-    spmb: "https://spmb.alfida.or.id/admin",
     simakin: "https://simakin.alfida.or.id",
     simpeg: "https://simpeg.alfida.or.id",
     siyaum: "https://siyaum.alfida.or.id",
@@ -91,11 +103,11 @@ export default function ModulesPage() {
     {
       title: "Layanan Aktif",
       items: [
-        {
-          label: "SPMB (Siswa Baru)",
-          href: SERVICE_URL.spmb,
-          icon: "school",
-        },
+        ...spmbEntries.map((entry) => ({
+          label: entry.label,
+          href: `${spmbOrigin}${entry.path}`,
+          icon: entry.icon,
+        })),
         {
           label: "SIMAKIN (Kinerja)",
           href: SERVICE_URL.simakin,
@@ -140,16 +152,7 @@ export default function ModulesPage() {
           },
         ]
       : []),
-    {
-      id: "spmb",
-      title: "SPMB (Penerimaan Siswa Baru)",
-      description: "Pendaftaran, berkas, pembayaran, observasi, dan pengumuman seleksi murid baru.",
-      icon: "school",
-      url: SERVICE_URL.spmb,
-      isActive: true,
-      badge: "Aktif",
-      external: true,
-    },
+    ...spmbModuleCards,
     {
       id: "simakin",
       title: "SIMAKIN (Manajemen Kinerja)",
