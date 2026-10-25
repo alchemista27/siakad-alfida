@@ -8,6 +8,7 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "test:contracts": "node scripts/test-contract-suite.mjs",
+    "test:node2shell-runtime-pins": "node scripts/test-node2shell-runtime-pins.mjs",
     "typecheck": "turbo typecheck",
     "db:push": "pnpm --filter @sim/database exec prisma db push",
     "db:seed": "pnpm --filter @sim/database exec tsx prisma/seed.ts",
