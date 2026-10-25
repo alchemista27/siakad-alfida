@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { cache } from "react";
 
 export type FoundationBranding = {
@@ -13,6 +14,7 @@ const fallback: FoundationBranding = {
 };
 
 export const getFoundationBranding = cache(async (): Promise<FoundationBranding> => {
+  await connection();
   const baseUrl = process.env.ADMIN_PUBLIC_API_URL || process.env.INTERNAL_ADMIN_API_URL;
   if (!baseUrl) return fallback;
 

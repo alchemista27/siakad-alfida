@@ -16,6 +16,7 @@ async function main() {
   assert.match(helper, /ADMIN_PUBLIC_API_URL\s*\|\|\s*process\.env\.INTERNAL_ADMIN_API_URL/);
   assert.match(helper, /\/api\/public\/foundation-settings/);
   assert.match(helper, /cache:\s*["']no-store["']/);
+  assert.match(helper, /connection\s*\(\s*\)/, "branding helper must force request-time rendering");
   assert.match(helper, /content-type/);
   assert.match(helper, /catch/);
 
