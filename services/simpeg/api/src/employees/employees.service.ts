@@ -1,10 +1,40 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { canManageUnit, ScopedRole } from "../common/organization-access.policy";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpsertEmployeeProfileDto, SyncUserDto } from "./employees.dto";
 
 @Injectable()
 export class EmployeesService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async suggestions(search?: string, unitId?: string, principal?: { roles?: unknown }) {
+    const roles = Array.isArray(principal?.roles) ? principal.roles as ScopedRole[] : [];
+    const global = roles.some((entry) => entry && typeof entry === "object" && (
+      (entry.role === "super_admin" && ["*", "auth", "core", "simpeg"].includes(entry.app || ""))
+      || (entry.app === "simpeg" && entry.role === "admin_kepegawaian")
+    ));
+    if (!global && (!unitId || !canManageUnit(roles, unitId))) {
+      throw new ForbiddenException("Anda tidak berwenang mencari pegawai untuk unit ini.");
+    }
+
+    const term = typeof search === "string" ? search.trim() : "";
+    if (!term) return [];
+
+    return this.prisma.user.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          { fullName: { contains: term, mode: "insensitive" } },
+          { email: { contains: term, mode: "insensitive" } },
+          { username: { contains: term, mode: "insensitive" } },
+          { profile: { is: { nip: { contains: term, mode: "insensitive" } } } },
+        ],
+      },
+      select: { id: true, fullName: true, email: true, username: true, avatarUrl: true },
+      orderBy: { fullName: "asc" },
+      take: 10,
+    });
+  }
 
   async findAll(query?: { search?: string; type?: string }) {
     const where: any = { isActive: true };

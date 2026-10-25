@@ -5,8 +5,10 @@ import {
   Body,
   Param,
   Query,
+  Req,
   UseGuards,
 } from "@nestjs/common";
+import { SimpegRoles, SimpegRolesGuard } from "../common/guards/simpeg-roles.guard";
 import { EmployeesService } from "./employees.service";
 import { UpsertEmployeeProfileDto, SyncUserDto } from "./employees.dto";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
@@ -15,6 +17,13 @@ import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 @UseGuards(ServiceJwtAuthGuard)
 export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
+
+  @Get("suggestions")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles("super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik")
+  async suggestions(@Query("search") search: string | undefined, @Query("unitId") unitId: string | undefined, @Req() req: any) {
+    return this.employeesService.suggestions(search, unitId, req.user);
+  }
 
   @Get()
   async findAll(

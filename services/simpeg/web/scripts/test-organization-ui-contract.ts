@@ -14,6 +14,7 @@ const unitPanel = source("components/organization/unit-management-panel.tsx");
 const unitAdminModal = source("components/organization/unit-admin-modal.tsx");
 const departmentPanel = source("components/organization/department-management-panel.tsx");
 const departmentAdminModal = source("components/organization/department-admin-modal.tsx");
+const employeePicker = source("components/organization/employee-suggestion-picker.tsx");
 const confirmModal = source("components/organization/confirm-action-modal.tsx");
 
 assert.match(page, /UnitManagementPanel/);
@@ -44,7 +45,8 @@ assert.match(departmentPanel, /Hapus Bidang/);
 assert.match(departmentPanel, /\/api\/departments\/\$\{department\.id\}/);
 assert.match(departmentAdminModal, /\/api\/departments\/\$\{department\.id\}\/admins/);
 assert.match(departmentAdminModal, /\/api\/departments\/\$\{department\.id\}\/admins\/\$\{assignment\.userId\}/);
-assert.match(departmentAdminModal, /Pegawai aktif/);
+assert.match(departmentAdminModal, /EmployeeSuggestionPicker/);
+assert.match(employeePicker, /Pegawai aktif/);
 
 assert.match(confirmModal, /role="dialog"/);
 assert.match(confirmModal, /aria-modal="true"/);

@@ -944,8 +944,8 @@ export default function SimpegDashboard() {
           </div>
         )}
 
-        <UnitAdminModal unit={managedUnit} employees={employees} onClose={() => setManagedUnit(null)} onChanged={fetchData} />
-        <DepartmentAdminModal department={managedDepartment} employees={employees} onClose={() => setManagedDepartment(null)} onChanged={fetchData} />
+        <UnitAdminModal unit={managedUnit} onClose={() => setManagedUnit(null)} onChanged={fetchData} />
+        <DepartmentAdminModal department={managedDepartment} onClose={() => setManagedDepartment(null)} onChanged={fetchData} />
 
         {/* Modal Tambah Penugasan */}
         {showAddAssignmentModal && (
