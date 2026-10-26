@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import {
+  normalizeFoundationBranding,
+  resolveAdminFoundationBaseUrl,
+} from "../src/lib/foundation-settings";
 
 const root = resolve(import.meta.dirname, "..");
 const read = (file: string) => readFileSync(resolve(root, file), "utf8");
@@ -16,13 +20,44 @@ for (const file of [
 }
 
 const helper = read("src/lib/foundation-settings.ts");
-assert.match(
-  helper,
-  /ADMIN_PUBLIC_API_URL\s*\|\|\s*process\.env\.INTERNAL_ADMIN_API_URL\s*\|\|\s*process\.env\.NEXT_PUBLIC_ADMIN_URL/,
+assert.equal(
+  resolveAdminFoundationBaseUrl({
+    INTERNAL_ADMIN_API_URL: "http://admin-internal:3000/",
+    ADMIN_PUBLIC_API_URL: "https://admin.example.test",
+    FOUNDATION_API_URL: "https://foundation.example.test",
+    NEXT_PUBLIC_ADMIN_URL: "https://legacy.example.test",
+  }),
+  "http://admin-internal:3000",
+  "server-side branding must prefer a verified internal Admin URL",
 );
+assert.equal(
+  resolveAdminFoundationBaseUrl({
+    FOUNDATION_API_URL: "https://foundation.example.test/",
+    NEXT_PUBLIC_ADMIN_URL: "https://legacy.example.test",
+  }),
+  "https://foundation.example.test",
+  "existing FOUNDATION_API_URL must remain a supported runtime fallback",
+);
+assert.deepEqual(
+  normalizeFoundationBranding({
+    data: {
+      foundationName: "Yayasan Contoh",
+      logoUrl: "https://res.cloudinary.com/example/image/upload/v1/foundation/logo.png",
+      faviconUrl: "https://res.cloudinary.com/example/image/upload/v1/foundation/favicon.png",
+    },
+  }),
+  {
+    foundationName: "Yayasan Contoh",
+    logoUrl: "https://res.cloudinary.com/example/image/upload/v1/foundation/logo.png",
+    faviconUrl: "https://res.cloudinary.com/example/image/upload/v1/foundation/favicon.png",
+  },
+  "branding resolver must accept a compatible deployment envelope",
+);
+assert.equal(normalizeFoundationBranding({ logoUrl: 42 }), null, "malformed branding payload must not render a broken asset");
 assert.match(helper, /\/api\/public\/foundation-settings/);
 assert.match(helper, /cache:\s*["']no-store["']/);
 assert.match(helper, /connection\s*\(\s*\)/);
+assert.match(helper, /AbortSignal\.timeout/);
 
 const layout = read("src/app/layout.tsx");
 assert.match(layout, /getFoundationBranding/);

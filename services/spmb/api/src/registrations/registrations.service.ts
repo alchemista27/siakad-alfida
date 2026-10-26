@@ -59,6 +59,10 @@ export class RegistrationsService {
     if (Array.isArray(registration.documents)) {
       sanitized.documents = registration.documents.map(({ objectKey, ...doc }: any) => doc);
     }
+    if (registration.payment) {
+      const { proofObjectKey, ...payment } = registration.payment;
+      sanitized.payment = payment;
+    }
     if (registration.observationResult) {
       sanitized.observationResult = { recorded: true };
     }

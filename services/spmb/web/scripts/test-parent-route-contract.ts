@@ -40,6 +40,28 @@ const selection = readFileSync(resolve(root, "src/app/parent/select-unit/page.ts
 assert(selection.includes("/api/periods/public"), "unit selection must load public periods");
 assert(selection.includes("/api/registrations/online"), "unit selection must create a server-owned draft");
 assert(!selection.includes("applicantFullName"), "unit selection must not collect child biodata");
+assert(
+  /typeof created\.id !== "string" \|\| !created\.id\.trim\(\)/.test(selection),
+  "unit selection must refuse a malformed create response before redirecting",
+);
+assert(
+  /\/parent\/payment\?registrationId=\$\{encodeURIComponent\(created\.id\)\}/.test(selection),
+  "unit selection must redirect using the server-owned registration id",
+);
+
+const paymentPage = readFileSync(resolve(root, "src/app/parent/payment/page.tsx"), "utf8");
+assert(/type RegistrationLoadState\s*=/.test(paymentPage), "payment page must distinguish loading, not-found, and API-error states");
+assert(/kind:\s*"not_found"/.test(paymentPage), "payment page must render an explicit not-found state");
+assert(/kind:\s*"error"/.test(paymentPage), "payment page must render an API/access error state instead of an empty registration");
+assert(/Coba Lagi/.test(paymentPage), "payment API-error state must offer a retry action");
+assert(/uploadPrivatePaymentProof/.test(paymentPage), "payment page must upload a private payment proof instead of accepting a manual URL");
+assert(/type="file"/.test(paymentPage), "payment page must render a payment-proof file picker");
+assert(!/Referensi \/ Tautan Bukti Transfer/.test(paymentPage), "payment page must not ask parents for a manually pasted proof URL");
+
+const registrationLib = readFileSync(resolve(root, "src/lib/spmb-registration.ts"), "utf8");
+assert(/export class SpmbApiError extends Error/.test(registrationLib), "API client must preserve non-OK response status");
+assert(/new SpmbApiError\(/.test(registrationLib), "API client must throw structured errors for non-OK responses");
+assert(/uploadPrivatePaymentProof/.test(registrationLib), "client library must complete payment proof presign and finalize flow");
 
 for (const stagePage of [
   "src/app/parent/payment/page.tsx",

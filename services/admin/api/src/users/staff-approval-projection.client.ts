@@ -1,4 +1,4 @@
-import { BadGatewayException, Injectable, ServiceUnavailableException } from "@nestjs/common";
+import { BadGatewayException, Inject, Injectable, ServiceUnavailableException } from "@nestjs/common";
 
 export type StaffApprovalProjection = {
   id: string;
@@ -12,10 +12,14 @@ export type StaffApprovalProjection = {
 };
 
 type FetchLike = typeof fetch;
+export const STAFF_APPROVAL_PROJECTION_FETCH = Symbol("STAFF_APPROVAL_PROJECTION_FETCH");
 
 @Injectable()
 export class StaffApprovalProjectionClient {
-  constructor(private readonly fetchImpl: FetchLike = fetch) {}
+  constructor(
+    @Inject(STAFF_APPROVAL_PROJECTION_FETCH)
+    private readonly fetchImpl: FetchLike = fetch,
+  ) {}
 
   assertConfigured() {
     this.config();

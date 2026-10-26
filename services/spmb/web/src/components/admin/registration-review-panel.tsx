@@ -11,7 +11,7 @@ export interface ReviewableRegistration {
   guardianName: string;
   guardianPhone: string;
   studentData?: { fullName: string; gender: string } | null;
-  payment?: { status: string; amount: number; proofUrl: string | null } | null;
+  payment?: { status: string; amount: number; proofUrl: string | null; proofFileName?: string | null } | null;
 }
 
 export function RegistrationReviewPanel({
@@ -70,6 +70,22 @@ export function RegistrationReviewPanel({
     }
   };
 
+  const viewPaymentProof = async (regId: string) => {
+    try {
+      const res = await fetch(`/api/registrations/${encodeURIComponent(regId)}/payment-proof/download-url`, {
+        method: "POST",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || typeof data.downloadUrl !== "string") {
+        throw new Error(data.message || "Bukti pembayaran privat tidak dapat dibuka.");
+      }
+      const proofWindow = window.open(data.downloadUrl, "_blank", "noopener,noreferrer");
+      if (!proofWindow) throw new Error("Browser memblokir tab bukti pembayaran. Izinkan pop-up lalu coba lagi.");
+    } catch (error) {
+      onNotify("error", error instanceof Error ? error.message : "Gagal membuka bukti pembayaran.");
+    }
+  };
+
   return (
     <section className="bg-white border border-[#E3E8E7] rounded-lg p-5 space-y-4">
       <div>
@@ -94,6 +110,16 @@ export function RegistrationReviewPanel({
                 onChange={(e) => setRevisionNoteById((prev) => ({ ...prev, [reg.id]: e.target.value }))}
                 className="px-2.5 py-1 border border-[#E3E8E7] rounded text-xs"
               />
+              {reg.payment?.proofFileName && (
+                <button
+                  type="button"
+                  disabled={busyId === reg.id}
+                  onClick={() => void viewPaymentProof(reg.id)}
+                  className="px-2.5 py-1 border border-[#0f7f6d] text-[#0f7f6d] rounded font-semibold"
+                >
+                  Lihat Bukti
+                </button>
+              )}
               <button
                 type="button"
                 disabled={busyId === reg.id}

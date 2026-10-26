@@ -6,7 +6,10 @@ import {
   ORGANIZATION_ROLE_FETCH,
 } from "./organization-role-admin.service";
 import { PrismaModule } from "../prisma/prisma.module";
-import { StaffApprovalProjectionClient } from "./staff-approval-projection.client";
+import {
+  StaffApprovalProjectionClient,
+  STAFF_APPROVAL_PROJECTION_FETCH,
+} from "./staff-approval-projection.client";
 
 @Module({
   imports: [PrismaModule],
@@ -14,6 +17,7 @@ import { StaffApprovalProjectionClient } from "./staff-approval-projection.clien
   providers: [
     UsersService,
     StaffApprovalProjectionClient,
+    { provide: STAFF_APPROVAL_PROJECTION_FETCH, useValue: fetch },
     OrganizationRoleAdminService,
     { provide: ORGANIZATION_ROLE_FETCH, useValue: fetch },
   ],

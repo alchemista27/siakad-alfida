@@ -27,11 +27,14 @@ export default function ParentSelectUnitPage() {
     setBusy(true);
     setNotice(null);
     try {
-      const created = await apiRequest<{ id: string }>("/api/registrations/online", {
+      const created = await apiRequest<{ id?: unknown }>("/api/registrations/online", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ periodId: selectedPeriodId }),
       });
+      if (typeof created.id !== "string" || !created.id.trim()) {
+        throw new Error("Server belum mengembalikan ID pendaftaran. Silakan coba lagi.");
+      }
       window.location.assign(`/parent/payment?registrationId=${encodeURIComponent(created.id)}`);
     } catch (error) {
       setNotice({ type: "error", message: error instanceof Error ? error.message : "Gagal membuat draft pendaftaran." });

@@ -180,6 +180,10 @@ model Payment {
   registrationId String        @unique @map("registration_id") @db.Uuid
   amount         Decimal       @db.Decimal(12, 2)
   proofUrl       String?       @map("proof_url") @db.Text
+  proofObjectKey String?       @map("proof_object_key") @db.Text
+  proofFileName  String?       @map("proof_file_name") @db.VarChar(255)
+  proofFileSize  Int?          @map("proof_file_size")
+  proofMimeType  String?       @map("proof_mime_type") @db.VarChar(100)
   method         PaymentMethod @default(transfer_proof)
   status         PaymentStatus @default(pending)
   paidAt         DateTime?     @map("paid_at") @db.Timestamptz

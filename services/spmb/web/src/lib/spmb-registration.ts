@@ -17,6 +17,16 @@ export type RegistrationStatus =
 
 export type DossierReviewStatus = "pending" | "approved" | "revision_required";
 
+export class SpmbApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+  ) {
+    super(message);
+    this.name = "SpmbApiError";
+  }
+}
+
 export type DocumentType =
   | "photo"
   | "school_certificate"
@@ -65,6 +75,9 @@ export interface ParentRegistration {
   payment: {
     amount: number;
     proofUrl: string | null;
+    proofFileName?: string | null;
+    proofFileSize?: number | null;
+    proofMimeType?: string | null;
     status: string;
     rejectionNote?: string | null;
   } | null;
@@ -214,12 +227,12 @@ export async function apiRequest<T = any>(url: string, options: RequestInit = {}
         `https://auth.alfida.or.id/login?return_to=${encodeURIComponent(window.location.href)}`,
       );
     }
-    throw new Error("Sesi autentikasi berakhir.");
+    throw new SpmbApiError("Sesi autentikasi berakhir.", response.status);
   }
   if (!response.ok) {
     const contentType = response.headers.get("content-type") || "";
     const payload = contentType.includes("application/json") ? await response.json().catch(() => null) : null;
-    throw new Error(payload?.message || "Permintaan tidak dapat diproses.");
+    throw new SpmbApiError(payload?.message || "Permintaan tidak dapat diproses.", response.status);
   }
   return (response.status === 204 ? null : await response.json()) as T;
 }
@@ -266,6 +279,38 @@ export async function uploadPrivateDocument(
     body: JSON.stringify({
       registrationId,
       documentType,
+      objectKey: presign.objectKey,
+      fileName: file.name,
+      fileSize: file.size,
+      mimeType,
+    }),
+  });
+}
+
+export async function uploadPrivatePaymentProof(registrationId: string, file: File) {
+  const mimeType = file.type || "application/octet-stream";
+  const presign = await apiRequest<{ uploadUrl: string; objectKey: string }>(
+    `/api/registrations/${encodeURIComponent(registrationId)}/payment-proof/presign`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fileName: file.name, mimeType, fileSize: file.size }),
+    },
+  );
+
+  const uploadResponse = await fetch(presign.uploadUrl, {
+    method: "PUT",
+    headers: { "Content-Type": mimeType },
+    body: file,
+  });
+  if (!uploadResponse.ok) {
+    throw new Error("Gagal mengunggah bukti pembayaran ke penyimpanan privat.");
+  }
+
+  return apiRequest(`/api/registrations/${encodeURIComponent(registrationId)}/payment-proof/finalize`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
       objectKey: presign.objectKey,
       fileName: file.name,
       fileSize: file.size,

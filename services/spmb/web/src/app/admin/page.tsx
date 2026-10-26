@@ -41,6 +41,7 @@ interface Registration {
     status: string;
     amount: number;
     proofUrl: string | null;
+    proofFileName?: string | null;
   } | null;
   observationResult: {
     score: number;

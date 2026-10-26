@@ -1,5 +1,24 @@
 import assert from "node:assert/strict";
-import { StaffApprovalProjectionClient } from "../src/users/staff-approval-projection.client";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import {
+  StaffApprovalProjectionClient,
+  STAFF_APPROVAL_PROJECTION_FETCH,
+} from "../src/users/staff-approval-projection.client";
+
+const usersModuleSource = readFileSync(resolve(import.meta.dirname, "../src/users/users.module.ts"), "utf8");
+const projectionClientSource = readFileSync(resolve(import.meta.dirname, "../src/users/staff-approval-projection.client.ts"), "utf8");
+
+assert.match(
+  projectionClientSource,
+  /@Inject\(STAFF_APPROVAL_PROJECTION_FETCH\)[\s\S]*fetchImpl:\s*FetchLike/,
+  "StaffApprovalProjectionClient must inject its fetch dependency with an explicit token",
+);
+assert.match(
+  usersModuleSource,
+  /\{\s*provide:\s*STAFF_APPROVAL_PROJECTION_FETCH,\s*useValue:\s*fetch\s*\}/,
+  "UsersModule must register the StaffApprovalProjectionClient fetch provider",
+);
 
 const payload = {
   id: "00000000-0000-4000-8000-000000000001",

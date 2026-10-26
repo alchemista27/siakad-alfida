@@ -17,14 +17,20 @@ import {
   UploadPaymentDto,
   VerifyPaymentDto,
   ReviewDossierDto,
+  FinalizePaymentProofDto,
+  PresignPaymentProofDto,
 } from "./registrations.dto";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 import { SpmbRolesGuard, SpmbRoles } from "../common/guards";
 import { RegistrationSource, RegistrationStatus } from "../generated/prisma";
+import { PaymentProofStorageService } from "./payment-proof-storage.service";
 
 @Controller("registrations")
 export class RegistrationsController {
-  constructor(private readonly registrationsService: RegistrationsService) {}
+  constructor(
+    private readonly registrationsService: RegistrationsService,
+    private readonly paymentProofStorageService: PaymentProofStorageService,
+  ) {}
 
   // ================= TRACKING ORANG TUA =================
   @Get("track/:regNum")
@@ -97,6 +103,35 @@ export class RegistrationsController {
     @Body() dto: UploadPaymentDto
   ) {
     return this.registrationsService.uploadPayment(id, req.user.id, dto);
+  }
+
+  @Post(":id/payment-proof/presign")
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("orang_tua")
+  async presignPaymentProof(
+    @Param("id") id: string,
+    @Req() req: any,
+    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })) dto: PresignPaymentProofDto,
+  ) {
+    return this.paymentProofStorageService.presignUpload(id, req.user.id, dto);
+  }
+
+  @Post(":id/payment-proof/finalize")
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("orang_tua")
+  async finalizePaymentProof(
+    @Param("id") id: string,
+    @Req() req: any,
+    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })) dto: FinalizePaymentProofDto,
+  ) {
+    return this.paymentProofStorageService.finalizeUpload(id, req.user.id, dto);
+  }
+
+  @Post(":id/payment-proof/download-url")
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("orang_tua", "admin_unit", "tim_ppdb")
+  async paymentProofDownloadUrl(@Param("id") id: string, @Req() req: any) {
+    return this.paymentProofStorageService.createDownloadUrl(id, req.user);
   }
 
   @Post(":id/verify-documents")
