@@ -1,58 +1,64 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
   Param,
-  UseGuards,
+  Post,
   Req,
-  ForbiddenException,
+  UseGuards,
 } from "@nestjs/common";
-import { SetoranService } from "./setoran.service";
-import { CreateSetoranDto, VerifySetoranDto } from "./setoran.dto";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
+import { CreateSetoranDto, VerifySetoranDto } from "./setoran.dto";
+import { SetoranService } from "./setoran.service";
+import { YmqRoles } from "../ymq/ymq-roles.decorator";
+import { YmqRolesGuard } from "../ymq/ymq-roles.guard";
 
 @Controller("setoran")
-@UseGuards(ServiceJwtAuthGuard)
+@UseGuards(ServiceJwtAuthGuard, YmqRolesGuard)
 export class SetoranController {
   constructor(private readonly setoranService: SetoranService) {}
 
   @Post("my")
+  @YmqRoles(
+    "admin_ymq",
+    "pembina_ymq",
+    "admin_kelompok",
+    "pengawas",
+    "pimpinan",
+    "peserta",
+    "musyrif",
+  )
   async createMySetoran(@Req() req: any, @Body() dto: CreateSetoranDto) {
     return this.setoranService.create(req.user.id, dto);
   }
 
   @Get("my")
+  @YmqRoles(
+    "admin_ymq",
+    "pembina_ymq",
+    "admin_kelompok",
+    "pengawas",
+    "pimpinan",
+    "peserta",
+    "musyrif",
+  )
   async getMySetoran(@Req() req: any) {
     return this.setoranService.findMySetoran(req.user.id);
   }
 
   @Get("pending")
+  @YmqRoles("admin_ymq", "musyrif")
   async getPendingVerification(@Req() req: any) {
-    const roles = req.user?.roles || [];
-    const isAuthorized = roles.some((r: any) =>
-      r.role === "super_admin" || r.role === "admin_ymq" || r.role === "musyrif"
-    );
-    if (!isAuthorized) {
-      throw new ForbiddenException("Hanya musyrif atau admin YMQ yang dapat melihat antrean verifikasi.");
-    }
-    return this.setoranService.findPendingVerification(req.user.id);
+    return this.setoranService.findPendingVerification(req.user);
   }
 
   @Post(":id/verify")
+  @YmqRoles("admin_ymq", "musyrif")
   async verifySetoran(
     @Param("id") id: string,
     @Req() req: any,
-    @Body() dto: VerifySetoranDto
+    @Body() dto: VerifySetoranDto,
   ) {
-    const roles = req.user?.roles || [];
-    const isAuthorized = roles.some((r: any) =>
-      r.role === "super_admin" || r.role === "admin_ymq" || r.role === "musyrif"
-    );
-    if (!isAuthorized) {
-      throw new ForbiddenException("Hanya musyrif atau admin YMQ yang berhak memverifikasi setoran.");
-    }
-    return this.setoranService.verify(id, req.user.id, dto);
+    return this.setoranService.verify(id, req.user, dto);
   }
 }
-

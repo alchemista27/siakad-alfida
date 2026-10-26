@@ -14,6 +14,8 @@ const modal = read("src/components/notification-modal.tsx");
 const monitoring = read("src/app/(dashboard)/monitoring/monitoring-client.tsx");
 const groups = read("src/app/(dashboard)/groups/group-staff-manager.tsx");
 const executive = read("src/app/(dashboard)/executive/executive-dashboard-client.tsx");
+const shell = read("src/components/siyaum-app-shell.tsx");
+const tilawah = read("src/app/(dashboard)/tilawah/tilawah-client.tsx");
 
 assert.match(api, /const API_BASE_URL\s*=\s*["']\/api/);
 assert.match(api, /content-type/i);
@@ -27,5 +29,22 @@ assert.match(executive, /canViewExecutive/);
 assert.ok(!/method:\s*["'](?:POST|PUT|PATCH|DELETE)["']/.test(executive), "Executive dashboard must be read-only");
 assert.ok(!/\balert\s*\(/.test([monitoring, groups, executive].join("\n")), "Operational UI must not use alert()");
 assert.ok(!/\bconfirm\s*\(/.test([monitoring, groups, executive].join("\n")), "Operational UI must not use confirm()");
+assert.doesNotMatch(
+  shell,
+  /hasSiyaumRole\(user,\s*"admin_ymq",\s*"pembina_ymq",\s*"admin_kelompok",\s*"musyrif"\)/,
+  "Musyrif must not be offered the group-session journal because its API does not permit that role",
+);
+assert.match(
+  shell,
+  /hasSiyaumRole\(user,\s*"admin_ymq",\s*"pembina_ymq",\s*"admin_kelompok"\)/,
+  "Only roles accepted by learning-sessions upsert may see the journal navigation",
+);
+assert.match(tilawah, /SiyaumAppShell/, "Tilawah must use the SIYAUM-specific shell");
+assert.match(tilawah, /hasSiyaumRole/, "Tilawah must derive optional calls and actions from scoped roles");
+assert.match(
+  tilawah,
+  /canReadGlobalMetrics\s*\?\s*apiFetch<Metrics>\("\/dashboard\/metrics"\)/,
+  "Tilawah must request dashboard metrics only for roles the API permits",
+);
 
 console.log("SIYAUM YMQ access UI contract passed");

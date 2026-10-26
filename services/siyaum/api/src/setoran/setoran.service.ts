@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateSetoranDto, VerifySetoranDto } from "./setoran.dto";
 import { SetoranType, VerificationStatus } from "../generated/prisma";
+import { hasYmqRole, type YmqPrincipal } from "../ymq/ymq-access.policy";
 
 @Injectable()
 export class SetoranService {
@@ -44,24 +45,23 @@ export class SetoranService {
     });
   }
 
-  async findPendingVerification(musyrifId: string) {
-    // Ambil kelompok halaqah yang diampu oleh musyrif ini
-    const groups = await this.prisma.ymqGroup.findMany({
-      where: { musyrifId },
-      include: {
-        members: { select: { userId: true } },
-      },
-    });
+  async findPendingVerification(principal: YmqPrincipal) {
+    const memberIds = hasYmqRole(principal, "admin_ymq")
+      ? undefined
+      : (await this.prisma.ymqGroup.findMany({
+        where: { musyrifId: principal.id },
+        include: {
+          members: { select: { userId: true } },
+        },
+      })).flatMap((group) => group.members.map((member) => member.userId));
 
-    const memberIds = groups.flatMap((g) => g.members.map((m) => m.userId));
-
-    if (memberIds.length === 0) {
+    if (memberIds && memberIds.length === 0) {
       return [];
     }
 
     return this.prisma.ymqSetoran.findMany({
       where: {
-        userId: { in: memberIds },
+        ...(memberIds ? { userId: { in: memberIds } } : {}),
         statusVerifikasi: VerificationStatus.pending,
       },
       include: {
@@ -73,10 +73,24 @@ export class SetoranService {
     });
   }
 
-  async verify(id: string, musyrifId: string, dto: VerifySetoranDto) {
+  async verify(id: string, principal: YmqPrincipal, dto: VerifySetoranDto) {
     const setoran = await this.prisma.ymqSetoran.findUnique({ where: { id } });
     if (!setoran) {
       throw new NotFoundException("Data setoran tidak ditemukan.");
+    }
+
+    if (!hasYmqRole(principal, "admin_ymq")) {
+      const assignedGroup = await this.prisma.ymqGroup.findFirst({
+        where: {
+          musyrifId: principal.id,
+          members: { some: { userId: setoran.userId } },
+        },
+        select: { id: true },
+      });
+
+      if (!assignedGroup) {
+        throw new ForbiddenException("Anda tidak berwenang memverifikasi setoran peserta ini.");
+      }
     }
 
     return this.prisma.ymqSetoran.update({
@@ -84,7 +98,7 @@ export class SetoranService {
       data: {
         statusVerifikasi: dto.status as VerificationStatus,
         catatanMusyrif: dto.catatanMusyrif || null,
-        verifiedById: musyrifId,
+        verifiedById: principal.id,
         verifiedAt: new Date(),
       },
       include: {

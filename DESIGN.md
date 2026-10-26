@@ -12,7 +12,7 @@ colors:
   border: "#E3E8E7"
 typography:
   h1:
-    fontFamily: Roboto
+    fontFamily: Lora
     fontSize: 3rem
     fontWeight: 700
   body-md:
@@ -75,7 +75,7 @@ The palette is rooted in semantic tokens. Use the role (e.g. `{colors.primary}`)
 
 | Token        | Font   | Size    | Weight |
 | ------------ | ------ | ------- | ------ |
-| `h1`         | Roboto | 3rem    | 700    |
+| `h1`         | Lora   | 3rem    | 700    |
 | `body-md`    | Inter  | 1rem    | 400    |
 | `label-caps` | Inter  | 0.75rem | 600    |
 
