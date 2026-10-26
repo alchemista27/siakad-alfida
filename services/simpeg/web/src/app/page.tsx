@@ -8,6 +8,7 @@ import { DepartmentManagementPanel } from "../components/organization/department
 import { DepartmentAdminModal } from "../components/organization/department-admin-modal";
 import { OrganizationDepartment, OrganizationEmployee, OrganizationUnit } from "../components/organization/types";
 import { WorkdayManagementPanel } from "../components/attendance/workday-management-panel";
+import type { Holiday, SaturdayDuty } from "../components/attendance/workday-management-panel";
 
 interface Assignment {
   id: string;
@@ -41,22 +42,6 @@ interface LeaveRequest {
   };
 }
 
-interface Holiday {
-  id: string;
-  unitId: string | null;
-  date: string;
-  name: string;
-  description?: string | null;
-}
-
-interface SaturdayDuty {
-  id: string;
-  unitId: string;
-  userId: string;
-  date: string;
-  notes?: string | null;
-}
-
 type SimpegTab = "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings" | "workday";
 
 async function readManagementJson<T>(url: string): Promise<T> {
@@ -85,6 +70,10 @@ export default function SimpegDashboard() {
   const [gpsConfigs, setGpsConfigs] = useState<any[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [saturdayDuties, setSaturdayDuties] = useState<SaturdayDuty[]>([]);
+  const [workdayLoading, setWorkdayLoading] = useState(false);
+  const [workdayError, setWorkdayError] = useState<string | null>(null);
+  const [manageableUnitIds, setManageableUnitIds] = useState<string[] | null>(null);
+  const [canManageAllUnits, setCanManageAllUnits] = useState(false);
 
   // Form states
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,6 +104,23 @@ export default function SimpegDashboard() {
   const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string } | null>(null);
 
+  const fetchWorkdayData = async () => {
+    setWorkdayLoading(true);
+    setWorkdayError(null);
+    try {
+      const [nextHolidays, nextDuties] = await Promise.all([
+        readManagementJson<Holiday[]>("/api/attendance/holidays"),
+        readManagementJson<SaturdayDuty[]>("/api/attendance/saturday-duties"),
+      ]);
+      setHolidays(nextHolidays);
+      setSaturdayDuties(nextDuties);
+    } catch (caught) {
+      setWorkdayError(caught instanceof Error ? caught.message : "Kalender kerja gagal dimuat.");
+    } finally {
+      setWorkdayLoading(false);
+    }
+  };
+
   const fetchData = async () => {
     setLoading(true);
     setError(null);
@@ -123,7 +129,7 @@ export default function SimpegDashboard() {
         fetch("/api/assignments").then((r) => (r.ok ? r.json() : [])),
         fetch("/api/leaves").then((r) => (r.ok ? r.json() : [])),
         fetch("/api/employees").then((r) => (r.ok ? r.json() : [])),
-        fetch("/api/units").then((r) => (r.ok ? r.json() : [])),
+        readManagementJson<OrganizationUnit[]>("/api/units"),
         fetch("/api/departments").then((r) => (r.ok ? r.json() : [])),
         fetch("/api/attendance/context").then((r) => (r.ok ? r.json() : null)),
         fetch("/api/attendance/configs").then((r) => (r.ok ? r.json() : [])),
@@ -168,6 +174,9 @@ export default function SimpegDashboard() {
             const primaryRole = data.user.roles?.[0]?.role
               ? data.user.roles[0].role.replace(/_/g, " ").toUpperCase()
               : "PEGAWAI";
+            const roles = Array.isArray(data.user.roles) ? data.user.roles as { app?: string; role?: string; unitId?: string | null }[] : [];
+            setCanManageAllUnits(roles.some((entry) => (entry.role === "super_admin" && ["*", "auth", "core", "simpeg"].includes(entry.app || "")) || (entry.role === "admin_kepegawaian" && entry.app === "simpeg")));
+            setManageableUnitIds(roles.filter((entry) => entry.app === "simpeg" && (entry.role === "admin_unit" || entry.role === "admin_unit_nondik") && entry.unitId).map((entry) => entry.unitId!));
             setCurrentUser({
               fullName: data.user.fullName,
               role: primaryRole,
@@ -180,6 +189,10 @@ export default function SimpegDashboard() {
     loadUser();
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === "workday" && (canManageAllUnits || (manageableUnitIds?.length || 0) > 0)) void fetchWorkdayData();
+  }, [activeTab, canManageAllUnits, manageableUnitIds?.length]);
 
   const handleSaveGpsConfig = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -411,20 +424,19 @@ export default function SimpegDashboard() {
           active: activeTab === "departments",
           onClick: () => setActiveTab("departments"),
         },
-        {
+        ...(canManageAllUnits || (manageableUnitIds?.length || 0) > 0 ? [{
           label: "Konfigurasi GPS",
           href: "#gps-settings",
           icon: "my_location",
           active: activeTab === "gps-settings",
           onClick: () => setActiveTab("gps-settings"),
-        },
-        {
+        }, {
           label: "Hari Libur & Piket Sabtu",
           href: "#workday",
           icon: "calendar_month",
           active: activeTab === "workday",
           onClick: () => setActiveTab("workday"),
-        },
+        }] : []),
       ],
     },
     {
@@ -894,7 +906,7 @@ export default function SimpegDashboard() {
             )}
 
             {/* TAB 6: KONFIGURASI GPS */}
-            {activeTab === "gps-settings" && (
+            {activeTab === "gps-settings" && (canManageAllUnits || (manageableUnitIds?.length || 0) > 0) && (
               <div className="space-y-5">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3"><div><h2 className="font-heading text-xl font-bold text-primary">Konfigurasi Lokasi GPS</h2><p className="text-sm text-slate-500 mt-1">Tentukan titik koordinat dan radius presensi untuk setiap unit kerja.</p></div><Button variant="primary" size="sm" onClick={() => { setGpsError(null); setShowGpsConfigModal(true); }}>Atur Lokasi GPS</Button></div>
                 {gpsConfigs.length === 0 ? <EmptyState title="Belum ada lokasi GPS" description="Atur koordinat unit agar pegawai dapat melakukan check-in dan check-out berbasis lokasi." actionLabel="Atur Lokasi GPS" onAction={() => setShowGpsConfigModal(true)} /> : (
@@ -904,13 +916,13 @@ export default function SimpegDashboard() {
             )}
 
             {/* TAB 7: HARI LIBUR & PIKET SABTU */}
-            {activeTab === "workday" && (
-              <WorkdayManagementPanel
+            {activeTab === "workday" && (canManageAllUnits || (manageableUnitIds?.length || 0) > 0) && (
+              workdayLoading ? <LoadingState message="Memuat kalender kerja..." /> : workdayError ? <ErrorState message={workdayError} onRetry={fetchWorkdayData} /> : <WorkdayManagementPanel
                 holidays={holidays}
                 duties={saturdayDuties}
-                units={units}
+                units={units.filter((unit) => canManageAllUnits || manageableUnitIds?.includes(unit.id))}
                 employees={employees}
-                onChanged={fetchData}
+                onChanged={fetchWorkdayData}
               />
             )}
 
