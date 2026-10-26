@@ -9,11 +9,11 @@ FROM base AS builder
 WORKDIR /app
 COPY . .
 RUN pnpm install --frozen-lockfile --ignore-scripts
-RUN pnpm --filter simpeg-api exec prisma generate
+RUN pnpm --filter @alfida/simpeg-api exec prisma generate
 RUN pnpm --filter @alfida/contracts build
 RUN pnpm --filter @alfida/auth-sdk build
 RUN pnpm --filter @alfida/ui build
-RUN pnpm --filter simpeg-api build
+RUN pnpm --filter @alfida/simpeg-api build
 RUN pnpm --filter @alfida/simpeg-web build
 RUN mkdir -p services/simpeg/web/.next/standalone/services/simpeg/web/.next \
   && cp -r services/simpeg/web/.next/static services/simpeg/web/.next/standalone/services/simpeg/web/.next/ \

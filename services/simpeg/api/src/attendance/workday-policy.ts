@@ -3,6 +3,7 @@ export type WorkdayPolicyInput = {
   hasHoliday?: boolean;
   hasApprovedLeave?: boolean;
   hasSaturdayDuty?: boolean;
+  configuredIsWorkday?: boolean;
 };
 
 export type WorkdayPolicyReason =
@@ -11,6 +12,8 @@ export type WorkdayPolicyReason =
   | "sunday"
   | "saturday_without_duty"
   | "saturday_duty"
+  | "configured_workday"
+  | "configured_nonworkday"
   | "weekday";
 
 export type WorkdayPolicy = {
@@ -41,8 +44,13 @@ export function resolveWorkdayPolicy(input: WorkdayPolicyInput): WorkdayPolicy {
   const date = utcDate(input.date);
 
   if (input.hasHoliday) return { required: false, reason: "holiday" };
-  if (date.getUTCDay() === 0) return { required: false, reason: "sunday" };
   if (input.hasApprovedLeave) return { required: false, reason: "approved_leave" };
+  if (date.getUTCDay() === 6 && input.hasSaturdayDuty) return { required: true, reason: "saturday_duty" };
+  if (input.configuredIsWorkday !== undefined) return {
+    required: input.configuredIsWorkday,
+    reason: input.configuredIsWorkday ? "configured_workday" : "configured_nonworkday",
+  };
+  if (date.getUTCDay() === 0) return { required: false, reason: "sunday" };
 
   if (date.getUTCDay() === 6) {
     return input.hasSaturdayDuty

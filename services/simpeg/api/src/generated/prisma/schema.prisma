@@ -49,6 +49,8 @@ enum DepartmentAdminRole {
 
 enum OrganizationSyncAggregate {
   department
+  department_member
+  unit
   user
 }
 
@@ -59,16 +61,30 @@ enum OrganizationSyncStatus {
   failed
 }
 
+enum AuthRoleCompensationScope {
+  unit
+  department
+}
+
+enum AuthRoleCompensationStatus {
+  armed
+  pending
+  processing
+  delivered
+  failed
+}
+
 model User {
-  id         String   @id @default(uuid()) @db.Uuid
-  fullName   String   @map("full_name") @db.VarChar(200)
-  username   String?  @unique @db.VarChar(100)
-  email      String   @unique @db.VarChar(255)
-  phone      String?  @db.VarChar(30)
-  avatarUrl  String?  @map("avatar_url") @db.Text
-  leaveQuota Int      @default(12) @map("leave_quota")
-  isActive   Boolean  @default(true) @map("is_active")
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  id         String    @id @default(uuid()) @db.Uuid
+  fullName   String    @map("full_name") @db.VarChar(200)
+  username   String?   @unique @db.VarChar(100)
+  email      String    @unique @db.VarChar(255)
+  phone      String?   @db.VarChar(30)
+  avatarUrl  String?   @map("avatar_url") @db.Text
+  leaveQuota Int       @default(12) @map("leave_quota")
+  isActive   Boolean   @default(true) @map("is_active")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
   profile             EmployeeProfile?
   unitAssignments     EmployeeUnitAssignment[]
@@ -79,6 +95,8 @@ model User {
   liqoMemberships     LiqoMember[]
   liqoAttendances     LiqoAttendance[]
   mutabaahRecords     MutabaahRecord[]
+  departmentsLed      Department[]             @relation("DepartmentLeader")
+  departmentMembers   DepartmentMember[]
 
   @@map("users")
 }
@@ -109,19 +127,68 @@ model Unit {
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
+  departments Department[]
+
   @@map("units")
 }
 
 model Department {
   id          String    @id @default(uuid()) @db.Uuid
+  unitId      String?   @map("unit_id") @db.Uuid
   name        String    @unique @db.VarChar(150)
   code        String    @unique @db.VarChar(50)
   description String?   @db.Text
   isActive    Boolean   @default(true) @map("is_active")
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt   DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+  parentId    String?   @map("parent_id") @db.Uuid
+  leaderId    String?   @map("leader_id") @db.Uuid
 
+  unit     Unit?              @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  parent   Department?        @relation("DepartmentHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Department[]       @relation("DepartmentHierarchy")
+  leader   User?              @relation("DepartmentLeader", fields: [leaderId], references: [id], onDelete: SetNull)
+  members  DepartmentMember[]
+
+  @@index([unitId])
+  @@index([parentId])
+  @@index([leaderId])
   @@map("departments")
+}
+
+model DepartmentMember {
+  id              String    @id @default(uuid()) @db.Uuid
+  departmentId    String    @map("department_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  role            String?   @db.VarChar(50)
+  sourceCreatedAt DateTime? @map("source_created_at") @db.Timestamptz
+  sourceUpdatedAt DateTime  @map("source_updated_at") @db.Timestamptz
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([departmentId, userId])
+  @@index([userId])
+  @@index([sourceUpdatedAt])
+  @@map("department_members")
+}
+
+model OrganizationImportReceipt {
+  id            String   @id @default(uuid()) @db.Uuid
+  source        String   @db.VarChar(80)
+  entity        String   @db.VarChar(80)
+  sourceId      String   @map("source_id") @db.VarChar(200)
+  payloadHash   String   @map("payload_hash") @db.VarChar(64)
+  sourceVersion DateTime @map("source_version") @db.Timestamptz
+  appliedAt     DateTime @default(now()) @map("applied_at") @db.Timestamptz
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([source, entity, sourceId])
+  @@index([source, entity, sourceVersion])
+  @@map("organization_import_receipts")
 }
 
 model DepartmentAdminAssignment {
@@ -181,6 +248,29 @@ model OrganizationSyncOutbox {
   @@map("organization_sync_outbox")
 }
 
+model AuthRoleCompensation {
+  id                String                     @id @default(uuid()) @db.Uuid
+  localAssignmentId String                     @unique @map("local_assignment_id") @db.Uuid
+  scope             AuthRoleCompensationScope
+  userId            String                     @map("user_id") @db.Uuid
+  scopeId           String                     @map("scope_id") @db.Uuid
+  app               String                     @db.VarChar(30)
+  role              String                     @db.VarChar(50)
+  requestedById     String?                    @map("requested_by_id") @db.Uuid
+  authAssignmentId  String?                    @map("auth_assignment_id") @db.Uuid
+  idempotencyKey    String                     @unique @map("idempotency_key") @db.VarChar(220)
+  status            AuthRoleCompensationStatus @default(armed)
+  attemptCount      Int                        @default(0) @map("attempt_count")
+  lastError         String?                    @map("last_error") @db.Text
+  availableAt       DateTime                   @default(now()) @map("available_at") @db.Timestamptz
+  deliveredAt       DateTime?                  @map("delivered_at") @db.Timestamptz
+  createdAt         DateTime                   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime                   @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([status, availableAt])
+  @@map("auth_role_compensations")
+}
+
 model EmployeeUnitAssignment {
   id        String    @id @default(uuid()) @db.Uuid
   userId    String    @map("user_id") @db.Uuid
@@ -213,18 +303,36 @@ model GpsAttendanceConfig {
   @@map("gps_attendance_config")
 }
 
+model UnitWorkSchedule {
+  id                String   @id @default(uuid()) @db.Uuid
+  unitId            String   @map("unit_id") @db.Uuid
+  weekday           Int
+  isWorkday         Boolean  @default(false) @map("is_workday")
+  startTime         String?  @map("start_time") @db.VarChar(5)
+  lateGraceMinutes  Int?     @map("late_grace_minutes")
+  endTime           String?  @map("end_time") @db.VarChar(5)
+  overtimeStartTime String?  @map("overtime_start_time") @db.VarChar(5)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([unitId, weekday])
+  @@index([unitId])
+  @@map("unit_work_schedules")
+}
+
 model GpsAttendance {
-  id           String              @id @default(uuid()) @db.Uuid
-  userId       String              @map("user_id") @db.Uuid
-  unitId       String              @map("unit_id") @db.Uuid
-  date         DateTime            @db.Date
-  checkInTime  DateTime?           @map("check_in_time") @db.Timestamptz
-  checkOutTime DateTime?           @map("check_out_time") @db.Timestamptz
-  latitude     Float?
-  longitude    Float?
-  status       GpsAttendanceStatus
-  notes        String?
-  createdAt    DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  id                   String              @id @default(uuid()) @db.Uuid
+  userId               String              @map("user_id") @db.Uuid
+  unitId               String              @map("unit_id") @db.Uuid
+  date                 DateTime            @db.Date
+  checkInTime          DateTime?           @map("check_in_time") @db.Timestamptz
+  checkOutTime         DateTime?           @map("check_out_time") @db.Timestamptz
+  workScheduleSnapshot Json?               @map("work_schedule_snapshot") @db.JsonB
+  overtimeMinutes      Int                 @default(0) @map("overtime_minutes")
+  latitude             Float?
+  longitude            Float?
+  status               GpsAttendanceStatus
+  notes                String?
+  createdAt            DateTime            @default(now()) @map("created_at") @db.Timestamptz
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -235,15 +343,38 @@ model GpsAttendance {
 }
 
 model Holiday {
-  id          String   @id @default(uuid()) @db.Uuid
-  unitId      String?  @map("unit_id") @db.Uuid
-  date        DateTime @db.Date
-  name        String   @db.VarChar(100)
-  description String?
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  id               String    @id @default(uuid()) @db.Uuid
+  unitId           String?   @map("unit_id") @db.Uuid
+  date             DateTime  @db.Date
+  name             String    @db.VarChar(100)
+  description      String?
+  source           String    @default("manual") @db.VarChar(16)
+  providerKey      String?   @unique @map("provider_key") @db.VarChar(160)
+  providerSyncedAt DateTime? @map("provider_synced_at") @db.Timestamptz
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   @@unique([unitId, date])
+  @@index([date])
   @@map("holidays")
+}
+
+model SaturdayDutyAssignment {
+  id                String   @id @default(uuid()) @db.Uuid
+  unitId            String   @map("unit_id") @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
+  date              DateTime @db.Date
+  startTime         String?  @map("start_time") @db.VarChar(5)
+  lateGraceMinutes  Int?     @map("late_grace_minutes")
+  endTime           String?  @map("end_time") @db.VarChar(5)
+  overtimeStartTime String?  @map("overtime_start_time") @db.VarChar(5)
+  notes             String?  @db.Text
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([unitId, userId, date])
+  @@index([unitId, date])
+  @@index([userId, date])
+  @@map("saturday_duty_assignments")
 }
 
 model LeaveRequest {

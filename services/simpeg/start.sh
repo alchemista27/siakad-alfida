@@ -19,6 +19,19 @@ fi
 echo "Applying SIMPEG Prisma migrations..."
 ./services/simpeg/api/node_modules/.bin/prisma migrate deploy --schema services/simpeg/api/prisma/schema.prisma
 
+# Reconcile provider holidays after migrations, then every six hours. A missing
+# provider key leaves the last successful calendar intact and disables polling.
+if [ -n "${API_INDONESIA_API_KEY:-}" ]; then
+  (
+    while :; do
+      node services/simpeg/api/dist/attendance/sync-national-holidays.cli.js || echo "SIMPEG holiday sync failed; retrying at next interval" >&2
+      sleep 21600
+    done
+  ) &
+else
+  echo "SIMPEG holiday sync disabled: API_INDONESIA_API_KEY is absent" >&2
+fi
+
 echo "Memulai SIMPEG API (NestJS) pada port 3001..."
 PORT=3001 node services/simpeg/api/dist/main.js &
 

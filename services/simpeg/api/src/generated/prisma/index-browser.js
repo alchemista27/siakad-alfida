@@ -130,7 +130,8 @@ exports.Prisma.UserScalarFieldEnum = {
   avatarUrl: 'avatarUrl',
   leaveQuota: 'leaveQuota',
   isActive: 'isActive',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.EmployeeProfileScalarFieldEnum = {
@@ -158,10 +159,36 @@ exports.Prisma.UnitScalarFieldEnum = {
 
 exports.Prisma.DepartmentScalarFieldEnum = {
   id: 'id',
+  unitId: 'unitId',
   name: 'name',
   code: 'code',
   description: 'description',
   isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  parentId: 'parentId',
+  leaderId: 'leaderId'
+};
+
+exports.Prisma.DepartmentMemberScalarFieldEnum = {
+  id: 'id',
+  departmentId: 'departmentId',
+  userId: 'userId',
+  role: 'role',
+  sourceCreatedAt: 'sourceCreatedAt',
+  sourceUpdatedAt: 'sourceUpdatedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrganizationImportReceiptScalarFieldEnum = {
+  id: 'id',
+  source: 'source',
+  entity: 'entity',
+  sourceId: 'sourceId',
+  payloadHash: 'payloadHash',
+  sourceVersion: 'sourceVersion',
+  appliedAt: 'appliedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -209,6 +236,26 @@ exports.Prisma.OrganizationSyncOutboxScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.AuthRoleCompensationScalarFieldEnum = {
+  id: 'id',
+  localAssignmentId: 'localAssignmentId',
+  scope: 'scope',
+  userId: 'userId',
+  scopeId: 'scopeId',
+  app: 'app',
+  role: 'role',
+  requestedById: 'requestedById',
+  authAssignmentId: 'authAssignmentId',
+  idempotencyKey: 'idempotencyKey',
+  status: 'status',
+  attemptCount: 'attemptCount',
+  lastError: 'lastError',
+  availableAt: 'availableAt',
+  deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.EmployeeUnitAssignmentScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -233,6 +280,18 @@ exports.Prisma.GpsAttendanceConfigScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.UnitWorkScheduleScalarFieldEnum = {
+  id: 'id',
+  unitId: 'unitId',
+  weekday: 'weekday',
+  isWorkday: 'isWorkday',
+  startTime: 'startTime',
+  lateGraceMinutes: 'lateGraceMinutes',
+  endTime: 'endTime',
+  overtimeStartTime: 'overtimeStartTime',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.GpsAttendanceScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -240,6 +299,8 @@ exports.Prisma.GpsAttendanceScalarFieldEnum = {
   date: 'date',
   checkInTime: 'checkInTime',
   checkOutTime: 'checkOutTime',
+  workScheduleSnapshot: 'workScheduleSnapshot',
+  overtimeMinutes: 'overtimeMinutes',
   latitude: 'latitude',
   longitude: 'longitude',
   status: 'status',
@@ -253,7 +314,24 @@ exports.Prisma.HolidayScalarFieldEnum = {
   date: 'date',
   name: 'name',
   description: 'description',
+  source: 'source',
+  providerKey: 'providerKey',
+  providerSyncedAt: 'providerSyncedAt',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.SaturdayDutyAssignmentScalarFieldEnum = {
+  id: 'id',
+  unitId: 'unitId',
+  userId: 'userId',
+  date: 'date',
+  startTime: 'startTime',
+  lateGraceMinutes: 'lateGraceMinutes',
+  endTime: 'endTime',
+  overtimeStartTime: 'overtimeStartTime',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.LeaveRequestScalarFieldEnum = {
@@ -334,6 +412,11 @@ exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -355,10 +438,25 @@ exports.DepartmentAdminRole = exports.$Enums.DepartmentAdminRole = {
 
 exports.OrganizationSyncAggregate = exports.$Enums.OrganizationSyncAggregate = {
   department: 'department',
+  department_member: 'department_member',
+  unit: 'unit',
   user: 'user'
 };
 
 exports.OrganizationSyncStatus = exports.$Enums.OrganizationSyncStatus = {
+  pending: 'pending',
+  processing: 'processing',
+  delivered: 'delivered',
+  failed: 'failed'
+};
+
+exports.AuthRoleCompensationScope = exports.$Enums.AuthRoleCompensationScope = {
+  unit: 'unit',
+  department: 'department'
+};
+
+exports.AuthRoleCompensationStatus = exports.$Enums.AuthRoleCompensationStatus = {
+  armed: 'armed',
   pending: 'pending',
   processing: 'processing',
   delivered: 'delivered',
@@ -405,13 +503,18 @@ exports.Prisma.ModelName = {
   EmployeeProfile: 'EmployeeProfile',
   Unit: 'Unit',
   Department: 'Department',
+  DepartmentMember: 'DepartmentMember',
+  OrganizationImportReceipt: 'OrganizationImportReceipt',
   DepartmentAdminAssignment: 'DepartmentAdminAssignment',
   UnitAdminAssignment: 'UnitAdminAssignment',
   OrganizationSyncOutbox: 'OrganizationSyncOutbox',
+  AuthRoleCompensation: 'AuthRoleCompensation',
   EmployeeUnitAssignment: 'EmployeeUnitAssignment',
   GpsAttendanceConfig: 'GpsAttendanceConfig',
+  UnitWorkSchedule: 'UnitWorkSchedule',
   GpsAttendance: 'GpsAttendance',
   Holiday: 'Holiday',
+  SaturdayDutyAssignment: 'SaturdayDutyAssignment',
   LeaveRequest: 'LeaveRequest',
   LiqoGroup: 'LiqoGroup',
   LiqoMember: 'LiqoMember',

@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Delete,
   Body,
   Param,
@@ -16,6 +17,7 @@ import {
   UpsertGpsConfigDto,
   UpsertHolidayDto,
   UpsertSaturdayDutyAssignmentDto,
+  UpsertUnitWorkScheduleDto,
 } from "./attendance.dto";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 import { SimpegRoles, SimpegRolesGuard } from "../common/guards/simpeg-roles.guard";
@@ -80,6 +82,21 @@ export class AttendanceController {
   @SimpegRoles("super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik")
   async upsertConfig(@Body(strictValidation) dto: UpsertGpsConfigDto, @Req() req: any) {
     return this.attendanceService.upsertGpsConfig(dto, req.user);
+  }
+
+  @Get("work-schedules")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles(...HOLIDAY_AND_DUTY_MANAGER_ROLES)
+  async getWorkSchedules(@Query("unitId") unitId: string, @Req() req: any) {
+    return this.attendanceService.getWorkSchedules(unitId, req.user);
+  }
+
+  @Put("work-schedules/:unitId/:weekday")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles(...HOLIDAY_AND_DUTY_MANAGER_ROLES)
+  async upsertWorkSchedule(@Param("unitId") unitId: string, @Param("weekday") weekday: string,
+    @Body(strictValidation) dto: UpsertUnitWorkScheduleDto, @Req() req: any) {
+    return this.attendanceService.upsertWorkSchedule(unitId, Number(weekday), dto, req.user);
   }
 
   @Get("holidays")

@@ -27,7 +27,8 @@ async function main() {
     assert.ok((await validate(Object.assign(new UpsertHolidayDto(), invalid))).length > 0, "holiday DTO must reject malformed input");
   }
 
-  const validDuty = Object.assign(new UpsertSaturdayDutyAssignmentDto(), { unitId, userId, date: "2026-01-10", notes: "Piket gerbang" });
+  const hours = {startTime: "08:00", lateGraceMinutes: 10, endTime: "16:00", overtimeStartTime: "17:00"};
+  const validDuty = Object.assign(new UpsertSaturdayDutyAssignmentDto(), { unitId, userId, date: "2026-01-10", notes: "Piket gerbang", ...hours });
   assert.equal((await validate(validDuty)).length, 0, "valid Saturday duty input must pass DTO validation");
   assert.ok((await validate(Object.assign(new UpsertSaturdayDutyAssignmentDto(), { unitId, userId, date: "2026-01-09" }))).length > 0, "duty DTO must reject non-Saturday dates");
 
@@ -98,10 +99,19 @@ async function main() {
     "resource scope must be authorized before cross-unit holiday delete",
   );
   assert.deepEqual(audit, ["holiday:other"], "holiday delete must resolve the resource before authorizing and must not delete on denial");
-  await service.upsertHoliday({ date: "2026-01-09", name: "Hari Libur Nasional" }, hrAdmin);
+  await assert.rejects(
+    () => service.upsertHoliday({ date: "2026-01-09", name: "Hari Libur Nasional" }, hrAdmin),
+    BadRequestException,
+    "national holidays must come from the provider, not manual POST",
+  );
 
   await service.upsertSaturdayDutyAssignment(validDuty, unitAdmin);
   assert.equal(audit.at(-1), "duty:create", "unit admin may create dated duty for an actively assigned employee in their own unit");
+  await assert.rejects(() => service.upsertSaturdayDutyAssignment({unitId, userId, date: "2026-01-10"}, unitAdmin), BadRequestException);
+  await assert.rejects(() => service.upsertSaturdayDutyAssignment({...validDuty, overtimeStartTime: "15:00"}, unitAdmin), BadRequestException);
+  await assert.rejects(() => service.upsertSaturdayDutyAssignment({...validDuty, unitId: otherUnitId}, unitAdmin), ForbiddenException);
+  await assert.rejects(() => service.upsertSaturdayDutyAssignment({...validDuty, id: "duty", startTime: "bad"}, unitAdmin), BadRequestException);
+  await service.upsertSaturdayDutyAssignment({id: "duty", unitId, userId, date: "2026-01-10"}, unitAdmin);
   await assert.rejects(
     () => service.upsertSaturdayDutyAssignment({ unitId, userId: otherUserId, date: "2026-01-10" }, unitAdmin),
     (error: unknown) => error instanceof BadRequestException,
@@ -125,6 +135,7 @@ async function main() {
     leaveRequest: { async findMany() { return [{ userId, status: "approved", startDate: date("2026-01-07"), endDate: date("2026-01-07") }]; } },
     holiday: { async findMany() { return [{ id: "national", unitId: null, date: date("2026-01-06"), name: "Libur Nasional" }]; } },
     saturdayDutyAssignment: { async findMany() { return [{ id: "duty", unitId, userId, date: date("2026-01-10"), notes: null }]; } },
+    unitWorkSchedule: {async findMany() {return []; }},
   };
   const recap = await new AttendanceService(recapPrisma).getAttendanceRecap("2026-01-04", "2026-01-10");
   assert.deepEqual(
@@ -138,6 +149,7 @@ async function main() {
       late: 0,
       leave: 1,
       totalLogs: 1,
+      overtimeMinutes: 0,
       expectedWorkdays: 4,
       exemptWorkdays: 3,
       unrecordedRequiredDays: 3,

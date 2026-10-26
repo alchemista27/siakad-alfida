@@ -1,5 +1,7 @@
 import {
   IsInt,
+  IsBoolean,
+  IsDateString,
   IsLatitude,
   IsLongitude,
   IsNotEmpty,
@@ -18,8 +20,41 @@ import {
 } from "class-validator";
 import { Type } from "class-transformer";
 import { utcDate } from "./workday-policy";
+import { hhmmMinutes } from "./jakarta-worktime";
 
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+const HHMM = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
+
+export function validWorkHours(input: {startTime?: string | null; lateGraceMinutes?: number | null; endTime?: string | null; overtimeStartTime?: string | null}): boolean {
+  const { startTime, lateGraceMinutes, endTime, overtimeStartTime } = input;
+  if (!startTime || !endTime || !overtimeStartTime || !Number.isInteger(lateGraceMinutes) ||
+      (lateGraceMinutes as number) < 0 || (lateGraceMinutes as number) > 180 ||
+      !HHMM.test(startTime) || !HHMM.test(endTime) || !HHMM.test(overtimeStartTime)) return false;
+  return hhmmMinutes(startTime) < hhmmMinutes(endTime) && hhmmMinutes(endTime) <= hhmmMinutes(overtimeStartTime) &&
+    hhmmMinutes(startTime) + (lateGraceMinutes as number) < 1440;
+}
+
+@ValidatorConstraint({ name: 'validSchedule', async: false })
+class ValidScheduleConstraint implements ValidatorConstraintInterface {
+  validate(_value: unknown, args: { object: object }): boolean {
+    const input = args.object as UpsertUnitWorkScheduleDto;
+    return input.isWorkday === false
+      ? [input.startTime, input.lateGraceMinutes, input.endTime, input.overtimeStartTime].every(value => value === undefined || value === null)
+      : input.isWorkday === true && validWorkHours(input);
+  }
+  defaultMessage(): string { return 'Jam jadwal kerja tidak valid atau tidak lengkap.'; }
+}
+
+export class UpsertUnitWorkScheduleDto {
+  @IsBoolean()
+  @Validate(ValidScheduleConstraint)
+  isWorkday!: boolean;
+
+  @IsOptional() @Matches(HHMM) startTime?: string;
+  @IsOptional() @IsInt() @Min(0) @Max(180) lateGraceMinutes?: number;
+  @IsOptional() @Matches(HHMM) endTime?: string;
+  @IsOptional() @Matches(HHMM) overtimeStartTime?: string;
+}
 
 @ValidatorConstraint({ name: "isUtcSaturday", async: false })
 class IsUtcSaturdayConstraint implements ValidatorConstraintInterface {
@@ -47,6 +82,15 @@ export class GpsCheckInOutDto {
   @IsNumber({ allowInfinity: false, allowNaN: false })
   @IsLongitude()
   longitude!: number;
+
+  @IsOptional() @IsNumber({ allowInfinity: false, allowNaN: false }) @Min(0) @Max(50)
+  accuracyMeters?: number;
+
+  @IsOptional() @IsDateString()
+  capturedAt?: string;
+
+  @IsOptional() @IsBoolean()
+  mocked?: boolean;
 }
 
 export class UpsertGpsConfigDto {
@@ -112,4 +156,9 @@ export class UpsertSaturdayDutyAssignmentDto {
   @IsString()
   @Length(1, 1000)
   notes?: string;
+
+  @IsOptional() @Matches(HHMM) startTime?: string;
+  @IsOptional() @IsInt() @Min(0) @Max(180) lateGraceMinutes?: number;
+  @IsOptional() @Matches(HHMM) endTime?: string;
+  @IsOptional() @Matches(HHMM) overtimeStartTime?: string;
 }

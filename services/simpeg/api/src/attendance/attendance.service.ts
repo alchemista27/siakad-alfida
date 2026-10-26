@@ -6,10 +6,13 @@ import {
   UpsertGpsConfigDto,
   UpsertHolidayDto,
   UpsertSaturdayDutyAssignmentDto,
+  UpsertUnitWorkScheduleDto,
+  validWorkHours,
 } from "./attendance.dto";
 import { calculateDistance } from "./attendance.utils";
 import { GpsAttendanceStatus } from "../generated/prisma";
 import { resolveWorkdayPolicy, toUtcDateKey, utcDate } from "./workday-policy";
+import { jakartaDateKey, jakartaMinutes, hhmmMinutes, overtimeMinutesFor } from "./jakarta-worktime";
 
 type Principal = { roles?: unknown };
 type DatedAssignment = {
@@ -24,6 +27,30 @@ type DatedAssignment = {
 @Injectable()
 export class AttendanceService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private get schedules() { return this.prisma.unitWorkSchedule; }
+
+  async getWorkSchedules(unitId: string, principal: Principal) {
+    if (!canManageUnit(principal?.roles, unitId)) throw new ForbiddenException("Anda tidak berwenang melihat jadwal unit ini.");
+    await this.assertActiveUnit(unitId);
+    return this.schedules.findMany({ where: { unitId }, orderBy: { weekday: "asc" } });
+  }
+
+  async upsertWorkSchedule(unitId: string, weekday: number, dto: UpsertUnitWorkScheduleDto, principal: Principal) {
+    if (!canManageUnit(principal?.roles, unitId)) throw new ForbiddenException("Anda tidak berwenang mengatur jadwal unit ini.");
+    if (!Number.isInteger(weekday) || weekday < 0 || weekday > 6) throw new BadRequestException("Hari harus 0–6.");
+    if (dto.isWorkday !== true && dto.isWorkday !== false) throw new BadRequestException("Status hari kerja tidak valid.");
+    if (dto.isWorkday ? !validWorkHours(dto) :
+      [dto.startTime, dto.lateGraceMinutes, dto.endTime, dto.overtimeStartTime].some(value => value !== undefined && value !== null)) {
+      throw new BadRequestException("Jam jadwal kerja tidak valid atau tidak lengkap.");
+    }
+    await this.assertActiveUnit(unitId);
+    const data = { isWorkday: dto.isWorkday, startTime: dto.isWorkday ? dto.startTime! : null,
+      lateGraceMinutes: dto.isWorkday ? dto.lateGraceMinutes! : null,
+      endTime: dto.isWorkday ? dto.endTime! : null, overtimeStartTime: dto.isWorkday ? dto.overtimeStartTime! : null };
+    return this.schedules.upsert({ where: { unitId_weekday: { unitId, weekday } },
+      create: { unitId, weekday, ...data }, update: data });
+  }
 
   private isGlobalHolidayManager(principal?: Principal): boolean {
     if (!Array.isArray(principal?.roles)) return false;
@@ -96,13 +123,13 @@ export class AttendanceService {
   }
 
   async getTodayAttendanceContext(userId: string, now = new Date()) {
-    const day = utcDate(now);
+    const day = utcDate(jakartaDateKey(now));
     const assignment = await this.findActiveAssignment(userId, day);
     if (!assignment) {
       throw new BadRequestException("Anda belum memiliki penugasan unit kerja aktif.");
     }
 
-    const [config, holiday, dutyAssignment, leave, attendance] = await Promise.all([
+    const [config, holiday, dutyAssignment, leave, attendance, schedule] = await Promise.all([
       this.prisma.gpsAttendanceConfig.findUnique({ where: { unitId: assignment.unitId } }),
       this.prisma.holiday.findFirst({
         where: { date: day, OR: [{ unitId: null }, { unitId: assignment.unitId }] },
@@ -116,13 +143,28 @@ export class AttendanceService {
       this.prisma.gpsAttendance.findUnique({
         where: { userId_date: { userId, date: day } },
       }),
+      this.schedules.findUnique({ where: { unitId_weekday: { unitId: assignment.unitId, weekday: day.getUTCDay() } } }),
     ]);
     const workday = resolveWorkdayPolicy({
       date: day,
       hasHoliday: Boolean(holiday),
       hasApprovedLeave: Boolean(leave),
       hasSaturdayDuty: Boolean(dutyAssignment),
+      configuredIsWorkday: schedule?.isWorkday,
     });
+
+    const duty = dutyAssignment as typeof dutyAssignment & {startTime?: string | null; lateGraceMinutes?: number | null; endTime?: string | null; overtimeStartTime?: string | null};
+    const sourceHours = day.getUTCDay() === 6 && dutyAssignment
+      ? validWorkHours(duty) ? duty : schedule?.isWorkday && validWorkHours(schedule) ? schedule : null
+      : schedule?.isWorkday && validWorkHours(schedule) ? schedule : null;
+    const workSchedule = {
+      startTime: sourceHours?.startTime ?? "07:15",
+      lateGraceMinutes: sourceHours?.lateGraceMinutes ?? 0,
+      endTime: sourceHours?.endTime ?? null,
+      overtimeStartTime: sourceHours?.overtimeStartTime ?? null,
+      timezone: "Asia/Jakarta" as const,
+      source: (day.getUTCDay() === 6 && dutyAssignment && sourceHours === duty ? "duty" : sourceHours ? "unit" : "legacy") as "duty" | "unit" | "legacy",
+    };
 
     return {
       date: toUtcDateKey(day),
@@ -133,6 +175,7 @@ export class AttendanceService {
       dutyAssignment,
       leave,
       workday,
+      workSchedule,
       attendance,
     };
   }
@@ -143,6 +186,22 @@ export class AttendanceService {
     }
     if (!context.config) {
       throw new BadRequestException(`Konfigurasi GPS untuk unit ${context.unitName} belum diatur.`);
+    }
+  }
+
+  /** Advisory quality checks only: device-reported fields are not attestation. */
+  private assertLocationEvidence(dto: GpsCheckInOutDto, radiusMeters: number, now: Date): void {
+    if (dto.mocked === true) throw new BadRequestException("Lokasi mock terdeteksi.");
+    if (dto.mocked !== undefined && dto.mocked !== false) throw new BadRequestException("Status lokasi tidak valid.");
+    const supplied = dto.accuracyMeters !== undefined || dto.capturedAt !== undefined || dto.mocked !== undefined;
+    if (!supplied) return; // Legacy web check-in/out sends coordinates only.
+    if (typeof dto.accuracyMeters !== "number" || !Number.isFinite(dto.accuracyMeters) ||
+      dto.accuracyMeters < 0 || dto.accuracyMeters > Math.min(50, radiusMeters)) {
+      throw new BadRequestException("Akurasi lokasi tidak memadai.");
+    }
+    const captured = typeof dto.capturedAt === "string" ? Date.parse(dto.capturedAt) : NaN;
+    if (!Number.isFinite(captured) || captured < now.getTime() - 15_000 || captured > now.getTime() + 5_000) {
+      throw new BadRequestException("Fix lokasi sudah kedaluwarsa atau waktunya tidak valid.");
     }
   }
 
@@ -160,10 +219,11 @@ export class AttendanceService {
         `Anda berada di luar jangkauan lokasi unit (${Math.round(distance)}m). Maksimum radius: ${context.config.radiusMeters}m.`,
       );
     }
+    this.assertLocationEvidence(dto, context.config.radiusMeters, now);
 
-    const cutoff = new Date(now);
-    cutoff.setUTCHours(7, 15, 0, 0);
-    const status = now > cutoff ? GpsAttendanceStatus.late : GpsAttendanceStatus.present;
+    const { workSchedule } = context;
+    const status = jakartaMinutes(now) > hhmmMinutes(workSchedule.startTime) + workSchedule.lateGraceMinutes
+      ? GpsAttendanceStatus.late : GpsAttendanceStatus.present;
 
     return this.prisma.gpsAttendance.create({
       data: {
@@ -174,13 +234,15 @@ export class AttendanceService {
         latitude: dto.latitude,
         longitude: dto.longitude,
         status,
-      },
+        workScheduleSnapshot: workSchedule,
+        overtimeMinutes: 0,
+      } as any,
     });
   }
 
   async checkOut(userId: string, dto: GpsCheckInOutDto, now = new Date()) {
     const context = await this.getTodayAttendanceContext(userId, now);
-    this.assertAttendanceRequired(context);
+    if (!context.config) throw new BadRequestException(`Konfigurasi GPS untuk unit ${context.unitName} belum diatur.`);
 
     if (!context.attendance?.checkInTime) {
       throw new BadRequestException("Anda belum melakukan check in hari ini.");
@@ -195,20 +257,42 @@ export class AttendanceService {
         `Anda berada di luar jangkauan lokasi unit (${Math.round(distance)}m). Maksimum radius: ${context.config.radiusMeters}m.`,
       );
     }
+    this.assertLocationEvidence(dto, context.config.radiusMeters, now);
 
-    return this.prisma.gpsAttendance.update({
-      where: { id: context.attendance.id },
-      data: { checkOutTime: now },
+    const stored = context.attendance as typeof context.attendance & {workScheduleSnapshot?: unknown};
+    const snapshot = stored.workScheduleSnapshot;
+    const overtimeStartTime = snapshot && typeof snapshot === "object" && !Array.isArray(snapshot) &&
+      typeof (snapshot as {overtimeStartTime?: unknown}).overtimeStartTime === "string"
+      ? (snapshot as {overtimeStartTime: string}).overtimeStartTime : null;
+    if (jakartaDateKey(context.attendance.checkInTime) !== context.date || jakartaDateKey(now) !== context.date || now <= context.attendance.checkInTime) {
+      throw new BadRequestException("Check out harus pada hari WIB yang sama setelah check in.");
+    }
+    const overtimeMinutes = overtimeMinutesFor({ date: context.date, checkIn: context.attendance.checkInTime,
+      checkOut: now, overtimeStartTime });
+    const updated = await this.prisma.gpsAttendance.updateMany({
+      where: { id: context.attendance.id, checkOutTime: null },
+      data: { checkOutTime: now, overtimeMinutes } as any,
     });
+    if (updated.count !== 1) throw new BadRequestException("Anda sudah melakukan check out hari ini.");
+    return this.prisma.gpsAttendance.findUnique({ where: { id: context.attendance.id } });
   }
 
   async getMyAttendanceHistory(userId: string, month: number, year: number) {
     const startDate = utcDate(`${year}-${String(month).padStart(2, "0")}-01`);
     const endDate = new Date(Date.UTC(year, month, 0));
-    return this.prisma.gpsAttendance.findMany({
+    const rows = await this.prisma.gpsAttendance.findMany({
       where: { userId, date: { gte: startDate, lte: endDate } },
       orderBy: { date: "desc" },
     });
+    return rows.map(row => ({ ...row, overtimeMinutes: this.validRecordedOvertime(row) }));
+  }
+
+  private validRecordedOvertime(row: {date: Date; checkInTime: Date | null; checkOutTime: Date | null}): number {
+    const recorded = (row as typeof row & {overtimeMinutes?: number}).overtimeMinutes;
+    const date = toUtcDateKey(row.date);
+    return row.checkInTime && row.checkOutTime && jakartaDateKey(row.checkInTime) === date &&
+      jakartaDateKey(row.checkOutTime) === date && row.checkOutTime > row.checkInTime &&
+      Number.isInteger(recorded) && (recorded as number) >= 0 ? recorded as number : 0;
   }
 
   private datesInRange(start: Date, end: Date): Date[] {
@@ -244,7 +328,7 @@ export class AttendanceService {
       orderBy: { fullName: "asc" },
     });
     const userIds = users.map((user) => user.id);
-    const [attendances, leaves, holidays, duties] = await Promise.all([
+    const [attendances, leaves, holidays, duties, schedules] = await Promise.all([
       this.prisma.gpsAttendance.findMany({
         where: { date: { gte: start, lte: end }, ...(unitId ? { unitId } : {}) },
       }),
@@ -255,6 +339,7 @@ export class AttendanceService {
       this.prisma.saturdayDutyAssignment.findMany({
         where: { date: { gte: start, lte: end }, ...(userIds.length ? { userId: { in: userIds } } : {}) },
       }),
+      this.schedules.findMany({ where: unitId ? {unitId} : {unitId: {in: [...new Set(users.flatMap(user => user.unitAssignments.map(item => item.unitId)))]}} }),
     ]);
     const days = this.datesInRange(start, end);
 
@@ -274,7 +359,9 @@ export class AttendanceService {
         const holiday = holidays.some((item) => toUtcDateKey(item.date) === toUtcDateKey(day) && (item.unitId === null || item.unitId === assignment?.unitId));
         const leave = userLeaves.some((item) => item.startDate <= day && item.endDate >= day);
         const duty = duties.some((item) => item.userId === user.id && item.unitId === assignment?.unitId && toUtcDateKey(item.date) === toUtcDateKey(day));
-        const policy = resolveWorkdayPolicy({ date: day, hasHoliday: holiday, hasApprovedLeave: leave, hasSaturdayDuty: duty });
+        const schedule = schedules.find((item: any) => item.unitId === assignment?.unitId && item.weekday === day.getUTCDay());
+        const policy = resolveWorkdayPolicy({ date: day, hasHoliday: holiday, hasApprovedLeave: leave,
+          hasSaturdayDuty: duty, configuredIsWorkday: schedule?.isWorkday });
 
         if (policy.required) {
           expectedWorkdays += 1;
@@ -297,6 +384,7 @@ export class AttendanceService {
         late: lateCount,
         leave: leaveDays,
         totalLogs: userAttendances.length,
+        overtimeMinutes: userAttendances.reduce((total, attendance) => total + this.validRecordedOvertime(attendance), 0),
         expectedWorkdays,
         exemptWorkdays,
         unrecordedRequiredDays,
@@ -358,14 +446,17 @@ export class AttendanceService {
       const holiday = await this.prisma.holiday.findUnique({ where: { id: dto.id } });
       if (!holiday) throw new NotFoundException("Hari libur tidak ditemukan.");
       this.assertCanManageHoliday(principal, holiday.unitId);
+      if (holiday.unitId === null) throw new BadRequestException("Hari libur nasional berasal dari provider dan tidak dapat diedit manual.");
       const data = dataFor(holiday.unitId);
       this.assertCanManageHoliday(principal, data.unitId);
+      if (data.unitId === null) throw new BadRequestException("Hari libur nasional berasal dari provider.");
       if (data.unitId) await this.assertActiveUnit(data.unitId);
       return this.prisma.holiday.update({ where: { id: holiday.id }, data });
     }
 
     const data = dataFor(null);
     this.assertCanManageHoliday(principal, data.unitId);
+    if (data.unitId === null) throw new BadRequestException("Hari libur nasional berasal dari provider.");
     if (data.unitId) await this.assertActiveUnit(data.unitId);
     return this.prisma.holiday.create({ data });
   }
@@ -374,6 +465,7 @@ export class AttendanceService {
     const holiday = await this.prisma.holiday.findUnique({ where: { id } });
     if (!holiday) throw new NotFoundException("Hari libur tidak ditemukan.");
     this.assertCanManageHoliday(principal, holiday.unitId);
+    if (holiday.unitId === null) throw new BadRequestException("Hari libur nasional berasal dari provider dan tidak dapat dihapus manual.");
     return this.prisma.holiday.delete({ where: { id: holiday.id } });
   }
 
@@ -389,6 +481,14 @@ export class AttendanceService {
 
   async upsertSaturdayDutyAssignment(dto: UpsertSaturdayDutyAssignmentDto, principal: Principal) {
     const day = utcDate(dto.date);
+    const hasHours = [dto.startTime, dto.lateGraceMinutes, dto.endTime, dto.overtimeStartTime]
+      .some((value) => value !== undefined && value !== null);
+    const hours = hasHours ? {
+      startTime: dto.startTime,
+      lateGraceMinutes: dto.lateGraceMinutes,
+      endTime: dto.endTime,
+      overtimeStartTime: dto.overtimeStartTime,
+    } : {};
     const data = {
       unitId: dto.unitId,
       userId: dto.userId,
@@ -401,15 +501,17 @@ export class AttendanceService {
       if (!duty) throw new NotFoundException("Piket Sabtu tidak ditemukan.");
       this.assertCanManageDuty(principal, duty.unitId);
       this.assertCanManageDuty(principal, data.unitId);
+      if (hasHours && !validWorkHours(dto)) throw new BadRequestException("Jam piket tidak valid atau tidak lengkap.");
       await this.assertActiveUnit(data.unitId);
       await this.assertActiveDutyAssignment(data.userId, data.unitId, day);
-      return this.prisma.saturdayDutyAssignment.update({ where: { id: duty.id }, data });
+      return this.prisma.saturdayDutyAssignment.update({ where: { id: duty.id }, data: { ...data, ...hours } as any });
     }
 
     this.assertCanManageDuty(principal, data.unitId);
+    if (!validWorkHours(dto)) throw new BadRequestException("Jam piket tidak valid atau tidak lengkap.");
     await this.assertActiveUnit(data.unitId);
     await this.assertActiveDutyAssignment(data.userId, data.unitId, day);
-    return this.prisma.saturdayDutyAssignment.create({ data });
+    return this.prisma.saturdayDutyAssignment.create({ data: { ...data, ...hours } as any });
   }
 
   async deleteSaturdayDutyAssignment(id: string, principal: Principal) {

@@ -303,6 +303,22 @@ model GpsAttendanceConfig {
   @@map("gps_attendance_config")
 }
 
+model UnitWorkSchedule {
+  id                String   @id @default(uuid()) @db.Uuid
+  unitId            String   @map("unit_id") @db.Uuid
+  weekday           Int
+  isWorkday         Boolean  @default(false) @map("is_workday")
+  startTime         String?  @map("start_time") @db.VarChar(5)
+  lateGraceMinutes  Int?     @map("late_grace_minutes")
+  endTime           String?  @map("end_time") @db.VarChar(5)
+  overtimeStartTime String?  @map("overtime_start_time") @db.VarChar(5)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([unitId, weekday])
+  @@index([unitId])
+  @@map("unit_work_schedules")
+}
+
 model GpsAttendance {
   id           String              @id @default(uuid()) @db.Uuid
   userId       String              @map("user_id") @db.Uuid
@@ -310,6 +326,8 @@ model GpsAttendance {
   date         DateTime            @db.Date
   checkInTime  DateTime?           @map("check_in_time") @db.Timestamptz
   checkOutTime DateTime?           @map("check_out_time") @db.Timestamptz
+  workScheduleSnapshot Json?       @map("work_schedule_snapshot") @db.JsonB
+  overtimeMinutes Int              @default(0) @map("overtime_minutes")
   latitude     Float?
   longitude    Float?
   status       GpsAttendanceStatus
@@ -325,12 +343,15 @@ model GpsAttendance {
 }
 
 model Holiday {
-  id          String   @id @default(uuid()) @db.Uuid
-  unitId      String?  @map("unit_id") @db.Uuid
-  date        DateTime @db.Date
-  name        String   @db.VarChar(100)
-  description String?
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  id               String    @id @default(uuid()) @db.Uuid
+  unitId           String?   @map("unit_id") @db.Uuid
+  date             DateTime  @db.Date
+  name             String    @db.VarChar(100)
+  description      String?
+  source           String    @default("manual") @db.VarChar(16)
+  providerKey      String?   @unique @map("provider_key") @db.VarChar(160)
+  providerSyncedAt DateTime? @map("provider_synced_at") @db.Timestamptz
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   @@unique([unitId, date])
   @@index([date])
@@ -342,6 +363,10 @@ model SaturdayDutyAssignment {
   unitId    String   @map("unit_id") @db.Uuid
   userId    String   @map("user_id") @db.Uuid
   date      DateTime @db.Date
+  startTime         String? @map("start_time") @db.VarChar(5)
+  lateGraceMinutes  Int?    @map("late_grace_minutes")
+  endTime           String? @map("end_time") @db.VarChar(5)
+  overtimeStartTime String? @map("overtime_start_time") @db.VarChar(5)
   notes     String?  @db.Text
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
