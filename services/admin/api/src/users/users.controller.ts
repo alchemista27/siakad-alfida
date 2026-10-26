@@ -62,6 +62,15 @@ export class UsersController {
     return this.usersService.getPendingApprovals();
   }
 
+  @Get("units")
+  async getUnits() {
+    const data = await this.usersService.getUnits();
+    return {
+      success: true,
+      data,
+    };
+  }
+
   @Patch(":id/approve")
   async approveUser(@Param("id") id: string) {
     return this.usersService.approveUser(id);

@@ -282,6 +282,7 @@ model EmployeeUnitAssignment {
   endDate   DateTime? @map("end_date") @db.Date
   skNumber  String?   @map("sk_number") @db.VarChar(100)
   notes     String?   @db.Text
+  sourceKey String?   @unique @map("source_key") @db.VarChar(120)
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

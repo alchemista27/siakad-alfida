@@ -18,8 +18,8 @@ const FALLBACK_UNITS: UnitOption[] = [
   { id: "5edd8be0-86ac-406b-b23c-418b3e387528", name: "SD Islam Terpadu Iqra 3", slug: "sd-iqra-3" },
   { id: "a09edaf4-c656-4632-abf1-4c0a25150c98", name: "SMP Islam Terpadu Iqra", slug: "smp-iqra" },
   { id: "28225003-d1d3-4276-901c-f9a42a7cac69", name: "SMA Islam Terpadu Iqra", slug: "sma-iqra" },
-  { id: "e8d2e825-7b58-45e0-8260-84523b6920f7", name: "Pesantren Quran Alfida", slug: "pesantren-quran" },
-  { id: "11111111-1111-1111-1111-111111111111", name: "Kantor Pusat Yayasan Alfida", slug: "kantor-pusat" },
+  { id: "18d0d36c-aea5-4ba6-a89b-320f9a4f240d", name: "Pesantren Quran Alfida", slug: "pesantren-quran" },
+  { id: "fed6e093-3fe7-46f7-b5c4-7b33e95ea8bb", name: "Kantor Pusat Yayasan", slug: "kantor-pusat" },
 ];
 
 export function RegisterStaffForm() {

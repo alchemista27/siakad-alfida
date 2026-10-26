@@ -1,7 +1,9 @@
 import {
   Injectable,
   BadRequestException,
+  BadGatewayException,
   NotFoundException,
+  Optional,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import * as bcrypt from "bcryptjs";
@@ -13,10 +15,14 @@ import {
   BatchImportUsersDto,
 } from "./dto/users.dto";
 import { assertDirectRoleAssignment } from "./role-catalog";
+import { StaffApprovalProjectionClient } from "./staff-approval-projection.client";
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly staffProjection?: StaffApprovalProjectionClient,
+  ) {}
 
   async getUsers(params: {
     search?: string;
@@ -109,10 +115,46 @@ export class UsersService {
   async approveUser(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
+      include: { roles: true },
     });
 
     if (!user) {
       throw new NotFoundException("Pengguna tidak ditemukan");
+    }
+
+    const placement = this.staffPlacement(user.roles);
+    if (placement) {
+      if (!this.staffProjection) {
+        throw new BadGatewayException("Integrasi persetujuan penugasan SIMPEG tidak tersedia.");
+      }
+      this.staffProjection.assertConfigured();
+      const activated = await this.prisma.user.update({
+        where: { id: userId },
+        data: { isActive: true },
+      });
+      try {
+        await this.staffProjection.provision({
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          username: user.username ?? null,
+          phone: user.phone ?? null,
+          avatarUrl: user.avatarUrl ?? null,
+          unitId: placement.unitId,
+          employmentRole: placement.employmentRole,
+        });
+      } catch {
+        await this.prisma.user.update({ where: { id: userId }, data: { isActive: false } });
+        await this.prisma.session.deleteMany({ where: { userId } });
+        throw new BadGatewayException(
+          "Penugasan awal di SIMPEG gagal. Akun tetap menunggu persetujuan.",
+        );
+      }
+      return {
+        success: true,
+        message: `Akun ${user.fullName} (${user.email}) berhasil disetujui, diaktifkan, dan ditugaskan ke unit pilihan di SIMPEG.`,
+        user: { id: activated.id, email: activated.email, isActive: activated.isActive },
+      };
     }
 
     const updated = await this.prisma.user.update({
@@ -129,6 +171,17 @@ export class UsersService {
         isActive: updated.isActive,
       },
     };
+  }
+
+  private staffPlacement(roles: Array<{ app: string; role: string; unitId: string | null; departmentId?: string | null }>) {
+    const employeeRoles = roles.filter((role) => role.app === "simpeg" && role.role === "pegawai");
+    if (employeeRoles.length === 0) return null;
+    if (employeeRoles.length !== 1 || !employeeRoles[0].unitId) {
+      throw new BadRequestException("Akun staf harus memiliki tepat satu unit penugasan dari formulir registrasi.");
+    }
+    const unitId = employeeRoles[0].unitId;
+    const isTeacher = roles.some((role) => role.app === "siakad" && role.role === "guru" && role.unitId === unitId);
+    return { unitId, employmentRole: isTeacher ? "guru" as const : "karyawan" as const };
   }
 
   async rejectUser(userId: string) {
@@ -285,10 +338,14 @@ export class UsersService {
   async toggleUserStatus(userId: string, isActive: boolean) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
+      include: { roles: true },
     });
 
     if (!user) {
       throw new NotFoundException("Pengguna tidak ditemukan");
+    }
+    if (isActive && !user.isActive && this.staffPlacement(user.roles)) {
+      return this.approveUser(userId);
     }
 
     const updated = await this.prisma.user.update({
@@ -416,4 +473,30 @@ export class UsersService {
       message: `Pengguna ${user.fullName} (${user.email}) telah dihapus permanen`,
     };
   }
+
+  async getUnits() {
+    try {
+      const units = await (this.prisma as any).$queryRaw`
+        SELECT id, name, slug, category FROM sim.units WHERE is_active = true OR is_active IS NULL ORDER BY name ASC
+      `;
+      if (Array.isArray(units) && units.length > 0) {
+        return units;
+      }
+    } catch {
+      // Fallback ke unit kanonikal jika query sim.units gagal
+    }
+    return [
+      { id: "0f3505db-ba0b-48e3-a500-2de9790bdd63", name: "TK Islam Terpadu Auladuna 1", slug: "tk-auladuna-1", category: "pendidikan" },
+      { id: "9fe99902-40e0-48dd-9275-d73531584365", name: "TK Islam Terpadu Auladuna 2", slug: "tk-auladuna-2", category: "pendidikan" },
+      { id: "dcaa14b2-b20c-416a-ba90-9367016ce295", name: "SD Islam Terpadu Iqra 1", slug: "sd-iqra-1", category: "pendidikan" },
+      { id: "c09fb430-b5d3-4ae2-a6cc-2220430da453", name: "SD Islam Terpadu Iqra 2", slug: "sd-iqra-2", category: "pendidikan" },
+      { id: "5edd8be0-86ac-406b-b23c-418b3e387528", name: "SD Islam Terpadu Iqra 3", slug: "sd-iqra-3", category: "pendidikan" },
+      { id: "a09edaf4-c656-4632-abf1-4c0a25150c98", name: "SMP Islam Terpadu Iqra", slug: "smp-iqra", category: "pendidikan" },
+      { id: "28225003-d1d3-4276-901c-f9a42a7cac69", name: "SMA Islam Terpadu Iqra", slug: "sma-iqra", category: "pendidikan" },
+      { id: "18d0d36c-aea5-4ba6-a89b-320f9a4f240d", name: "Pesantren Quran Alfida", slug: "pesantren-alfida", category: "pendidikan" },
+      { id: "fed6e093-3fe7-46f7-b5c4-7b33e95ea8bb", name: "Kantor Pusat Yayasan", slug: "kantor-yayasan", category: "nondik" },
+    ];
+  }
+
+
 }

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { AdminShell } from "@/components/admin-shell";
+import { ConfirmActionModal } from "@/components/confirm-action-modal";
 
 interface PendingUser {
   id: string;
@@ -17,16 +18,14 @@ interface PendingUser {
   }>;
 }
 
-const UNIT_MAP: Record<string, string> = {
-  "0f3505db-ba0b-48e3-a500-2de9790bdd63": "TK Islam Terpadu Auladuna 1",
-  "9fe99902-40e0-48dd-9275-d73531584365": "TK Islam Terpadu Auladuna 2",
-  "dcaa14b2-b20c-416a-ba90-9367016ce295": "SD Islam Terpadu Iqra 1",
-  "c09fb430-b5d3-4ae2-a6cc-2220430da453": "SD Islam Terpadu Iqra 2",
-  "5edd8be0-86ac-406b-b23c-418b3e387528": "SD Islam Terpadu Iqra 3",
-  "a09edaf4-c656-4632-abf1-4c0a25150c98": "SMP Islam Terpadu Iqra",
-  "28225003-d1d3-4276-901c-f9a42a7cac69": "SMA Islam Terpadu Iqra",
-  "e8d2e825-7b58-45e0-8260-84523b6920f7": "Pesantren Quran Alfida",
-  "11111111-1111-1111-1111-111111111111": "Kantor Pusat Yayasan Alfida",
+type UnitOption = { id: string; name: string };
+
+type ConfirmAction = {
+  title: string;
+  description: string;
+  confirmLabel: string;
+  danger?: boolean;
+  onConfirm: () => Promise<void>;
 };
 
 export default function ApprovalsPage() {
@@ -34,6 +33,8 @@ export default function ApprovalsPage() {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [unitNames, setUnitNames] = useState<Record<string, string>>({});
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
 
   const fetchPending = async () => {
     setLoading(true);
@@ -56,6 +57,17 @@ export default function ApprovalsPage() {
 
   useEffect(() => {
     fetchPending();
+    let active = true;
+    fetch("/api/admin/users/units", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((payload) => {
+        if (!active || !Array.isArray(payload?.data)) return;
+        setUnitNames(Object.fromEntries(
+          (payload.data as UnitOption[]).map((unit) => [unit.id, unit.name]),
+        ));
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
   }, []);
 
   const handleApprove = async (id: string, name: string) => {
@@ -79,10 +91,6 @@ export default function ApprovalsPage() {
   };
 
   const handleReject = async (id: string, name: string) => {
-    if (!confirm(`Apakah Anda yakin ingin menolak dan menghapus pendaftaran untuk ${name}?`)) {
-      return;
-    }
-
     setProcessingId(id);
     setMessage(null);
     try {
@@ -182,7 +190,7 @@ export default function ApprovalsPage() {
                 <tbody className="divide-y divide-border text-xs">
                   {users.map((u) => {
                     const unitId = u.roles.find((r) => r.unitId)?.unitId;
-                    const unitName = unitId ? UNIT_MAP[unitId] || "Unit Belum Ditentukan" : "-";
+                    const unitName = unitId ? unitNames[unitId] || "Unit Belum Ditentukan" : "-";
                     const isGuru = u.roles.some((r) => r.role === "guru");
 
                     return (
@@ -222,17 +230,28 @@ export default function ApprovalsPage() {
                         <td className="py-3.5 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => handleApprove(u.id, u.fullName)}
+                              onClick={() => setConfirmAction({
+                                title: "Setujui Penugasan",
+                                description: `Setujui ${u.fullName} sebagai ${isGuru ? "guru" : "karyawan"} di ${unitName}, buat penugasan awal di SIMPEG, lalu aktifkan akunnya?`,
+                                confirmLabel: "Setujui Penugasan",
+                                onConfirm: async () => { await handleApprove(u.id, u.fullName); },
+                              })}
                               disabled={processingId === u.id}
                               className="px-3 py-1.5 rounded bg-tertiary hover:bg-[#0b6355] text-white font-semibold text-[11px] transition-colors flex items-center gap-1 shadow-sm disabled:opacity-50"
                             >
                               <span className="material-symbols-rounded text-[14px]">
                                 check
                               </span>
-                              <span>Setujui</span>
+                              <span>Setujui Penugasan</span>
                             </button>
                             <button
-                              onClick={() => handleReject(u.id, u.fullName)}
+                              onClick={() => setConfirmAction({
+                                title: "Tolak Pendaftaran",
+                                description: `Tolak dan hapus pendaftaran ${u.fullName}? Tindakan ini tidak dapat dibatalkan.`,
+                                confirmLabel: "Tolak Pendaftaran",
+                                danger: true,
+                                onConfirm: async () => { await handleReject(u.id, u.fullName); },
+                              })}
                               disabled={processingId === u.id}
                               className="px-3 py-1.5 rounded border border-red-200 text-red-600 hover:bg-red-50 font-semibold text-[11px] transition-colors flex items-center gap-1 disabled:opacity-50"
                             >
@@ -251,6 +270,17 @@ export default function ApprovalsPage() {
             </div>
           </div>
         )}
+        {confirmAction && <ConfirmActionModal
+          title={confirmAction.title}
+          description={confirmAction.description}
+          confirmLabel={confirmAction.confirmLabel}
+          danger={confirmAction.danger}
+          onClose={() => setConfirmAction(null)}
+          onConfirm={async () => {
+            await confirmAction.onConfirm();
+            setConfirmAction(null);
+          }}
+        />}
       </div>
     </AdminShell>
   );

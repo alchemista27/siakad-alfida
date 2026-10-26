@@ -24,6 +24,16 @@ interface UserItem {
   }>;
 }
 
+type UnitOption = { id: string; name: string };
+
+function requestedStaffUnitId(user: UserItem): string | null {
+  return user.roles.find((role) => role.app === "simpeg" && role.role === "pegawai")?.unitId ?? null;
+}
+
+function isPendingStaff(user: UserItem): boolean {
+  return !user.isActive && Boolean(requestedStaffUnitId(user));
+}
+
 export default function UsersPage() {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -50,6 +60,7 @@ export default function UsersPage() {
   } | null>(null);
 
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [unitNames, setUnitNames] = useState<Record<string, string>>({});
 
   // Add User Form
   const [newUserData, setNewUserData] = useState({
@@ -103,10 +114,42 @@ export default function UsersPage() {
     fetchUsers();
   }, [page, appFilter, statusFilter]);
 
+  useEffect(() => {
+    let active = true;
+    fetch("/api/admin/users/units", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((payload) => {
+        if (!active || !Array.isArray(payload?.data)) return;
+        setUnitNames(Object.fromEntries(
+          (payload.data as UnitOption[]).map((unit) => [unit.id, unit.name]),
+        ));
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, []);
+
+  const unitLabel = (unitId: string) => unitNames[unitId] || "Unit penugasan tidak tersedia";
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
     fetchUsers();
+  };
+
+  const handleApproveStaff = async (user: UserItem) => {
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}/approve`, {
+        method: "PATCH",
+        credentials: "include",
+      });
+      const body = await res.json().catch(() => null) as { message?: string | string[] } | null;
+      const detail = Array.isArray(body?.message) ? body.message.join(" ") : body?.message;
+      if (!res.ok) throw new Error(detail || "Gagal menyetujui penugasan staf.");
+      setMessage({ text: detail || `Penugasan ${user.fullName} berhasil disetujui.`, type: "success" });
+      await fetchUsers();
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : "Gagal menyetujui penugasan staf.", type: "error" });
+    }
   };
 
   const handleToggleStatus = async (user: UserItem) => {
@@ -424,6 +467,7 @@ export default function UsersPage() {
                                 className="px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-700 border border-gray-200"
                               >
                                 <strong>{r.app}:</strong> {r.role}
+                                {r.unitId ? <span className="text-gray-500"> · {unitLabel(r.unitId)}</span> : null}
                               </span>
                             ))
                           ) : (
@@ -432,22 +476,42 @@ export default function UsersPage() {
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <button
-                          onClick={() => handleToggleStatus(u)}
-                          className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-colors ${
-                            u.isActive
-                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100"
-                              : "bg-red-50 text-red-700 border border-red-200 hover:bg-red-100"
-                          }`}
-                        >
-                          {u.isActive ? "Aktif" : "Nonaktif"}
-                        </button>
+                        {isPendingStaff(u) ? (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                            Menunggu persetujuan
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleToggleStatus(u)}
+                            className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-colors ${
+                              u.isActive
+                                ? "bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100"
+                                : "bg-red-50 text-red-700 border border-red-200 hover:bg-red-100"
+                            }`}
+                          >
+                            {u.isActive ? "Aktif" : "Nonaktif"}
+                          </button>
+                        )}
                       </td>
                       <td className="py-3 px-4 text-[11px] text-gray-500">
                         {new Date(u.createdAt).toLocaleDateString("id-ID")}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          {isPendingStaff(u) && requestedStaffUnitId(u) ? (
+                            <button
+                              onClick={() => setConfirmAction({
+                                title: "Setujui Penugasan",
+                                description: `Setujui ${u.fullName} sebagai ${u.roles.some((role) => role.app === "siakad" && role.role === "guru") ? "guru" : "karyawan"} di ${unitLabel(requestedStaffUnitId(u)!)}, lalu aktifkan akunnya?`,
+                                confirmLabel: "Setujui Penugasan",
+                                onConfirm: async () => { await handleApproveStaff(u); },
+                              })}
+                              className="p-1 rounded text-tertiary hover:bg-[#e6f4f1]"
+                              title="Setujui Penugasan"
+                            >
+                              <span className="material-symbols-rounded text-[18px]">assignment_turned_in</span>
+                            </button>
+                          ) : null}
                           <button
                             onClick={() => setRoleUser(u)}
                             className="p-1 rounded text-gray-500 hover:text-primary hover:bg-gray-100"

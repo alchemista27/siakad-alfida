@@ -9,6 +9,7 @@ import { DepartmentsModule } from "./departments/departments.module";
 import { OrganizationSyncModule } from "./organization-sync/organization-sync.module";
 import { BpiModule } from "./bpi/bpi.module";
 import { YmqEmployeeProjectionModule } from "./ymq-projection/ymq-employee-projection.module";
+import { StaffApprovalProjectionModule } from "./staff-approval-projection/staff-approval-projection.module";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { YmqEmployeeProjectionModule } from "./ymq-projection/ymq-employee-proje
     OrganizationSyncModule,
     BpiModule,
     YmqEmployeeProjectionModule,
+    StaffApprovalProjectionModule,
   ],
 })
 export class AppModule {}
