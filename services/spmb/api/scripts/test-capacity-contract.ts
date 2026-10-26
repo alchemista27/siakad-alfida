@@ -7,7 +7,10 @@ function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
-function createBarrierRepository(quota: number) {
+function createBarrierRepository(
+  quota: number,
+  initialCounter: { periodId: string; nextSequence: number; intakeReserved: number; acceptedCount: number } | null = null,
+) {
   const period = {
     id: "period-concurrency-1",
     unitId: "unit-1",
@@ -19,7 +22,7 @@ function createBarrierRepository(quota: number) {
     fee: 250000,
   };
 
-  let counter: { periodId: string; nextSequence: number; intakeReserved: number; acceptedCount: number } = {
+  let counter: { periodId: string; nextSequence: number; intakeReserved: number; acceptedCount: number } = initialCounter ?? {
     periodId: period.id,
     nextSequence: 1,
     intakeReserved: 0,
@@ -208,6 +211,23 @@ function createBarrierRepository(quota: number) {
 }
 
 async function run() {
+  const historicalHarness = createBarrierRepository(10, {
+    periodId: "period-concurrency-1",
+    nextSequence: 8,
+    intakeReserved: 7,
+    acceptedCount: 2,
+  });
+  const historicalCapacityService = new AdmissionCapacityService(historicalHarness.client);
+  const historicalAllocation = await historicalCapacityService.allocateRegistrationNumber(
+    historicalHarness.client,
+    "period-concurrency-1",
+  );
+  assert(historicalAllocation.sequence === 8, "backfilled counter must continue after the largest registration suffix");
+  assert(historicalAllocation.registrationNumber === "PPDB-SDIT-1-2026-0008", "new draft must not reuse an historic registration number");
+  const historicalCounter = historicalHarness.getCounter();
+  assert(historicalCounter.nextSequence === 9, "allocation must advance the persisted sequence");
+  assert(historicalCounter.intakeReserved === 8, "allocation must retain historical reserved capacity");
+
   const quota = 5;
   const harness = createBarrierRepository(quota);
   const capacityService = new AdmissionCapacityService(harness.client);
