@@ -8,7 +8,7 @@ import {
   apiRequest,
   getStageRouteForRegistration,
   loadParentRegistration,
-  uploadPrivateDocument,
+  uploadDocumentToCloudinary,
   type ParentRegistration,
 } from "@/lib/spmb-registration";
 
@@ -40,7 +40,7 @@ export default function ParentMedicalPage() {
     setBusy(true);
     setNotice(null);
     try {
-      await uploadPrivateDocument(registration.id, "medical_result", medicalFile);
+      await uploadDocumentToCloudinary(registration.id, "medical_result", medicalFile);
       await apiRequest(`/api/documents/medical-done/${encodeURIComponent(registration.id)}`, { method: "POST" });
       await refresh();
       setNotice({ type: "success", message: "Hasil kesehatan berhasil dikirim dan menunggu verifikasi panitia." });

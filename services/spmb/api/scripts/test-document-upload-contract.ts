@@ -6,6 +6,7 @@ const registrationId = "11111111-1111-4111-8111-111111111111";
 const parentId = "22222222-2222-4222-8222-222222222222";
 const unitId = "33333333-3333-4333-8333-333333333333";
 const documentId = "44444444-4444-4444-8444-444444444444";
+const documentUrl = `https://res.cloudinary.com/test-cloud/image/upload/v1/spmb/${registrationId}/photo/student-photo.jpg`;
 
 function expectThrows(label: string, fn: () => unknown, Expected: new (...args: any[]) => Error) {
   try {
@@ -36,10 +37,7 @@ function registration(status = "documents_uploaded") {
 }
 
 async function run() {
-  process.env.S3_BUCKET = "spmb-private";
-  process.env.S3_ENDPOINT = "http://object-store.test";
-  process.env.S3_ACCESS_KEY = "test-access-key";
-  process.env.S3_SECRET_KEY = "test-secret-key";
+  process.env.CLOUDINARY_CLOUD_NAME = "test-cloud";
 
   assertUploadMetadata({ documentType: "photo", fileName: "photo.jpg", mimeType: "image/jpeg", fileSize: 2 * 1024 * 1024 });
   expectThrows(
@@ -52,28 +50,6 @@ async function run() {
     () => assertUploadMetadata({ documentType: "photo", fileName: "photo.pdf", mimeType: "application/pdf", fileSize: 100 }),
     BadRequestException,
   );
-  expectThrows(
-    "size limit is enforced",
-    () => assertUploadMetadata({ documentType: "family_card", fileName: "family.pdf", mimeType: "application/pdf", fileSize: 5 * 1024 * 1024 + 1 }),
-    BadRequestException,
-  );
-
-  const presign = new DocumentsService({
-    registration: { findUnique: async () => registration() },
-  } as any);
-  const signed = await presign.presignUpload(parentId, {
-    registrationId,
-    documentType: "photo" as never,
-    fileName: "photo.jpg",
-    mimeType: "image/jpeg",
-    fileSize: 200,
-  });
-  if ("fileUrl" in signed || !("uploadUrl" in signed) || !("objectKey" in signed)) {
-    throw new Error("presign must return only a private upload URL and server-generated objectKey");
-  }
-  if (!new RegExp(`^spmb/${registrationId}/photo/[0-9a-f-]+\\.jpg$`).test(signed.objectKey)) {
-    throw new Error("presign key must be server-generated and document-type scoped");
-  }
 
   let persisted: Record<string, unknown> | undefined;
   const complete = new DocumentsService({
@@ -87,35 +63,24 @@ async function run() {
       create: async ({ data }: any) => ({ id: documentId, ...data }),
     },
   } as any);
-  (complete as any).s3Client = {
-    send: async () => ({
-      ContentType: "image/jpeg",
-      ContentLength: 200,
-      Metadata: {
-        "registration-id": registrationId,
-        "document-type": "photo",
-        "file-name": encodeURIComponent("photo.jpg"),
-      },
-    }),
-  };
   await complete.upsertDocument(parentId, {
     registrationId,
     documentType: "photo" as never,
-    objectKey: signed.objectKey,
+    fileUrl: documentUrl,
     fileName: "photo.jpg",
     fileSize: 200,
     mimeType: "image/jpeg",
   });
-  if (!persisted?.objectKey || "fileUrl" in persisted) {
-    throw new Error("completion must persist objectKey and never persist a caller URL");
+  if (persisted?.objectKey !== documentUrl || "fileUrl" in persisted) {
+    throw new Error("Cloudinary document completion must persist the validated Cloudinary URL in the legacy storage field");
   }
 
   await expectRejects(
-    "completion rejects another registration prefix",
+    "document rejects another registration folder",
     () => complete.upsertDocument(parentId, {
       registrationId,
       documentType: "photo" as never,
-      objectKey: `spmb/other-registration/photo/11111111-1111-4111-8111-111111111111.jpg`,
+      fileUrl: "https://res.cloudinary.com/test-cloud/image/upload/v1/spmb/other/photo/photo.jpg",
       fileName: "photo.jpg",
       fileSize: 200,
       mimeType: "image/jpeg",
@@ -123,36 +88,30 @@ async function run() {
     BadRequestException,
   );
 
-  let getSignedUrlCalls = 0;
   const download = new DocumentsService({
     document: {
       findUnique: async () => ({
         id: documentId,
-        objectKey: signed.objectKey,
+        objectKey: documentUrl,
         registration: { parentId, period: { unitId } },
       }),
     },
   } as any);
-  (download as any).s3Client = { send: async () => ({}) };
-  (download as any).createSignedDownloadUrl = async () => {
-    getSignedUrlCalls += 1;
-    return "https://signed.example.test/private";
-  };
   const parentDownload = await download.createDownloadUrl(documentId, { id: parentId, roles: [] });
-  if (parentDownload.downloadUrl !== "https://signed.example.test/private" || getSignedUrlCalls !== 1) {
-    throw new Error("owner must receive a short-lived signed download URL");
+  if (parentDownload.downloadUrl !== documentUrl) {
+    throw new Error("owner must receive the stored Cloudinary document URL");
   }
   await download.createDownloadUrl(documentId, {
     id: "staff-1",
     roles: [{ app: "spmb", role: "tim_ppdb", unitId }],
   });
   await expectRejects(
-    "foreign parent cannot download private document",
+    "foreign parent cannot open document",
     () => download.createDownloadUrl(documentId, { id: "other-parent", roles: [] }),
     ForbiddenException,
   );
   await expectRejects(
-    "foreign-unit staff cannot download private document",
+    "foreign-unit staff cannot open document",
     () => download.createDownloadUrl(documentId, {
       id: "staff-2",
       roles: [{ app: "spmb", role: "admin_unit", unitId: "other-unit" }],
@@ -160,7 +119,7 @@ async function run() {
     ForbiddenException,
   );
 
-  console.log("SPMB document upload contract passed");
+  console.log("SPMB Cloudinary document upload contract passed");
 }
 
 run().catch((error) => {

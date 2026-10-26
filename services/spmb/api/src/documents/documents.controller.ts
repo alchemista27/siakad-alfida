@@ -11,21 +11,13 @@ import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 import { SpmbRoles, SpmbRolesGuard } from "../common/guards";
 import { type SpmbPrincipal } from "../common/spmb-scope-policy";
 import { DocumentsService } from "./documents.service";
-import { PresignUploadDto, UpsertDocumentDto } from "./documents.dto";
+import { UpsertDocumentDto } from "./documents.dto";
 
 @Controller("documents")
 @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
 export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
-  @Post("presign")
-  @SpmbRoles("orang_tua")
-  async presign(
-    @Req() req: { user: SpmbPrincipal },
-    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })) dto: PresignUploadDto,
-  ) {
-    return this.documentsService.presignUpload(req.user.id, dto);
-  }
 
   @Post("upsert")
   @SpmbRoles("orang_tua")

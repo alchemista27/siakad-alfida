@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsEnum, IsInt, IsString, IsUUID, MaxLength, Min } from "class-validator";
+import { IsEnum, IsInt, IsString, IsUrl, IsUUID, MaxLength, Min } from "class-validator";
 import { DocumentType } from "../generated/prisma";
 
 export class PresignUploadDto {
@@ -24,7 +24,7 @@ export class PresignUploadDto {
 }
 
 export class UpsertDocumentDto extends PresignUploadDto {
-  @IsString()
-  @MaxLength(1024)
-  objectKey!: string;
+  @IsUrl({ protocols: ["https"], require_protocol: true })
+  @MaxLength(2048)
+  fileUrl!: string;
 }

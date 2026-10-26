@@ -3,53 +3,18 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-  OnModuleInit,
-  ServiceUnavailableException,
 } from "@nestjs/common";
-import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { PrismaService } from "../prisma/prisma.service";
 import { RegistrationStatus } from "../generated/prisma";
 import { baseRequiredDocumentTypes, canTransition } from "../common/ppdb-workflow";
 import { assertUnitAccess, type SpmbPrincipal } from "../common/spmb-scope-policy";
-import {
-  assertDocumentObjectKey,
-  assertUploadMetadata,
-  createDocumentObjectKey,
-  getFileExtension,
-} from "./document-upload.policy";
-import { PresignUploadDto, UpsertDocumentDto } from "./documents.dto";
+import { assertUploadMetadata } from "./document-upload.policy";
+import { assertCloudinaryUploadUrl } from "./cloudinary-upload.policy";
+import { UpsertDocumentDto } from "./documents.dto";
 
 @Injectable()
-export class DocumentsService implements OnModuleInit {
-  private s3Client: S3Client | null = null;
-  private readonly bucket = process.env.S3_BUCKET?.trim() || "";
-
+export class DocumentsService {
   constructor(private readonly prisma: PrismaService) {}
-
-  onModuleInit() {
-    this.getStorageClient();
-  }
-
-  private getStorageClient(): S3Client {
-    if (this.s3Client) return this.s3Client;
-    if (!this.bucket) {
-      throw new ServiceUnavailableException("Penyimpanan dokumen privat belum dikonfigurasi.");
-    }
-
-    const accessKeyId = process.env.S3_ACCESS_KEY?.trim();
-    const secretAccessKey = process.env.S3_SECRET_KEY?.trim();
-    if (Boolean(accessKeyId) !== Boolean(secretAccessKey)) {
-      throw new ServiceUnavailableException("Konfigurasi kredensial penyimpanan dokumen tidak lengkap.");
-    }
-
-    this.s3Client = new S3Client({
-      region: process.env.S3_REGION?.trim() || "auto",
-      ...(process.env.S3_ENDPOINT?.trim() ? { endpoint: process.env.S3_ENDPOINT.trim(), forcePathStyle: true } : {}),
-      ...(accessKeyId && secretAccessKey ? { credentials: { accessKeyId, secretAccessKey } } : {}),
-    });
-    return this.s3Client;
-  }
 
   private assertUploadStage(status: RegistrationStatus, documentType: string) {
     const isBasicDocument = (baseRequiredDocumentTypes as readonly string[]).includes(documentType);
@@ -59,54 +24,6 @@ export class DocumentsService implements OnModuleInit {
       (status === RegistrationStatus.medical_pending && isMedicalResult);
     if (!accepted) {
       throw new BadRequestException("Dokumen tidak dapat diunggah pada tahap pendaftaran saat ini.");
-    }
-  }
-
-  async presignUpload(userId: string, dto: PresignUploadDto) {
-    assertUploadMetadata(dto);
-    const registration = await this.prisma.registration.findUnique({ where: { id: dto.registrationId } });
-    if (!registration) throw new NotFoundException("Pendaftaran tidak ditemukan.");
-    if (registration.parentId !== userId) throw new ForbiddenException("Akses ditolak.");
-    this.assertUploadStage(registration.status, dto.documentType);
-
-    const extension = getFileExtension(dto.fileName);
-    const objectKey = createDocumentObjectKey(registration.id, dto.documentType, extension);
-    const command = new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: objectKey,
-      ContentType: dto.mimeType,
-      ContentLength: dto.fileSize,
-      Metadata: {
-        "registration-id": registration.id,
-        "document-type": dto.documentType,
-        "file-name": encodeURIComponent(dto.fileName),
-      },
-    });
-    const uploadUrl = await getSignedUrl(this.getStorageClient(), command, { expiresIn: 15 * 60 });
-    return { uploadUrl, objectKey, expiresInSeconds: 15 * 60 };
-  }
-
-  private async assertStoredObject(dto: UpsertDocumentDto) {
-    const extension = getFileExtension(dto.fileName);
-    assertDocumentObjectKey(dto.registrationId, dto.documentType, dto.objectKey, extension);
-
-    let object: { ContentType?: string; ContentLength?: number; Metadata?: Record<string, string> };
-    try {
-      object = await this.getStorageClient().send(new HeadObjectCommand({ Bucket: this.bucket, Key: dto.objectKey }));
-    } catch {
-      throw new BadRequestException("Objek dokumen privat belum tersedia.");
-    }
-
-    const metadata = object.Metadata || {};
-    const fileName = metadata["file-name"] ? decodeURIComponent(metadata["file-name"]) : "";
-    if (
-      object.ContentType !== dto.mimeType ||
-      object.ContentLength !== dto.fileSize ||
-      metadata["registration-id"] !== dto.registrationId ||
-      metadata["document-type"] !== dto.documentType ||
-      fileName !== dto.fileName
-    ) {
-      throw new BadRequestException("Metadata objek dokumen tidak sesuai.");
     }
   }
 
@@ -128,7 +45,7 @@ export class DocumentsService implements OnModuleInit {
     if (!registration) throw new NotFoundException("Pendaftaran tidak ditemukan.");
     if (registration.parentId !== userId) throw new ForbiddenException("Akses ditolak.");
     this.assertUploadStage(registration.status, dto.documentType);
-    await this.assertStoredObject(dto);
+    assertCloudinaryUploadUrl(dto.fileUrl, `spmb/${registration.id}/${dto.documentType}`);
 
     const existing = await this.prisma.document.findFirst({
       where: { registrationId: dto.registrationId, type: dto.documentType },
@@ -137,7 +54,7 @@ export class DocumentsService implements OnModuleInit {
       ? this.prisma.document.update({
           where: { id: existing.id },
           data: {
-            objectKey: dto.objectKey,
+            objectKey: dto.fileUrl,
             fileName: dto.fileName,
             fileSize: dto.fileSize,
             mimeType: dto.mimeType,
@@ -145,9 +62,9 @@ export class DocumentsService implements OnModuleInit {
         })
       : this.prisma.document.create({
           data: {
-            registrationId: dto.registrationId,
+            registrationId: registration.id,
             type: dto.documentType,
-            objectKey: dto.objectKey,
+            objectKey: dto.fileUrl,
             fileName: dto.fileName,
             fileSize: dto.fileSize,
             mimeType: dto.mimeType,
@@ -168,7 +85,7 @@ export class DocumentsService implements OnModuleInit {
             fromStatus: RegistrationStatus.medical_pending,
             toStatus: RegistrationStatus.medical_uploaded,
             kind: "transition",
-            note: "Hasil IMC/medis diunggah oleh orang tua",
+            note: "Hasil IMC/medis Cloudinary diunggah oleh orang tua",
           },
         }),
       ]);
@@ -176,11 +93,6 @@ export class DocumentsService implements OnModuleInit {
     }
 
     return this.documentResponse(await documentMutation);
-  }
-
-  async createSignedDownloadUrl(objectKey: string): Promise<string> {
-    const command = new GetObjectCommand({ Bucket: this.bucket, Key: objectKey });
-    return getSignedUrl(this.getStorageClient(), command, { expiresIn: 5 * 60 });
   }
 
   async createDownloadUrl(documentId: string, principal: SpmbPrincipal) {
@@ -194,7 +106,7 @@ export class DocumentsService implements OnModuleInit {
       assertUnitAccess(principal, document.registration.period.unitId, ["admin_unit", "tim_ppdb"]);
     }
 
-    return { downloadUrl: await this.createSignedDownloadUrl(document.objectKey), expiresInSeconds: 5 * 60 };
+    return { downloadUrl: document.objectKey };
   }
 
   async finalizeDocuments(registrationId: string, userId: string) {
@@ -224,7 +136,7 @@ export class DocumentsService implements OnModuleInit {
           fromStatus: registration.status,
           toStatus: RegistrationStatus.medical_pending,
           kind: "transition",
-          note: "Seluruh berkas persyaratan berhasil diunggah lengkap",
+          note: "Seluruh berkas persyaratan Cloudinary berhasil diunggah lengkap",
         },
       }),
     ]);

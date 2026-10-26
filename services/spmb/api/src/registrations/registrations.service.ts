@@ -60,7 +60,7 @@ export class RegistrationsService {
       sanitized.documents = registration.documents.map(({ objectKey, ...doc }: any) => doc);
     }
     if (registration.payment) {
-      const { proofObjectKey, ...payment } = registration.payment;
+      const { proofUrl, proofObjectKey, ...payment } = registration.payment;
       sanitized.payment = payment;
     }
     if (registration.observationResult) {
@@ -648,7 +648,7 @@ export class RegistrationsService {
         ? {
             status: reg.payment.status,
             amount: Number(reg.payment.amount),
-            proofUrl: reg.payment.proofUrl,
+            proofFileName: reg.payment.proofFileName,
           }
         : null,
       observationSchedule: reg.observationBooking?.schedule

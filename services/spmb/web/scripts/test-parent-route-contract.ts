@@ -54,14 +54,17 @@ assert(/type RegistrationLoadState\s*=/.test(paymentPage), "payment page must di
 assert(/kind:\s*"not_found"/.test(paymentPage), "payment page must render an explicit not-found state");
 assert(/kind:\s*"error"/.test(paymentPage), "payment page must render an API/access error state instead of an empty registration");
 assert(/Coba Lagi/.test(paymentPage), "payment API-error state must offer a retry action");
-assert(/uploadPrivatePaymentProof/.test(paymentPage), "payment page must upload a private payment proof instead of accepting a manual URL");
+assert(/uploadPaymentProofToCloudinary/.test(paymentPage), "payment page must upload a payment proof directly to Cloudinary instead of accepting a manual URL");
 assert(/type="file"/.test(paymentPage), "payment page must render a payment-proof file picker");
 assert(!/Referensi \/ Tautan Bukti Transfer/.test(paymentPage), "payment page must not ask parents for a manually pasted proof URL");
 
 const registrationLib = readFileSync(resolve(root, "src/lib/spmb-registration.ts"), "utf8");
 assert(/export class SpmbApiError extends Error/.test(registrationLib), "API client must preserve non-OK response status");
 assert(/new SpmbApiError\(/.test(registrationLib), "API client must throw structured errors for non-OK responses");
-assert(/uploadPrivatePaymentProof/.test(registrationLib), "client library must complete payment proof presign and finalize flow");
+assert(/uploadPaymentProofToCloudinary/.test(registrationLib), "client library must upload payment proofs through Cloudinary before recording them");
+assert(/uploadDocumentToCloudinary/.test(registrationLib), "client library must upload every parent dossier file through Cloudinary");
+assert(!/payment-proof\/presign/.test(registrationLib), "client library must not request an S3 payment-proof presign URL");
+assert(!/\/api\/documents\/presign/.test(registrationLib), "client library must not request an S3 document presign URL");
 
 for (const stagePage of [
   "src/app/parent/payment/page.tsx",

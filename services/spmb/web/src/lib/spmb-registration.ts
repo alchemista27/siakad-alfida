@@ -246,40 +246,53 @@ export async function loadParentRegistration(registrationId?: string | null): Pr
   return apiRequest<ParentRegistration>(`/api/registrations/parent/${encodeURIComponent(list[0].id)}`);
 }
 
-export async function uploadPrivateDocument(
+function getCloudinaryErrorMessage(payload: unknown): string | null {
+  if (!payload || typeof payload !== "object") return null;
+  const error = (payload as { error?: unknown }).error;
+  if (error && typeof error === "object" && typeof (error as { message?: unknown }).message === "string") {
+    return (error as { message: string }).message;
+  }
+  return typeof (payload as { message?: unknown }).message === "string"
+    ? (payload as { message: string }).message
+    : null;
+}
+
+export async function uploadSpmbFileToCloudinary(file: File, folder: string): Promise<string> {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "hb1ropwm";
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "alfida_unsigned";
+  if (!cloudName || !uploadPreset) throw new Error("Konfigurasi upload Cloudinary belum tersedia.");
+
+  const data = new FormData();
+  data.append("file", file);
+  data.append("upload_preset", uploadPreset);
+  data.append("folder", folder);
+
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
+    method: "POST",
+    body: data,
+  });
+  const payload: unknown = await response.json().catch(() => null);
+  const fileUrl = (payload as { secure_url?: unknown } | null)?.secure_url;
+  if (!response.ok || typeof fileUrl !== "string") {
+    throw new Error(getCloudinaryErrorMessage(payload) || "Upload Cloudinary gagal.");
+  }
+  return fileUrl;
+}
+
+export async function uploadDocumentToCloudinary(
   registrationId: string,
   documentType: DocumentType,
   file: File,
 ) {
   const mimeType = file.type || "application/octet-stream";
-  const presign = await apiRequest<{ uploadUrl: string; objectKey: string }>("/api/documents/presign", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      registrationId,
-      documentType,
-      fileName: file.name,
-      mimeType,
-      fileSize: file.size,
-    }),
-  });
-
-  const uploadResponse = await fetch(presign.uploadUrl, {
-    method: "PUT",
-    headers: { "Content-Type": mimeType },
-    body: file,
-  });
-  if (!uploadResponse.ok) {
-    throw new Error("Gagal mengunggah dokumen ke penyimpanan privat.");
-  }
-
+  const fileUrl = await uploadSpmbFileToCloudinary(file, `spmb/${registrationId}/${documentType}`);
   return apiRequest("/api/documents/upsert", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       registrationId,
       documentType,
-      objectKey: presign.objectKey,
+      fileUrl,
       fileName: file.name,
       fileSize: file.size,
       mimeType,
@@ -287,34 +300,12 @@ export async function uploadPrivateDocument(
   });
 }
 
-export async function uploadPrivatePaymentProof(registrationId: string, file: File) {
+export async function uploadPaymentProofToCloudinary(registrationId: string, file: File) {
   const mimeType = file.type || "application/octet-stream";
-  const presign = await apiRequest<{ uploadUrl: string; objectKey: string }>(
-    `/api/registrations/${encodeURIComponent(registrationId)}/payment-proof/presign`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fileName: file.name, mimeType, fileSize: file.size }),
-    },
-  );
-
-  const uploadResponse = await fetch(presign.uploadUrl, {
-    method: "PUT",
-    headers: { "Content-Type": mimeType },
-    body: file,
-  });
-  if (!uploadResponse.ok) {
-    throw new Error("Gagal mengunggah bukti pembayaran ke penyimpanan privat.");
-  }
-
-  return apiRequest(`/api/registrations/${encodeURIComponent(registrationId)}/payment-proof/finalize`, {
+  const fileUrl = await uploadSpmbFileToCloudinary(file, `spmb/${registrationId}/payment-proof`);
+  return apiRequest(`/api/registrations/${encodeURIComponent(registrationId)}/payment-proof`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      objectKey: presign.objectKey,
-      fileName: file.name,
-      fileSize: file.size,
-      mimeType,
-    }),
+    body: JSON.stringify({ fileUrl, fileName: file.name, fileSize: file.size, mimeType }),
   });
 }

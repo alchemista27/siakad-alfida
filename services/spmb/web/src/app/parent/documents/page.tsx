@@ -10,7 +10,7 @@ import {
   DOCUMENT_LABELS,
   getStageRouteForRegistration,
   loadParentRegistration,
-  uploadPrivateDocument,
+  uploadDocumentToCloudinary,
   type DocumentType,
   type ParentRegistration,
 } from "@/lib/spmb-registration";
@@ -47,7 +47,7 @@ export default function ParentDocumentsPage() {
       const uploaded = new Set(registration.documents.map((doc) => doc.type));
       for (const docType of BASE_DOCUMENT_TYPES) {
         if (files[docType]) {
-          await uploadPrivateDocument(registration.id, docType, files[docType] as File);
+          await uploadDocumentToCloudinary(registration.id, docType, files[docType] as File);
         } else if (!uploaded.has(docType)) {
           throw new Error(`Pilih dokumen wajib: ${DOCUMENT_LABELS[docType]}`);
         }
@@ -94,7 +94,7 @@ export default function ParentDocumentsPage() {
         <section className="mt-6 bg-surface border border-border rounded-lg p-6">
           <h1 className="font-heading font-bold text-2xl">Tahap 3 — Unggah Berkas Persyaratan</h1>
           <p className="text-sm text-gray-600 mt-1">
-            Format yang diterima: JPG, PNG (maks 2 MB) atau PDF (maks 5 MB). Dokumen disimpan pada penyimpanan privat.
+            Format yang diterima: JPG, PNG (maks 2 MB) atau PDF (maks 5 MB). Berkas diunggah langsung ke Cloudinary.
           </p>
 
           {canEdit ? (

@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsBoolean, IsInt, IsOptional, IsString, Matches, MaxLength, Min, MinLength, ValidateIf } from "class-validator";
+import { IsBoolean, IsInt, IsOptional, IsString, IsUrl, Matches, MaxLength, Min, MinLength, ValidateIf } from "class-validator";
 import type { ParentRegistrationForm, StudentRegistrationForm } from "@alfida/contracts";
 
 export type CreateOnlineRegistrationDto = { periodId: string };
@@ -11,7 +11,11 @@ export class UploadPaymentDto {
   amount?: number;
 }
 
-export class PresignPaymentProofDto {
+export class UploadPaymentProofCloudinaryDto {
+  @IsUrl({ protocols: ["https"], require_protocol: true })
+  @MaxLength(2048)
+  fileUrl!: string;
+
   @IsString()
   @MaxLength(255)
   fileName!: string;
@@ -24,12 +28,6 @@ export class PresignPaymentProofDto {
   @IsInt()
   @Min(1)
   fileSize!: number;
-}
-
-export class FinalizePaymentProofDto extends PresignPaymentProofDto {
-  @IsString()
-  @MaxLength(1024)
-  objectKey!: string;
 }
 
 export class VerifyPaymentDto {

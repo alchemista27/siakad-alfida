@@ -1,9 +1,10 @@
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
-import { PaymentProofStorageService } from "../src/registrations/payment-proof-storage.service";
+import { PaymentProofCloudinaryService } from "../src/registrations/payment-proof-cloudinary.service";
 
 const registrationId = "11111111-1111-4111-8111-111111111111";
 const parentId = "22222222-2222-4222-8222-222222222222";
 const unitId = "33333333-3333-4333-8333-333333333333";
+const proofUrl = `https://res.cloudinary.com/test-cloud/raw/upload/v1/spmb/${registrationId}/payment-proof/transfer-proof.pdf`;
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -26,36 +27,18 @@ function registration(status = "pending_payment") {
     id: registrationId,
     parentId,
     status,
-    period: { unitId },
+    period: { unitId, fee: 250000 },
     payment: { registrationId, amount: 250000, status: "pending" },
   };
 }
 
 async function run() {
-  process.env.S3_BUCKET = "spmb-private";
-  process.env.S3_ENDPOINT = "http://object-store.test";
-  process.env.S3_ACCESS_KEY = "test-access-key";
-  process.env.S3_SECRET_KEY = "test-secret-key";
-
-  const storage = new PaymentProofStorageService({
-    registration: { findUnique: async () => registration() },
-  } as any);
-  const signed = await storage.presignUpload(registrationId, parentId, {
-    fileName: "transfer.png",
-    mimeType: "image/png",
-    fileSize: 300,
-  });
-  assert("uploadUrl" in signed && "objectKey" in signed, "presign must return a private upload URL and server-owned object key");
-  assert(!("proofUrl" in signed), "presign must never return or accept a public proof URL");
-  assert(
-    new RegExp(`^spmb/${registrationId}/payment-proof/[0-9a-f-]+\\.png$`).test(signed.objectKey),
-    "payment proof key must be server-generated and registration scoped",
-  );
+  process.env.CLOUDINARY_CLOUD_NAME = "test-cloud";
 
   let paymentUpdate: Record<string, unknown> | undefined;
   let registrationUpdate: Record<string, unknown> | undefined;
   let eventCreate: Record<string, unknown> | undefined;
-  const complete = new PaymentProofStorageService({
+  const service = new PaymentProofCloudinaryService({
     payment: {
       upsert: async ({ update }: any) => {
         paymentUpdate = update;
@@ -72,60 +55,53 @@ async function run() {
     },
     $transaction: async (operations: any[]) => Promise.all(operations),
   } as any);
-  (complete as any).s3Client = {
-    send: async () => ({
-      ContentType: "image/png",
-      ContentLength: 300,
-      Metadata: {
-        "registration-id": registrationId,
-        "payment-proof": "true",
-        "file-name": encodeURIComponent("transfer.png"),
-      },
-    }),
-  };
-  await complete.finalizeUpload(registrationId, parentId, {
-    objectKey: signed.objectKey,
-    fileName: "transfer.png",
-    mimeType: "image/png",
+
+  await service.recordUpload(registrationId, parentId, {
+    fileUrl: proofUrl,
+    fileName: "transfer-proof.pdf",
+    mimeType: "application/pdf",
     fileSize: 300,
   });
-  assert(paymentUpdate?.proofObjectKey === signed.objectKey, "finalize must persist only the server-generated private object key");
-  assert(paymentUpdate?.proofUrl === null, "new proof uploads must not persist public proof URLs");
-  assert(paymentUpdate?.status === "uploaded", "finalize must mark the payment uploaded");
-  assert(registrationUpdate?.status === "payment_uploaded", "finalize must advance the registration atomically");
-  assert(eventCreate?.toStatus === "payment_uploaded", "finalize must audit the transition");
+  assert(paymentUpdate?.proofUrl === proofUrl, "payment proof must persist its Cloudinary URL");
+  assert(paymentUpdate?.proofObjectKey === null, "Cloudinary proof uploads must not persist an S3 object key");
+  assert(paymentUpdate?.status === "uploaded", "upload must mark the payment uploaded");
+  assert(registrationUpdate?.status === "payment_uploaded", "upload must advance the registration atomically");
+  assert(eventCreate?.toStatus === "payment_uploaded", "upload must audit the transition");
 
   await expectRejects(
-    "other parent cannot request a payment-proof upload URL",
-    () => storage.presignUpload(registrationId, "other-parent", { fileName: "transfer.png", mimeType: "image/png", fileSize: 300 }),
+    "another parent cannot submit a payment proof",
+    () => service.recordUpload(registrationId, "other-parent", { fileUrl: proofUrl, fileName: "transfer-proof.pdf", mimeType: "application/pdf", fileSize: 300 }),
     ForbiddenException,
   );
   await expectRejects(
-    "payment proof upload rejects a non-pending registration",
-    () => new PaymentProofStorageService({ registration: { findUnique: async () => registration("payment_verified") } } as any)
-      .presignUpload(registrationId, parentId, { fileName: "transfer.png", mimeType: "image/png", fileSize: 300 }),
+    "payment proof rejects a URL outside the registration folder",
+    () => service.recordUpload(registrationId, parentId, { fileUrl: "https://res.cloudinary.com/test-cloud/raw/upload/v1/spmb/other/payment-proof/proof.pdf", fileName: "transfer-proof.pdf", mimeType: "application/pdf", fileSize: 300 }),
+    BadRequestException,
+  );
+  await expectRejects(
+    "payment proof rejects an external URL",
+    () => service.recordUpload(registrationId, parentId, { fileUrl: "https://example.test/proof.pdf", fileName: "transfer-proof.pdf", mimeType: "application/pdf", fileSize: 300 }),
     BadRequestException,
   );
 
-  const download = new PaymentProofStorageService({
+  const download = new PaymentProofCloudinaryService({
     registration: {
       findUnique: async () => ({
         ...registration("payment_uploaded"),
-        payment: { registrationId, proofObjectKey: signed.objectKey },
+        payment: { registrationId, proofUrl },
       }),
     },
   } as any);
-  (download as any).createSignedDownloadUrl = async () => "https://signed.example.test/private-proof";
   const ownerResult = await download.createDownloadUrl(registrationId, { id: parentId, roles: [] });
-  assert(ownerResult.downloadUrl === "https://signed.example.test/private-proof", "owner must receive a short-lived proof URL");
+  assert(ownerResult.downloadUrl === proofUrl, "authorized owner must receive the Cloudinary proof URL");
   await download.createDownloadUrl(registrationId, { id: "staff-1", roles: [{ app: "spmb", role: "tim_ppdb", unitId }] });
   await expectRejects(
-    "foreign parent cannot download payment proof",
+    "foreign parent cannot open payment proof",
     () => download.createDownloadUrl(registrationId, { id: "other-parent", roles: [] }),
     ForbiddenException,
   );
 
-  console.log("SPMB payment proof upload contract passed");
+  console.log("SPMB Cloudinary payment proof contract passed");
 }
 
 run().catch((error) => {

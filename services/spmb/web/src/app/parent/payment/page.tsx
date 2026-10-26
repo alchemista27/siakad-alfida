@@ -8,7 +8,7 @@ import {
   getStageRouteForRegistration,
   loadParentRegistration,
   SpmbApiError,
-  uploadPrivatePaymentProof,
+  uploadPaymentProofToCloudinary,
   type ParentRegistration,
 } from "@/lib/spmb-registration";
 
@@ -75,7 +75,7 @@ export default function ParentPaymentPage() {
     setBusy(true);
     setNotice(null);
     try {
-      await uploadPrivatePaymentProof(registration.id, proofFile);
+      await uploadPaymentProofToCloudinary(registration.id, proofFile);
       await refresh();
       setNotice({ type: "success", message: "Bukti pembayaran berhasil dikirim dan menunggu verifikasi panitia." });
     } catch (error) {
@@ -160,7 +160,7 @@ export default function ParentPaymentPage() {
                   onChange={handleFileChange}
                   className="w-full px-3 py-2 border border-border rounded-sm bg-white text-sm"
                 />
-                <span className="mt-1 block text-gray-500">JPG/PNG maksimal 2 MB atau PDF maksimal 5 MB. Berkas disimpan privat.</span>
+                <span className="mt-1 block text-gray-500">JPG/PNG maksimal 2 MB atau PDF maksimal 5 MB. Berkas diunggah langsung ke Cloudinary.</span>
                 {proofFile && <span className="mt-1 block text-tertiary">Dipilih: {proofFile.name}</span>}
               </label>
               <button
