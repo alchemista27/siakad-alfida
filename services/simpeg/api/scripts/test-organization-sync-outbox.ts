@@ -34,30 +34,32 @@ const prisma = {
   departmentAdminAssignment: assignments,
   async $transaction(callback: any) { return callback({ departmentAdminAssignment: assignments, organizationSyncOutbox: outbox }); },
 };
-const originalFetch = globalThis.fetch;
-const authRequests: Array<{ url: string; method: string | undefined }> = [];
-globalThis.fetch = (async (input, init) => {
-  authRequests.push({ url: String(input), method: init?.method });
-  return new Response(JSON.stringify({ id: "00000000-0000-4000-8000-000000000004" }), { status: 200, headers: { "content-type": "application/json" } });
-}) as typeof fetch;
-const originalAuthApiUrl = process.env.AUTH_API_URL;
-process.env.AUTH_API_URL = "https://auth.example.test";
+const authCalls: Array<{ operation: "grant" | "revoke"; input: Record<string, unknown> }> = [];
+const authOrganizationRoles = {
+  async grant(input: Record<string, unknown>) {
+    authCalls.push({ operation: "grant", input });
+    return { id: "00000000-0000-4000-8000-000000000004" };
+  },
+  async revoke(input: Record<string, unknown>) {
+    authCalls.push({ operation: "revoke", input });
+  },
+};
 
-try {
-  const departments = new DepartmentsService(prisma as any, new OrganizationSyncService());
-  await departments.assignAdmin(department.id, user.id, "00000000-0000-4000-8000-000000000005");
-  await departments.revokeAdmin(department.id, user.id, "00000000-0000-4000-8000-000000000005");
-} finally {
-  globalThis.fetch = originalFetch;
-  if (originalAuthApiUrl === undefined) delete process.env.AUTH_API_URL;
-  else process.env.AUTH_API_URL = originalAuthApiUrl;
-}
+const departments = new DepartmentsService(prisma as any, new OrganizationSyncService(), authOrganizationRoles as any);
+await departments.assignAdmin(department.id, user.id, "00000000-0000-4000-8000-000000000005");
+await departments.revokeAdmin(department.id, user.id, "00000000-0000-4000-8000-000000000005");
 
 assert.equal(outboxEvents.length, 2, "department assignment and revocation must each enqueue a User projection event");
-assert.deepEqual(authRequests, [
-  { url: `https://auth.example.test/api/users/organization-roles`, method: "POST" },
-  { url: `https://auth.example.test/api/users/organization-roles/${user.id}/${department.id}`, method: "DELETE" },
-], "SIMPEG must use the browser role endpoint only for admin_bidang grant and revoke");
+assert.deepEqual(authCalls, [
+  {
+    operation: "grant",
+    input: { scope: "department", userId: user.id, departmentId: department.id, app: "simakin", role: "admin_bidang" },
+  },
+  {
+    operation: "revoke",
+    input: { scope: "department", userId: user.id, departmentId: department.id, app: "simakin", role: "admin_bidang" },
+  },
+], "SIMPEG must broker admin_bidang grant and revoke with the internal Auth client");
 for (const event of outboxEvents) {
   assert.equal(event.create.aggregate, "user");
   assert.equal(event.create.eventType, "user.projected");

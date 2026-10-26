@@ -1,5 +1,6 @@
 import { BadGatewayException, BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { canManageUnit, isAllowedUnitAdminApp, ScopedRole, UnitAdminApp } from "../common/organization-access.policy";
+import { AuthOrganizationRoleClient } from "../organization-sync/auth-organization-role.client";
 import { OrganizationSyncService } from "../organization-sync/organization-sync.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { AssignUnitAdminDto } from "./units.dto";
@@ -18,7 +19,8 @@ type Principal = { roles?: unknown };
 export class UnitsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly sync?: OrganizationSyncService,
+    private readonly sync: OrganizationSyncService,
+    private readonly authOrganizationRoles: AuthOrganizationRoleClient,
   ) {}
 
   async findAll(principal?: Principal) {
@@ -86,7 +88,7 @@ export class UnitsService {
     });
   }
 
-  async assignAdmin(unitId: string, dto: AssignUnitAdminDto, principal: Principal & { id?: string }, authorization?: string) {
+  async assignAdmin(unitId: string, dto: AssignUnitAdminDto, principal: Principal & { id?: string }) {
     const unit = await this.ensureActiveUnit(unitId);
     this.assertUnitScope(unitId, principal);
     const employee = await this.findActiveEmployee(dto.userId);
@@ -118,7 +120,7 @@ export class UnitsService {
           return { local, compensationId: compensation?.id ?? null };
         });
         changed.push({ local: prepared.local, wasActive: Boolean(existing?.isActive), app, compensationId: prepared.compensationId });
-        const authAssignmentId = await this.grantAuthUnitRole(dto.userId, unitId, app, role, authorization);
+        const authAssignmentId = await this.grantAuthUnitRole(dto.userId, unitId, app, role);
         granted.push({ app, authAssignmentId, compensationId: prepared.compensationId });
         await this.prisma.$transaction(async (tx: any) => {
           await tx.unitAdminAssignment.update({ where: { id: prepared.local.id }, data: { authAssignmentId } });
@@ -144,7 +146,7 @@ export class UnitsService {
       }
       await Promise.all(granted.map(async ({ app, compensationId }) => {
         try {
-          await this.revokeAuthUnitRole(dto.userId, unitId, app, role, authorization);
+          await this.revokeAuthUnitRole(dto.userId, unitId, app, role);
           if (typeof (this.sync as any)?.cancelAuthRoleRevocation === "function") {
             await this.prisma.$transaction((tx: any) => (this.sync as any).cancelAuthRoleRevocation(tx, compensationId));
           }
@@ -159,7 +161,7 @@ export class UnitsService {
     return changed.map(({ local }) => local);
   }
 
-  async revokeAdmin(unitId: string, userId: string, app: string, principal: Principal & { id?: string }, authorization?: string) {
+  async revokeAdmin(unitId: string, userId: string, app: string, principal: Principal & { id?: string }) {
     const unit = await this.ensureActiveUnit(unitId);
     this.assertUnitScope(unitId, principal);
     if (!isAllowedUnitAdminApp(app, unit.category)) {
@@ -171,7 +173,7 @@ export class UnitsService {
     if (!assignment?.isActive) throw new NotFoundException("Penugasan Admin Unit aktif tidak ditemukan.");
     const employee = await this.findActiveEmployee(userId);
     try {
-      await this.revokeAuthUnitRole(userId, unitId, app as UnitAdminApp, role, authorization);
+      await this.revokeAuthUnitRole(userId, unitId, app as UnitAdminApp, role);
     } catch {
       throw new BadGatewayException("Pencabutan peran organisasi di layanan autentikasi gagal.");
     }
@@ -228,28 +230,25 @@ export class UnitsService {
     await this.prisma.$transaction((tx: any) => this.sync.enqueueUser(tx, employee));
   }
 
-  private async grantAuthUnitRole(userId: string, unitId: string, app: UnitAdminApp, role: string, authorization?: string) {
-    const baseUrl = process.env.AUTH_API_URL;
-    if (!baseUrl) throw new Error("AUTH_API_URL belum dikonfigurasi.");
-    const response = await fetch(`${baseUrl.replace(/\/$/, "")}/api/users/organization-roles`, {
-      method: "POST",
-      headers: { "content-type": "application/json", ...(authorization ? { authorization } : {}) },
-      body: JSON.stringify({ scope: "unit", userId, unitId, app, role }),
+  private async grantAuthUnitRole(userId: string, unitId: string, app: UnitAdminApp, role: string) {
+    const result = await this.authOrganizationRoles.grant({
+      scope: "unit",
+      userId,
+      unitId,
+      app,
+      role: role as "admin_unit" | "admin_unit_nondik",
     });
-    if (!response.ok) throw new Error("Auth role grant rejected");
-    const result = await response.json() as { id?: string };
-    if (!result.id) throw new Error("Auth role grant returned no assignment id");
     return result.id;
   }
 
-  private async revokeAuthUnitRole(userId: string, unitId: string, app: UnitAdminApp, role: string, authorization?: string) {
-    const baseUrl = process.env.AUTH_API_URL;
-    if (!baseUrl) throw new Error("AUTH_API_URL belum dikonfigurasi.");
-    const response = await fetch(
-      `${baseUrl.replace(/\/$/, "")}/api/users/organization-roles/${userId}/${unitId}/${app}/${role}`,
-      { method: "DELETE", headers: authorization ? { authorization } : {} },
-    );
-    if (!response.ok) throw new Error("Auth role revoke rejected");
+  private async revokeAuthUnitRole(userId: string, unitId: string, app: UnitAdminApp, role: string) {
+    await this.authOrganizationRoles.revoke({
+      scope: "unit",
+      userId,
+      unitId,
+      app,
+      role: role as "admin_unit" | "admin_unit_nondik",
+    });
   }
 
   private assertUnitScope(unitId: string, principal: Principal) {

@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, Optional } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { AuthRoleCompensationClient } from "./auth-role-compensation.client";
+import { AuthOrganizationRoleClient } from "./auth-organization-role.client";
 import { SimakinSyncClient } from "./simakin-sync.client";
 import { SiakadSyncClient } from "./siakad-sync.client";
 
@@ -13,7 +13,7 @@ export class OrganizationSyncProcessor implements OnModuleInit {
     private readonly prisma: PrismaService,
     private readonly client: SimakinSyncClient,
     @Optional() private readonly siakadClient?: SiakadSyncClient,
-    @Optional() private readonly compensationClient?: AuthRoleCompensationClient
+    private readonly authOrganizationRoles?: AuthOrganizationRoleClient,
   ) {}
 
   onModuleInit() {
@@ -193,9 +193,9 @@ export class OrganizationSyncProcessor implements OnModuleInit {
     });
     if (claimed.count !== 1) return;
     try {
-      if (!this.compensationClient)
-        throw new Error("Auth role compensation client is unavailable.");
-      await this.compensationClient.revoke(row);
+      if (!this.authOrganizationRoles)
+        throw new Error("Auth organization-role client is unavailable.");
+      await this.authOrganizationRoles.revoke(this.compensationRoleInput(row));
       await (this.prisma as any).$transaction(async (tx: any) => {
         const assignmentStore =
           row.scope === "unit"
@@ -237,6 +237,36 @@ export class OrganizationSyncProcessor implements OnModuleInit {
         },
       });
     }
+  }
+
+  private compensationRoleInput(row: any) {
+    if (
+      row.scope === "unit" &&
+      ["simpeg", "siakad", "spmb"].includes(row.app) &&
+      ["admin_unit", "admin_unit_nondik"].includes(row.role)
+    ) {
+      return {
+        scope: "unit" as const,
+        userId: row.userId,
+        unitId: row.scopeId,
+        app: row.app as "simpeg" | "siakad" | "spmb",
+        role: row.role as "admin_unit" | "admin_unit_nondik",
+      };
+    }
+    if (
+      row.scope === "department" &&
+      row.app === "simakin" &&
+      ["admin_bidang", "admin_biro"].includes(row.role)
+    ) {
+      return {
+        scope: "department" as const,
+        userId: row.userId,
+        departmentId: row.scopeId,
+        app: "simakin" as const,
+        role: row.role as "admin_bidang" | "admin_biro",
+      };
+    }
+    throw new Error("Unsupported Auth organization-role compensation payload.");
   }
 
   private errorMessage(error: unknown, fallback: string) {

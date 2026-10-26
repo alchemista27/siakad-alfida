@@ -1,9 +1,8 @@
 import { Body, Controller, Delete, Param, Post, UseGuards } from "@nestjs/common";
 import { RequireRole, ServiceJwtAuthGuard, ServiceRolesGuard } from "@alfida/auth-sdk";
-import { validatePublicOrganizationRoleInput } from "./organization-roles.dto";
+import { validateOrganizationRoleInput, validatePublicOrganizationRoleInput } from "./organization-roles.dto";
 import { UsersService } from "./users.service";
 import { InternalOrganizationRolesGuard } from "./internal-organization-roles.guard";
-import { validateInternalOrganizationRoleInput } from "./internal-organization-role.policy";
 
 @Controller("users/organization-roles")
 @UseGuards(ServiceJwtAuthGuard, ServiceRolesGuard)
@@ -37,11 +36,25 @@ export class InternalOrganizationRolesController {
 
   @Post()
   upsert(@Body() body: unknown) {
-    return this.usersService.upsertOrganizationRole(validateInternalOrganizationRoleInput(body));
+    return this.usersService.upsertOrganizationRole(validateOrganizationRoleInput(body));
   }
 
+  @Delete()
+  removeScoped(@Body() body: unknown) {
+    return this.usersService.removeOrganizationRole(
+      validateOrganizationRoleInput(body),
+      { idempotent: true },
+    );
+  }
+
+  /** Compatibility endpoint for existing internal admin-biro callers. */
   @Delete(":userId/:departmentId/admin_biro")
   remove(@Param("userId") userId: string, @Param("departmentId") departmentId: string) {
-    return this.usersService.removeOrganizationRole(userId, departmentId, "admin_biro", { idempotent: true });
+    return this.usersService.removeOrganizationRole(
+      userId,
+      departmentId,
+      "admin_biro",
+      { idempotent: true },
+    );
   }
 }

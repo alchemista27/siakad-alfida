@@ -36,13 +36,13 @@ export class UnitsController {
     @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) dto: AssignUnitAdminDto,
     @Req() req: any,
   ) {
-    return this.unitsService.assignAdmin(id, dto, req.user, req.headers.authorization);
+    return this.unitsService.assignAdmin(id, dto, req.user);
   }
 
   @Delete(":id/admins/:userId/:app")
   @SimpegRoles(...UNIT_READ_ROLES)
   revokeAdmin(@Param("id") id: string, @Param("userId") userId: string, @Param("app") app: string, @Req() req: any) {
-    return this.unitsService.revokeAdmin(id, userId, app, req.user, req.headers.authorization);
+    return this.unitsService.revokeAdmin(id, userId, app, req.user);
   }
 
   @Post()

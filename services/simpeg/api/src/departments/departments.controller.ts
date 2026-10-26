@@ -30,7 +30,7 @@ export class DepartmentsController {
   @Delete(":id")
   @SimpegRoles("super_admin", "admin_kepegawaian")
   remove(@Param("id") id: string, @Req() req: any) {
-    return this.departmentsService.remove(id, req.user.id, req.headers.authorization);
+    return this.departmentsService.remove(id, req.user.id);
   }
 
   @Get(":id/admins")
@@ -40,12 +40,12 @@ export class DepartmentsController {
   @Post(":id/admins")
   @SimpegRoles("super_admin", "admin_kepegawaian")
   assignAdmin(@Param("id") id: string, @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) dto: AssignDepartmentAdminDto, @Req() req: any) {
-    return this.departmentsService.assignAdmin(id, dto.userId, req.user.id, req.headers.authorization);
+    return this.departmentsService.assignAdmin(id, dto.userId, req.user.id);
   }
 
   @Delete(":id/admins/:userId")
   @SimpegRoles("super_admin", "admin_kepegawaian")
   revokeAdmin(@Param("id") id: string, @Param("userId") userId: string, @Req() req: any) {
-    return this.departmentsService.revokeAdmin(id, userId, req.user.id, req.headers.authorization);
+    return this.departmentsService.revokeAdmin(id, userId, req.user.id);
   }
 }

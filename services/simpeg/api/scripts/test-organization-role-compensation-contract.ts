@@ -20,8 +20,6 @@ const user = {
   updatedAt: new Date("2026-10-18T10:00:00.000Z"),
 };
 
-type Harness = ReturnType<typeof createHarness>;
-
 function createHarness(scope: "unit" | "department") {
   const local = { id: `local-${scope}`, userId, unitId, departmentId, app: scope === "unit" ? "simpeg" : "simakin", role: scope === "unit" ? "admin_unit" : "admin_bidang", isActive: true, authAssignmentId: null as string | null };
   const reconciliations = new Map<string, any>();
@@ -79,52 +77,50 @@ function createHarness(scope: "unit" | "department") {
     organizationSyncOutbox: { async findMany() { return []; }, async updateMany() { return { count: 0 }; } },
     async $transaction(callback: any) { return callback(tx); },
   };
-  return { prisma, local, reconciliations, compensationStore };
+  return { prisma, local, reconciliations };
 }
 
 async function assertCompensation(scope: "unit" | "department") {
   const harness = createHarness(scope);
-  const originalFetch = globalThis.fetch;
-  const originalAuthApiUrl = process.env.AUTH_API_URL;
-  process.env.AUTH_API_URL = "https://auth.example.test";
-  const requests: Array<{ url: string; method?: string }> = [];
-  globalThis.fetch = (async (input, init) => {
-    requests.push({ url: String(input), method: init?.method });
-    if (init?.method === "POST") return new Response(JSON.stringify({ id: authAssignmentId }), { status: 200, headers: { "content-type": "application/json" } });
-    return new Response("revoke unavailable", { status: 502 });
-  }) as typeof fetch;
+  let failImmediateRevoke = true;
+  const retried: Array<Record<string, unknown>> = [];
+  const authOrganizationRoles = {
+    async grant() { return { id: authAssignmentId }; },
+    async revoke(input: Record<string, unknown>) {
+      if (failImmediateRevoke) throw new Error("revoke unavailable");
+      retried.push(input);
+    },
+  };
 
-  try {
-    const sync = new OrganizationSyncService();
-    const service = scope === "unit"
-      ? new UnitsService(harness.prisma, sync)
-      : new DepartmentsService(harness.prisma, sync);
-    await assert.rejects(
-      () => scope === "unit"
-        ? (service as UnitsService).assignAdmin(unitId, { userId, apps: ["simpeg"] }, { id: actorId, roles: [{ app: "simpeg", role: "admin_unit", unitId }] }, "Bearer actor")
-        : (service as DepartmentsService).assignAdmin(departmentId, userId, actorId, "Bearer actor"),
-      (error: unknown) => error instanceof BadGatewayException,
-    );
-  } finally {
-    globalThis.fetch = originalFetch;
-    if (originalAuthApiUrl === undefined) delete process.env.AUTH_API_URL;
-    else process.env.AUTH_API_URL = originalAuthApiUrl;
-  }
+  const sync = new OrganizationSyncService();
+  const service = scope === "unit"
+    ? new UnitsService(harness.prisma, sync, authOrganizationRoles as any)
+    : new DepartmentsService(harness.prisma, sync, authOrganizationRoles as any);
+  await assert.rejects(
+    () => scope === "unit"
+      ? (service as UnitsService).assignAdmin(unitId, { userId, apps: ["simpeg"] }, { id: actorId, roles: [{ app: "simpeg", role: "admin_unit", unitId }] })
+      : (service as DepartmentsService).assignAdmin(departmentId, userId, actorId),
+    (error: unknown) => error instanceof BadGatewayException,
+  );
 
   const record = [...harness.reconciliations.values()][0];
   assert.ok(record, `${scope}: compensation must be durably armed before the Auth grant`);
   assert.equal(record.authAssignmentId, authAssignmentId, `${scope}: granted Auth assignment ID must be persisted for recovery`);
   assert.equal(record.status, "pending", `${scope}: failed immediate revoke must remain pending for reconciliation`);
 
-  const retried: any[] = [];
+  failImmediateRevoke = false;
   const processor = new OrganizationSyncProcessor(
     harness.prisma,
     { async deliver() { throw new Error("unexpected organization projection"); } } as any,
     undefined,
-    { async revoke(row: any) { retried.push(row); } } as any,
+    authOrganizationRoles as any,
   );
   await processor.processBatch();
-  assert.equal(retried.length, 1, `${scope}: reconciler must retry the durable Auth revocation`);
+  assert.deepEqual(retried, [
+    scope === "unit"
+      ? { scope: "unit", userId, unitId, app: "simpeg", role: "admin_unit" }
+      : { scope: "department", userId, departmentId, app: "simakin", role: "admin_bidang" },
+  ], `${scope}: reconciler must use the generic Auth organization-role payload`);
   assert.equal(record.status, "delivered", `${scope}: successful reconciliation must close the durable record`);
   assert.equal(harness.local.isActive, false, `${scope}: recovered revocation must leave the local assignment inactive`);
 }

@@ -1,10 +1,15 @@
 import { BadGatewayException, BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { AuthOrganizationRoleClient } from "../organization-sync/auth-organization-role.client";
 import { OrganizationSyncService } from "../organization-sync/organization-sync.service";
 
 @Injectable()
 export class DepartmentsService {
-  constructor(private readonly prisma: PrismaService, private readonly sync: OrganizationSyncService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly sync: OrganizationSyncService,
+    private readonly authOrganizationRoles: AuthOrganizationRoleClient,
+  ) {}
 
   findAll() {
     return this.prisma.department.findMany({ orderBy: [{ isActive: "desc" }, { name: "asc" }] });
@@ -37,7 +42,7 @@ export class DepartmentsService {
     });
   }
 
-  async remove(id: string, revokedById: string, authorization?: string) {
+  async remove(id: string, revokedById: string) {
     const department = await this.prisma.department.findUnique({ where: { id } });
     if (!department) throw new NotFoundException("Bidang/departemen tidak ditemukan.");
 
@@ -46,7 +51,7 @@ export class DepartmentsService {
     });
     try {
       for (const assignment of assignments) {
-        await this.revokeAuthRole(assignment.userId, id, authorization);
+        await this.revokeAuthRole(assignment.userId, id);
       }
     } catch {
       throw new BadGatewayException("Pencabutan peran organisasi di layanan autentikasi gagal.");
@@ -81,7 +86,7 @@ export class DepartmentsService {
     });
   }
 
-  async assignAdmin(departmentId: string, userId: string, assignedById: string, authorization?: string) {
+  async assignAdmin(departmentId: string, userId: string, assignedById: string) {
     await this.ensureActive(departmentId);
     const employee = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -104,7 +109,7 @@ export class DepartmentsService {
 
     let authAssignmentId: string | null = null;
     try {
-      authAssignmentId = await this.grantAuthRole({ userId, departmentId, role: "admin_bidang" }, authorization);
+      authAssignmentId = await this.grantAuthRole({ userId, departmentId, role: "admin_bidang" });
       return await this.prisma.$transaction(async (tx: any) => {
         const updated = await tx.departmentAdminAssignment.update({ where: { id: prepared.local.id }, data: { authAssignmentId } });
         await this.sync.completeAuthRoleGrant(tx, prepared.compensationId, authAssignmentId as string);
@@ -119,7 +124,7 @@ export class DepartmentsService {
       });
       if (authAssignmentId) {
         try {
-          await this.revokeAuthRole(userId, departmentId, authorization);
+          await this.revokeAuthRole(userId, departmentId);
           await this.prisma.$transaction((tx: any) => this.sync.cancelAuthRoleRevocation(tx, prepared.compensationId));
         } catch {
           // The durable compensation remains pending for the reconciler.
@@ -129,7 +134,7 @@ export class DepartmentsService {
     }
   }
 
-  async revokeAdmin(departmentId: string, userId: string, revokedById: string, authorization?: string) {
+  async revokeAdmin(departmentId: string, userId: string, revokedById: string) {
     await this.ensureActive(departmentId);
     const assignments = (this.prisma as any).departmentAdminAssignment;
     const assignment = await assignments.findUnique({ where: { departmentId_userId_role: { departmentId, userId, role: "admin_bidang" } } });
@@ -141,7 +146,7 @@ export class DepartmentsService {
     if (!employee) throw new NotFoundException("Pegawai tidak ditemukan.");
     if (assignment.authAssignmentId) {
       try {
-        await this.revokeAuthRole(userId, departmentId, authorization);
+        await this.revokeAuthRole(userId, departmentId);
       } catch {
         throw new BadGatewayException("Pencabutan peran organisasi di layanan autentikasi gagal.");
       }
@@ -164,27 +169,24 @@ export class DepartmentsService {
     if (!department.isActive) throw new BadRequestException("Bidang/departemen tidak aktif.");
   }
 
-  private async grantAuthRole(body: { userId: string; departmentId: string; role: "admin_bidang" }, authorization?: string) {
-    const baseUrl = process.env.AUTH_API_URL;
-    if (!baseUrl) throw new Error("AUTH_API_URL belum dikonfigurasi.");
-    const response = await fetch(`${baseUrl.replace(/\/$/, "")}/api/users/organization-roles`, {
-      method: "POST",
-      headers: { "content-type": "application/json", ...(authorization ? { authorization } : {}) },
-      body: JSON.stringify(body),
+  private async grantAuthRole(body: { userId: string; departmentId: string; role: "admin_bidang" }) {
+    const result = await this.authOrganizationRoles.grant({
+      scope: "department",
+      userId: body.userId,
+      departmentId: body.departmentId,
+      app: "simakin",
+      role: body.role,
     });
-    if (!response.ok) throw new Error("Auth role grant rejected");
-    const result = await response.json() as { id?: string };
-    if (!result.id) throw new Error("Auth role grant returned no assignment id");
     return result.id;
   }
 
-  private async revokeAuthRole(userId: string, departmentId: string, authorization?: string) {
-    const baseUrl = process.env.AUTH_API_URL;
-    if (!baseUrl) throw new Error("AUTH_API_URL belum dikonfigurasi.");
-    const response = await fetch(
-      `${baseUrl.replace(/\/$/, "")}/api/users/organization-roles/${userId}/${departmentId}`,
-      { method: "DELETE", headers: authorization ? { authorization } : {} },
-    );
-    if (!response.ok) throw new Error("Auth role revoke rejected");
+  private async revokeAuthRole(userId: string, departmentId: string) {
+    await this.authOrganizationRoles.revoke({
+      scope: "department",
+      userId,
+      departmentId,
+      app: "simakin",
+      role: "admin_bidang",
+    });
   }
 }
