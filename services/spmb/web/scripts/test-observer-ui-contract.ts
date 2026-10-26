@@ -26,4 +26,11 @@ assert(observerPage.includes("/api/observers/me/worklist"), "observer page must 
 assert(observerPage.includes("/api/observers/me/rankings"), "observer page must load /api/observers/me/rankings");
 assert(observerPage.includes("/api/observers/me/results"), "observer page must submit to /api/observers/me/results");
 
+const adminPage = readFileSync(resolve(root, "src/app/admin/page.tsx"), "utf8");
+assert(/href:\s*["']\/admin\?tab=observations["']/.test(adminPage), "admin observer navigation must target assignment settings");
+assert(/setAdminTab\(["']observations["']\)/.test(adminPage), "admin page must honor the observations tab route state");
+assert(/hasObserverRole/.test(observerPage), "observer portal must classify actual observer role separately");
+assert(/\/admin\?tab=observations/.test(observerPage), "admin unit entering observer portal must be redirected to assignment settings");
+assert(/window\.location\.(replace|assign)/.test(observerPage), "role redirect must occur before worklist loading");
+
 console.log("SPMB observer UI contract passed");

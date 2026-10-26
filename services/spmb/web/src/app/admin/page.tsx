@@ -85,6 +85,13 @@ export default function SpmbAdminPage() {
     setNotice({ type, message });
   };
 
+  useEffect(() => {
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    if (["overview", "registrations", "verification", "observations", "decisions"].includes(tab ?? "")) {
+      setAdminTab(tab as "overview" | "registrations" | "verification" | "observations" | "decisions");
+    }
+  }, []);
+
   const fetchPeriods = async () => {
     try {
       const res = await fetch("/api/periods");
@@ -267,8 +274,8 @@ export default function SpmbAdminPage() {
       title: "Portal",
       items: [
         {
-          label: "Portal Observer",
-          href: "/observer",
+          label: "Pengaturan Observer",
+          href: "/admin?tab=observations",
           icon: "assignment_turned_in",
         },
       ],

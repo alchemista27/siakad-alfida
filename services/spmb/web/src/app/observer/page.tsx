@@ -93,29 +93,32 @@ export default function ObserverPage() {
 
         setUserEmail(data.user.email || "");
 
-        // Validasi peran RBAC untuk portal Penguji Observasi SPMB
-        const allowedRoles = ["super_admin", "admin_unit", "tim_ppdb", "observer"];
-        const hasAccess = data.user.roles?.some((r: any) => {
-          const roleName = typeof r === "string" ? r : r.role;
-          const appName = typeof r === "string" ? "*" : r.app || "*";
-          if (roleName === "super_admin" && (appName === "*" || appName === "auth" || appName === "core")) {
-            return true;
-          }
-          if (appName === "*" || appName === "spmb") {
-            return allowedRoles.includes(roleName);
-          }
-          return false;
+        const roleEntries = Array.isArray(data.user.roles) ? data.user.roles : [];
+        const hasRole = (wanted: string) => roleEntries.some((entry: any) => {
+          const role = typeof entry === "string" ? entry : entry?.role;
+          const app = typeof entry === "string" ? "*" : entry?.app || "*";
+          return role === wanted && (app === "*" || app === "spmb");
         });
+        const hasObserverRole = hasRole("observer") || roleEntries.some((entry: any) => {
+          const role = typeof entry === "string" ? entry : entry?.role;
+          const app = typeof entry === "string" ? "*" : entry?.app || "*";
+          return role === "super_admin" && ["*", "auth", "core", "spmb"].includes(app);
+        });
+        const hasAdminUnitRole = hasRole("admin_unit");
 
-        if (!hasAccess) {
+        if (!hasObserverRole && hasAdminUnitRole) {
+          window.location.replace("/admin?tab=observations");
+          return;
+        }
+        if (!hasObserverRole) {
           setAccessDenied(true);
           setAuthLoading(false);
           return;
         }
 
-        const primaryRole = data.user.roles?.find((r: any) => {
-          const roleName = typeof r === "string" ? r : r.role;
-          return allowedRoles.includes(roleName);
+        const primaryRole = roleEntries.find((entry: any) => {
+          const roleName = typeof entry === "string" ? entry : entry?.role;
+          return roleName === "observer" || roleName === "super_admin";
         });
         const roleRaw = (typeof primaryRole === "object" ? primaryRole?.role : primaryRole) || "OBSERVER";
         const roleLabel = roleRaw.replace(/_/g, " ").toUpperCase();
