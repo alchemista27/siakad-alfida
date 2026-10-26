@@ -1,0 +1,21 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const app = readFileSync(resolve(__dirname, "../App.tsx"), "utf8");
+const calendar = app.indexOf("<HijriCalendarCard");
+const prayer = app.indexOf("<PrayerTimesCard");
+const reading = app.indexOf("<AlmatsuratCard");
+assert.ok(calendar > -1 && prayer > calendar && reading > prayer, "All three features appear on the authenticated mobile screen");
+assert.match(app, /<HijriCalendarCard[^>]+now=\{(?:prayerNow|screenNow)\}/);
+assert.match(app, /<PrayerTimesCard[^>]+slots=\{/);
+assert.match(app, /validatePrayerLocation\(position, Date\.now\(\)\)/);
+assert.match(app, /Location\.requestForegroundPermissionsAsync\(\)/);
+assert.match(app, /setPrayerLocation\(null\)/);
+assert.match(app, /AppState\.addEventListener/);
+assert.match(app, /prayerRequestVersion = useRef\(0\)/);
+assert.match(app, /const requestVersion = \+\+prayerRequestVersion\.current/);
+assert.match(app, /requestVersion !== prayerRequestVersion\.current/);
+assert.match(app, /prayerRequestVersion\.current \+= 1/);
+assert.doesNotMatch(app, /requestBackgroundPermissionsAsync|startLocationUpdatesAsync/);
+console.log("devotional app integration passed");

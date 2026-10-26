@@ -1,6 +1,7 @@
 import * as Crypto from "expo-crypto";
 import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
+import { authorizationCodeFromCallback, isAccessTokenExpired } from "./session-policy";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -9,10 +10,6 @@ const REDIRECT_URI = "simpeg-absensi://auth";
 const ACCESS_TOKEN_KEY = "simpeg-mobile-access-token";
 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
 
-function query(url: string, key: string): string | null {
-  const match = url.match(new RegExp(`[?&]${key}=([^&]+)`));
-  return match ? decodeURIComponent(match[1]) : null;
-}
 
 async function randomUrlSafe(length: number): Promise<string> {
   const bytes = await Crypto.getRandomBytesAsync(length);
@@ -37,9 +34,7 @@ export async function startMobileLogin(): Promise<{ token: string; user: { id: s
   const result = await WebBrowser.openAuthSessionAsync(login.toString(), REDIRECT_URI);
   if (result.type !== "success") throw new Error("Masuk dibatalkan.");
 
-  const code = query(result.url, "code");
-  const returnedState = query(result.url, "state");
-  if (!code || returnedState !== state) throw new Error("Respons SSO mobile tidak valid.");
+  const code = authorizationCodeFromCallback(result.url, state);
 
   const response = await fetch(`${AUTH_URL}/api/auth/mobile/token`, {
     method: "POST",
@@ -47,13 +42,20 @@ export async function startMobileLogin(): Promise<{ token: string; user: { id: s
     body: JSON.stringify({ code, code_verifier }),
   });
   const body = await response.json().catch(() => null) as { token?: string; user?: { id: string; fullName: string; email: string }; message?: string } | null;
-  if (!response.ok || !body?.token || !body.user) throw new Error(body?.message || "Tidak dapat menyelesaikan SSO mobile.");
+  if (!response.ok || !body?.token || !body.user || !body.user.id || !body.user.fullName || !body.user.email || isAccessTokenExpired(body.token)) {
+    throw new Error(body?.message || "Tidak dapat menyelesaikan SSO mobile.");
+  }
   await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, body.token);
   return { token: body.token, user: body.user };
 }
 
-export function getMobileAccessToken() {
-  return SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+export async function getMobileAccessToken() {
+  const stored = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+  if (stored && isAccessTokenExpired(stored)) {
+    await clearMobileAccessToken();
+    return null;
+  }
+  return stored;
 }
 
 export function clearMobileAccessToken() {
