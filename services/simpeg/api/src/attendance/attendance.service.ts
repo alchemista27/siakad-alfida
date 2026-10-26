@@ -225,7 +225,7 @@ export class AttendanceService {
     const status = jakartaMinutes(now) > hhmmMinutes(workSchedule.startTime) + workSchedule.lateGraceMinutes
       ? GpsAttendanceStatus.late : GpsAttendanceStatus.present;
 
-    return this.prisma.gpsAttendance.create({
+    const attendance = await this.prisma.gpsAttendance.create({
       data: {
         userId,
         unitId: context.unitId,
@@ -238,6 +238,7 @@ export class AttendanceService {
         overtimeMinutes: 0,
       } as any,
     });
+    return { ...attendance, distanceMeters: Math.round(distance) };
   }
 
   async checkOut(userId: string, dto: GpsCheckInOutDto, now = new Date()) {
@@ -274,7 +275,9 @@ export class AttendanceService {
       data: { checkOutTime: now, overtimeMinutes } as any,
     });
     if (updated.count !== 1) throw new BadRequestException("Anda sudah melakukan check out hari ini.");
-    return this.prisma.gpsAttendance.findUnique({ where: { id: context.attendance.id } });
+    const attendance = await this.prisma.gpsAttendance.findUnique({ where: { id: context.attendance.id } });
+    if (!attendance) throw new BadRequestException("Data check out tidak ditemukan.");
+    return { ...attendance, distanceMeters: Math.round(distance) };
   }
 
   async getMyAttendanceHistory(userId: string, month: number, year: number) {
