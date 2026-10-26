@@ -2,10 +2,12 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import cookieParser from "cookie-parser";
 import { isAllowedCorsOrigin } from "./common/cors-policy";
+import { CrossVersionHttpExceptionFilter } from "./common/cross-version-http-exception.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.useGlobalFilters(new CrossVersionHttpExceptionFilter());
   app.use(cookieParser());
   app.setGlobalPrefix("api");
 
