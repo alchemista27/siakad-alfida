@@ -9,6 +9,7 @@ import { DepartmentAdminModal } from "../components/organization/department-admi
 import { OrganizationDepartment, OrganizationEmployee, OrganizationUnit } from "../components/organization/types";
 import { WorkdayManagementPanel } from "../components/attendance/workday-management-panel";
 import type { Holiday, SaturdayDuty } from "../components/attendance/workday-management-panel";
+import { hasSimpegManagementAccess, isPegawaiRole, simpegLandingTab, type SimpegRole } from "../lib/simpeg-access";
 
 interface Assignment {
   id: string;
@@ -103,6 +104,9 @@ export default function SimpegDashboard() {
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string } | null>(null);
+  const [isManager, setIsManager] = useState(false);
+  const [isPegawai, setIsPegawai] = useState(false);
+  const [locationPreviewMeters, setLocationPreviewMeters] = useState<number | null>(null);
 
   const fetchWorkdayData = async () => {
     setWorkdayLoading(true);
@@ -162,32 +166,66 @@ export default function SimpegDashboard() {
     }
   };
 
-  useEffect(() => {
-    async function loadUser() {
-      try {
-        const res = await fetch("https://auth.alfida.or.id/api/auth/me", {
-          credentials: "include",
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.user) {
-            const primaryRole = data.user.roles?.[0]?.role
-              ? data.user.roles[0].role.replace(/_/g, " ").toUpperCase()
-              : "PEGAWAI";
-            const roles = Array.isArray(data.user.roles) ? data.user.roles as { app?: string; role?: string; unitId?: string | null }[] : [];
-            setCanManageAllUnits(roles.some((entry) => (entry.role === "super_admin" && ["*", "auth", "core", "simpeg"].includes(entry.app || "")) || (entry.role === "admin_kepegawaian" && entry.app === "simpeg")));
-            setManageableUnitIds(roles.filter((entry) => entry.app === "simpeg" && (entry.role === "admin_unit" || entry.role === "admin_unit_nondik") && entry.unitId).map((entry) => entry.unitId!));
-            setCurrentUser({
-              fullName: data.user.fullName,
-              role: primaryRole,
-            });
-            return;
-          }
-        }
-      } catch (e) {}
+  const fetchEmployeeAttendanceData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const now = new Date();
+      const [context, history] = await Promise.all([
+        readManagementJson<any>("/api/attendance/context"),
+        readManagementJson<any[]>(`/api/attendance/my-history?month=${now.getMonth() + 1}&year=${now.getFullYear()}`),
+      ]);
+      setAttendanceContext(context);
+      setAttendanceLogs(history);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Status presensi tidak dapat dimuat.");
+    } finally {
+      setLoading(false);
     }
-    loadUser();
-    fetchData();
+  };
+
+  useEffect(() => {
+    async function bootstrap() {
+      try {
+        const res = await fetch("https://auth.alfida.or.id/api/auth/me", { credentials: "include" });
+        if (!res.ok) {
+          window.location.href = `https://auth.alfida.or.id/login?return_to=${encodeURIComponent(window.location.href)}`;
+          return;
+        }
+        const data = await res.json();
+        if (!data?.user) {
+          window.location.href = `https://auth.alfida.or.id/login?return_to=${encodeURIComponent(window.location.href)}`;
+          return;
+        }
+
+        const roles = Array.isArray(data.user.roles) ? data.user.roles as SimpegRole[] : [];
+        const manager = hasSimpegManagementAccess(roles);
+        const pegawai = isPegawaiRole(roles);
+        const primaryRole = typeof roles[0] === "object" && roles[0]?.role
+          ? roles[0].role.replace(/_/g, " ").toUpperCase()
+          : pegawai ? "PEGAWAI" : "PENGGUNA";
+
+        setCanManageAllUnits(roles.some((entry: any) => (entry?.role === "super_admin" && ["*", "auth", "core", "simpeg"].includes(entry?.app || "")) || (entry?.role === "admin_kepegawaian" && entry?.app === "simpeg")));
+        setManageableUnitIds(roles.filter((entry: any) => entry?.app === "simpeg" && (entry?.role === "admin_unit" || entry?.role === "admin_unit_nondik") && entry?.unitId).map((entry: any) => entry.unitId));
+        setCurrentUser({ fullName: data.user.fullName || data.user.email || "Pengguna SIMPEG", role: primaryRole });
+        setIsManager(manager);
+        setIsPegawai(pegawai);
+        setActiveTab(simpegLandingTab(roles));
+
+        if (manager) {
+          await fetchData();
+        } else if (pegawai) {
+          await fetchEmployeeAttendanceData();
+        } else {
+          setError("Akun belum memiliki peran SIMPEG. Hubungi administrator kepegawaian.");
+          setLoading(false);
+        }
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : "Sesi SIMPEG tidak dapat dimuat.");
+        setLoading(false);
+      }
+    }
+    void bootstrap();
   }, []);
 
   useEffect(() => {
@@ -248,7 +286,7 @@ export default function SimpegDashboard() {
     }
   };
 
-  const getCoordinates = (): Promise<{ latitude: number; longitude: number }> => {
+  const getCoordinates = (): Promise<{ latitude: number; longitude: number; accuracyMeters: number; capturedAt: string }> => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         return reject(new Error("Perangkat atau browser Anda tidak mendukung GPS Geolocation."));
@@ -258,6 +296,8 @@ export default function SimpegDashboard() {
           resolve({
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude,
+            accuracyMeters: pos.coords.accuracy,
+            capturedAt: new Date(pos.timestamp).toISOString(),
           });
         },
         (err) => {
@@ -271,15 +311,32 @@ export default function SimpegDashboard() {
           }
           reject(new Error(msg));
         },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 }
       );
     });
+  };
+
+  const distanceMeters = (latitudeA: number, longitudeA: number, latitudeB: number, longitudeB: number): number => {
+    const radians = (degrees: number) => (degrees * Math.PI) / 180;
+    const earthRadiusMeters = 6_371_000;
+    const dLatitude = radians(latitudeB - latitudeA);
+    const dLongitude = radians(longitudeB - longitudeA);
+    const a = Math.sin(dLatitude / 2) ** 2
+      + Math.cos(radians(latitudeA)) * Math.cos(radians(latitudeB)) * Math.sin(dLongitude / 2) ** 2;
+    return 2 * earthRadiusMeters * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+
+  const updateLocationPreview = (coords: { latitude: number; longitude: number }) => {
+    const config = attendanceContext?.config;
+    if (!config) return;
+    setLocationPreviewMeters(Math.round(distanceMeters(coords.latitude, coords.longitude, Number(config.latitude), Number(config.longitude))));
   };
 
   const handleCheckInGps = async () => {
     setIsSubmitting(true);
     try {
       const coords = await getCoordinates();
+      updateLocationPreview(coords);
       const res = await fetch("/api/attendance/check-in", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -291,8 +348,9 @@ export default function SimpegDashboard() {
         throw new Error(data.message || "Gagal melakukan presensi GPS.");
       }
 
-      setActionSuccess("Presensi masuk berhasil dicatat.");
+      setActionSuccess(`Presensi masuk berhasil dicatat${typeof data.distanceMeters === "number" ? ` (${data.distanceMeters} m dari titik unit).` : "."}`);
       setTimeout(() => setActionSuccess(null), 4000);
+      await (isManager ? fetchData() : fetchEmployeeAttendanceData());
     } catch (err: any) {
       setFeedbackError(err.message || "Terjadi kesalahan saat menjalankan tindakan.");
     } finally {
@@ -304,6 +362,7 @@ export default function SimpegDashboard() {
     setIsSubmitting(true);
     try {
       const coords = await getCoordinates();
+      updateLocationPreview(coords);
       const res = await fetch("/api/attendance/check-out", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -315,8 +374,9 @@ export default function SimpegDashboard() {
         throw new Error(data.message || "Gagal melakukan presensi pulang.");
       }
 
-      setActionSuccess("Presensi keluar berhasil dicatat.");
+      setActionSuccess(`Presensi keluar berhasil dicatat${typeof data.distanceMeters === "number" ? ` (${data.distanceMeters} m dari titik unit).` : "."}`);
       setTimeout(() => setActionSuccess(null), 4000);
+      await (isManager ? fetchData() : fetchEmployeeAttendanceData());
     } catch (err: any) {
       setFeedbackError(err.message || "Terjadi kesalahan saat menjalankan tindakan.");
     } finally {
@@ -470,12 +530,30 @@ export default function SimpegDashboard() {
     },
   ];
 
+  const isEmployeeOnly = isPegawai && !isManager;
+  const visibleSidebarGroups = isEmployeeOnly ? [
+    {
+      title: "Presensi Mandiri",
+      items: [{
+        label: "Presensi GPS",
+        href: "#attendance",
+        icon: "location_on",
+        active: activeTab === "attendance",
+        onClick: () => setActiveTab("attendance"),
+      }],
+    },
+    {
+      title: "Sistem",
+      items: [{ label: "Portal Modul", href: "https://auth.alfida.or.id/modules", icon: "apps" }],
+    },
+  ] : sidebarGroups;
+
   return (
     <AppShell
       serviceName="SIMPEG"
       userName={currentUser?.fullName || "Memuat..."}
       userRole={currentUser?.role || ""}
-      sidebarGroups={sidebarGroups}
+      sidebarGroups={visibleSidebarGroups}
       onLogout={() => {
         window.location.href = "https://auth.alfida.or.id/login";
       }}
@@ -505,18 +583,20 @@ export default function SimpegDashboard() {
             <Button
               variant="secondary"
               size="sm"
-              onClick={fetchData}
+              onClick={isManager ? fetchData : fetchEmployeeAttendanceData}
               disabled={loading}
             >
               Segarkan Data
             </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => setShowAddAssignmentModal(true)}
-            >
-              Tambah Penugasan Unit
-            </Button>
+            {isManager && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setShowAddAssignmentModal(true)}
+              >
+                Tambah Penugasan Unit
+              </Button>
+            )}
           </div>
         </div>
 
@@ -541,7 +621,10 @@ export default function SimpegDashboard() {
         )}
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-slate-200 gap-6 text-sm font-medium">
+        {isEmployeeOnly ? (
+          <div className="flex border-b border-slate-200 pb-3 text-sm font-semibold text-emerald-700">Presensi GPS</div>
+        ) : (
+          <div className="flex border-b border-slate-200 gap-6 text-sm font-medium">
           <button
             onClick={() => setActiveTab("assignments")}
             className={`pb-3 border-b-2 transition-colors ${
@@ -582,13 +665,14 @@ export default function SimpegDashboard() {
           >
             Pembinaan & BPI
           </button>
-        </div>
+          </div>
+        )}
 
         {/* Content Section */}
         {loading ? (
           <LoadingState message="Memuat data kepegawaian..." />
         ) : error ? (
-          <ErrorState message={error} onRetry={fetchData} />
+          <ErrorState message={error} onRetry={isManager ? fetchData : fetchEmployeeAttendanceData} />
         ) : (
           <div>
             {/* TAB 1: PENUGASAN UNIT PEGAWAI */}
@@ -696,11 +780,17 @@ export default function SimpegDashboard() {
                     <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">Penugasan atau konfigurasi GPS unit Anda belum tersedia. Hubungi admin kepegawaian.</div>
                   )}
 
+                  {locationPreviewMeters !== null && attendanceContext?.config && (
+                    <p className={`rounded-md border p-3 text-xs ${locationPreviewMeters <= attendanceContext.config.radiusMeters ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-rose-200 bg-rose-50 text-rose-800"}`}>
+                      Jarak lokasi terkini: <strong>{locationPreviewMeters} meter</strong> dari titik unit (radius {attendanceContext.config.radiusMeters} meter). Validasi akhir tetap dilakukan server.
+                    </p>
+                  )}
+
                   <div className="flex gap-3 pt-2">
                     <Button
                       variant="primary"
                       onClick={handleCheckInGps}
-                      disabled={isSubmitting || !attendanceContext?.config || !attendanceContext?.workday?.required}
+                      disabled={isSubmitting || !attendanceContext?.config || !attendanceContext?.workday?.required || Boolean(attendanceContext?.attendance?.checkInTime)}
                       className="flex-1"
                     >
                       Check-In Masuk (GPS)
@@ -708,7 +798,7 @@ export default function SimpegDashboard() {
                     <Button
                       variant="secondary"
                       onClick={handleCheckOutGps}
-                      disabled={isSubmitting || !attendanceContext?.config || !attendanceContext?.workday?.required}
+                      disabled={isSubmitting || !attendanceContext?.config || !attendanceContext?.workday?.required || !attendanceContext?.attendance?.checkInTime || Boolean(attendanceContext?.attendance?.checkOutTime)}
                       className="flex-1"
                     >
                       Check-Out Pulang (GPS)
