@@ -22,5 +22,10 @@ for (const file of required) {
 const periodPanel = readFileSync(resolve(root, "src/components/admin/period-management-panel.tsx"), "utf8");
 assert(periodPanel.includes("/api/periods"), "period panel must interact with /api/periods");
 assert(periodPanel.includes("/open") && periodPanel.includes("/close"), "period panel must support explicit open and close actions");
+assert(periodPanel.includes('method: "DELETE"'), "period panel must call DELETE /api/periods/:id");
+assert(periodPanel.includes("Hapus Periode"), "closed periods must expose a delete action");
+assert(periodPanel.includes("deleteCandidate"), "deletion must require in-app confirmation state");
+assert(periodPanel.includes("ID Tahun Ajaran SIAKAD (opsional)"), "mapping input must be labelled as optional SIAKAD mapping");
+assert(periodPanel.includes("bukan label tahun ajaran PPDB"), "mapping help must distinguish local PPDB label from SIAKAD ID");
 
 console.log("SPMB period management UI contract passed");

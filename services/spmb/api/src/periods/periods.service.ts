@@ -42,6 +42,15 @@ export class PeriodsService {
     return requested;
   }
 
+  private normalizeSourceAcademicYearId(value?: string): string | null {
+    const sourceAcademicYearId = value?.trim() || "";
+    if (!sourceAcademicYearId) return null;
+    if (!UUID_REGEX.test(sourceAcademicYearId)) {
+      throw new BadRequestException("ID Tahun Ajaran SIAKAD harus berupa UUID yang valid atau dikosongkan.");
+    }
+    return sourceAcademicYearId;
+  }
+
   private validateDateRange(opensAt?: string | Date | null, closesAt?: string | Date | null) {
     if (!opensAt || !closesAt) return;
     const start = new Date(opensAt);
@@ -119,6 +128,7 @@ export class PeriodsService {
 
   async create(dto: CreatePeriodDto, principal: SpmbPrincipal) {
     const unitId = this.resolveTargetUnitId(dto.unitId, principal);
+    const sourceAcademicYearId = this.normalizeSourceAcademicYearId(dto.sourceAcademicYearId);
     this.validateDateRange(dto.opensAt, dto.closesAt);
     const isOpen = dto.isOpen ?? true;
 
@@ -127,7 +137,7 @@ export class PeriodsService {
         where: {
           unitId,
           isOpen: true,
-          ...(dto.sourceAcademicYearId ? { sourceAcademicYearId: dto.sourceAcademicYearId } : {}),
+          ...(sourceAcademicYearId ? { sourceAcademicYearId } : {}),
         },
       });
       if (existingOpen) {
@@ -138,7 +148,7 @@ export class PeriodsService {
     return this.prisma.admissionPeriod.create({
       data: {
         unitId,
-        sourceAcademicYearId: dto.sourceAcademicYearId || null,
+        sourceAcademicYearId,
         unitName: dto.unitName,
         unitSlug: dto.unitSlug,
         label: dto.label,
@@ -158,12 +168,15 @@ export class PeriodsService {
     this.assertPeriodMutationRole(principal);
     const existing = await this.findOne(id, principal);
     this.assertExistingPeriodAccess(existing, principal, ["admin_unit"]);
+    const sourceAcademicYearId = dto.sourceAcademicYearId === undefined
+      ? undefined
+      : this.normalizeSourceAcademicYearId(dto.sourceAcademicYearId);
     this.validateDateRange(dto.opensAt ?? existing.opensAt, dto.closesAt ?? existing.closesAt);
 
     return this.prisma.admissionPeriod.update({
       where: { id },
       data: {
-        sourceAcademicYearId: dto.sourceAcademicYearId,
+        sourceAcademicYearId,
         label: dto.label,
         isOpen: dto.isOpen,
         quota: dto.quota,
@@ -210,5 +223,25 @@ export class PeriodsService {
       where: { id },
       data: { isOpen: false },
     });
+  }
+
+  async remove(id: string, principal: SpmbPrincipal) {
+    this.assertPeriodMutationRole(principal);
+    const existing = await this.findOne(id, principal);
+    this.assertExistingPeriodAccess(existing, principal, ["admin_unit"]);
+
+    if (existing.isOpen) {
+      throw new BadRequestException("Tutup periode sebelum menghapusnya.");
+    }
+
+    const registrations = existing._count?.registrations ?? 0;
+    const schedules = existing._count?.schedules ?? 0;
+    if (registrations > 0 || schedules > 0) {
+      throw new BadRequestException(
+        "Periode tidak dapat dihapus karena sudah memiliki pendaftar atau jadwal observasi.",
+      );
+    }
+
+    return this.prisma.admissionPeriod.delete({ where: { id } });
   }
 }

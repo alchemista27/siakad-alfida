@@ -92,7 +92,30 @@ async function run() {
   assert(createdData?.unitId === unitA, "admin_unit period creation must derive unitId from single scoped principal");
   assert(createdData?.sourceAcademicYearId === yearA, "period creation must persist sourceAcademicYearId");
 
-  // 3. opensAt must precede closesAt
+  // 3. invalid SIAKAD mapping must be rejected before Prisma receives it
+  let invalidSourceFindFirstCalled = false;
+  const invalidSourceService = new PeriodsService({
+    admissionPeriod: {
+      findFirst: async () => {
+        invalidSourceFindFirstCalled = true;
+        throw new Error("Prisma must not receive malformed UUID input");
+      },
+    },
+  } as any);
+  await expectRejects("invalid SIAKAD academic year ID", BadRequestException, () =>
+    invalidSourceService.create(
+      {
+        unitName: "SDIT",
+        unitSlug: "sdit",
+        label: "2026/2027",
+        sourceAcademicYearId: "2026/2027",
+      },
+      adminA,
+    ),
+  );
+  assert(invalidSourceFindFirstCalled === false, "invalid sourceAcademicYearId must fail before Prisma findFirst");
+
+  // 4. opensAt must precede closesAt
   await expectRejects("invalid open/close dates", BadRequestException, () =>
     createService.create(
       {
@@ -107,7 +130,23 @@ async function run() {
     ),
   );
 
-  // 4. super_admin must provide explicit valid UUID unitId
+  // 5. updates must reject malformed SIAKAD mapping before Prisma update
+  let invalidUpdateCalled = false;
+  const invalidUpdateService = new PeriodsService({
+    admissionPeriod: {
+      findUnique: async () => ({ id: "period-1", unitId: unitA, isOpen: false, opensAt: null, closesAt: null, _count: { registrations: 0, schedules: 0 } }),
+      update: async () => {
+        invalidUpdateCalled = true;
+        throw new Error("Prisma must not receive malformed UUID input");
+      },
+    },
+  } as any);
+  await expectRejects("invalid SIAKAD academic year update", BadRequestException, () =>
+    invalidUpdateService.update("period-1", { sourceAcademicYearId: "tahun-ajaran-baru" }, adminA),
+  );
+  assert(invalidUpdateCalled === false, "invalid sourceAcademicYearId update must fail before Prisma update");
+
+  // 6. super_admin must provide explicit valid UUID unitId
   await expectRejects("super_admin missing unitId", BadRequestException, () =>
     createService.create(
       {
@@ -166,9 +205,43 @@ async function run() {
   const closed = await (lifecycleService as any).closePeriod("period-1", adminA);
   assert(closed.isOpen === false, "closePeriod must set isOpen=false");
 
+  // 8. only closed periods without dependent operations can be deleted
+  let deletedPeriodId: string | null = null;
+  const emptyClosedPeriod = {
+    id: "period-empty",
+    unitId: unitA,
+    isOpen: false,
+    opensAt: null,
+    closesAt: null,
+    _count: { registrations: 0, schedules: 0 },
+  };
+  const deletionService = new PeriodsService({
+    admissionPeriod: {
+      findUnique: async ({ where }: any) => {
+        if (where.id === "period-empty") return emptyClosedPeriod;
+        if (where.id === "period-open") return { ...emptyClosedPeriod, id: "period-open", isOpen: true };
+        if (where.id === "period-has-registration") return { ...emptyClosedPeriod, id: "period-has-registration", _count: { registrations: 1, schedules: 0 } };
+        if (where.id === "period-has-schedule") return { ...emptyClosedPeriod, id: "period-has-schedule", _count: { registrations: 0, schedules: 1 } };
+        if (where.id === "foreign") return { ...emptyClosedPeriod, id: "foreign", unitId: unitB };
+        return null;
+      },
+      delete: async ({ where }: any) => {
+        deletedPeriodId = where.id;
+        return emptyClosedPeriod;
+      },
+    },
+  } as any);
+  await deletionService.remove("period-empty", adminA);
+  assert(deletedPeriodId === "period-empty", "closed empty period must be deleted");
+  await expectRejects("open period cannot be deleted", BadRequestException, () => deletionService.remove("period-open", adminA));
+  await expectRejects("period with registrations cannot be deleted", BadRequestException, () => deletionService.remove("period-has-registration", adminA));
+  await expectRejects("period with schedules cannot be deleted", BadRequestException, () => deletionService.remove("period-has-schedule", adminA));
+  await expectRejects("foreign period cannot be deleted", NotFoundException, () => deletionService.remove("foreign", adminA));
+
   const controller = new PeriodsController(lifecycleService);
   assert(typeof (controller as any).open === "function", "PeriodsController must expose POST :id/open");
   assert(typeof (controller as any).close === "function", "PeriodsController must expose POST :id/close");
+  assert(typeof (controller as any).remove === "function", "PeriodsController must expose DELETE :id");
 
   console.log("SPMB period management contract passed");
 }

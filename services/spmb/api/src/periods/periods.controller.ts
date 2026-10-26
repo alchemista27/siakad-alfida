@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   Post,
   Put,
@@ -66,5 +67,12 @@ export class PeriodsController {
   @SpmbRoles("admin_unit")
   async close(@Param("id") id: string, @Req() req: any) {
     return this.periodsService.closePeriod(id, req.user);
+  }
+
+  @Delete(":id")
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit")
+  async remove(@Param("id") id: string, @Req() req: any) {
+    return this.periodsService.remove(id, req.user);
   }
 }
