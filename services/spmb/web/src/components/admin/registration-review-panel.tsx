@@ -25,6 +25,9 @@ export function RegistrationReviewPanel({
 }) {
   const [revisionNoteById, setRevisionNoteById] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState<string | null>(null);
+  const canVerifyPayment = (reg: ReviewableRegistration) => (
+    reg.status === "payment_uploaded" && reg.payment?.status === "uploaded"
+  );
 
   const verifyPayment = async (regId: string, isApproved: boolean) => {
     setBusyId(regId);
@@ -34,7 +37,7 @@ export function RegistrationReviewPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           isApproved,
-          rejectionReason: isApproved ? undefined : (revisionNoteById[regId] || "Bukti transfer tidak sesuai."),
+          rejectionNote: isApproved ? undefined : (revisionNoteById[regId] || "Bukti transfer tidak sesuai."),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -120,22 +123,26 @@ export function RegistrationReviewPanel({
                   Lihat Bukti
                 </button>
               )}
-              <button
-                type="button"
-                disabled={busyId === reg.id}
-                onClick={() => verifyPayment(reg.id, true)}
-                className="px-2.5 py-1 bg-[#0f7f6d] text-white rounded font-semibold"
-              >
-                Setujui Bayar
-              </button>
-              <button
-                type="button"
-                disabled={busyId === reg.id}
-                onClick={() => verifyPayment(reg.id, false)}
-                className="px-2.5 py-1 border border-red-200 text-red-700 rounded font-semibold"
-              >
-                Tolak Bayar
-              </button>
+              {canVerifyPayment(reg) && (
+                <>
+                  <button
+                    type="button"
+                    disabled={busyId === reg.id}
+                    onClick={() => verifyPayment(reg.id, true)}
+                    className="px-2.5 py-1 bg-[#0f7f6d] text-white rounded font-semibold"
+                  >
+                    Setujui Bayar
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busyId === reg.id}
+                    onClick={() => verifyPayment(reg.id, false)}
+                    className="px-2.5 py-1 border border-red-200 text-red-700 rounded font-semibold"
+                  >
+                    Tolak Bayar
+                  </button>
+                </>
+              )}
               <button
                 type="button"
                 disabled={busyId === reg.id}
