@@ -7,7 +7,6 @@ export type SiyaumRole =
   | "pengawas"
   | "pimpinan"
   | "peserta"
-  | "musyrif"
   | "super_admin";
 
 export interface CurrentUser {
@@ -17,14 +16,19 @@ export interface CurrentUser {
   roles: Array<{ app?: string; role: SiyaumRole | string }>;
 }
 
+function isGlobalSuperAdmin(app: string | undefined, role: string): boolean {
+  return role === "super_admin" && ["*", "auth", "core"].includes(app || "");
+}
+
 export function hasSiyaumRole(user: CurrentUser | null | undefined, ...roles: SiyaumRole[]): boolean {
   return Boolean(user?.roles.some(({ app, role }) =>
-    (app === "siyaum" || app === "*" || !app) && (role === "super_admin" || roles.includes(role as SiyaumRole)),
+    isGlobalSuperAdmin(app, role) || ((app === "siyaum" || app === "*" || !app) && roles.includes(role as SiyaumRole)),
   ));
 }
 
 export function roleLabel(user: CurrentUser | null | undefined): string {
-  const role = user?.roles.find(({ app }) => app === "siyaum" || app === "*")?.role;
+  const role = user?.roles.find(({ app, role }) => isGlobalSuperAdmin(app, role))?.role
+    || user?.roles.find(({ app }) => app === "siyaum" || app === "*")?.role;
   return (role || "peserta").replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 

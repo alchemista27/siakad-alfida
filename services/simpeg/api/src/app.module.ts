@@ -10,6 +10,7 @@ import { OrganizationSyncModule } from "./organization-sync/organization-sync.mo
 import { BpiModule } from "./bpi/bpi.module";
 import { YmqEmployeeProjectionModule } from "./ymq-projection/ymq-employee-projection.module";
 import { StaffApprovalProjectionModule } from "./staff-approval-projection/staff-approval-projection.module";
+import { YmqRoleAdministrationModule } from "./ymq-role-administration/ymq-role-administration.module";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { StaffApprovalProjectionModule } from "./staff-approval-projection/staff
     BpiModule,
     YmqEmployeeProjectionModule,
     StaffApprovalProjectionModule,
+    YmqRoleAdministrationModule,
   ],
 })
 export class AppModule {}

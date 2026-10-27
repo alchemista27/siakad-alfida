@@ -1,12 +1,19 @@
 import { BadRequestException } from "@nestjs/common";
 
-export const YMQ_BROKER_ASSIGNABLE_ROLES = ["pembina_ymq", "admin_kelompok"] as const;
-export type YmqBrokerAssignableRole = (typeof YMQ_BROKER_ASSIGNABLE_ROLES)[number];
+export const YMQ_BROKER_MANAGED_ROLES = [
+  "admin_ymq",
+  "peserta",
+  "pembina_ymq",
+  "admin_kelompok",
+  "pengawas",
+  "pimpinan",
+] as const;
+export type YmqBrokerManagedRole = (typeof YMQ_BROKER_MANAGED_ROLES)[number];
 
 export type YmqRoleBrokerAssignInput = {
   actorUserId: string;
   userId: string;
-  role: YmqBrokerAssignableRole;
+  role: YmqBrokerManagedRole;
 };
 
 export type YmqRoleBrokerRevokeInput = {
@@ -34,11 +41,11 @@ function assertUuid(value: unknown, field: string): asserts value is string {
   }
 }
 
-export function validateYmqBrokerAssignableRole(value: unknown): YmqBrokerAssignableRole {
-  if (typeof value !== "string" || !(YMQ_BROKER_ASSIGNABLE_ROLES as readonly string[]).includes(value)) {
+export function validateYmqBrokerManagedRole(value: unknown): YmqBrokerManagedRole {
+  if (typeof value !== "string" || !(YMQ_BROKER_MANAGED_ROLES as readonly string[]).includes(value)) {
     throw new BadRequestException("Peran YMQ tidak dapat dikelola oleh broker ini.");
   }
-  return value as YmqBrokerAssignableRole;
+  return value as YmqBrokerManagedRole;
 }
 
 export function validateYmqRoleBrokerAssignInput(value: unknown): YmqRoleBrokerAssignInput {
@@ -49,7 +56,7 @@ export function validateYmqRoleBrokerAssignInput(value: unknown): YmqRoleBrokerA
   return {
     actorUserId: input.actorUserId,
     userId: input.userId,
-    role: validateYmqBrokerAssignableRole(input.role),
+    role: validateYmqBrokerManagedRole(input.role),
   };
 }
 

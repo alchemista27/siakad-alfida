@@ -15,6 +15,7 @@ export function GroupStaffManager() {
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [participants, setParticipants] = useState<Employee[]>([]);
   const [groupId, setGroupId] = useState("");
   const [group, setGroup] = useState<Group | null>(null);
   const [candidateId, setCandidateId] = useState("");
@@ -27,12 +28,13 @@ export function GroupStaffManager() {
   const load = async () => {
     setLoading(true); setError(null);
     try {
-      const [currentUser, groupList, employeeList] = await Promise.all([
+      const [currentUser, groupList, employeeList, participantList] = await Promise.all([
         getCurrentUser(),
         apiFetch<Group[]>("/groups"),
-        apiFetch<Employee[]>("/ymq/employees?active=true"),
+        apiFetch<Employee[]>("/ymq/employees/assignable"),
+        apiFetch<Employee[]>("/ymq/roles/participants"),
       ]);
-      setUser(currentUser); setGroups(groupList); setEmployees(employeeList.filter((employee) => employee.isActive));
+      setUser(currentUser); setGroups(groupList); setEmployees(employeeList.filter((employee) => employee.isActive)); setParticipants(participantList);
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Data kelompok tidak dapat dimuat."); }
     finally { setLoading(false); }
   };
@@ -46,6 +48,7 @@ export function GroupStaffManager() {
   const isAdminYmq = hasSiyaumRole(user, "admin_ymq");
   const candidates = useMemo(() => employees.filter((employee) => `${employee.fullName} ${employee.email} ${employee.unitName || ""}`.toLowerCase().includes(search.toLowerCase())), [employees, search]);
   const selectedCandidate = employees.find((employee) => employee.id === candidateId);
+  const isSelectedParticipant = participants.some((participant) => participant.id === candidateId);
   const mutate = async (action: "pembina" | "admin" | "member" | "remove-member", method: "PUT" | "POST" | "DELETE", userId?: string) => {
     if (!groupId || !userId) return;
     setSaving(true);
@@ -60,6 +63,17 @@ export function GroupStaffManager() {
     finally { setSaving(false); }
   };
   const assignPembina = (event: FormEvent) => { event.preventDefault(); void mutate("pembina", "PUT", candidateId); };
+  const enrollParticipant = async () => {
+    if (!candidateId) return;
+    setSaving(true);
+    try {
+      await apiFetch("/ymq/roles/participants", { method: "POST", body: JSON.stringify({ userId: candidateId }) });
+      const refreshed = await apiFetch<Employee[]>("/ymq/roles/participants");
+      setParticipants(refreshed);
+      setNotice({ title: "Peserta YMQ ditambahkan", message: "Peran peserta telah diberikan. Pengguna perlu login kembali agar klaim peran baru diterbitkan.", tone: "success" });
+    } catch (reason) { setNotice({ title: "Peserta belum ditambahkan", message: reason instanceof Error ? reason.message : "Silakan coba lagi.", tone: "error" }); }
+    finally { setSaving(false); }
+  };
 
   return <SiyaumAppShell user={user} active="groups"><div className="mx-auto max-w-6xl space-y-6"><header className="border-b border-border pb-5"><p className="text-xs font-semibold uppercase tracking-wide text-tertiary">Administrasi YMQ</p><h1 className="mt-1 font-heading text-3xl font-bold">Kelompok & penugasan</h1><p className="mt-2 text-sm leading-6 text-primary/70">Pilih pegawai aktif dari proyeksi SIMPEG untuk pembina, admin kelompok, dan roster. Keamanan otoritas tetap diverifikasi API.</p></header>
     {loading ? <LoadingState message="Memuat kelompok dan proyeksi pegawai SIMPEG…" /> : error ? <ErrorState message={error} onRetry={load} /> : !isAdminYmq ? <EmptyState title="Akses administrasi tidak tersedia" description="Hanya Admin YMQ yang dapat mengubah pembina, admin kelompok, atau roster." /> : <><Card className="shadow-none"><label className="text-sm font-semibold">Pilih kelompok<select value={groupId} onChange={(event) => setGroupId(event.target.value)} className="mt-2 block w-full rounded-sm border border-border px-3 py-2"><option value="">Pilih kelompok</option>{groups.map((item) => <option key={item.id} value={item.id}>{item.name} — {item.unitName || "Unit belum tersedia"}</option>)}</select></label></Card>
@@ -67,8 +81,9 @@ export function GroupStaffManager() {
       <div className="mt-6 border-t border-border pt-4"><h3 className="font-semibold">Admin Kelompok aktif</h3>{(group.groupAdmins || []).filter((assignment) => !assignment.revokedAt).length ? <ul className="mt-2 space-y-2">{group.groupAdmins?.filter((assignment) => !assignment.revokedAt).map((assignment) => <li key={assignment.user.id} className="flex items-center justify-between rounded-sm border border-border px-3 py-2 text-sm"><span>{assignment.user.fullName}<small className="ml-2 text-primary/60">{assignment.user.unitName}</small></span><Button type="button" size="sm" variant="danger" disabled={saving} onClick={() => void mutate("admin", "DELETE", assignment.user.id)}>Cabut</Button></li>)}</ul> : <p className="mt-2 text-sm text-primary/65">Belum ada admin kelompok aktif.</p>}</div>
       <div className="mt-6 border-t border-border pt-4"><h3 className="font-semibold">Roster aktif</h3>{group.members?.length ? <ul className="mt-2 space-y-2">{group.members.map((member) => <li key={member.id} className="flex items-center justify-between rounded-sm border border-border px-3 py-2 text-sm"><span>{member.user?.fullName || member.userId}<small className="ml-2 text-primary/60">{member.user?.unitName}</small></span><Button type="button" size="sm" variant="outline" disabled={saving} onClick={() => void mutate("remove-member", "DELETE", member.userId)}>Pindahkan</Button></li>)}</ul> : <p className="mt-2 text-sm text-primary/65">Belum ada roster aktif.</p>}</div></Card>
       <Card className="shadow-none"><h2 className="font-heading text-xl font-bold">Pilih pegawai aktif</h2><p className="mt-1 text-sm text-primary/70">Pencarian bersumber dari proyeksi pegawai SIMPEG yang aktif.</p><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} className="mt-4 w-full rounded-sm border border-border px-3 py-2 text-sm" placeholder="Cari nama, email, atau unit" /><select value={candidateId} onChange={(event) => setCandidateId(event.target.value)} className="mt-2 w-full rounded-sm border border-border px-3 py-2 text-sm"><option value="">Pilih pegawai</option>{candidates.map((employee) => <option key={employee.id} value={employee.id}>{employee.fullName} — {employee.unitName || "Tanpa unit"}</option>)}</select>{selectedCandidate && <p className="mt-2 text-xs text-primary/65">{selectedCandidate.email} · Unit: {selectedCandidate.unitName || "Tanpa unit"} · Status: aktif</p>}
-        <form onSubmit={assignPembina} className="mt-5 space-y-3 border-t border-border pt-4"><h3 className="font-semibold">Pembina YMQ</h3><Button type="submit" disabled={saving || !candidateId}>Tetapkan / ganti Pembina</Button></form>
-        <div className="mt-5 space-y-3 border-t border-border pt-4"><h3 className="font-semibold">Admin Kelompok</h3><Button type="button" variant="secondary" disabled={saving || !candidateId} onClick={() => void mutate("admin", "POST", candidateId)}>Tambahkan Admin Kelompok</Button></div>
-        <div className="mt-5 space-y-3 border-t border-border pt-4"><h3 className="font-semibold">Roster kelompok</h3><Button type="button" variant="outline" disabled={saving || !candidateId} onClick={() => void mutate("member", "POST", candidateId)}>Tambahkan ke roster</Button></div>
+        <div className="mt-5 space-y-3 border-t border-border pt-4"><h3 className="font-semibold">Peserta YMQ</h3><p className="text-xs text-primary/65">Pembina, admin kelompok, dan roster hanya dapat ditetapkan setelah peran peserta aktif.</p><Button type="button" variant="secondary" disabled={saving || !candidateId || isSelectedParticipant} onClick={() => void enrollParticipant()}>{isSelectedParticipant ? "Sudah menjadi Peserta YMQ" : "Tambah Peserta YMQ"}</Button></div>
+        <form onSubmit={assignPembina} className="mt-5 space-y-3 border-t border-border pt-4"><h3 className="font-semibold">Pembina YMQ</h3><Button type="submit" disabled={saving || !candidateId || !isSelectedParticipant}>Tetapkan / ganti Pembina</Button></form>
+        <div className="mt-5 space-y-3 border-t border-border pt-4"><h3 className="font-semibold">Admin Kelompok</h3><Button type="button" variant="secondary" disabled={saving || !candidateId || !isSelectedParticipant} onClick={() => void mutate("admin", "POST", candidateId)}>Tambahkan Admin Kelompok</Button></div>
+        <div className="mt-5 space-y-3 border-t border-border pt-4"><h3 className="font-semibold">Roster kelompok</h3><Button type="button" variant="outline" disabled={saving || !candidateId || !isSelectedParticipant} onClick={() => void mutate("member", "POST", candidateId)}>Tambahkan ke roster</Button></div>
       </Card></div>}</>}</div><NotificationModal open={Boolean(notice)} title={notice?.title || ""} message={notice?.message || ""} tone={notice?.tone} onClose={() => setNotice(null)} /></SiyaumAppShell>;
 }

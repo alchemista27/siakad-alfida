@@ -16,6 +16,7 @@ const groups = read("src/app/(dashboard)/groups/group-staff-manager.tsx");
 const executive = read("src/app/(dashboard)/executive/executive-dashboard-client.tsx");
 const shell = read("src/components/siyaum-app-shell.tsx");
 const tilawah = read("src/app/(dashboard)/tilawah/tilawah-client.tsx");
+const currentUser = read("src/lib/current-user.ts");
 
 assert.match(api, /const API_BASE_URL\s*=\s*["']\/api/);
 assert.match(api, /content-type/i);
@@ -41,6 +42,20 @@ assert.match(
 );
 assert.match(tilawah, /SiyaumAppShell/, "Tilawah must use the SIYAUM-specific shell");
 assert.match(tilawah, /hasSiyaumRole/, "Tilawah must derive optional calls and actions from scoped roles");
+assert.doesNotMatch(tilawah, /musyrif/, "Tilawah must use pembina terminology and role scope");
+assert.match(tilawah, /canVerifySetoran\s*=\s*hasSiyaumRole\(currentUser,\s*"admin_ymq",\s*"pembina_ymq"\)/);
+assert.match(
+  tilawah,
+  /const canManageOwnSetoran = hasSiyaumRole\(user, "admin_ymq", "pembina_ymq", "admin_kelompok", "peserta"\)/,
+  "Observer and leadership roles must remain report-only in the personal tilawah workspace",
+);
+assert.match(
+  tilawah,
+  /canManageOwnSetoran \? apiFetch<SetoranItem\[\]>\("\/setoran\/my"\) : Promise\.resolve\(\[\]\)/,
+  "Report-only roles must not request the personal-setoran API",
+);
+assert.match(currentUser, /\["\*", "auth", "core"\]/, "Frontend must recognize only global Super Admin scopes accepted by the API");
+assert.doesNotMatch(currentUser, /\["\*", "auth", "core", "siyaum"\]/, "An app-scoped siyaum super_admin must not be mistaken for global override access");
 assert.match(
   tilawah,
   /canReadGlobalMetrics\s*\?\s*apiFetch<Metrics>\("\/dashboard\/metrics"\)/,

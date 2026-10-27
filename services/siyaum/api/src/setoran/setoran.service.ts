@@ -10,7 +10,6 @@ export class SetoranService {
 
   async create(userId: string, dto: CreateSetoranDto) {
     const setoranDate = new Date(dto.date);
-
     return this.prisma.ymqSetoran.create({
       data: {
         userId,
@@ -24,88 +23,70 @@ export class SetoranService {
         catatan: dto.catatan || null,
         statusVerifikasi: VerificationStatus.pending,
       },
-      include: {
-        user: {
-          select: { fullName: true, unitName: true },
-        },
-      },
+      include: { user: { select: { fullName: true, unitName: true } } },
     });
   }
 
   async findMySetoran(userId: string, limit = 20) {
     return this.prisma.ymqSetoran.findMany({
       where: { userId },
-      include: {
-        verifiedBy: {
-          select: { fullName: true },
-        },
-      },
+      include: { verifiedBy: { select: { fullName: true } } },
       orderBy: { date: "desc" },
       take: limit,
     });
   }
 
   async findPendingVerification(principal: YmqPrincipal) {
-    const memberIds = hasYmqRole(principal, "admin_ymq")
-      ? undefined
-      : (await this.prisma.ymqGroup.findMany({
-        where: { musyrifId: principal.id },
-        include: {
-          members: { select: { userId: true } },
-        },
-      })).flatMap((group) => group.members.map((member) => member.userId));
-
-    if (memberIds && memberIds.length === 0) {
-      return [];
-    }
-
-    return this.prisma.ymqSetoran.findMany({
-      where: {
-        ...(memberIds ? { userId: { in: memberIds } } : {}),
-        statusVerifikasi: VerificationStatus.pending,
-      },
-      include: {
-        user: {
-          select: { id: true, fullName: true, email: true, unitName: true },
-        },
-      },
-      orderBy: { date: "desc" },
-    });
+    if (hasYmqRole(principal, "admin_ymq")) return this.findPending();
+    this.requirePembina(principal);
+    const memberIds = (await this.prisma.ymqGroup.findMany({
+      where: { pembinaUserId: principal.id },
+      include: { members: { where: { leftAt: null }, select: { userId: true } } },
+    })).flatMap((group) => group.members.map((member) => member.userId));
+    if (memberIds.length === 0) return [];
+    return this.findPending(memberIds);
   }
 
   async verify(id: string, principal: YmqPrincipal, dto: VerifySetoranDto) {
     const setoran = await this.prisma.ymqSetoran.findUnique({ where: { id } });
-    if (!setoran) {
-      throw new NotFoundException("Data setoran tidak ditemukan.");
-    }
-
-    if (!hasYmqRole(principal, "admin_ymq")) {
-      const assignedGroup = await this.prisma.ymqGroup.findFirst({
-        where: {
-          musyrifId: principal.id,
-          members: { some: { userId: setoran.userId } },
-        },
-        select: { id: true },
-      });
-
-      if (!assignedGroup) {
-        throw new ForbiddenException("Anda tidak berwenang memverifikasi setoran peserta ini.");
-      }
-    }
-
+    if (!setoran) throw new NotFoundException("Data setoran tidak ditemukan.");
+    await this.assertCanVerifySetoran(principal, setoran.userId);
     return this.prisma.ymqSetoran.update({
       where: { id },
       data: {
         statusVerifikasi: dto.status as VerificationStatus,
-        catatanMusyrif: dto.catatanMusyrif || null,
+        catatanPembina: dto.catatanPembina || null,
         verifiedById: principal.id,
         verifiedAt: new Date(),
       },
-      include: {
-        user: {
-          select: { fullName: true },
-        },
-      },
+      include: { user: { select: { fullName: true } } },
     });
+  }
+
+  private async findPending(memberIds?: string[]) {
+    return this.prisma.ymqSetoran.findMany({
+      where: { ...(memberIds ? { userId: { in: memberIds } } : {}), statusVerifikasi: VerificationStatus.pending },
+      include: { user: { select: { id: true, fullName: true, email: true, unitName: true } } },
+      orderBy: { date: "desc" },
+    });
+  }
+
+  private async assertCanVerifySetoran(principal: YmqPrincipal, participantUserId: string) {
+    if (hasYmqRole(principal, "admin_ymq")) return;
+    this.requirePembina(principal);
+    const assignedGroup = await this.prisma.ymqGroup.findFirst({
+      where: {
+        pembinaUserId: principal.id,
+        members: { some: { userId: participantUserId, leftAt: null } },
+      },
+      select: { id: true },
+    });
+    if (!assignedGroup) throw new ForbiddenException("Anda tidak berwenang memverifikasi setoran peserta ini.");
+  }
+
+  private requirePembina(principal: YmqPrincipal) {
+    if (!hasYmqRole(principal, "pembina_ymq")) {
+      throw new ForbiddenException("Hanya Pembina YMQ yang dapat memverifikasi setoran kelompok.");
+    }
   }
 }

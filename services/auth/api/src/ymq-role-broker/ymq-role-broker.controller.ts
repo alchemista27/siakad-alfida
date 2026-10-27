@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from "@nestjs/common";
 import { InternalYmqRoleBrokerGuard } from "./internal-ymq-role-broker.guard";
 import {
-  validateYmqBrokerAssignableRole,
+  validateYmqBrokerManagedRole,
   validateYmqRoleBrokerAssignInput,
   validateYmqRoleBrokerRevokeInput,
   validateYmqRoleBrokerUserId,
@@ -18,13 +18,18 @@ export class YmqRoleBrokerController {
     return this.ymqRoleBrokerService.assign(validateYmqRoleBrokerAssignInput(body));
   }
 
+  @Get("roles/:role")
+  list(@Param("role") role: string) {
+    return this.ymqRoleBrokerService.list(validateYmqBrokerManagedRole(role));
+  }
+
   @Delete("users/:userId/roles/:role")
   revoke(@Param("userId") userId: string, @Param("role") role: string, @Body() body: unknown) {
     const input = validateYmqRoleBrokerRevokeInput(body);
     return this.ymqRoleBrokerService.revoke({
       actorUserId: input.actorUserId,
       userId: validateYmqRoleBrokerUserId(userId),
-      role: validateYmqBrokerAssignableRole(role),
+      role: validateYmqBrokerManagedRole(role),
     });
   }
 }

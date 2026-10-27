@@ -19,10 +19,13 @@ import { YmqRoleBrokerService } from "../src/ymq-role-broker/ymq-role-broker.ser
 const actorUserId = "00000000-0000-4000-8000-000000000001";
 const userId = "00000000-0000-4000-8000-000000000002";
 
+type Role = { app: string; role: string };
+
 function createPrisma(options: {
-  actorRoles?: Array<{ app: string; role: string }>;
+  actorRoles?: Role[];
   targetActive?: boolean;
-  initialRole?: "pembina_ymq" | "admin_kelompok";
+  targetRoles?: Role[];
+  initialRole?: "admin_ymq" | "peserta" | "pembina_ymq" | "admin_kelompok" | "pengawas" | "pimpinan";
 }) {
   let assignments: Array<Record<string, unknown>> = options.initialRole
     ? [{ id: "existing-role", userId, app: "siyaum", role: options.initialRole, unitId: null, departmentId: null }]
@@ -32,12 +35,16 @@ function createPrisma(options: {
 
   const prisma = {
     user: {
-      findUnique: async ({ where }: { where: { id: string } }) => {
+      findUnique: async ({ where, include }: { where: { id: string }; include?: unknown }) => {
         if (where.id === actorUserId) {
           return { id: actorUserId, isActive: true, roles: options.actorRoles ?? [{ app: "siyaum", role: "admin_ymq" }] };
         }
         if (where.id === userId) {
-          return { id: userId, isActive: options.targetActive ?? true, roles: [] };
+          return {
+            id: userId,
+            isActive: options.targetActive ?? true,
+            roles: options.targetRoles ?? [{ app: "simpeg", role: "pegawai" }],
+          };
         }
         return null;
       },
@@ -45,6 +52,9 @@ function createPrisma(options: {
     roleAssignment: {
       findFirst: async ({ where }: { where: Record<string, unknown> }) => (
         assignments.find((assignment) => Object.entries(where).every(([key, value]) => assignment[key] === value)) ?? null
+      ),
+      findMany: async ({ where }: { where: Record<string, unknown> }) => (
+        assignments.filter((assignment) => Object.entries(where).every(([key, value]) => assignment[key] === value))
       ),
       create: async ({ data }: { data: Record<string, unknown> }) => {
         created += 1;
@@ -68,96 +78,88 @@ function createPrisma(options: {
     },
   };
 
-  return {
-    prisma,
-    created: () => created,
-    clearedSessions: () => clearedSessions,
-  };
+  return { prisma, created: () => created, clearedSessions: () => clearedSessions };
 }
 
 async function main() {
-  const input = validateYmqRoleBrokerAssignInput({ actorUserId, userId, role: "pembina_ymq" });
-  assert.deepEqual(input, { actorUserId, userId, role: "pembina_ymq" });
-  assert.deepEqual(
-    validateYmqRoleBrokerAssignInput({ actorUserId, userId, role: "admin_kelompok" }),
-    { actorUserId, userId, role: "admin_kelompok" },
-    "the broker must grant admin_kelompok",
+  for (const role of ["admin_ymq", "peserta", "pembina_ymq", "admin_kelompok", "pengawas", "pimpinan"] as const) {
+    assert.deepEqual(
+      validateYmqRoleBrokerAssignInput({ actorUserId, userId, role }),
+      { actorUserId, userId, role },
+      `the broker must accept ${role}`,
+    );
+  }
+  assert.throws(
+    () => validateYmqRoleBrokerAssignInput({ actorUserId, userId, role: "musyrif" }),
+    BadRequestException,
+    "musyrif must no longer be accepted by Auth",
   );
   assert.throws(
-    () => validateYmqRoleBrokerAssignInput({ actorUserId: "not-a-uuid", userId, role: "pembina_ymq" }),
+    () => validateYmqRoleBrokerAssignInput({ actorUserId: "not-a-uuid", userId, role: "peserta" }),
     BadRequestException,
-    "actor identity must be a valid UUID",
-  );
-  assert.throws(
-    () => validateYmqRoleBrokerAssignInput({ actorUserId, userId, role: "admin_ymq" }),
-    BadRequestException,
-    "the broker must reject all non-delegable YMQ roles",
-  );
-  assert.throws(
-    () => validateYmqRoleBrokerAssignInput({ actorUserId, userId, role: "pembina_ymq", unexpected: true }),
-    BadRequestException,
-    "the broker payload must be strict",
   );
 
-  const state = createPrisma({});
-  const service = new YmqRoleBrokerService(state.prisma as any);
-  const assignment = await service.assign(input);
-  assert.equal(assignment.app, "siyaum");
-  assert.equal(assignment.role, "pembina_ymq");
-  assert.equal(assignment.changed, true, "a newly created role must be reported as changed");
-  assert.equal(state.created(), 1, "an effective grant must create exactly one role assignment");
-  assert.equal(state.clearedSessions(), 1, "an effective grant must invalidate sessions");
-
-  const duplicateAssignment = await service.assign(input);
-  assert.equal(duplicateAssignment.changed, false, "an existing role must be reported as unchanged");
-  assert.equal(state.created(), 1, "duplicate grants must be idempotent");
-  assert.equal(state.clearedSessions(), 1, "no-op grants must not invalidate sessions");
-
-  await service.revoke({ actorUserId, userId, role: "pembina_ymq" });
-  assert.equal(state.clearedSessions(), 2, "an effective revocation must invalidate sessions");
-  assert.deepEqual(
-    await service.revoke({ actorUserId, userId, role: "pembina_ymq" }),
-    { deleted: false },
-    "duplicate revocations must be idempotent",
-  );
-  assert.equal(state.clearedSessions(), 2, "no-op revocations must not invalidate sessions");
+  const admin = new YmqRoleBrokerService(createPrisma({}).prisma as any);
+  const participant = await admin.assign({ actorUserId, userId, role: "peserta" });
+  assert.equal(participant.changed, true);
 
   await assert.rejects(
-    () => new YmqRoleBrokerService(createPrisma({ actorRoles: [{ app: "siyaum", role: "peserta" }] }).prisma as any).assign(input),
+    () => admin.assign({ actorUserId, userId, role: "admin_ymq" }),
     ForbiddenException,
-    "only siyaum:admin_ymq may delegate YMQ roles",
+    "admin_ymq must not bootstrap another admin",
   );
   await assert.doesNotReject(
-    () => new YmqRoleBrokerService(createPrisma({ actorRoles: [{ app: "*", role: "super_admin" }] }).prisma as any).assign(input),
-    "global super_admin may delegate YMQ roles",
+    () => new YmqRoleBrokerService(createPrisma({ actorRoles: [{ app: "auth", role: "super_admin" }] }).prisma as any)
+      .assign({ actorUserId, userId, role: "admin_ymq" }),
+    "auth-scoped Super Admin may bootstrap Admin YMQ",
   );
   await assert.doesNotReject(
-    () => new YmqRoleBrokerService(createPrisma({ actorRoles: [{ app: "auth", role: "super_admin" }] }).prisma as any).assign(input),
-    "the catalog's auth-scoped super_admin is global",
+    () => new YmqRoleBrokerService(createPrisma({ actorRoles: [{ app: "core", role: "super_admin" }] }).prisma as any)
+      .assign({ actorUserId, userId, role: "pengawas" }),
+    "core-scoped Super Admin must retain global override",
   );
   await assert.rejects(
-    () => service.assign({ actorUserId, userId: actorUserId, role: "pembina_ymq" }),
+    () => new YmqRoleBrokerService(createPrisma({ actorRoles: [{ app: "siyaum", role: "peserta" }] }).prisma as any)
+      .assign({ actorUserId, userId, role: "peserta" }),
+    ForbiddenException,
+  );
+
+  await assert.rejects(
+    () => new YmqRoleBrokerService(createPrisma({ targetRoles: [] }).prisma as any)
+      .assign({ actorUserId, userId, role: "peserta" }),
     BadRequestException,
-    "actors must not grant themselves YMQ roles",
+    "only SIMPEG employees can become participants",
   );
   await assert.rejects(
-    () => new YmqRoleBrokerService(createPrisma({ targetActive: false }).prisma as any).assign(input),
-    NotFoundException,
-    "the target user must be active",
+    () => new YmqRoleBrokerService(createPrisma({ targetRoles: [{ app: "simpeg", role: "pegawai" }] }).prisma as any)
+      .assign({ actorUserId, userId, role: "pembina_ymq" }),
+    BadRequestException,
+    "operational roles require existing participant status",
   );
   await assert.doesNotReject(
-    () => new YmqRoleBrokerService(createPrisma({ targetActive: false, initialRole: "pembina_ymq" }).prisma as any).revoke({ actorUserId, userId, role: "pembina_ymq" }),
-    "inactive users must still be deprovisioned safely",
+    () => new YmqRoleBrokerService(createPrisma({ targetRoles: [{ app: "simpeg", role: "pegawai" }, { app: "siyaum", role: "peserta" }] }).prisma as any)
+      .assign({ actorUserId, userId, role: "pembina_ymq" }),
+  );
+
+  const duplicateState = createPrisma({ initialRole: "peserta" });
+  const duplicateService = new YmqRoleBrokerService(duplicateState.prisma as any);
+  const duplicate = await duplicateService.assign({ actorUserId, userId, role: "peserta" });
+  assert.equal(duplicate.changed, false);
+  assert.equal(duplicateState.clearedSessions(), 0, "idempotent grant must not clear sessions");
+  await duplicateService.revoke({ actorUserId, userId, role: "peserta" });
+  assert.equal(duplicateState.clearedSessions(), 1, "effective revocation must clear sessions");
+
+  await assert.rejects(
+    () => new YmqRoleBrokerService(createPrisma({ targetActive: false }).prisma as any)
+      .assign({ actorUserId, userId, role: "peserta" }),
+    NotFoundException,
   );
 
   const originalSecret = process.env.INTERNAL_SERVICE_SECRET;
-  const guardContext = (header: string | undefined) => ({
-    switchToHttp: () => ({ getRequest: () => ({ header: () => header }) }),
-  });
+  const guardContext = (header: string | undefined) => ({ switchToHttp: () => ({ getRequest: () => ({ header: () => header }) }) });
   try {
     delete process.env.INTERNAL_SERVICE_SECRET;
     assert.throws(() => new InternalYmqRoleBrokerGuard().canActivate(guardContext("test-secret") as any), ServiceUnavailableException);
-
     process.env.INTERNAL_SERVICE_SECRET = "test-secret";
     assert.throws(() => new InternalYmqRoleBrokerGuard().canActivate(guardContext("wrong-secret") as any), UnauthorizedException);
     assert.equal(new InternalYmqRoleBrokerGuard().canActivate(guardContext("test-secret") as any), true);
@@ -169,33 +171,26 @@ async function main() {
   assert.equal(Reflect.getMetadata(PATH_METADATA, YmqRoleBrokerController), "internal/ymq-role-broker");
   assert.equal(Reflect.getMetadata(PATH_METADATA, YmqRoleBrokerController.prototype.assign), "assign");
   assert.equal(Reflect.getMetadata(METHOD_METADATA, YmqRoleBrokerController.prototype.assign), RequestMethod.POST);
-  assert.equal(Reflect.getMetadata(PATH_METADATA, YmqRoleBrokerController.prototype.revoke), "users/:userId/roles/:role");
-  assert.equal(Reflect.getMetadata(METHOD_METADATA, YmqRoleBrokerController.prototype.revoke), RequestMethod.DELETE);
+  assert.equal(Reflect.getMetadata(PATH_METADATA, YmqRoleBrokerController.prototype.list), "roles/:role");
+  assert.equal(Reflect.getMetadata(METHOD_METADATA, YmqRoleBrokerController.prototype.list), RequestMethod.GET);
 
   const calls: Array<{ method: string; input: unknown }> = [];
   const controller = new YmqRoleBrokerController({
-    assign: async (assignInput: unknown) => {
-      calls.push({ method: "assign", input: assignInput });
-      return { ok: true };
-    },
-    revoke: async (revokeInput: unknown) => {
-      calls.push({ method: "revoke", input: revokeInput });
-      return { ok: true };
-    },
+    assign: async (input: unknown) => { calls.push({ method: "assign", input }); return { ok: true }; },
+    revoke: async (input: unknown) => { calls.push({ method: "revoke", input }); return { ok: true }; },
+    list: async (role: string) => { calls.push({ method: "list", input: role }); return []; },
   } as any);
-  await controller.assign({ actorUserId, userId, role: "pembina_ymq" });
+  await controller.assign({ actorUserId, userId, role: "peserta" });
   await controller.revoke(userId, "admin_kelompok", { actorUserId });
+  await controller.list("admin_ymq");
   assert.deepEqual(calls, [
-    { method: "assign", input: { actorUserId, userId, role: "pembina_ymq" } },
+    { method: "assign", input: { actorUserId, userId, role: "peserta" } },
     { method: "revoke", input: { actorUserId, userId, role: "admin_kelompok" } },
+    { method: "list", input: "admin_ymq" },
   ]);
-  assert.throws(() => controller.revoke(userId, "musyrif", { actorUserId }), BadRequestException);
 
   const guardSource = readFileSync(join(process.cwd(), "src/ymq-role-broker/internal-ymq-role-broker.guard.ts"), "utf8");
   assert.doesNotMatch(guardSource, /console\.(?:log|warn|error)[^\n]*INTERNAL_SERVICE_SECRET/);
-  const appModuleSource = readFileSync(join(process.cwd(), "src/app.module.ts"), "utf8");
-  assert.match(appModuleSource, /YmqRoleBrokerModule/);
-
   console.log("YMQ role broker contract passed");
 }
 

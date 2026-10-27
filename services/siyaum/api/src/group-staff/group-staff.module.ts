@@ -12,6 +12,6 @@ import { GroupStaffService } from "./group-staff.service";
     AuthYmqRoleBrokerClient,
     { provide: AUTH_YMQ_BROKER_FETCH, useValue: fetch },
   ],
-  exports: [GroupStaffService],
+  exports: [GroupStaffService, AuthYmqRoleBrokerClient],
 })
 export class GroupStaffModule {}

@@ -2,7 +2,7 @@ export const ROLE_CATALOG = {
   auth: ["super_admin", "admin_users"],
   simakin: ["admin_bidang", "admin_biro", "pengawas", "pimpinan", "pic_program"],
   simpeg: ["admin_kepegawaian", "admin_unit", "admin_unit_nondik", "murobbi", "pegawai"],
-  siyaum: ["admin_ymq", "pembina_ymq", "admin_kelompok", "pengawas", "pimpinan", "peserta", "musyrif"],
+  siyaum: ["admin_ymq", "pembina_ymq", "admin_kelompok", "pengawas", "pimpinan", "peserta"],
   spmb: ["admin_unit", "tim_ppdb", "observer", "orang_tua"],
   siakad: ["admin_unit", "guru", "wali_kelas", "supervisor_kesiswaan", "orang_tua"],
   siskeu: ["admin_keuangan", "bendahara", "pimpinan"],

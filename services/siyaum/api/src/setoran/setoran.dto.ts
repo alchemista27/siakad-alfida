@@ -11,5 +11,5 @@ export class CreateSetoranDto {
 
 export class VerifySetoranDto {
   status: "verified" | "revision";
-  catatanMusyrif?: string;
+  catatanPembina?: string;
 }

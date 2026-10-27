@@ -3,10 +3,14 @@ import { YmqGroupLevel } from "../generated/prisma";
 import { PrismaService } from "../prisma/prisma.service";
 import { canReadGroup, hasAnyYmqRole, hasYmqRole, type YmqPrincipal } from "../ymq/ymq-access.policy";
 import { AddMemberDto, UpsertGroupDto } from "./groups.dto";
+import { AuthYmqRoleBrokerClient } from "../group-staff/auth-ymq-role-broker.client";
 
 @Injectable()
 export class GroupsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly roleBroker: AuthYmqRoleBrokerClient,
+  ) {}
 
   async findAll(principal: YmqPrincipal) {
     const groups = await this.prisma.ymqGroup.findMany({
@@ -63,6 +67,10 @@ export class GroupsService {
     this.requireAdmin(principal);
     const employee = await this.prisma.user.findUnique({ where: { id: dto.userId }, select: { id: true, isActive: true, sourceUpdatedAt: true } });
     if (!employee?.isActive || !employee.sourceUpdatedAt) throw new BadRequestException("Anggota harus pegawai aktif dari proyeksi SIMPEG.");
+    const participants = await this.roleBroker.list("peserta");
+    if (!participants.some((assignment) => assignment.userId === dto.userId)) {
+      throw new BadRequestException("Anggota kelompok wajib sudah menjadi peserta YMQ.");
+    }
     const existingActive = await this.prisma.ymqMember.findFirst({ where: { userId: dto.userId, leftAt: null } });
     if (existingActive && existingActive.groupId !== dto.groupId) {
       await this.prisma.ymqMember.update({ where: { id: existingActive.id }, data: { leftAt: new Date() } });

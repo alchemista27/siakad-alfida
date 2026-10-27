@@ -9,6 +9,7 @@ import { DepartmentAdminModal } from "../components/organization/department-admi
 import { OrganizationDepartment, OrganizationEmployee, OrganizationUnit } from "../components/organization/types";
 import { WorkdayManagementPanel } from "../components/attendance/workday-management-panel";
 import type { Holiday, SaturdayDuty } from "../components/attendance/workday-management-panel";
+import { YmqAdminManager } from "../components/ymq/ymq-admin-manager";
 import { hasSimpegManagementAccess, isPegawaiRole, simpegLandingTab, type SimpegRole } from "../lib/simpeg-access";
 
 interface Assignment {
@@ -43,7 +44,7 @@ interface LeaveRequest {
   };
 }
 
-type SimpegTab = "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings" | "workday";
+type SimpegTab = "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings" | "workday" | "ymq";
 
 async function readManagementJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
@@ -75,6 +76,7 @@ export default function SimpegDashboard() {
   const [workdayError, setWorkdayError] = useState<string | null>(null);
   const [manageableUnitIds, setManageableUnitIds] = useState<string[] | null>(null);
   const [canManageAllUnits, setCanManageAllUnits] = useState(false);
+  const [canManageYmqAdmins, setCanManageYmqAdmins] = useState(false);
 
   // Form states
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -205,7 +207,9 @@ export default function SimpegDashboard() {
           ? roles[0].role.replace(/_/g, " ").toUpperCase()
           : pegawai ? "PEGAWAI" : "PENGGUNA";
 
-        setCanManageAllUnits(roles.some((entry: any) => (entry?.role === "super_admin" && ["*", "auth", "core", "simpeg"].includes(entry?.app || "")) || (entry?.role === "admin_kepegawaian" && entry?.app === "simpeg")));
+        const globalSuperAdmin = roles.some((entry: any) => entry?.role === "super_admin" && ["*", "auth", "core", "simpeg"].includes(entry?.app || ""));
+        setCanManageAllUnits(globalSuperAdmin || roles.some((entry: any) => entry?.role === "admin_kepegawaian" && entry?.app === "simpeg"));
+        setCanManageYmqAdmins(globalSuperAdmin);
         setManageableUnitIds(roles.filter((entry: any) => entry?.app === "simpeg" && (entry?.role === "admin_unit" || entry?.role === "admin_unit_nondik") && entry?.unitId).map((entry: any) => entry.unitId));
         setCurrentUser({ fullName: data.user.fullName || data.user.email || "Pengguna SIMPEG", role: primaryRole });
         setIsManager(manager);
@@ -496,6 +500,13 @@ export default function SimpegDashboard() {
           icon: "calendar_month",
           active: activeTab === "workday",
           onClick: () => setActiveTab("workday"),
+        }] : []),
+        ...(canManageYmqAdmins ? [{
+          label: "Admin YMQ",
+          href: "#ymq",
+          icon: "auto_stories",
+          active: activeTab === "ymq",
+          onClick: () => setActiveTab("ymq"),
         }] : []),
       ],
     },
@@ -1015,6 +1026,8 @@ export default function SimpegDashboard() {
                 onChanged={fetchWorkdayData}
               />
             )}
+
+            {activeTab === "ymq" && canManageYmqAdmins && <YmqAdminManager />}
 
             {/* TAB 8: PEMBINAAN & BPI */}
             {activeTab === "liqo" && (
