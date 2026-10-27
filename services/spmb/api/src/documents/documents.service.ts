@@ -54,7 +54,7 @@ export class DocumentsService {
       ? this.prisma.document.update({
           where: { id: existing.id },
           data: {
-            objectKey: dto.fileUrl,
+            fileUrl: dto.fileUrl,
             fileName: dto.fileName,
             fileSize: dto.fileSize,
             mimeType: dto.mimeType,
@@ -64,7 +64,7 @@ export class DocumentsService {
           data: {
             registrationId: registration.id,
             type: dto.documentType,
-            objectKey: dto.fileUrl,
+            fileUrl: dto.fileUrl,
             fileName: dto.fileName,
             fileSize: dto.fileSize,
             mimeType: dto.mimeType,
@@ -106,7 +106,7 @@ export class DocumentsService {
       assertUnitAccess(principal, document.registration.period.unitId, ["admin_unit", "tim_ppdb"]);
     }
 
-    return { downloadUrl: document.objectKey };
+    return { downloadUrl: document.fileUrl };
   }
 
   async finalizeDocuments(registrationId: string, userId: string) {

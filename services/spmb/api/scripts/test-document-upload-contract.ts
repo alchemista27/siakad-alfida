@@ -1,4 +1,5 @@
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
+import { readFile } from "node:fs/promises";
 import { DocumentsService } from "../src/documents/documents.service";
 import { assertUploadMetadata } from "../src/documents/document-upload.policy";
 
@@ -71,8 +72,12 @@ async function run() {
     fileSize: 200,
     mimeType: "image/jpeg",
   });
-  if (persisted?.objectKey !== documentUrl || "fileUrl" in persisted) {
-    throw new Error("Cloudinary document completion must persist the validated Cloudinary URL in the legacy storage field");
+  if (persisted?.fileUrl !== documentUrl || "objectKey" in persisted) {
+    throw new Error("Cloudinary document completion must persist the validated Cloudinary URL in documents.file_url");
+  }
+  const prismaSchema = await readFile(new URL("../prisma/schema.prisma", import.meta.url), "utf8");
+  if (!/fileUrl\s+String\s+@map\("file_url"\)/.test(prismaSchema) || /objectKey\s+String\s+@map\("object_key"\)/.test(prismaSchema)) {
+    throw new Error("Document Prisma model must map the Cloudinary URL to the deployed documents.file_url column");
   }
 
   await expectRejects(
@@ -92,7 +97,7 @@ async function run() {
     document: {
       findUnique: async () => ({
         id: documentId,
-        objectKey: documentUrl,
+        fileUrl: documentUrl,
         registration: { parentId, period: { unitId } },
       }),
     },

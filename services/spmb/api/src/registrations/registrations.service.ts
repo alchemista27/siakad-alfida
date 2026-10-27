@@ -57,7 +57,7 @@ export class RegistrationsService {
     const { handoffError, ...rest } = registration;
     const sanitized: any = { ...rest };
     if (Array.isArray(registration.documents)) {
-      sanitized.documents = registration.documents.map(({ objectKey, ...doc }: any) => doc);
+      sanitized.documents = registration.documents.map(({ fileUrl, ...doc }: any) => doc);
     }
     if (registration.payment) {
       const { proofUrl, proofObjectKey, ...payment } = registration.payment;

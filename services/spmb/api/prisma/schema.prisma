@@ -247,7 +247,7 @@ model Document {
   id             String       @id @default(uuid()) @db.Uuid
   registrationId String       @map("registration_id") @db.Uuid
   type           DocumentType
-  objectKey      String       @map("object_key") @db.Text
+  fileUrl        String       @map("file_url") @db.Text
   fileName       String       @map("file_name") @db.VarChar(255)
   fileSize       Int          @map("file_size")
   mimeType       String       @map("mime_type") @db.VarChar(100)
