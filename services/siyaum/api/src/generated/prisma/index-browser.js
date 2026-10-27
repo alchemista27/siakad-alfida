@@ -129,6 +129,8 @@ exports.Prisma.UserScalarFieldEnum = {
   phone: 'phone',
   avatarUrl: 'avatarUrl',
   unitName: 'unitName',
+  unitId: 'unitId',
+  sourceUpdatedAt: 'sourceUpdatedAt',
   isActive: 'isActive',
   createdAt: 'createdAt'
 };
@@ -136,7 +138,10 @@ exports.Prisma.UserScalarFieldEnum = {
 exports.Prisma.YmqGroupScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  musyrifId: 'musyrifId',
+  pembinaUserId: 'pembinaUserId',
+  level: 'level',
+  unitId: 'unitId',
+  unitName: 'unitName',
   description: 'description',
   scheduleDay: 'scheduleDay',
   scheduleTime: 'scheduleTime',
@@ -149,7 +154,8 @@ exports.Prisma.YmqMemberScalarFieldEnum = {
   id: 'id',
   groupId: 'groupId',
   userId: 'userId',
-  joinedAt: 'joinedAt'
+  joinedAt: 'joinedAt',
+  leftAt: 'leftAt'
 };
 
 exports.Prisma.YmqSetoranScalarFieldEnum = {
@@ -164,7 +170,7 @@ exports.Prisma.YmqSetoranScalarFieldEnum = {
   jumlahHalaman: 'jumlahHalaman',
   catatan: 'catatan',
   statusVerifikasi: 'statusVerifikasi',
-  catatanMusyrif: 'catatanMusyrif',
+  catatanPembina: 'catatanPembina',
   verifiedById: 'verifiedById',
   verifiedAt: 'verifiedAt',
   createdAt: 'createdAt'
@@ -177,6 +183,75 @@ exports.Prisma.YmqTargetScalarFieldEnum = {
   periodeTahun: 'periodeTahun',
   targetKhatam: 'targetKhatam',
   targetHafalanJuz: 'targetHafalanJuz',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.YmqIwrCurriculumUnitScalarFieldEnum = {
+  id: 'id',
+  iwrLevel: 'iwrLevel',
+  topicCode: 'topicCode',
+  topicTitle: 'topicTitle',
+  pageStart: 'pageStart',
+  pageEnd: 'pageEnd',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.YmqGroupAdminAssignmentScalarFieldEnum = {
+  id: 'id',
+  groupId: 'groupId',
+  userId: 'userId',
+  role: 'role',
+  assignedById: 'assignedById',
+  assignedAt: 'assignedAt',
+  revokedAt: 'revokedAt'
+};
+
+exports.Prisma.YmqLearningSessionScalarFieldEnum = {
+  id: 'id',
+  groupId: 'groupId',
+  sessionDate: 'sessionDate',
+  notes: 'notes',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.YmqSessionAttendanceScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  memberId: 'memberId',
+  status: 'status',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.YmqLearningProgressScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  memberId: 'memberId',
+  track: 'track',
+  sequence: 'sequence',
+  iwrCurriculumUnitId: 'iwrCurriculumUnitId',
+  surahNumber: 'surahNumber',
+  ayahStart: 'ayahStart',
+  ayahEnd: 'ayahEnd',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.YmqProgressEvidenceScalarFieldEnum = {
+  id: 'id',
+  progressId: 'progressId',
+  cloudinaryPublicId: 'cloudinaryPublicId',
+  secureUrl: 'secureUrl',
+  resourceType: 'resourceType',
+  originalFilename: 'originalFilename',
+  bytes: 'bytes',
+  uploadedById: 'uploadedById',
   createdAt: 'createdAt'
 };
 
@@ -194,6 +269,12 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.YmqGroupLevel = exports.$Enums.YmqGroupLevel = {
+  pra_tahsin: 'pra_tahsin',
+  tahsin: 'tahsin',
+  tahfiz: 'tahfiz'
+};
+
 exports.SetoranType = exports.$Enums.SetoranType = {
   tilawah: 'tilawah',
   ziyadah: 'ziyadah',
@@ -206,12 +287,40 @@ exports.VerificationStatus = exports.$Enums.VerificationStatus = {
   revision: 'revision'
 };
 
+exports.IwrLevel = exports.$Enums.IwrLevel = {
+  iwr_1: 'iwr_1',
+  iwr_2: 'iwr_2'
+};
+
+exports.YmqGroupStaffRole = exports.$Enums.YmqGroupStaffRole = {
+  admin_kelompok: 'admin_kelompok'
+};
+
+exports.AttendanceStatus = exports.$Enums.AttendanceStatus = {
+  hadir: 'hadir',
+  izin: 'izin',
+  sakit: 'sakit',
+  alpa: 'alpa'
+};
+
+exports.LearningTrack = exports.$Enums.LearningTrack = {
+  pra_tahsin: 'pra_tahsin',
+  tahsin: 'tahsin',
+  ziyadah: 'ziyadah'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   YmqGroup: 'YmqGroup',
   YmqMember: 'YmqMember',
   YmqSetoran: 'YmqSetoran',
-  YmqTarget: 'YmqTarget'
+  YmqTarget: 'YmqTarget',
+  YmqIwrCurriculumUnit: 'YmqIwrCurriculumUnit',
+  YmqGroupAdminAssignment: 'YmqGroupAdminAssignment',
+  YmqLearningSession: 'YmqLearningSession',
+  YmqSessionAttendance: 'YmqSessionAttendance',
+  YmqLearningProgress: 'YmqLearningProgress',
+  YmqProgressEvidence: 'YmqProgressEvidence'
 };
 
 /**

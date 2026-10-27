@@ -66,7 +66,7 @@ async function main() {
           unitAssignments: [{
             unitId,
             unitName: "Unit Tahfizh",
-            role: "musyrif",
+            role: "pembina_ymq",
             skNumber: "SECRET-SK-001",
           }],
         }];

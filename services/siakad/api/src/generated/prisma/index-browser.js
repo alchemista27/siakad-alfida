@@ -126,6 +126,31 @@ exports.Prisma.UnitProjectionScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   status: 'status',
+  category: 'category',
+  sourceUpdatedAt: 'sourceUpdatedAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ImportSourceMappingScalarFieldEnum = {
+  id: 'id',
+  unitId: 'unitId',
+  sourceSystem: 'sourceSystem',
+  entityType: 'entityType',
+  mappingVersion: 'mappingVersion',
+  mapping: 'mapping',
+  createdByUserId: 'createdByUserId',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UnitIdentityScalarFieldEnum = {
+  unitId: 'unitId',
+  logoUrl: 'logoUrl',
+  principalName: 'principalName',
+  principalSignatureUrl: 'principalSignatureUrl',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
@@ -136,6 +161,7 @@ exports.Prisma.UserProjectionScalarFieldEnum = {
   phone: 'phone',
   roles: 'roles',
   status: 'status',
+  sourceUpdatedAt: 'sourceUpdatedAt',
   updatedAt: 'updatedAt'
 };
 
@@ -259,6 +285,7 @@ exports.Prisma.GradeScalarFieldEnum = {
   enrollmentId: 'enrollmentId',
   teacherAssignmentId: 'teacherAssignmentId',
   category: 'category',
+  label: 'label',
   score: 'score',
   feedback: 'feedback',
   createdAt: 'createdAt',
@@ -282,6 +309,8 @@ exports.Prisma.LessonPlanScalarFieldEnum = {
   id: 'id',
   subjectId: 'subjectId',
   academicYearId: 'academicYearId',
+  teacherAssignmentId: 'teacherAssignmentId',
+  type: 'type',
   title: 'title',
   objectives: 'objectives',
   materials: 'materials',
@@ -296,6 +325,17 @@ exports.Prisma.ExtracurricularScalarFieldEnum = {
   academicYearId: 'academicYearId',
   name: 'name',
   category: 'category',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ExtracurricularScheduleScalarFieldEnum = {
+  id: 'id',
+  extracurricularId: 'extracurricularId',
+  dayOfWeek: 'dayOfWeek',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  location: 'location',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -350,6 +390,41 @@ exports.Prisma.LhbsReportScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.StudentDevelopmentRecordScalarFieldEnum = {
+  id: 'id',
+  enrollmentId: 'enrollmentId',
+  academicYearId: 'academicYearId',
+  homeroomAssignmentId: 'homeroomAssignmentId',
+  kind: 'kind',
+  occurredAt: 'occurredAt',
+  summary: 'summary',
+  details: 'details',
+  status: 'status',
+  recordedByUserId: 'recordedByUserId',
+  approvedByUserId: 'approvedByUserId',
+  approvedAt: 'approvedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SpmbConfirmationOutboxScalarFieldEnum = {
+  id: 'id',
+  enrollmentId: 'enrollmentId',
+  sourceRegistrationId: 'sourceRegistrationId',
+  academicYearId: 'academicYearId',
+  classId: 'classId',
+  idempotencyKey: 'idempotencyKey',
+  status: 'status',
+  attempts: 'attempts',
+  availableAt: 'availableAt',
+  leasedUntil: 'leasedUntil',
+  leaseToken: 'leaseToken',
+  lastError: 'lastError',
+  deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.PromotionDecisionScalarFieldEnum = {
   id: 'id',
   enrollmentId: 'enrollmentId',
@@ -381,20 +456,22 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
-};
-
 
 exports.Prisma.ModelName = {
   UnitProjection: 'UnitProjection',
+  ImportSourceMapping: 'ImportSourceMapping',
+  UnitIdentity: 'UnitIdentity',
   UserProjection: 'UserProjection',
   AcademicYear: 'AcademicYear',
   AdmissionReceipt: 'AdmissionReceipt',
@@ -410,11 +487,14 @@ exports.Prisma.ModelName = {
   TeachingJournal: 'TeachingJournal',
   LessonPlan: 'LessonPlan',
   Extracurricular: 'Extracurricular',
+  ExtracurricularSchedule: 'ExtracurricularSchedule',
   ExtracurricularCoach: 'ExtracurricularCoach',
   ExtracurricularMembership: 'ExtracurricularMembership',
   ExtracurricularJournal: 'ExtracurricularJournal',
   ExtracurricularGrade: 'ExtracurricularGrade',
   LhbsReport: 'LhbsReport',
+  StudentDevelopmentRecord: 'StudentDevelopmentRecord',
+  SpmbConfirmationOutbox: 'SpmbConfirmationOutbox',
   PromotionDecision: 'PromotionDecision'
 };
 

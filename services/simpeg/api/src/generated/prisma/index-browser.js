@@ -267,6 +267,7 @@ exports.Prisma.EmployeeUnitAssignmentScalarFieldEnum = {
   endDate: 'endDate',
   skNumber: 'skNumber',
   notes: 'notes',
+  sourceKey: 'sourceKey',
   createdAt: 'createdAt'
 };
 

@@ -1,3 +1,4 @@
+// @contract-test: external
 import { PrismaClient as AdminPrisma } from "../src/generated/prisma";
 import { FoundationService } from "../src/foundation/foundation.service";
 import { UsersService } from "../src/users/users.service";

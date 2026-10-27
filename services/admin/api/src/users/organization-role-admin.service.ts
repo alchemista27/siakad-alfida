@@ -9,11 +9,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { getRoleScope } from "./role-catalog";
-
-export type DepartmentOrganizationRoleRequest = {
-  scope: "department";
-  departmentId: string;
-};
+import { OrganizationRoleAdminDto } from "./dto/organization-role-admin.dto";
 
 type FetchLike = typeof fetch;
 export const ORGANIZATION_ROLE_FETCH = Symbol("ORGANIZATION_ROLE_FETCH");
@@ -26,16 +22,33 @@ export class OrganizationRoleAdminService {
     private readonly fetchImpl: FetchLike,
   ) {}
 
-  async assign(userId: string, input: DepartmentOrganizationRoleRequest, authorization?: string) {
-    if (input.scope !== "department" || !input.departmentId) {
-      throw new BadRequestException("Peran unit harus dikelola dari Struktur Organisasi SIMPEG.");
+  async assign(userId: string, input: OrganizationRoleAdminDto, authorization?: string) {
+    if (input.scope === "department") {
+      if (!input.departmentId) {
+        throw new BadRequestException("Peran department memerlukan departmentId.");
+      }
+      return this.request(`/api/departments/${input.departmentId}/admins`, {
+        method: "POST",
+        headers: this.headers(authorization, true),
+        body: JSON.stringify({ userId }),
+      });
     }
 
-    return this.request(`/api/departments/${input.departmentId}/admins`, {
-      method: "POST",
-      headers: this.headers(authorization, true),
-      body: JSON.stringify({ userId }),
-    });
+    if (input.scope === "unit") {
+      if (!input.unitId) {
+        throw new BadRequestException("Peran unit memerlukan unitId.");
+      }
+      if (!input.app) {
+        throw new BadRequestException("Peran unit memerlukan aplikasi (app).");
+      }
+      return this.request(`/api/units/${input.unitId}/admins`, {
+        method: "POST",
+        headers: this.headers(authorization, true),
+        body: JSON.stringify({ userId, apps: [input.app] }),
+      });
+    }
+
+    throw new BadRequestException("Scope peran organisasi tidak valid.");
   }
 
   async revoke(roleAssignmentId: string, authorization?: string) {
@@ -46,19 +59,44 @@ export class OrganizationRoleAdminService {
       throw new NotFoundException("Peran pengguna tidak ditemukan");
     }
 
-    if (
-      getRoleScope(assignment) !== "department"
-      || assignment.app !== "simakin"
-      || assignment.role !== "admin_bidang"
-      || !assignment.departmentId
-    ) {
-      throw new BadRequestException("Peran berscope ini harus dikelola dari menu Struktur Organisasi SIMPEG.");
+    const scope = getRoleScope(assignment);
+    if (scope === "department") {
+      if (
+        assignment.app !== "simakin" ||
+        assignment.role !== "admin_bidang" ||
+        !assignment.departmentId
+      ) {
+        throw new BadRequestException(
+          "Peran berscope ini harus dikelola dari menu Struktur Organisasi SIMPEG.",
+        );
+      }
+      return this.request(
+        `/api/departments/${assignment.departmentId}/admins/${assignment.userId}`,
+        {
+          method: "DELETE",
+          headers: this.headers(authorization),
+        },
+      );
     }
 
-    return this.request(`/api/departments/${assignment.departmentId}/admins/${assignment.userId}`, {
-      method: "DELETE",
-      headers: this.headers(authorization),
-    });
+    if (scope === "unit") {
+      if (!assignment.unitId) {
+        throw new BadRequestException(
+          "Peran berscope unit harus memiliki unitId.",
+        );
+      }
+      return this.request(
+        `/api/units/${assignment.unitId}/admins/${assignment.userId}/${assignment.app}`,
+        {
+          method: "DELETE",
+          headers: this.headers(authorization),
+        },
+      );
+    }
+
+    throw new BadRequestException(
+      "Peran berscope ini harus dikelola dari menu Struktur Organisasi SIMPEG.",
+    );
   }
 
   private headers(authorization: string | undefined, hasBody = false) {

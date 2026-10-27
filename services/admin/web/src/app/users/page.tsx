@@ -133,7 +133,7 @@ export default function UsersPage() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    fetchUsers();
+    fetchUsers(1);
   };
 
   const handleApproveStaff = async (user: UserItem) => {

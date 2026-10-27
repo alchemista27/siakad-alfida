@@ -75,12 +75,13 @@ const TESTING_ACCOUNTS: TestingAccount[] = [
     ],
   },
   {
-    email: "musyrif.ahmad@alfida.or.id",
+    email: "pembina.ahmad@alfida.or.id",
     fullName: "Ustadz Ahmad Al-Hafidz",
-    username: "musyrifahmad",
+    username: "pembinaahmad",
     roles: [
-      { app: "siyaum", role: "musyrif" },
-      { app: "simpeg", role: "murobbi" },
+      { app: "simpeg", role: "pegawai" },
+      { app: "siyaum", role: "peserta" },
+      { app: "siyaum", role: "pembina_ymq" },
     ],
   },
   {

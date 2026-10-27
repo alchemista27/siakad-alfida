@@ -11,28 +11,68 @@ generator client {
 }
 
 model UnitProjection {
-  id        String   @id @db.Uuid
-  name      String
-  slug      String   @unique
-  status    String   @default("active")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id              String    @id @db.Uuid
+  name            String
+  slug            String    @unique
+  status          String    @default("active")
+  category        String    @default("unknown") @db.VarChar(30)
+  sourceUpdatedAt DateTime? @map("source_updated_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
-  academicYears AcademicYear[]
-  classes       Classroom[]
-  subjects      Subject[]
+  identity             UnitIdentity?
+  academicYears        AcademicYear[]
+  classes              Classroom[]
+  subjects             Subject[]
+  importSourceMappings ImportSourceMapping[]
 
   @@map("unit_projections")
   @@schema("siakad")
 }
 
+model ImportSourceMapping {
+  id              String   @id @default(uuid()) @db.Uuid
+  unitId          String   @map("unit_id") @db.Uuid
+  sourceSystem    String   @map("source_system") @db.VarChar(100)
+  entityType      String   @map("entity_type") @db.VarChar(100)
+  mappingVersion  String   @map("mapping_version") @db.VarChar(100)
+  mapping         Json
+  createdByUserId String   @map("created_by_user_id") @db.Uuid
+  updatedByUserId String   @map("updated_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  unit UnitProjection @relation(fields: [unitId], references: [id], onDelete: Restrict)
+
+  @@unique([unitId, sourceSystem, entityType, mappingVersion])
+  @@index([unitId, sourceSystem])
+  @@map("import_source_mappings")
+  @@schema("siakad")
+}
+
+model UnitIdentity {
+  unitId                String   @id @map("unit_id") @db.Uuid
+  logoUrl               String?  @map("logo_url")
+  principalName         String?  @map("principal_name") @db.VarChar(150)
+  principalSignatureUrl String?  @map("principal_signature_url")
+  updatedByUserId       String?  @map("updated_by_user_id") @db.Uuid
+  createdAt             DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  unit UnitProjection @relation(fields: [unitId], references: [id], onDelete: Restrict)
+
+  @@map("unit_identities")
+  @@schema("siakad")
+}
+
 model UserProjection {
-  id        String   @id @db.Uuid
-  name      String
-  email     String?  @unique
-  phone     String?
-  roles     Json     @default("[]")
-  status    String   @default("active")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id              String    @id @db.Uuid
+  name            String
+  email           String?   @unique
+  phone           String?
+  roles           Json      @default("[]")
+  status          String    @default("active")
+  sourceUpdatedAt DateTime? @map("source_updated_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   teacherAssignments  TeacherAssignment[]
   homeroomAssignments HomeroomAssignment[]
@@ -52,7 +92,7 @@ model AcademicYear {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  unit                UnitProjection       @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unit                UnitProjection             @relation(fields: [unitId], references: [id], onDelete: Cascade)
   classes             Classroom[]
   enrollments         Enrollment[]
   teacherAssignments  TeacherAssignment[]
@@ -60,6 +100,7 @@ model AcademicYear {
   extracurriculars    Extracurricular[]
   lhbsReports         LhbsReport[]
   promotionDecisions  PromotionDecision[]
+  developmentRecords  StudentDevelopmentRecord[]
 
   @@unique([unitId, name])
   @@map("academic_years")
@@ -120,13 +161,15 @@ model Enrollment {
   enrolledAt     DateTime @default(now()) @map("enrolled_at") @db.Timestamptz
   updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  student           Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  academicYear      AcademicYear       @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
-  classroom         Classroom?         @relation(fields: [classId], references: [id], onDelete: SetNull)
-  attendances       Attendance[]
-  grades            Grade[]
-  lhbsReports       LhbsReport[]
-  promotionDecision PromotionDecision?
+  student            Student                    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  academicYear       AcademicYear               @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  classroom          Classroom?                 @relation(fields: [classId], references: [id], onDelete: SetNull)
+  attendances        Attendance[]
+  grades             Grade[]
+  lhbsReports        LhbsReport[]
+  promotionDecision  PromotionDecision?
+  spmbConfirmation   SpmbConfirmationOutbox?
+  developmentRecords StudentDevelopmentRecord[]
 
   @@unique([studentId, academicYearId])
   @@index([classId, status])
@@ -191,6 +234,7 @@ model TeacherAssignment {
   teacher      UserProjection    @relation(fields: [teacherUserId], references: [id], onDelete: Restrict)
   grades       Grade[]
   journals     TeachingJournal[]
+  lessonPlans  LessonPlan[]
 
   @@unique([classId, subjectId, academicYearId])
   @@map("teacher_assignments")
@@ -205,11 +249,12 @@ model HomeroomAssignment {
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  academicYear       AcademicYear        @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
-  classroom          Classroom           @relation(fields: [classId], references: [id], onDelete: Cascade)
-  teacher            UserProjection      @relation(fields: [teacherUserId], references: [id], onDelete: Restrict)
+  academicYear       AcademicYear               @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  classroom          Classroom                  @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacher            UserProjection             @relation(fields: [teacherUserId], references: [id], onDelete: Restrict)
   lhbsReports        LhbsReport[]
   promotionDecisions PromotionDecision[]
+  developmentRecords StudentDevelopmentRecord[]
 
   @@unique([classId, academicYearId])
   @@map("homeroom_assignments")
@@ -258,6 +303,7 @@ model Grade {
   enrollmentId        String   @map("enrollment_id") @db.Uuid
   teacherAssignmentId String   @map("teacher_assignment_id") @db.Uuid
   category            String   @db.VarChar(30) // daily | mid | final | project
+  label               String   @db.VarChar(100)
   score               Float
   feedback            String?
   createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz
@@ -266,6 +312,7 @@ model Grade {
   enrollment        Enrollment        @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
   teacherAssignment TeacherAssignment @relation(fields: [teacherAssignmentId], references: [id], onDelete: Cascade)
 
+  @@unique([enrollmentId, teacherAssignmentId, category, label])
   @@index([enrollmentId, category])
   @@map("grades")
   @@schema("siakad")
@@ -291,18 +338,22 @@ model TeachingJournal {
 }
 
 model LessonPlan {
-  id             String   @id @default(uuid()) @db.Uuid
-  subjectId      String   @map("subject_id") @db.Uuid
-  academicYearId String   @map("academic_year_id") @db.Uuid
-  title          String   @db.VarChar(200)
-  objectives     String?
-  materials      String?
-  fileUrl        String?  @map("file_url")
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  id                  String   @id @default(uuid()) @db.Uuid
+  subjectId           String   @map("subject_id") @db.Uuid
+  academicYearId      String   @map("academic_year_id") @db.Uuid
+  teacherAssignmentId String   @map("teacher_assignment_id") @db.Uuid
+  type                String   @db.VarChar(10) // prota | promes | rpp
+  title               String   @db.VarChar(200)
+  objectives          String?
+  materials           String?
+  fileUrl             String?  @map("file_url")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  subject           Subject           @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacherAssignment TeacherAssignment @relation(fields: [teacherAssignmentId], references: [id], onDelete: Cascade)
 
+  @@index([teacherAssignmentId])
   @@map("lesson_plans")
   @@schema("siakad")
 }
@@ -320,9 +371,27 @@ model Extracurricular {
   coaches      ExtracurricularCoach[]
   memberships  ExtracurricularMembership[]
   journals     ExtracurricularJournal[]
+  schedules    ExtracurricularSchedule[]
 
   @@unique([academicYearId, name])
   @@map("extracurriculars")
+  @@schema("siakad")
+}
+
+model ExtracurricularSchedule {
+  id                String   @id @default(uuid()) @db.Uuid
+  extracurricularId String   @map("extracurricular_id") @db.Uuid
+  dayOfWeek         Int      @map("day_of_week")
+  startTime         String   @map("start_time") @db.VarChar(10)
+  endTime           String   @map("end_time") @db.VarChar(10)
+  location          String?  @db.VarChar(150)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  extracurricular Extracurricular @relation(fields: [extracurricularId], references: [id], onDelete: Cascade)
+
+  @@unique([extracurricularId, dayOfWeek, startTime])
+  @@map("extracurricular_schedules")
   @@schema("siakad")
 }
 
@@ -407,6 +476,57 @@ model LhbsReport {
 
   @@unique([enrollmentId, academicYearId, semester])
   @@map("lhbs_reports")
+  @@schema("siakad")
+}
+
+model StudentDevelopmentRecord {
+  id                   String    @id @default(uuid()) @db.Uuid
+  enrollmentId         String    @map("enrollment_id") @db.Uuid
+  academicYearId       String    @map("academic_year_id") @db.Uuid
+  homeroomAssignmentId String    @map("homeroom_assignment_id") @db.Uuid
+  kind                 String    @db.VarChar(20) // character | violation | bpi
+  occurredAt           DateTime  @map("occurred_at") @db.Date
+  summary              String    @db.VarChar(300)
+  details              String?
+  status               String    @default("draft") @db.VarChar(20) // draft | approved | rejected
+  recordedByUserId     String    @map("recorded_by_user_id") @db.Uuid
+  approvedByUserId     String?   @map("approved_by_user_id") @db.Uuid
+  approvedAt           DateTime? @map("approved_at") @db.Timestamptz
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  enrollment         Enrollment         @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  academicYear       AcademicYear       @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  homeroomAssignment HomeroomAssignment @relation(fields: [homeroomAssignmentId], references: [id], onDelete: Restrict)
+
+  @@index([homeroomAssignmentId, occurredAt])
+  @@index([enrollmentId, status])
+  @@map("student_development_records")
+  @@schema("siakad")
+}
+
+model SpmbConfirmationOutbox {
+  id                   String    @id @default(uuid()) @db.Uuid
+  enrollmentId         String    @unique @map("enrollment_id") @db.Uuid
+  sourceRegistrationId String    @map("source_registration_id") @db.Uuid
+  academicYearId       String    @map("academic_year_id") @db.Uuid
+  classId              String    @map("class_id") @db.Uuid
+  idempotencyKey       String    @unique @map("idempotency_key") @db.VarChar(180)
+  status               String    @default("pending") @db.VarChar(20)
+  attempts             Int       @default(0)
+  availableAt          DateTime  @default(now()) @map("available_at") @db.Timestamptz
+  leasedUntil          DateTime? @map("leased_until") @db.Timestamptz
+  leaseToken           String?   @map("lease_token") @db.VarChar(100)
+  lastError            String?   @map("last_error")
+  deliveredAt          DateTime? @map("delivered_at") @db.Timestamptz
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([status, availableAt])
+  @@index([sourceRegistrationId])
+  @@map("spmb_confirmation_outbox")
   @@schema("siakad")
 }
 

@@ -71,6 +71,15 @@ export class UsersController {
     };
   }
 
+  @Get("departments")
+  async getDepartments() {
+    const data = await this.usersService.getDepartments();
+    return {
+      success: true,
+      data,
+    };
+  }
+
   @Patch(":id/approve")
   async approveUser(@Param("id") id: string) {
     return this.usersService.approveUser(id);

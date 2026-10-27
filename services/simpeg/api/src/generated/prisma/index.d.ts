@@ -14703,6 +14703,7 @@ export namespace Prisma {
     endDate: Date | null
     skNumber: string | null
     notes: string | null
+    sourceKey: string | null
     createdAt: Date | null
   }
 
@@ -14717,6 +14718,7 @@ export namespace Prisma {
     endDate: Date | null
     skNumber: string | null
     notes: string | null
+    sourceKey: string | null
     createdAt: Date | null
   }
 
@@ -14731,6 +14733,7 @@ export namespace Prisma {
     endDate: number
     skNumber: number
     notes: number
+    sourceKey: number
     createdAt: number
     _all: number
   }
@@ -14747,6 +14750,7 @@ export namespace Prisma {
     endDate?: true
     skNumber?: true
     notes?: true
+    sourceKey?: true
     createdAt?: true
   }
 
@@ -14761,6 +14765,7 @@ export namespace Prisma {
     endDate?: true
     skNumber?: true
     notes?: true
+    sourceKey?: true
     createdAt?: true
   }
 
@@ -14775,6 +14780,7 @@ export namespace Prisma {
     endDate?: true
     skNumber?: true
     notes?: true
+    sourceKey?: true
     createdAt?: true
     _all?: true
   }
@@ -14862,6 +14868,7 @@ export namespace Prisma {
     endDate: Date | null
     skNumber: string | null
     notes: string | null
+    sourceKey: string | null
     createdAt: Date
     _count: EmployeeUnitAssignmentCountAggregateOutputType | null
     _min: EmployeeUnitAssignmentMinAggregateOutputType | null
@@ -14893,6 +14900,7 @@ export namespace Prisma {
     endDate?: boolean
     skNumber?: boolean
     notes?: boolean
+    sourceKey?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["employeeUnitAssignment"]>
@@ -14908,6 +14916,7 @@ export namespace Prisma {
     endDate?: boolean
     skNumber?: boolean
     notes?: boolean
+    sourceKey?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["employeeUnitAssignment"]>
@@ -14923,6 +14932,7 @@ export namespace Prisma {
     endDate?: boolean
     skNumber?: boolean
     notes?: boolean
+    sourceKey?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["employeeUnitAssignment"]>
@@ -14938,10 +14948,11 @@ export namespace Prisma {
     endDate?: boolean
     skNumber?: boolean
     notes?: boolean
+    sourceKey?: boolean
     createdAt?: boolean
   }
 
-  export type EmployeeUnitAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "unitId" | "unitName" | "role" | "isPrimary" | "startDate" | "endDate" | "skNumber" | "notes" | "createdAt", ExtArgs["result"]["employeeUnitAssignment"]>
+  export type EmployeeUnitAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "unitId" | "unitName" | "role" | "isPrimary" | "startDate" | "endDate" | "skNumber" | "notes" | "sourceKey" | "createdAt", ExtArgs["result"]["employeeUnitAssignment"]>
   export type EmployeeUnitAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -14968,6 +14979,7 @@ export namespace Prisma {
       endDate: Date | null
       skNumber: string | null
       notes: string | null
+      sourceKey: string | null
       createdAt: Date
     }, ExtArgs["result"]["employeeUnitAssignment"]>
     composites: {}
@@ -15403,6 +15415,7 @@ export namespace Prisma {
     readonly endDate: FieldRef<"EmployeeUnitAssignment", 'DateTime'>
     readonly skNumber: FieldRef<"EmployeeUnitAssignment", 'String'>
     readonly notes: FieldRef<"EmployeeUnitAssignment", 'String'>
+    readonly sourceKey: FieldRef<"EmployeeUnitAssignment", 'String'>
     readonly createdAt: FieldRef<"EmployeeUnitAssignment", 'DateTime'>
   }
     
@@ -28304,6 +28317,7 @@ export namespace Prisma {
     endDate: 'endDate',
     skNumber: 'skNumber',
     notes: 'notes',
+    sourceKey: 'sourceKey',
     createdAt: 'createdAt'
   };
 
@@ -29628,6 +29642,7 @@ export namespace Prisma {
     endDate?: DateTimeNullableFilter<"EmployeeUnitAssignment"> | Date | string | null
     skNumber?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
     notes?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
+    sourceKey?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
     createdAt?: DateTimeFilter<"EmployeeUnitAssignment"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
@@ -29643,12 +29658,14 @@ export namespace Prisma {
     endDate?: SortOrderInput | SortOrder
     skNumber?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
+    sourceKey?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     user?: UserOrderByWithRelationInput
   }
 
   export type EmployeeUnitAssignmentWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    sourceKey?: string
     AND?: EmployeeUnitAssignmentWhereInput | EmployeeUnitAssignmentWhereInput[]
     OR?: EmployeeUnitAssignmentWhereInput[]
     NOT?: EmployeeUnitAssignmentWhereInput | EmployeeUnitAssignmentWhereInput[]
@@ -29663,7 +29680,7 @@ export namespace Prisma {
     notes?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
     createdAt?: DateTimeFilter<"EmployeeUnitAssignment"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id">
+  }, "id" | "sourceKey">
 
   export type EmployeeUnitAssignmentOrderByWithAggregationInput = {
     id?: SortOrder
@@ -29676,6 +29693,7 @@ export namespace Prisma {
     endDate?: SortOrderInput | SortOrder
     skNumber?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
+    sourceKey?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: EmployeeUnitAssignmentCountOrderByAggregateInput
     _max?: EmployeeUnitAssignmentMaxOrderByAggregateInput
@@ -29696,6 +29714,7 @@ export namespace Prisma {
     endDate?: DateTimeNullableWithAggregatesFilter<"EmployeeUnitAssignment"> | Date | string | null
     skNumber?: StringNullableWithAggregatesFilter<"EmployeeUnitAssignment"> | string | null
     notes?: StringNullableWithAggregatesFilter<"EmployeeUnitAssignment"> | string | null
+    sourceKey?: StringNullableWithAggregatesFilter<"EmployeeUnitAssignment"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"EmployeeUnitAssignment"> | Date | string
   }
 
@@ -31557,6 +31576,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     skNumber?: string | null
     notes?: string | null
+    sourceKey?: string | null
     createdAt?: Date | string
     user: UserCreateNestedOneWithoutUnitAssignmentsInput
   }
@@ -31572,6 +31592,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     skNumber?: string | null
     notes?: string | null
+    sourceKey?: string | null
     createdAt?: Date | string
   }
 
@@ -31585,6 +31606,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     skNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutUnitAssignmentsNestedInput
   }
@@ -31600,6 +31622,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     skNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -31614,6 +31637,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     skNumber?: string | null
     notes?: string | null
+    sourceKey?: string | null
     createdAt?: Date | string
   }
 
@@ -31627,6 +31651,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     skNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -31641,6 +31666,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     skNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -33508,6 +33534,7 @@ export namespace Prisma {
     endDate?: SortOrder
     skNumber?: SortOrder
     notes?: SortOrder
+    sourceKey?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -33522,6 +33549,7 @@ export namespace Prisma {
     endDate?: SortOrder
     skNumber?: SortOrder
     notes?: SortOrder
+    sourceKey?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -33536,6 +33564,7 @@ export namespace Prisma {
     endDate?: SortOrder
     skNumber?: SortOrder
     notes?: SortOrder
+    sourceKey?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -35839,6 +35868,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     skNumber?: string | null
     notes?: string | null
+    sourceKey?: string | null
     createdAt?: Date | string
   }
 
@@ -35852,6 +35882,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     skNumber?: string | null
     notes?: string | null
+    sourceKey?: string | null
     createdAt?: Date | string
   }
 
@@ -36234,6 +36265,7 @@ export namespace Prisma {
     endDate?: DateTimeNullableFilter<"EmployeeUnitAssignment"> | Date | string | null
     skNumber?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
     notes?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
+    sourceKey?: StringNullableFilter<"EmployeeUnitAssignment"> | string | null
     createdAt?: DateTimeFilter<"EmployeeUnitAssignment"> | Date | string
   }
 
@@ -38401,6 +38433,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     skNumber?: string | null
     notes?: string | null
+    sourceKey?: string | null
     createdAt?: Date | string
   }
 
@@ -38518,6 +38551,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     skNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -38531,6 +38565,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     skNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -38544,6 +38579,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     skNumber?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

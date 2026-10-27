@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { safeReturnTo } from "@/lib/safe-return-to";
 
 const publicRoutes = ["/login", "/register", "/register-staff"];
 
@@ -28,11 +29,9 @@ export function middleware(request: NextRequest) {
 
   // Jika sudah login dan membuka halaman login/register
   if (sessionToken && isPublic) {
-    const returnTo = request.nextUrl.searchParams.get("return_to") || request.nextUrl.searchParams.get("callbackUrl");
-    if (returnTo && (returnTo.startsWith("http://") || returnTo.startsWith("https://"))) {
-      return NextResponse.redirect(new URL(returnTo));
-    }
-    return NextResponse.redirect(new URL("/modules", request.url));
+    const rawReturnTo = request.nextUrl.searchParams.get("return_to") || request.nextUrl.searchParams.get("callbackUrl");
+    const target = safeReturnTo(rawReturnTo, request.nextUrl.origin);
+    return NextResponse.redirect(new URL(target, request.url));
   }
 
   return NextResponse.next();

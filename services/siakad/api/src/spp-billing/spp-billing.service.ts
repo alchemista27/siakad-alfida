@@ -14,6 +14,33 @@ export type SppInvoice = {
   paymentUrl: string | null;
 };
 
+export type SppPaymentSession = {
+  invoiceId: string;
+  paymentMethod: "gateway" | "manual_transfer";
+  paymentUrl: string | null;
+  instructions: string | null;
+  reference: string;
+  amount: number;
+  currency: "IDR";
+};
+
+function isPaymentSession(value: unknown): value is SppPaymentSession {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const item = value as Record<string, unknown>;
+  const common = typeof item.invoiceId === "string" && typeof item.reference === "string" && item.reference.length > 0
+    && typeof item.amount === "number" && Number.isSafeInteger(item.amount) && item.amount > 0 && item.currency === "IDR";
+  if (!common) return false;
+  if (item.paymentMethod === "manual_transfer") {
+    return item.paymentUrl === null && typeof item.instructions === "string" && item.instructions.trim().length > 0;
+  }
+  if (item.paymentMethod !== "gateway" || typeof item.paymentUrl !== "string" || item.instructions !== null) return false;
+  try {
+    return new URL(item.paymentUrl).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 type ParentEnrollment = { id: string; student: { fullName: string }; classroom: { name: string } | null };
 type FetchImplementation = typeof fetch;
 
@@ -54,10 +81,10 @@ export class SppBillingService {
       body: JSON.stringify({ enrollmentId: invoice.enrollmentId }),
     });
     const payload = await this.json(response);
-    if (!payload || typeof payload !== "object" || typeof (payload as Record<string, unknown>).paymentUrl !== "string") {
+    if (!isPaymentSession(payload) || payload.invoiceId !== invoice.id || payload.reference !== invoice.reference || payload.amount !== invoice.amount || payload.currency !== invoice.currency) {
       throw new BadGatewayException("SISKEU mengembalikan sesi pembayaran yang tidak valid.");
     }
-    return { invoiceId: invoice.id, paymentUrl: (payload as Record<string, string>).paymentUrl };
+    return payload;
   }
 
   private async parentEnrollments(parentUserId: string): Promise<ParentEnrollment[]> {

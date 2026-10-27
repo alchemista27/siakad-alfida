@@ -11,6 +11,9 @@ async function main() {
   assert.match(source, /const fetchUsers = async \(pageOverride = page\)/, "user refresh must support loading a known page");
   assert.match(source, /if \(!res\.ok\)[\s\S]{0,220}throw new Error\(/, "non-OK user-list responses must be visible errors");
   assert.match(source, /setPage\(1\);[\s\S]{0,180}fetchUsers\(1\)/, "manual create must return to page one before reloading newest users");
+  const searchHandler = source.match(/const handleSearchSubmit = \(e: React\.FormEvent\) => \{([\s\S]*?)\n  \};/)?.[1];
+  assert.ok(searchHandler, "search handler must exist");
+  assert.match(searchHandler, /setPage\(1\);\s*fetchUsers\(1\);/, "search from page >1 must request page 1 explicitly");
   assert.match(service, /orderBy:\s*\{\s*createdAt:\s*"desc"\s*\}/, "API must keep newest accounts at the top");
 
   console.log("Admin user-list visibility contract passed");

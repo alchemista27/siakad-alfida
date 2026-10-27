@@ -1,3 +1,4 @@
+// @contract-test: external
 import { PrismaClient as AuthPrisma } from "../src/generated/prisma";
 import { AuthService, ALFIDA_UNITS } from "../src/auth/auth.service";
 import fs from "fs";

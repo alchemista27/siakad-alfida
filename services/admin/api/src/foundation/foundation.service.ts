@@ -46,8 +46,8 @@ export class FoundationService {
   }
 
   async updateSettings(dto: UpdateFoundationDto) {
-    this.assertAllowedAssetUrls(dto);
     const existing = await this.prisma.foundationSettings.findFirst();
+    this.assertAllowedAssetUrls(dto, existing);
     const data = {
       foundationName: dto.foundationName.trim(),
       logoUrl: dto.logoUrl || null,
@@ -80,15 +80,24 @@ export class FoundationService {
     };
   }
 
-  private assertAllowedAssetUrls(dto: UpdateFoundationDto) {
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || "";
+  private assertAllowedAssetUrls(
+    dto: UpdateFoundationDto,
+    existing?: { logoUrl?: string | null; faviconUrl?: string | null; chairmanSignatureUrl?: string | null } | null
+  ) {
+    const cloudName =
+      process.env.CLOUDINARY_CLOUD_NAME ||
+      process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+      "hb1ropwm";
     const assets = [
-      ["logo", dto.logoUrl],
-      ["favicon", dto.faviconUrl],
-      ["tanda tangan ketua", dto.chairmanSignatureUrl],
+      ["logo", dto.logoUrl, existing?.logoUrl],
+      ["favicon", dto.faviconUrl, existing?.faviconUrl],
+      ["tanda tangan ketua", dto.chairmanSignatureUrl, existing?.chairmanSignatureUrl],
     ] as const;
 
-    for (const [label, url] of assets) {
+    for (const [label, url, existingUrl] of assets) {
+      if (!url) continue;
+      // Izinkan jika URL tidak berubah dari data yang sudah ada sebelumnya (legacy/grandfathered)
+      if (existingUrl && url === existingUrl) continue;
       if (!isAllowedFoundationCloudinaryUrl(url, cloudName)) {
         throw new BadRequestException(`URL ${label} harus berasal dari folder Cloudinary foundation yang sesuai.`);
       }

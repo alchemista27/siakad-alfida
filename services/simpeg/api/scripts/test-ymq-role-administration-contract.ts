@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { ForbiddenException } from "@nestjs/common";
 import { PATH_METADATA, METHOD_METADATA } from "@nestjs/common/constants";
 import { RequestMethod } from "@nestjs/common/enums/request-method.enum";
@@ -50,6 +51,12 @@ async function main() {
   const context = (roles: unknown[]) => ({ getHandler: () => ({}), getClass: () => ({}), switchToHttp: () => ({ getRequest: () => ({ user: { roles } }) }) });
   assert.equal(guard.canActivate(context([{ app: "auth", role: "super_admin" }]) as any), true);
   assert.throws(() => guard.canActivate(context([{ app: "simpeg", role: "admin_kepegawaian" }]) as any), ForbiddenException);
+
+  const clientSource = await readFile(new URL("../src/ymq-role-administration/auth-ymq-role-broker.client.ts", import.meta.url), "utf8");
+  const moduleSource = await readFile(new URL("../src/ymq-role-administration/ymq-role-administration.module.ts", import.meta.url), "utf8");
+  assert.match(clientSource, /export const AUTH_YMQ_ROLE_BROKER_FETCH\s*=\s*Symbol\(/);
+  assert.match(clientSource, /@Inject\(AUTH_YMQ_ROLE_BROKER_FETCH\)\s+private readonly fetchImplementation/);
+  assert.match(moduleSource, /\{\s*provide:\s*AUTH_YMQ_ROLE_BROKER_FETCH,\s*useValue:\s*fetch\s*\}/);
 
   console.log("SIMPEG YMQ role administration contract passed");
 }

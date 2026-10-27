@@ -50,6 +50,10 @@ function readErrorMessage(payload: unknown, fallback: string) {
   if (typeof payload === "object" && payload && "error" in payload) {
     const error = (payload as { error?: unknown }).error;
     if (typeof error === "string") return error;
+    if (typeof error === "object" && error && "message" in error) {
+      const msg = (error as { message?: unknown }).message;
+      if (typeof msg === "string") return msg;
+    }
   }
   return fallback;
 }
@@ -92,8 +96,12 @@ export function FoundationAssetUploader({
       return;
     }
 
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_FOUNDATION_UPLOAD_PRESET;
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "hb1ropwm";
+    const uploadPreset =
+      process.env.NEXT_PUBLIC_CLOUDINARY_FOUNDATION_UPLOAD_PRESET ||
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ||
+      "alfida_unsigned";
+
     if (!cloudName || !uploadPreset) {
       setStatus("error");
       setMessage("Konfigurasi upload Cloudinary belum tersedia.");

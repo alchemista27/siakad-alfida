@@ -1,6 +1,52 @@
 **tanggal:** 17 Oktober 2026
 **progress:**
 
+- Menyelesaikan eliminasi input teks manual dan standarisasi pemilihan peran/scope via dropdown di Admin Yayasan (`https://admin.alfida.or.id/users`):
+  - **Eliminasi Input Bebas UUID Bidang & Penerapan Dropdown Dinamis (`UserRoleModal`)**: Mengganti field `<input>` teks bebas pengetikan manual UUID bidang SIMAKIN pada `services/admin/web/src/components/user-role-modal.tsx` menjadi `<select>` dropdown interaktif berisi nama resmi bidang yayasan ("Bidang Kepegawaian", "Bidang Pendidikan", "Departemen Keuangan").
+  - **Pembukaan Penugasan Admin Unit & Dropdown Unit Yayasan**: Menghilangkan hambatan kaku peran berscope unit (`disabled={scope === "unit"}`), menambahkan dropdown pilihan 9 unit resmi yayasan (TK 1, TK 2, SDIT 1-3, SMPIT, SMAIT, Pesantren, Kantor Yayasan), serta menyinkronkan penugasan admin unit ke layanan SIMPEG.
+  - **Penyediaan Endpoint Katalog Organisasi Admin API (`admin/users/units` & `admin/users/departments`)**: Menambahkan metode `getUnits()` dan `getDepartments()` di `services/admin/api/src/users/users.service.ts` serta rute `@Get("units")` & `@Get("departments")` di `UsersController` dengan query langsung ke database `sim.units` dan `sim.departments` beserta fallback data kanonikal.
+  - **Perluasan Skema DTO & Broker Penugasan Organisasi (`OrganizationRoleAdminService`)**: Memperbarui `OrganizationRoleAdminSchema` untuk mendukung `scope: "unit"` (unitId, app, role) dan mem-forward penugasan maupun pencabutan peran admin unit secara tepat ke endpoint SIMPEG API (`/api/units/:id/admins`).
+  - **Pengujian TDD & Validasi Menyeluruh**: Menulis uji kontrak UI baru `test-user-role-dropdown-ui.ts` dan uji API baru `test-admin-organization-catalog.ts`. Seluruh 10 suite uji kontrak admin lolos 100%, typecheck 19 paket monorepo sukses, dan kompilasi Next.js Standalone `@alfida/admin-web` serta `@alfida/admin-api` selesai tanpa error.
+
+---
+
+**tanggal:** 17 Oktober 2026
+**progress:**
+
+- Melakukan pengujian mendalam (deep testing) dan *hardening patch* pada seluruh alur upload Cloudinary dan identitas yayasan di Admin (`https://admin.alfida.or.id/settings`):
+  - **Inisialisasi Upload Preset Cloudinary (`alfida_unsigned`)**: Menguji koneksi langsung ke Cloudinary API (`hb1ropwm`) via Admin SDK dan mendeteksi bahwa akun belum memiliki *upload preset* unsigned (`presets: []`). Membuat dan mengaktifkan preset `alfida_unsigned` secara resmi dengan format `png,webp,svg,ico,jpg,jpeg,pdf`.
+  - **Uji Langsung API Cloudinary Berhasil (Status 200)**: Memverifikasi unggahan multipart langsung ke `https://api.cloudinary.com/v1_1/hb1ropwm/image/upload` dengan preset `alfida_unsigned` ke folder `foundation/logo`. Pengujian berhasil 100% menghasilkan `secure_url` resmi dan objek uji dibersihkan kembali via API destroy.
+  - **Patch Parsing Error Cloudinary (`readErrorMessage`)**: Memperbarui parser error di `services/admin/web/src/components/foundation-asset-uploader.tsx` agar mampu mengekstrak pesan objek berstruktur Cloudinary `{ error: { message: "..." } }`, sehingga pesan kegagalan spesifik dari Cloudinary langsung tampak di UI dan tidak tertutup pesan *fallback* generik.
+  - **Patch Toleransi Aset Legacy (`assertAllowedAssetUrls`)**: Memperbarui `services/admin/api/src/foundation/foundation.service.ts` agar menerima URL aset yang tidak berubah dari basis data (`existingUrl`), sehingga data eksisting dari penyimpanan S3/MinIO tidak memblokir super admin saat hanya memperbarui nama ketua, rekening bank, atau kontak yayasan.
+  - **Verifikasi Menyeluruh**: Seluruh 3 uji kontrak UI Admin Web, 5 uji API Admin, 28 uji kontrak SPMB (Web & API), serta kompilasi Next.js `@alfida/admin-web` lulus 100%.
+
+---
+
+**tanggal:** 17 Oktober 2026
+**progress:**
+
+- Menyelesaikan resolusi error upload logo dan aset identitas yayasan di Admin (`https://admin.alfida.or.id/settings`):
+  - **Resolusi Preset Cloudinary Bertingkat (`FoundationAssetUploader`)**: Memperbarui komponen `services/admin/web/src/components/foundation-asset-uploader.tsx` agar membaca `NEXT_PUBLIC_CLOUDINARY_FOUNDATION_UPLOAD_PRESET`, lalu jatuh ke `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`, dengan default fallback aman `"alfida_unsigned"` dan cloud name `"hb1ropwm"`. Ini mengeliminasi kegagalan inlining build-time Next.js yang menyebabkan pesan "Konfigurasi upload Cloudinary belum tersedia".
+  - **Pembersihan Lingkungan & Database Coolify**: Memisahkan baris concatenation `CLOUDINARY_API_SECRET` di `.env` monorepo dan mendaftarkan alias `NEXT_PUBLIC_CLOUDINARY_FOUNDATION_UPLOAD_PRESET` pada basis data Coolify (`coolify-db`) untuk aplikasi `admin-alfida`.
+  - **Uji Kontrak & Validasi Build**: Menambahkan asersi uji kontrak di `test-foundation-cloudinary-upload-ui.ts`, memvalidasi kelulusan `test-foundation-cloudinary-asset-policy.ts`, serta memastikan kompilasi bundle `pnpm --filter @alfida/admin-web build` dan typecheck monorepo 100% lulus.
+
+---
+
+**tanggal:** 17 Oktober 2026
+**progress:**
+
+- Memperbaiki integrasi SSO, wewenang RBAC, dan alur keluar (logout) pada SPMB Web (`services/spmb/web`):
+  - **Sinkronisasi Sesi SSO (`/api/auth/me`)**: Mengganti pemanggilan rute usang `/api/auth/session` pada `services/spmb/web/src/app/admin/page.tsx` menjadi endpoint SSO resmi `https://auth.alfida.or.id/api/auth/me` (`credentials: "include"`), melenyapkan data fallback dummy user ("Panitia SPMB" / "PANITIA").
+  - **Penegakan RBAC Client-Side**: Memasang verifikasi peran SPMB (`super_admin`, `admin_unit`, `tim_ppdb`) pada rute `/admin` dan (`super_admin`, `admin_unit`, `tim_ppdb`, `observer`) pada rute `/observer`. Pengguna tanpa wewenang kini disajikan antarmuka *Akses Ditolak* (sesuai palet token DESIGN.md) dengan tombol navigasi kembali ke Portal Modul atau Ganti Akun, tanpa *flash* UI dummy.
+  - **Alur Logout SSO Terpusat**: Memperbaiki `onLogout` pada AppShell admin, portal penguji (`/observer`), dan navigasi navbar (`SpmbNavbar`) untuk memicu pencabutan sesi di `https://auth.alfida.or.id/api/auth/logout` dan redirect ke `https://auth.alfida.or.id/login`.
+  - **Resiliensi Rute `/login`**: Menambahkan *interceptor redirect* pada `services/spmb/web/src/middleware.ts` untuk langsung mengarahkan akses ke `/login` menuju SSO login terpusat dengan `return_to` ke portal admin SPMB.
+  - **Validasi Build**: Seluruh 19 paket monorepo lolos `pnpm run typecheck` dan kompilasi Next.js Standalone SPMB Web (`pnpm --filter @alfida/spmb-web build`) 100% sukses.
+
+---
+
+**tanggal:** 17 Oktober 2026
+**progress:**
+
 - Menyelaraskan rute utama SPMB Web (`services/spmb/web`) agar identik dengan monolith PPDB dan modul layanan lainnya (SIMPEG/SIMAKIN):
   - Mengubah titik masuk utama `services/spmb/web/src/app/page.tsx` dari template landing page marketing publik menjadi `redirect("/admin")` sehingga pengguna langsung diarahkan ke Dashboard Panitia PPDB (5 tab terintegrasi).
   - Memperketat `services/spmb/web/src/middleware.ts` untuk memproteksi rute root `/`; akses tanpa sesi SSO otomatis dialihkan ke login `auth.alfida.or.id` dengan callback ke `/admin`.

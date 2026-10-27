@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { safeReturnTo } from "@/lib/safe-return-to";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -52,13 +53,11 @@ export default function LoginForm() {
 
       const urlParams = new URLSearchParams(window.location.search);
       const callbackUrl = urlParams.get("callbackUrl") || urlParams.get("return_to");
-
-      if (callbackUrl && (callbackUrl.startsWith("http://") || callbackUrl.startsWith("https://"))) {
-        window.location.href = callbackUrl;
-      } else if (callbackUrl && callbackUrl.startsWith("/")) {
-        router.push(callbackUrl);
+      const target = safeReturnTo(callbackUrl, window.location.origin);
+      if (target.startsWith("/")) {
+        router.push(target);
       } else {
-        router.push("/modules");
+        window.location.assign(target);
       }
     } catch (err: any) {
       setErrorMessage(err.message || "Terjadi kesalahan saat memproses login");

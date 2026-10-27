@@ -1,3 +1,4 @@
+// @contract-test: external
 import { PrismaClient as SimakinPrisma } from "../src/generated/prisma";
 import { ExecutionDashboardService } from "../src/strategic/execution-dashboard/execution-dashboard.service";
 import fs from "fs";

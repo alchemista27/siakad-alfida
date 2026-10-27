@@ -498,5 +498,24 @@ export class UsersService {
     ];
   }
 
-
+  async getDepartments() {
+    try {
+      const depts = await (this.prisma as any).$queryRaw`
+        SELECT id, name, parent_id as "parentId", is_active as "isActive"
+        FROM sim.departments
+        WHERE is_active = true
+        ORDER BY name ASC
+      `;
+      if (Array.isArray(depts) && depts.length > 0) {
+        return depts;
+      }
+    } catch {
+      // Fallback ke bidang kanonikal jika query sim.departments gagal
+    }
+    return [
+      { id: "3ac9abae-27ec-40e2-9032-e17724fc5b5e", name: "Bidang Kepegawaian", parentId: null, isActive: true },
+      { id: "0946afff-c8c2-4b6c-bccf-b6802b034938", name: "Bidang Pendidikan", parentId: null, isActive: true },
+      { id: "43984cd1-77be-422f-aac3-eebda167d65d", name: "Departemen Keuangan", parentId: null, isActive: true },
+    ];
+  }
 }

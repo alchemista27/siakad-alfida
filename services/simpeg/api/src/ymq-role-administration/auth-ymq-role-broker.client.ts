@@ -1,4 +1,6 @@
-import { Injectable, ServiceUnavailableException } from "@nestjs/common";
+import { Inject, Injectable, ServiceUnavailableException } from "@nestjs/common";
+
+export const AUTH_YMQ_ROLE_BROKER_FETCH = Symbol("AUTH_YMQ_ROLE_BROKER_FETCH");
 
 export type AuthYmqManagedRole = "admin_ymq" | "peserta" | "pembina_ymq" | "admin_kelompok" | "pengawas" | "pimpinan";
 
@@ -6,7 +8,7 @@ type BrokerAssignment = { userId: string; role: AuthYmqManagedRole; changed?: bo
 
 @Injectable()
 export class AuthYmqRoleBrokerClient {
-  constructor(private readonly fetchImplementation: typeof fetch = fetch) {}
+  constructor(@Inject(AUTH_YMQ_ROLE_BROKER_FETCH) private readonly fetchImplementation: typeof fetch) {}
 
   async assign(actorUserId: string, userId: string, role: AuthYmqManagedRole) {
     return this.request<BrokerAssignment>("/api/internal/ymq-role-broker/assign", {

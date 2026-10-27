@@ -110,6 +110,22 @@ export default function SimpegDashboard() {
   const [isPegawai, setIsPegawai] = useState(false);
   const [locationPreviewMeters, setLocationPreviewMeters] = useState<number | null>(null);
 
+  const handleLogout = async () => {
+    setFeedbackError(null);
+    try {
+      const response = await fetch("https://auth.alfida.or.id/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Sesi pusat tidak dapat diakhiri.");
+      }
+      window.location.replace("https://auth.alfida.or.id/login");
+    } catch (caught) {
+      setFeedbackError(caught instanceof Error ? caught.message : "Tidak dapat keluar dari sistem. Silakan coba lagi.");
+    }
+  };
+
   const fetchWorkdayData = async () => {
     setWorkdayLoading(true);
     setWorkdayError(null);
@@ -565,9 +581,7 @@ export default function SimpegDashboard() {
       userName={currentUser?.fullName || "Memuat..."}
       userRole={currentUser?.role || ""}
       sidebarGroups={visibleSidebarGroups}
-      onLogout={() => {
-        window.location.href = "https://auth.alfida.or.id/login";
-      }}
+      onLogout={handleLogout}
       topbarActions={
         <a
           href="https://auth.alfida.or.id/modules"

@@ -25,10 +25,14 @@ async function main() {
   process.env.SISKEU_INTERNAL_SERVICE_TOKEN = "siskeu-contract-token";
 
   const requests: Array<{ input: string; init?: RequestInit }> = [];
+  let manualSession = false;
   const fetchImplementation: typeof fetch = async (input, init) => {
     requests.push({ input: String(input), init });
     if (String(input).endsWith("/payment-session")) {
-      return new Response(JSON.stringify({ invoiceId: "invoice-1", paymentUrl: "https://pay.example.test/session-1" }), { status: 200, headers: { "content-type": "application/json" } });
+      const session = manualSession
+        ? { invoiceId: "invoice-1", paymentMethod: "manual_transfer", paymentUrl: null, instructions: "Transfer sesuai instruksi resmi sekolah.", reference: "SPP-2026-0001", amount: 250000, currency: "IDR" }
+        : { invoiceId: "invoice-1", paymentMethod: "gateway", paymentUrl: "https://pay.example.test/session-1", instructions: null, reference: "SPP-2026-0001", amount: 250000, currency: "IDR" };
+      return new Response(JSON.stringify(session), { status: 200, headers: { "content-type": "application/json" } });
     }
     return new Response(JSON.stringify({
       invoices: [
@@ -49,9 +53,13 @@ async function main() {
     assert.equal((requests[0].init?.headers as Record<string, string>)["x-internal-service-key"], "siskeu-contract-token");
 
     const session = await controller.createPaymentSession(parent as any, "invoice-1");
-    assert.equal(session.paymentUrl, "https://pay.example.test/session-1");
+    assert.deepEqual(session, { invoiceId: "invoice-1", paymentMethod: "gateway", paymentUrl: "https://pay.example.test/session-1", instructions: null, reference: "SPP-2026-0001", amount: 250000, currency: "IDR" });
     assert.equal(requests[2].input, "https://siskeu.example.test/api/internal/spp/invoices/invoice-1/payment-session");
     assert.deepEqual(JSON.parse(String(requests[2].init?.body)), { enrollmentId: "enrollment-1" });
+
+    manualSession = true;
+    const manual = await controller.createPaymentSession(parent as any, "invoice-1");
+    assert.deepEqual(manual, { invoiceId: "invoice-1", paymentMethod: "manual_transfer", paymentUrl: null, instructions: "Transfer sesuai instruksi resmi sekolah.", reference: "SPP-2026-0001", amount: 250000, currency: "IDR" }, "SIAKAD must preserve a typed manual-transfer session from SISKEU");
 
     await assert.rejects(() => controller.createPaymentSession(parent as any, "foreign-invoice"), /Tagihan SPP tidak ditemukan/, "SIAKAD must not create a payment session for a foreign bill");
 
