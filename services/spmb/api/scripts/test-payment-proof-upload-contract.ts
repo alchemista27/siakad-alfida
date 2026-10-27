@@ -94,7 +94,7 @@ async function run() {
   } as any);
   const ownerResult = await download.createDownloadUrl(registrationId, { id: parentId, roles: [] });
   assert(ownerResult.downloadUrl === proofUrl, "authorized owner must receive the Cloudinary proof URL");
-  await download.createDownloadUrl(registrationId, { id: "staff-1", roles: [{ app: "spmb", role: "tim_ppdb", unitId }] });
+  await download.createDownloadUrl(registrationId, { id: "staff-1", roles: [{ app: "spmb", role: "tim_spmb", unitId }] });
   await expectRejects(
     "foreign parent cannot open payment proof",
     () => download.createDownloadUrl(registrationId, { id: "other-parent", roles: [] }),

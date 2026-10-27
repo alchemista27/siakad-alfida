@@ -12,7 +12,7 @@ export class PeriodsService {
   private assertExistingPeriodAccess(
     period: { unitId: string },
     principal: SpmbPrincipal,
-    roles: readonly string[] = ["admin_unit", "tim_ppdb", "observer"],
+    roles: readonly string[] = ["admin_unit", "tim_spmb", "observer"],
   ) {
     if (isSuperAdmin(principal) || allowedUnitIds(principal, roles).has(period.unitId)) return;
     throw new NotFoundException("Periode pendaftaran tidak ditemukan");
@@ -63,7 +63,7 @@ export class PeriodsService {
   async findAll(principal: SpmbPrincipal) {
     const where = isSuperAdmin(principal)
       ? {}
-      : { unitId: { in: [...allowedUnitIds(principal, ["admin_unit", "tim_ppdb", "observer"])] } };
+      : { unitId: { in: [...allowedUnitIds(principal, ["admin_unit", "tim_spmb", "observer"])] } };
 
     return this.prisma.admissionPeriod.findMany({
       where,

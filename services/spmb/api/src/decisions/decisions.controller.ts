@@ -30,7 +30,7 @@ export class DecisionsController {
   }
 
   @Get("statistics/:periodId")
-  @SpmbRoles("admin_unit", "tim_ppdb")
+  @SpmbRoles("admin_unit", "tim_spmb")
   async getStatistics(@Param("periodId") periodId: string, @Req() req: any) {
     return this.decisionsService.getStatistics(periodId, req.user);
   }

@@ -15,9 +15,14 @@ assert.deepEqual(
   "unit admin must enter only the committee portal",
 );
 assert.deepEqual(
+  entryIds([{ app: "spmb", role: "tim_spmb", unitId: "unit-a" }]),
+  ["admin"],
+  "SPMB committee member must enter the committee portal",
+);
+assert.deepEqual(
   entryIds([{ app: "spmb", role: "tim_ppdb", unitId: "unit-a" }]),
   ["admin"],
-  "committee member must enter the committee portal",
+  "legacy committee role must retain the committee portal during migration",
 );
 assert.deepEqual(
   entryIds([{ app: "spmb", role: "observer", unitId: "unit-a" }]),

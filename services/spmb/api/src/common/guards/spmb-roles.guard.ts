@@ -6,12 +6,13 @@ import {
   SetMetadata,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { matchesSpmbRole } from "../spmb-scope-policy";
 
 export const SPMB_ROLES_KEY = "spmb_roles";
 
 /**
  * Decorator untuk menentukan daftar peran yang diizinkan mengakses handler / controller pada sistem SPMB.
- * Mendukung multiple roles, contoh: @SpmbRoles('admin_unit', 'tim_ppdb')
+ * Mendukung multiple roles, contoh: @SpmbRoles('admin_unit', 'tim_spmb')
  */
 export const SpmbRoles = (...roles: string[]) => SetMetadata(SPMB_ROLES_KEY, roles);
 
@@ -48,7 +49,7 @@ export class SpmbRolesGuard implements CanActivate {
 
       // 2. Periksa peran khusus aplikasi SPMB
       if (appName === "*" || appName === "spmb") {
-        return requiredRoles.includes(roleName);
+        return matchesSpmbRole(roleName, requiredRoles);
       }
 
       return false;

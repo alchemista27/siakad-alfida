@@ -121,7 +121,7 @@ async function runMigration() {
             targetRoles.push({ app: "siakad", role: "supervisor_kesiswaan", unitId: r.unitId });
             break;
           case "tim_ppdb":
-            targetRoles.push({ app: "spmb", role: "tim_ppdb", unitId: r.unitId });
+            targetRoles.push({ app: "spmb", role: "tim_spmb", unitId: r.unitId });
             break;
           case "observer":
             targetRoles.push({ app: "spmb", role: "observer", unitId: r.unitId });

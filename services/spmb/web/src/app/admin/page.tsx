@@ -163,7 +163,7 @@ export default function SpmbAdminPage() {
         setUserEmail(data.user.email || "");
 
         // Validasi peran RBAC untuk portal Panitia SPMB
-        const allowedRoles = ["super_admin", "admin_unit", "tim_ppdb"];
+        const allowedRoles = ["super_admin", "admin_unit", "tim_spmb", "tim_ppdb"];
         const hasAccess = data.user.roles?.some((r: any) => {
           const roleName = typeof r === "string" ? r : r.role;
           const appName = typeof r === "string" ? "*" : r.app || "*";
@@ -247,7 +247,7 @@ export default function SpmbAdminPage() {
       if (!res.ok || data.success === false) {
         notify("error", data.message || "Gagal sinkronisasi ke SIAKAD.");
       } else {
-        notify("success", "Data santri berhasil disinkronkan ke SIAKAD.");
+        notify("success", "Data murid berhasil disinkronkan ke SIAKAD.");
       }
       await fetchRegistrations();
     } catch (err: any) {
@@ -261,7 +261,7 @@ export default function SpmbAdminPage() {
 
   const sidebarGroups = [
     {
-      title: "Penerimaan Siswa",
+      title: "Penerimaan Murid",
       items: [
         {
           label: "Pendaftar & Seleksi",
@@ -334,7 +334,7 @@ export default function SpmbAdminPage() {
           </div>
           <h2 className="text-xl font-bold font-heading text-[#454545]">Akses Ditolak</h2>
           <p className="text-xs text-gray-500 leading-relaxed">
-            Akun Anda ({userEmail || "pengguna"}) tidak memiliki wewenang Panitia SPMB (Super Admin, Admin Unit, atau Tim PPDB).
+            Akun Anda ({userEmail || "pengguna"}) tidak memiliki wewenang Panitia SPMB (Super Admin, Admin Unit, atau Tim SPMB).
           </p>
           <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
             <a
@@ -375,7 +375,7 @@ export default function SpmbAdminPage() {
     >
       <div className="max-w-7xl w-full mx-auto space-y-6">
         <div className="spmb-card rounded-md p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tertiary">Funnel seleksi santri</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tertiary">Funnel seleksi murid</p>
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-primary/75">
             {['Pendaftaran', 'Berkas', 'Observasi', 'Keputusan', 'SIAKAD'].map((stage, index) => <React.Fragment key={stage}><span className="rounded-sm border border-border bg-neutral px-2.5 py-1.5">{stage}</span>{index < 4 ? <span className="material-symbols-rounded text-base text-tertiary" aria-hidden="true">arrow_forward</span> : null}</React.Fragment>)}
           </div>
@@ -384,7 +384,7 @@ export default function SpmbAdminPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold font-heading text-[#454545]">
-              Pengelolaan SPMB & Seleksi Santri
+              Pengelolaan SPMB & Seleksi Murid
             </h1>
             <p className="text-xs text-gray-500 mt-1">
               Kelola gelombang pendaftaran, verifikasi pembayaran & berkas, penjadwalan observasi, dan keputusan kelulusan.
@@ -511,7 +511,7 @@ export default function SpmbAdminPage() {
           <form onSubmit={handleSearch} className="flex gap-1.5 w-full sm:w-auto">
             <input
               type="text"
-              placeholder="Cari siswa, nomor, wali..."
+              placeholder="Cari murid, nomor, wali..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="px-3 py-1.5 text-xs border border-[#E3E8E7] rounded flex-1 sm:w-56"
@@ -545,7 +545,7 @@ export default function SpmbAdminPage() {
                 <thead className="bg-[#F7F8F8] text-gray-500 uppercase text-[11px] border-b border-[#E3E8E7]">
                   <tr>
                     <th className="py-3 px-4">No. Registrasi</th>
-                    <th className="py-3 px-4">Calon Siswa</th>
+                    <th className="py-3 px-4">Calon Murid</th>
                     <th className="py-3 px-4">Wali</th>
                     <th className="py-3 px-4">Jalur</th>
                     <th className="py-3 px-4">Status</th>
@@ -561,7 +561,7 @@ export default function SpmbAdminPage() {
                         {reg.registrationNumber}
                       </td>
                       <td className="py-3 px-4 font-semibold">
-                        {reg.studentData?.fullName || "Calon Siswa"}
+                        {reg.studentData?.fullName || "Calon Murid"}
                       </td>
                       <td className="py-3 px-4">
                         <div>{reg.guardianName}</div>
@@ -576,7 +576,7 @@ export default function SpmbAdminPage() {
                       <td className="py-3 px-4 text-right space-x-1">
                         <button
                           type="button"
-                          onClick={() => openWaShare(reg.id, reg.guardianName, reg.studentData?.fullName || "Calon Siswa")}
+                          onClick={() => openWaShare(reg.id, reg.guardianName, reg.studentData?.fullName || "Calon Murid")}
                           className="px-2.5 py-1 rounded border border-[#E3E8E7] text-[11px] font-semibold"
                         >
                           Tautan Klaim
@@ -605,7 +605,7 @@ export default function SpmbAdminPage() {
           <div className="bg-white rounded-lg max-w-md w-full p-6 border border-[#E3E8E7] space-y-3 text-xs">
             <h3 className="font-heading font-bold text-base text-[#454545]">Tautan Klaim Akun Wali</h3>
             <p className="text-gray-600">
-              Wali: <strong>{waLinkModal.guardianName}</strong> · Santri: <strong>{waLinkModal.studentName}</strong>
+              Wali: <strong>{waLinkModal.guardianName}</strong> · Murid: <strong>{waLinkModal.studentName}</strong>
             </p>
             <div className="p-3 bg-[#F7F8F8] border border-[#E3E8E7] rounded font-mono break-all">
               {waLinkModal.claimUrl}

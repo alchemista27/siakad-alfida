@@ -51,16 +51,6 @@ export default function ObserverPage() {
 
   const sidebarGroups = [
     {
-      title: "Portal",
-      items: [
-        {
-          label: "Portal Admin",
-          href: "/admin",
-          icon: "admin_panel_settings",
-        },
-      ],
-    },
-    {
       title: "Sistem",
       items: [
         {
@@ -206,7 +196,7 @@ export default function ObserverPage() {
       if (!res.ok) throw new Error(data?.message || "Gagal menyimpan hasil penilaian.");
       setNotice({
         type: "success",
-        message: `Penilaian untuk ${activeCandidate.studentData?.fullName || "calon santri"} berhasil disimpan.`,
+        message: `Penilaian untuk ${activeCandidate.studentData?.fullName || "calon murid"} berhasil disimpan.`,
       });
       setActiveCandidate(null);
       await fetchData();
@@ -291,28 +281,19 @@ export default function ObserverPage() {
       sidebarGroups={sidebarGroups}
       onLogout={handleLogout}
       topbarActions={
-        <>
-          <a
-            href="/admin"
-            className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
-          >
-            <span className="material-symbols-rounded text-[16px]">admin_panel_settings</span>
-            <span className="hidden sm:inline">Portal Admin</span>
-          </a>
-          <a
-            href={modulePortalUrl}
-            className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
-          >
-            <span className="material-symbols-rounded text-[16px]">apps</span>
-            <span className="hidden sm:inline">Portal Modul</span>
-          </a>
-        </>
+        <a
+          href={modulePortalUrl}
+          className="text-xs font-semibold text-tertiary hover:underline inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#e6f4f1]"
+        >
+          <span className="material-symbols-rounded text-[16px]">apps</span>
+          <span className="hidden sm:inline">Pilih Modul</span>
+        </a>
       }
     >
       <div className="max-w-6xl w-full mx-auto space-y-5">
         <div className="spmb-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="font-heading font-bold text-xl text-[#454545]">Penilaian & Observasi Calon Santri</h1>
+            <h1 className="font-heading font-bold text-xl text-[#454545]">Penilaian & Observasi Calon Murid</h1>
             <p className="text-xs text-gray-500 mt-1">
               Daftar kandidat terbatas pada unit tempat Anda ditugaskan sebagai penguji.
             </p>
@@ -362,7 +343,7 @@ export default function ObserverPage() {
                 <tr>
                   <th className="py-3 px-4">Peringkat</th>
                   <th className="py-3 px-4">No. Registrasi</th>
-                  <th className="py-3 px-4">Nama Santri</th>
+                  <th className="py-3 px-4">Nama Murid</th>
                   <th className="py-3 px-4 text-center">Skor</th>
                   <th className="py-3 px-4">Catatan</th>
                 </tr>

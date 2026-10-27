@@ -11,7 +11,7 @@ async function main() {
   assert.match(source, /Belum ada pendaftar/, "an unfiltered empty collection must use the required copy");
   assert.match(source, /Tidak ada pendaftar yang sesuai filter\./, "filtered empty copy must remain specific");
   assert.match(source, /Coba lagi/, "error UI must let the user retry");
-  assert.match(source, /Funnel seleksi santri/, "SPMB must expose its service-specific admissions funnel");
+  assert.match(source, /Funnel seleksi murid/, "SPMB must expose its service-specific admissions funnel");
   assert.doesNotMatch(source, /fetch\("\/api\/registrations\?\$\{params\.toString\(\)\}"\)[\s\S]{0,500}\(r\)\s*=>\s*\(r\.ok\s*\?\s*r\.json\(\)\s*:\s*\[\]\)/, "registration failures must not become empty arrays");
 
   console.log("SPMB admin registration load-state contract passed");

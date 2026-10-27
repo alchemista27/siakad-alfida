@@ -40,6 +40,7 @@ assert(!StudentRegistrationFormSchema.safeParse({ ...student, siblingsCount: -1 
 assert(ParentRegistrationFormSchema.safeParse({ father: parent, mother: parent }).success, "complete parent form must pass");
 assert(!ParentRegistrationFormSchema.safeParse({ father: { ...parent, nik: "123" }, mother: parent }).success, "father NIK must be exactly 16 digits");
 assert(isStudentRegistrationComplete(student), "complete student record must be detected");
+assert(isStudentRegistrationComplete({ ...student, nisn: null }), "persisted optional NISN null must remain a complete student record");
 assert(!isStudentRegistrationComplete({ ...student, transportation: null }), "missing required student field must not be complete");
 
 console.log("SPMB parent-form contract passed");

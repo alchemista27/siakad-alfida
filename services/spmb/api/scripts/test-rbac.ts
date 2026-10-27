@@ -101,7 +101,7 @@ async function runTests() {
     failed++;
   }
 
-  // Test 4: Observer dilarang akses kelulusan santri (admin_unit only)
+  // Test 4: Observer dilarang akses kelulusan murid (admin_unit only)
   try {
     const ctx = createMockContext(
       {

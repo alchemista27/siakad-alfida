@@ -43,7 +43,7 @@ export class InvitesService {
       registrationId: reg.id,
       registrationNumber: reg.registrationNumber,
       unitName: reg.period.unitName,
-      studentName: reg.studentData?.fullName || "Calon Siswa",
+      studentName: reg.studentData?.fullName || "Calon Murid",
       guardianName: reg.guardianName,
       status: reg.status,
     };
@@ -138,7 +138,7 @@ export class InvitesService {
 
     const message =
       `Assalamu'alaikum Wr. Wb. Bapak/Ibu ${reg.guardianName},\n\n` +
-      `Alhamdulillah berkas pendaftaran SPMB ${unitName} untuk calon santri/siswa *${studentName}* telah tercatat di sistem kami.\n\n` +
+      `Alhamdulillah berkas pendaftaran SPMB ${unitName} untuk calon murid *${studentName}* telah tercatat di sistem kami.\n\n` +
       `Nomor Pendaftaran: *${reg.registrationNumber}*\n\n` +
       `Silakan klik tautan resmi berikut untuk mengaktifkan akun dan memantau status seleksi secara online:\n` +
       `${claimUrl}\n\n` +

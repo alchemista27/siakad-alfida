@@ -33,7 +33,7 @@ export class HandoffController {
 
   @Get("status/:periodId")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
+  @SpmbRoles("admin_unit", "tim_spmb")
   async listStatus(@Param("periodId") periodId: string, @Req() req: any) {
     return this.handoffService.listHandoffStatus(periodId, req.user);
   }

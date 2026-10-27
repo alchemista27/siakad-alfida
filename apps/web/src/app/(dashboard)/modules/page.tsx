@@ -78,7 +78,7 @@ export default async function ModulesPage() {
   
   // Default routing
   const isSuperAdmin = roles.some((r: any) => r.role === "super_admin");
-  const isAdminUnit = roles.some((r: any) => r.role === "admin_unit" || r.role === "admin_unit_nondik" || r.role === "tim_ppdb");
+  const isAdminUnit = roles.some((r: any) => r.role === "admin_unit" || r.role === "admin_unit_nondik" || r.role === "tim_spmb" || r.role === "tim_ppdb");
   const isKaryawan = roles.some((r: any) => r.role === "karyawan");
   const isGuru = roles.some((r: any) => r.role === "guru");
   const isMurobbi = roles.some((r: any) => r.role === "murobbi");
@@ -107,8 +107,8 @@ export default async function ModulesPage() {
   const isOnlyParent = isParent && !isSuperAdmin && !isAdminUnit && !isKaryawan && !isGuru && !isAdminKepegawaian && !isMurobbi && !isAdminPendidikan && !isSarprasAdmin;
   
   const isObserver = roles.some((r: any) => r.role === "observer");
-  const isTimPpdb = roles.some((r: any) => r.role === "tim_ppdb");
-  const showPpdb = isSuperAdmin || isAdminUnit || isTimPpdb || isObserver || isParent;
+  const isTimSpmb = roles.some((r: any) => r.role === "tim_spmb" || r.role === "tim_ppdb");
+  const showSpmb = isSuperAdmin || isAdminUnit || isTimSpmb || isObserver || isParent;
 
 
 
@@ -127,10 +127,10 @@ export default async function ModulesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {showPpdb && (
+        {showSpmb && (
           <ModuleCard
             title="SPMB (Seleksi Penerimaan Murid Baru)"
-            subtitle="Pendaftaran calon siswa baru, verifikasi berkas, observasi, dan seleksi."
+            subtitle="Pendaftaran calon murid, verifikasi berkas, observasi, dan seleksi."
             icon="school"
             active={true}
             href={ppdbHref}

@@ -44,8 +44,10 @@ export function isStudentRegistrationComplete(value: unknown): value is StudentR
   if (!value || typeof value !== "object") return false;
   const student = value as Record<string, unknown>;
   const birthDate = student.birthDate;
+  const nisn = student.nisn;
   return StudentRegistrationFormSchema.safeParse({
     ...student,
     birthDate: birthDate instanceof Date ? birthDate.toISOString().slice(0, 10) : birthDate,
+    nisn: nisn == null ? "" : nisn,
   }).success;
 }

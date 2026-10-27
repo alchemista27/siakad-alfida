@@ -29,7 +29,7 @@ import {
   ParentRegistrationFormSchema,
   StudentRegistrationFormSchema,
 } from "@alfida/contracts";
-import { canTransition, requiredDocumentTypes } from "../common/ppdb-workflow";
+import { canTransition, requiredDocumentTypes } from "../common/spmb-workflow";
 import { ACTIVE_REGISTRATION_POLICY } from "../common/registration-policy";
 import { allowedUnitIds, assertUnitAccess, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
 
@@ -55,7 +55,10 @@ export class RegistrationsService {
   private sanitizeForParent(registration: any) {
     if (!registration) return null;
     const { handoffError, ...rest } = registration;
-    const sanitized: any = { ...rest };
+    const sanitized: any = {
+      ...rest,
+      studentDataComplete: isStudentRegistrationComplete(registration.studentData),
+    };
     if (Array.isArray(registration.documents)) {
       sanitized.documents = registration.documents.map(({ fileUrl, ...doc }: any) => doc);
     }
@@ -108,7 +111,7 @@ export class RegistrationsService {
       },
       orderBy: { createdAt: "desc" },
     });
-    return registrations.map((reg) => (reg && ("handoffError" in reg || "observationResult" in reg || "documents" in reg) ? this.sanitizeForParent(reg) : reg));
+    return registrations.map((registration) => this.sanitizeForParent(registration));
   }
 
   async findForParent(principalOrId: string | { id: string }, registrationId: string) {
@@ -225,80 +228,88 @@ export class RegistrationsService {
   // ================= FORM SUBMISSIONS =================
   async submitStudentData(registrationId: string, userId: string, dto: SubmitStudentDataDto) {
     const payload = this.parseOrThrow(StudentRegistrationFormSchema, dto);
-    const reg = await this.prisma.registration.findUnique({ where: { id: registrationId } });
-    if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan.");
-    if (reg.parentId !== userId) {
-      throw new ForbiddenException("Anda tidak berhak mengisi data pendaftaran ini.");
-    }
-    if (!([RegistrationStatus.payment_verified, RegistrationStatus.form_filling] as RegistrationStatus[]).includes(reg.status)) {
-      throw new BadRequestException("Tahap pendaftaran saat ini tidak dapat mengisi biodata siswa.");
-    }
 
-    if (ACTIVE_REGISTRATION_POLICY === "multiple_child_applications") {
-      const duplicate = await this.prisma.registration.findFirst({
-        where: {
-          id: { not: registrationId },
-          parentId: userId,
-          periodId: reg.periodId,
-          status: { notIn: [RegistrationStatus.rejected] },
-          studentData: {
-            is: { fullName: { equals: payload.fullName, mode: "insensitive" } },
-          },
-        },
-        select: { id: true },
-      });
-      if (duplicate) {
-        throw new BadRequestException("Calon siswa tersebut sudah memiliki pendaftaran aktif pada periode ini.");
+    return this.prisma.$transaction(async (tx) => {
+      const reg = await tx.registration.findUnique({ where: { id: registrationId } });
+      if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan.");
+      if (reg.parentId !== userId) {
+        throw new ForbiddenException("Anda tidak berhak mengisi data pendaftaran ini.");
       }
-    }
+      if (!([RegistrationStatus.payment_verified, RegistrationStatus.form_filling] as RegistrationStatus[]).includes(reg.status)) {
+        throw new BadRequestException("Tahap pendaftaran saat ini tidak dapat mengisi biodata murid.");
+      }
 
-    await this.prisma.studentData.upsert({
-      where: { registrationId },
-      update: {
-        fullName: payload.fullName,
-        nickname: payload.nickname,
-        gender: payload.gender as Gender,
-        religion: payload.religion,
-        birthPlace: payload.birthPlace,
-        birthDate: new Date(payload.birthDate),
-        nisn: payload.nisn || null,
-        siblingsCount: payload.siblingsCount,
-        address: payload.address,
-        transportation: payload.transportation,
-      },
-      create: {
-        registrationId,
-        fullName: payload.fullName,
-        nickname: payload.nickname,
-        gender: payload.gender as Gender,
-        religion: payload.religion,
-        birthPlace: payload.birthPlace,
-        birthDate: new Date(payload.birthDate),
-        nisn: payload.nisn || null,
-        siblingsCount: payload.siblingsCount,
-        address: payload.address,
-        transportation: payload.transportation,
-      },
-    });
+      if (ACTIVE_REGISTRATION_POLICY === "multiple_child_applications") {
+        const duplicate = await tx.registration.findFirst({
+          where: {
+            id: { not: registrationId },
+            parentId: userId,
+            periodId: reg.periodId,
+            status: { notIn: [RegistrationStatus.rejected] },
+            studentData: {
+              is: { fullName: { equals: payload.fullName, mode: "insensitive" } },
+            },
+          },
+          select: { id: true },
+        });
+        if (duplicate) {
+          throw new BadRequestException("Calon murid tersebut sudah memiliki pendaftaran aktif pada periode ini.");
+        }
+      }
 
-    if (reg.status === RegistrationStatus.payment_verified && canTransition(reg.status, "form_filling")) {
-      await this.prisma.registration.update({
-        where: { id: registrationId },
-        data: { status: RegistrationStatus.form_filling },
-      });
-      await this.prisma.registrationEvent.create({
-        data: {
+      await tx.studentData.upsert({
+        where: { registrationId },
+        update: {
+          fullName: payload.fullName,
+          nickname: payload.nickname,
+          gender: payload.gender as Gender,
+          religion: payload.religion,
+          birthPlace: payload.birthPlace,
+          birthDate: new Date(payload.birthDate),
+          nisn: payload.nisn || null,
+          siblingsCount: payload.siblingsCount,
+          address: payload.address,
+          transportation: payload.transportation,
+        },
+        create: {
           registrationId,
-          actorId: userId,
-          fromStatus: reg.status,
-          toStatus: RegistrationStatus.form_filling,
-          kind: "transition",
-          note: "Pengisian formulir data siswa selesai",
+          fullName: payload.fullName,
+          nickname: payload.nickname,
+          gender: payload.gender as Gender,
+          religion: payload.religion,
+          birthPlace: payload.birthPlace,
+          birthDate: new Date(payload.birthDate),
+          nisn: payload.nisn || null,
+          siblingsCount: payload.siblingsCount,
+          address: payload.address,
+          transportation: payload.transportation,
         },
       });
-    }
 
-    return { success: true };
+      if (reg.status === RegistrationStatus.payment_verified && canTransition(reg.status, "form_filling")) {
+        await tx.registration.update({
+          where: { id: registrationId },
+          data: { status: RegistrationStatus.form_filling },
+        });
+        await tx.registrationEvent.create({
+          data: {
+            registrationId,
+            actorId: userId,
+            fromStatus: reg.status,
+            toStatus: RegistrationStatus.form_filling,
+            kind: "transition",
+            note: "Pengisian formulir data murid selesai",
+          },
+        });
+      }
+
+      return {
+        success: true as const,
+        status: RegistrationStatus.form_filling,
+        nextStep: "parent_form" as const,
+        studentDataComplete: true as const,
+      };
+    });
   }
 
   async submitParentData(registrationId: string, userId: string, dto: SubmitParentDataDto) {
@@ -312,10 +323,10 @@ export class RegistrationsService {
       throw new ForbiddenException("Anda tidak berhak mengisi data pendaftaran ini.");
     }
     if (reg.status !== RegistrationStatus.form_filling || !canTransition(reg.status, "documents_uploaded")) {
-      throw new BadRequestException("Data orang tua hanya dapat diisi setelah biodata siswa selesai.");
+      throw new BadRequestException("Data orang tua hanya dapat diisi setelah biodata murid selesai.");
     }
     if (!isStudentRegistrationComplete(reg.studentData)) {
-      throw new BadRequestException("Lengkapi seluruh formulir data siswa sebelum mengisi data orang tua.");
+      throw new BadRequestException("Lengkapi seluruh formulir data murid sebelum mengisi data orang tua.");
     }
 
     const parentsToUpsert = [
@@ -428,7 +439,7 @@ export class RegistrationsService {
     const actorId = principal.id;
     const reg = await this.prisma.registration.findUnique({ where: { id: registrationId }, include: { period: true } });
     if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan.");
-    assertUnitAccess(principal, reg.period.unitId, ["admin_unit", "tim_ppdb"]);
+    assertUnitAccess(principal, reg.period.unitId, ["admin_unit", "tim_spmb"]);
     if (typeof dto.isApproved !== "boolean") {
       throw new BadRequestException("isApproved harus bernilai boolean.");
     }
@@ -478,7 +489,7 @@ export class RegistrationsService {
         include: { documents: true, period: true },
       });
       if (!registration) throw new NotFoundException("Pendaftaran tidak ditemukan.");
-      assertUnitAccess(principal, registration.period.unitId, ["admin_unit", "tim_ppdb"]);
+      assertUnitAccess(principal, registration.period.unitId, ["admin_unit", "tim_spmb"]);
       if (typeof isApproved !== "boolean") {
         throw new BadRequestException("isApproved harus bernilai boolean.");
       }
@@ -559,7 +570,7 @@ export class RegistrationsService {
   ) {
     const where: any = {};
     if (!isSuperAdmin(principal)) {
-      const unitIds = [...allowedUnitIds(principal, ["admin_unit", "tim_ppdb"])];
+      const unitIds = [...allowedUnitIds(principal, ["admin_unit", "tim_spmb"])];
       if (unitIds.length === 0) return [];
       where.period = { unitId: { in: unitIds } };
     }
@@ -606,7 +617,7 @@ export class RegistrationsService {
       },
     });
     if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan.");
-    assertUnitAccess(principal, reg.period.unitId, ["admin_unit", "tim_ppdb"]);
+    assertUnitAccess(principal, reg.period.unitId, ["admin_unit", "tim_spmb"]);
     return reg;
   }
 
@@ -637,7 +648,7 @@ export class RegistrationsService {
       unitName: reg.period.unitName,
       unitSlug: reg.period.unitSlug,
       periodLabel: reg.period.label,
-      studentName: reg.studentData?.fullName || "Calon Siswa",
+      studentName: reg.studentData?.fullName || "Calon Murid",
       status: reg.status,
       source: reg.source,
       fee: Number(reg.period.fee),

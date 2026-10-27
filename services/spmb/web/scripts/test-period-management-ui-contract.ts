@@ -26,6 +26,6 @@ assert(periodPanel.includes('method: "DELETE"'), "period panel must call DELETE 
 assert(periodPanel.includes("Hapus Periode"), "closed periods must expose a delete action");
 assert(periodPanel.includes("deleteCandidate"), "deletion must require in-app confirmation state");
 assert(periodPanel.includes("ID Tahun Ajaran SIAKAD (opsional)"), "mapping input must be labelled as optional SIAKAD mapping");
-assert(periodPanel.includes("bukan label tahun ajaran PPDB"), "mapping help must distinguish local PPDB label from SIAKAD ID");
+assert(periodPanel.includes("bukan label tahun ajaran SPMB"), "mapping help must distinguish local SPMB label from SIAKAD ID");
 
 console.log("SPMB period management UI contract passed");

@@ -1,8 +1,9 @@
 "use client";
 
+import { SpmbTopbar } from "@/components/SpmbTopbar";
+
 import { ChangeEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { SpmbNavbar } from "@/components/SpmbNavbar";
 import { ParentRegistrationStepper } from "@/components/parent/parent-registration-stepper";
 import {
   apiRequest,
@@ -69,8 +70,8 @@ export default function ParentDocumentsPage() {
   if (!registration) {
     return (
       <div className="min-h-screen bg-neutral text-primary font-body">
-        <SpmbNavbar />
-        <main className="max-w-3xl mx-auto px-4 py-12">
+
+        <SpmbTopbar /><main className="max-w-3xl mx-auto px-4 py-12">
           <Link href="/parent" className="text-xs font-semibold text-tertiary hover:underline">Kembali ke Daftar Pendaftaran</Link>
         </main>
       </div>
@@ -81,8 +82,8 @@ export default function ParentDocumentsPage() {
 
   return (
     <div className="min-h-screen bg-neutral text-primary font-body">
-      <SpmbNavbar />
-      <main className="max-w-5xl mx-auto px-4 py-8">
+
+      <SpmbTopbar /><main className="max-w-5xl mx-auto px-4 py-8">
         <ParentRegistrationStepper registration={registration} />
 
         {notice && (

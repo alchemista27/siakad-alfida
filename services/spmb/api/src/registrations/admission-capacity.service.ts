@@ -49,7 +49,7 @@ export class AdmissionCapacityService {
         const seq = String(totalRegistered + 1).padStart(4, "0");
         const yearStr = period.label.split("/")[0] || String(new Date().getFullYear());
         const slugUpper = period.unitSlug.toUpperCase().substring(0, 8);
-        const registrationNumber = `PPDB-${slugUpper}-${yearStr}-${seq}`;
+        const registrationNumber = `SPMB-${slugUpper}-${yearStr}-${seq}`;
         return {
           sequence: totalRegistered + 1,
           registrationNumber,
@@ -90,7 +90,7 @@ export class AdmissionCapacityService {
       const seq = String(allocatedSequence).padStart(4, "0");
       const yearStr = period.label.split("/")[0] || String(new Date().getFullYear());
       const slugUpper = period.unitSlug.toUpperCase().substring(0, 8);
-      const registrationNumber = `PPDB-${slugUpper}-${yearStr}-${seq}`;
+      const registrationNumber = `SPMB-${slugUpper}-${yearStr}-${seq}`;
 
       return {
         sequence: allocatedSequence,

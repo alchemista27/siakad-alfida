@@ -6,7 +6,7 @@ import type { SpmbPrincipal } from "../src/common/spmb-scope-policy";
 const registrationId = "11111111-1111-4111-8111-111111111111";
 const parentId = "22222222-2222-4222-8222-222222222222";
 const unitId = "33333333-3333-4333-8333-333333333333";
-const staff: SpmbPrincipal = { id: "staff-1", roles: [{ app: "spmb", role: "tim_ppdb", unitId }] };
+const staff: SpmbPrincipal = { id: "staff-1", roles: [{ app: "spmb", role: "tim_spmb", unitId }] };
 const requiredTypes = ["photo", "birth_certificate", "family_card", "father_id", "mother_id", "medical_result"];
 
 async function expectRejects(label: string, fn: () => Promise<unknown>, Expected: new (...args: any[]) => Error, message?: string) {
@@ -84,7 +84,7 @@ async function run() {
   );
 
   const rejectedUpdates: Record<string, unknown>[] = [];
-  const rejected = await reviewService(dossier(), rejectedUpdates).verifyDocuments(registrationId, staff, false, "Foto siswa perlu diperjelas");
+  const rejected = await reviewService(dossier(), rejectedUpdates).verifyDocuments(registrationId, staff, false, "Foto murid perlu diperjelas");
   if (rejectedUpdates.length !== 1 || rejectedUpdates[0].status !== "documents_uploaded" || rejectedUpdates[0].dossierReviewStatus !== "revision_required") {
     throw new Error("rejection must persist revision_required and return the documents stage");
   }

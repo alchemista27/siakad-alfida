@@ -102,7 +102,7 @@ export function RegistrationReviewPanel({
           <div key={reg.id} className="border border-[#E3E8E7] rounded p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div>
               <p className="font-semibold text-[#454545]">
-                {reg.registrationNumber} · {reg.studentData?.fullName || "Calon Santri"}
+                {reg.registrationNumber} · {reg.studentData?.fullName || "Calon Murid"}
               </p>
               <p className="text-gray-500">Status: {reg.status} · Wali: {reg.guardianName}</p>
             </div>

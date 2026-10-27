@@ -10,7 +10,7 @@ import {
 const STEPS = [
   { label: "Pilih Unit", path: "/parent/select-unit" },
   { label: "Pembayaran", path: "/parent/payment" },
-  { label: "Data Siswa", path: "/parent/form-student" },
+  { label: "Data Murid", path: "/parent/form-student" },
   { label: "Data Orang Tua", path: "/parent/form-parents" },
   { label: "Berkas", path: "/parent/documents" },
   { label: "Kesehatan", path: "/parent/medical" },
@@ -33,7 +33,7 @@ export function ParentRegistrationStepper({
         <div>
           <div className="flex items-center gap-2">
             <h2 className="font-heading font-bold text-lg text-primary">
-              {registration.studentData?.fullName || "Calon Siswa"}
+              {registration.studentData?.fullName || "Calon Murid"}
             </h2>
             <span className="font-mono text-xs bg-neutral border border-border px-2.5 py-0.5 rounded-sm text-primary">
               {registration.registrationNumber}

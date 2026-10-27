@@ -28,9 +28,9 @@ const adminA: SpmbPrincipal = {
   id: "admin-a",
   roles: [{ app: "spmb", role: "admin_unit", unitId: unitA }],
 };
-const timPpdbA: SpmbPrincipal = {
+const timSpmbA: SpmbPrincipal = {
   id: "tim-a",
-  roles: [{ app: "spmb", role: "tim_ppdb", unitId: unitA }],
+  roles: [{ app: "spmb", role: "tim_spmb", unitId: unitA }],
 };
 const superAdmin: SpmbPrincipal = {
   id: "super-1",
@@ -38,13 +38,13 @@ const superAdmin: SpmbPrincipal = {
 };
 
 async function run() {
-  // 1. tim_ppdb is read-only for period mutations
+  // 1. tim_spmb is read-only for period mutations
   const roService = new PeriodsService({
     admissionPeriod: {
       findUnique: async () => ({ id: "period-1", unitId: unitA, isOpen: true }),
     },
   } as any);
-  await expectRejects("tim_ppdb create period", ForbiddenException, () =>
+  await expectRejects("tim_spmb create period", ForbiddenException, () =>
     roService.create(
       {
         unitId: unitA,
@@ -53,17 +53,17 @@ async function run() {
         label: "2026/2027",
         sourceAcademicYearId: yearA,
       },
-      timPpdbA,
+      timSpmbA,
     ),
   );
-  await expectRejects("tim_ppdb update period", ForbiddenException, () =>
-    roService.update("period-1", { label: "2026/2027" }, timPpdbA),
+  await expectRejects("tim_spmb update period", ForbiddenException, () =>
+    roService.update("period-1", { label: "2026/2027" }, timSpmbA),
   );
-  await expectRejects("tim_ppdb open period", ForbiddenException, () =>
-    (roService as any).openPeriod("period-1", timPpdbA),
+  await expectRejects("tim_spmb open period", ForbiddenException, () =>
+    (roService as any).openPeriod("period-1", timSpmbA),
   );
-  await expectRejects("tim_ppdb close period", ForbiddenException, () =>
-    (roService as any).closePeriod("period-1", timPpdbA),
+  await expectRejects("tim_spmb close period", ForbiddenException, () =>
+    (roService as any).closePeriod("period-1", timSpmbA),
   );
 
   // 2. admin_unit derives unit from principal and cannot forge body unitId

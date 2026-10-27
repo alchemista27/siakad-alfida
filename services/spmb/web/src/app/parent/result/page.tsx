@@ -1,8 +1,9 @@
 "use client";
 
+import { SpmbTopbar } from "@/components/SpmbTopbar";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { SpmbNavbar } from "@/components/SpmbNavbar";
 import { ParentRegistrationStepper } from "@/components/parent/parent-registration-stepper";
 import {
   loadParentRegistration,
@@ -30,8 +31,8 @@ export default function ParentResultPage() {
   if (!registration) {
     return (
       <div className="min-h-screen bg-neutral text-primary font-body">
-        <SpmbNavbar />
-        <main className="max-w-3xl mx-auto px-4 py-12">
+
+        <SpmbTopbar /><main className="max-w-3xl mx-auto px-4 py-12">
           {error && <p className="text-sm text-red-700 mb-3">{error}</p>}
           <Link href="/parent" className="text-xs font-semibold text-tertiary hover:underline">Kembali ke Daftar Pendaftaran</Link>
         </main>
@@ -46,8 +47,8 @@ export default function ParentResultPage() {
 
   return (
     <div className="min-h-screen bg-neutral text-primary font-body">
-      <SpmbNavbar />
-      <main className="max-w-5xl mx-auto px-4 py-8">
+
+      <SpmbTopbar /><main className="max-w-5xl mx-auto px-4 py-8">
         <ParentRegistrationStepper registration={registration} />
 
         <section className="mt-6 bg-surface border border-border rounded-lg p-6">
@@ -59,7 +60,7 @@ export default function ParentResultPage() {
           {(registration.status === "accepted" || registration.status === "enrolled") && (
             <div className="mt-5 border border-[#b9ded7] bg-[#e6f4f1] text-[#0b6355] rounded-md p-5 space-y-3">
               <h2 className="font-heading font-bold text-lg">
-                Selamat, {registration.studentData?.fullName || "Calon Siswa"} dinyatakan DITERIMA
+                Selamat, {registration.studentData?.fullName || "Calon Murid"} dinyatakan DITERIMA
               </h2>
               {persistedDecisionNote && <p className="text-xs">{persistedDecisionNote}</p>}
               <div>

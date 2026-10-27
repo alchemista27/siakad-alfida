@@ -48,7 +48,7 @@ export function createAcceptancePdf(input: AcceptanceLetterPdfInput): Uint8Array
     `Unit Pendidikan: ${input.unitName}`,
     `Tahun Ajaran: ${input.academicYearLabel}`,
     `Nomor Registrasi: ${input.registrationNumber}`,
-    `Nama Calon Santri: ${input.studentName}`,
+    `Nama Calon Murid: ${input.studentName}`,
     "Status Seleksi: DITERIMA",
     "Catatan Panitia:",
     ...(input.decisionNote ? wrap(input.decisionNote) : ["-"]),

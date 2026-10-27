@@ -4,8 +4,8 @@ import { FoundationBrandingProvider } from "@/components/foundation-branding-pro
 import { getFoundationBranding } from "@/lib/foundation-settings";
 
 export const metadata: Metadata = {
-  title: "SPMB Yayasan Alfida - Penerimaan Peserta Didik Baru",
-  description: "Sistem Penerimaan Peserta Didik Baru (SPMB) Yayasan Alfida",
+  title: "SPMB Yayasan Alfida - Sistem Penerimaan Murid Baru",
+  description: "Sistem Sistem Penerimaan Murid Baru (SPMB) Yayasan Alfida",
 };
 
 export default async function RootLayout({

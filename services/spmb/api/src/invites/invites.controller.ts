@@ -28,7 +28,7 @@ export class InvitesController {
 
   @Get("share/:registrationId")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
+  @SpmbRoles("admin_unit", "tim_spmb")
   async getWhatsAppLink(@Param("registrationId") registrationId: string) {
     return this.invitesService.getWhatsAppShareLink(registrationId);
   }

@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { RegistrationStatus } from "../generated/prisma";
-import { baseRequiredDocumentTypes, canTransition } from "../common/ppdb-workflow";
+import { baseRequiredDocumentTypes, canTransition } from "../common/spmb-workflow";
 import { assertUnitAccess, type SpmbPrincipal } from "../common/spmb-scope-policy";
 import { assertUploadMetadata } from "./document-upload.policy";
 import { assertCloudinaryUploadUrl } from "./cloudinary-upload.policy";
@@ -103,7 +103,7 @@ export class DocumentsService {
     if (!document) throw new NotFoundException("Dokumen tidak ditemukan.");
 
     if (document.registration.parentId !== principal.id) {
-      assertUnitAccess(principal, document.registration.period.unitId, ["admin_unit", "tim_ppdb"]);
+      assertUnitAccess(principal, document.registration.period.unitId, ["admin_unit", "tim_spmb"]);
     }
 
     return { downloadUrl: document.fileUrl };

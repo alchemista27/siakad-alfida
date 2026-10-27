@@ -9,7 +9,7 @@ export type Role =
   | "karyawan"
   | "murobbi"
   | "supervisor_kesiswaan"
-  | "tim_ppdb"
+  | "tim_spmb"
   | "observer"
   | "orang_tua";
 
@@ -24,7 +24,7 @@ export const SYSTEM_ROLES: Role[] = [
   "karyawan",
   "murobbi",
   "supervisor_kesiswaan",
-  "tim_ppdb",
+  "tim_spmb",
   "observer",
   "orang_tua",
 ];
@@ -40,7 +40,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   karyawan: "Karyawan / Staf",
   murobbi: "Murobbi BPI",
   supervisor_kesiswaan: "Supervisor Kesiswaan",
-  tim_ppdb: "Tim PPDB",
+  tim_spmb: "Tim SPMB",
   observer: "Observer",
   orang_tua: "Orang Tua / Wali",
 };
@@ -65,7 +65,7 @@ export const ROLE_CATEGORY_GROUPS: RoleCategoryGroup[] = [
     roles: [
       { role: "admin_unit", label: "Admin Unit Pendidikan", description: "Kelola TK, SD, SMP, SMA, Pesantren" },
       { role: "admin_unit_nondik", label: "Admin Unit Non-Pendidikan", description: "Kelola Lazis, Asrama, Kantor Unit" },
-      { role: "tim_ppdb", label: "Tim PPDB", description: "Operasional penerimaan santri/siswa baru" },
+      { role: "tim_spmb", label: "Tim SPMB", description: "Operasional Sistem Penerimaan Murid Baru" },
     ],
   },
   {
@@ -74,13 +74,13 @@ export const ROLE_CATEGORY_GROUPS: RoleCategoryGroup[] = [
       { role: "guru", label: "Guru / Tenaga Pendidik", description: "Akses akademik, mutabaah, & presensi" },
       { role: "karyawan", label: "Karyawan / Staf", description: "Akses kepegawaian umum & presensi" },
       { role: "murobbi", label: "Murobbi BPI", description: "Pembinaan kelompok halaqah & mutabaah" },
-      { role: "supervisor_kesiswaan", label: "Supervisor Kesiswaan", description: "Supervisi kesiswaan & mutabaah santri" },
+      { role: "supervisor_kesiswaan", label: "Supervisor Kesiswaan", description: "Supervisi kesiswaan & mutabaah murid" },
     ],
   },
   {
     category: "Akses Publik & Pengamat",
     roles: [
-      { role: "orang_tua", label: "Orang Tua / Wali", description: "Portal wali santri/siswa" },
+      { role: "orang_tua", label: "Orang Tua / Wali", description: "Portal wali murid" },
       { role: "observer", label: "Observer", description: "Observasi & evaluasi asesmen" },
     ],
   },

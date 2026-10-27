@@ -24,7 +24,7 @@ export class HandoffService {
   constructor(private readonly prisma: PrismaService) {}
 
   private assertExistingPeriodAccess(period: { unitId: string }, principal: SpmbPrincipal) {
-    if (isSuperAdmin(principal) || allowedUnitIds(principal, ["admin_unit", "tim_ppdb"]).has(period.unitId)) return;
+    if (isSuperAdmin(principal) || allowedUnitIds(principal, ["admin_unit", "tim_spmb"]).has(period.unitId)) return;
     throw new NotFoundException("Pendaftaran tidak ditemukan");
   }
 
@@ -93,7 +93,7 @@ export class HandoffService {
       throw new BadRequestException("Hanya pendaftar berstatus 'accepted' yang dapat diserahkan ke SIAKAD");
     }
     if (!reg.parent || !reg.studentData) {
-      throw new BadRequestException("Pendaftaran harus memiliki identitas orang tua dan biodata siswa sebelum handoff.");
+      throw new BadRequestException("Pendaftaran harus memiliki identitas orang tua dan biodata murid sebelum handoff.");
     }
 
     const siakadApiUrl = process.env.INTERNAL_SIAKAD_API_URL?.trim();
@@ -376,7 +376,7 @@ export class HandoffService {
           fromStatus: "accepted",
           toStatus: "enrolled",
           kind: "enrollment",
-          note: `Konfirmasi pendaftaran resmi menjadi siswa (enrolled) di SIAKAD. ID Enrollment: ${receipt.destinationEnrollmentId}`,
+          note: `Konfirmasi pendaftaran resmi menjadi murid (enrolled) di SIAKAD. ID Enrollment: ${receipt.destinationEnrollmentId}`,
         },
       });
 

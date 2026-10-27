@@ -125,7 +125,7 @@ export function PeriodManagementPanel({
   return (
     <section className="bg-white border border-[#E3E8E7] rounded-lg p-5 space-y-5">
       <div>
-        <h2 className="font-heading font-bold text-lg text-[#454545]">Manajemen Periode & Gelombang PPDB</h2>
+        <h2 className="font-heading font-bold text-lg text-[#454545]">Manajemen Periode & Gelombang SPMB</h2>
         <p className="text-xs text-gray-500 mt-1">
           Kelola periode pendaftaran unit, kuota, dan pemetaan tahun ajaran tujuan SIAKAD.
         </p>
@@ -215,7 +215,7 @@ export function PeriodManagementPanel({
           className="px-3 py-2 border border-[#E3E8E7] rounded text-xs"
         />
         <label className="grid gap-1 text-xs text-[#454545]">
-          <span className="font-medium">Tahun Ajaran PPDB</span>
+          <span className="font-medium">Tahun Ajaran SPMB</span>
           <input
             required
             placeholder="2026/2027"
@@ -233,7 +233,7 @@ export function PeriodManagementPanel({
             className="px-3 py-2 border border-[#E3E8E7] rounded text-xs"
           />
           <span className="text-[11px] text-gray-500">
-            Hanya untuk pemetaan handoff SIAKAD; bukan label tahun ajaran PPDB.
+            Hanya untuk pemetaan handoff SIAKAD; bukan label tahun ajaran SPMB.
           </span>
         </label>
         <input

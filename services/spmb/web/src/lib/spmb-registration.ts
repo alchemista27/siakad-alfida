@@ -1,5 +1,3 @@
-import { isStudentRegistrationComplete } from "@alfida/contracts";
-
 export type RegistrationStatus =
   | "pending_payment"
   | "payment_uploaded"
@@ -26,6 +24,13 @@ export class SpmbApiError extends Error {
     this.name = "SpmbApiError";
   }
 }
+
+export type SubmitStudentDataResponse = {
+  success: true;
+  status: "form_filling";
+  nextStep: "parent_form";
+  studentDataComplete: true;
+};
 
 export type DocumentType =
   | "photo"
@@ -69,6 +74,7 @@ export interface ParentRegistration {
   id: string;
   registrationNumber: string;
   status: RegistrationStatus;
+  studentDataComplete: boolean;
   dossierReviewStatus?: DossierReviewStatus;
   rejectionReason?: string | null;
   period: PeriodSummary;
@@ -136,7 +142,7 @@ export const STATUS_LABELS: Record<RegistrationStatus, string> = {
 };
 
 export const DOCUMENT_LABELS: Record<DocumentType, string> = {
-  photo: "Pas foto calon siswa",
+  photo: "Pas foto calon murid",
   school_certificate: "Surat keterangan sekolah asal",
   birth_certificate: "Akta kelahiran",
   family_card: "Kartu keluarga",
@@ -157,7 +163,7 @@ export function getStageRouteForRegistration(reg: {
   id: string;
   status: RegistrationStatus;
   dossierReviewStatus?: DossierReviewStatus;
-  studentData?: unknown | null;
+  studentDataComplete?: boolean;
 }): string {
   const q = `?registrationId=${encodeURIComponent(reg.id)}`;
   switch (reg.status) {
@@ -167,7 +173,7 @@ export function getStageRouteForRegistration(reg: {
     case "payment_verified":
       return `/parent/form-student${q}`;
     case "form_filling":
-      return isStudentRegistrationComplete(reg.studentData)
+      return reg.studentDataComplete === true
         ? `/parent/form-parents${q}`
         : `/parent/form-student${q}`;
     case "documents_uploaded":
@@ -192,7 +198,7 @@ export function getStageRouteForRegistration(reg: {
 export function getStepIndexForRegistration(reg: {
   status: RegistrationStatus;
   dossierReviewStatus?: DossierReviewStatus;
-  studentData?: unknown | null;
+  studentDataComplete?: boolean;
 }): number {
   switch (reg.status) {
     case "pending_payment":
@@ -201,7 +207,7 @@ export function getStepIndexForRegistration(reg: {
     case "payment_verified":
       return 2;
     case "form_filling":
-      return isStudentRegistrationComplete(reg.studentData) ? 3 : 2;
+      return reg.studentDataComplete === true ? 3 : 2;
     case "documents_uploaded":
       return 4;
     case "medical_pending":

@@ -35,7 +35,7 @@ export function ObserverScoreModal({
         </div>
         <form onSubmit={onSubmit} className="space-y-4 text-xs">
           <div className="p-3 bg-[#F7F8F8] rounded border border-[#E3E8E7]">
-            <p className="font-semibold text-[#454545]">{candidate.studentData?.fullName || "Calon Santri"}</p>
+            <p className="font-semibold text-[#454545]">{candidate.studentData?.fullName || "Calon Murid"}</p>
             <p className="text-gray-500 mt-0.5">No. Reg: {candidate.registrationNumber}</p>
           </div>
           <div>

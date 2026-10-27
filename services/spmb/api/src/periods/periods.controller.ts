@@ -25,14 +25,14 @@ export class PeriodsController {
 
   @Get()
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb", "observer")
+  @SpmbRoles("admin_unit", "tim_spmb", "observer")
   async findAll(@Req() req: any) {
     return this.periodsService.findAll(req.user);
   }
 
   @Get(":id")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb", "observer")
+  @SpmbRoles("admin_unit", "tim_spmb", "observer")
   async findOne(@Param("id") id: string, @Req() req: any) {
     return this.periodsService.findOne(id, req.user);
   }

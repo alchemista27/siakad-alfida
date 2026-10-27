@@ -30,21 +30,21 @@ export class ObservationsController {
 
   @Post("schedules")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
+  @SpmbRoles("admin_unit", "tim_spmb")
   async createSchedule(@Req() req: any, @Body() dto: CreateScheduleDto) {
     return this.observationsService.createSchedule(dto, req.user);
   }
 
   @Put("schedules/:id")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
+  @SpmbRoles("admin_unit", "tim_spmb")
   async updateSchedule(@Param("id") id: string, @Req() req: any, @Body() dto: UpdateScheduleDto) {
     return this.observationsService.updateSchedule(id, dto, req.user);
   }
 
   @Delete("schedules/:id")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
+  @SpmbRoles("admin_unit", "tim_spmb")
   async deleteSchedule(@Param("id") id: string, @Req() req: any) {
     return this.observationsService.deleteSchedule(id, req.user);
   }
@@ -65,7 +65,7 @@ export class ObservationsController {
 
   @Get("rankings/:periodId")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("observer", "admin_unit", "tim_ppdb")
+  @SpmbRoles("observer", "admin_unit", "tim_spmb")
   async getRankings(@Param("periodId") periodId: string, @Req() req: any) {
     return this.observationsService.getRankings(periodId, req.user);
   }

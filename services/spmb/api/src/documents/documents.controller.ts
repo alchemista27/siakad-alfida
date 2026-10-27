@@ -29,7 +29,7 @@ export class DocumentsController {
   }
 
   @Post(":id/download-url")
-  @SpmbRoles("orang_tua", "admin_unit", "tim_ppdb")
+  @SpmbRoles("orang_tua", "admin_unit", "tim_spmb")
   async downloadUrl(@Param("id") id: string, @Req() req: { user: SpmbPrincipal }) {
     return this.documentsService.createDownloadUrl(id, req.user);
   }

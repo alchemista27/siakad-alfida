@@ -1,8 +1,9 @@
 "use client";
 
+import { SpmbTopbar } from "@/components/SpmbTopbar";
+
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { SpmbNavbar } from "@/components/SpmbNavbar";
 
 interface InviteDetails {
   registrationId: string;
@@ -80,9 +81,9 @@ export default function ClaimInvitePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F7F8F8]">
-      <SpmbNavbar />
 
-      <main className="flex-1 flex items-center justify-center p-4 py-12">
+
+      <SpmbTopbar /><main className="flex-1 flex items-center justify-center p-4 py-12">
         <div className="max-w-md w-full bg-white rounded-2xl border border-gray-200 shadow-lg p-6 sm:p-8">
           {loading ? (
             <div className="py-12 text-center">
@@ -134,7 +135,7 @@ export default function ClaimInvitePage() {
                     <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
                   </svg>
                 </div>
-                <h1 className="text-xl font-extrabold text-gray-900">Klaim Pendaftaran Santri/Siswa</h1>
+                <h1 className="text-xl font-extrabold text-gray-900">Klaim Pendaftaran Murid/Murid</h1>
                 <p className="text-xs text-gray-500 mt-1">
                   Hubungkan data pendaftaran Anda dengan akun identitas Alfida untuk akses mandiri.
                 </p>
@@ -146,7 +147,7 @@ export default function ClaimInvitePage() {
                   <span className="font-bold text-gray-900">{details?.registrationNumber}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Nama Calon Santri:</span>
+                  <span className="text-gray-500">Nama Calon Murid:</span>
                   <span className="font-semibold text-gray-900">{details?.studentName}</span>
                 </div>
                 <div className="flex justify-between">

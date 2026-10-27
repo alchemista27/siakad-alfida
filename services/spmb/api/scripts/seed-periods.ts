@@ -85,7 +85,7 @@ async function seedPeriods() {
           fee: u.fee,
           bankName: "Bank Syariah Indonesia (BSI)",
           bankNumber: "7123456789",
-          bankHolder: "Yayasan Al-Fida PPDB",
+          bankHolder: "Yayasan Al-Fida SPMB",
         },
         create: {
           unitId: u.id,
@@ -97,7 +97,7 @@ async function seedPeriods() {
           fee: u.fee,
           bankName: "Bank Syariah Indonesia (BSI)",
           bankNumber: "7123456789",
-          bankHolder: "Yayasan Al-Fida PPDB",
+          bankHolder: "Yayasan Al-Fida SPMB",
         },
       });
       console.log(`Periode pendaftaran aktif: ${u.name} (2026/2027) - Kuota: ${u.quota}`);

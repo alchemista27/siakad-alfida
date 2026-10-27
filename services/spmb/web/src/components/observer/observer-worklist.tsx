@@ -47,7 +47,7 @@ export function ObserverWorklist({
         <thead className="bg-[#F7F8F8] border-b border-[#E3E8E7] text-[11px] uppercase text-gray-500">
           <tr>
             <th className="py-3 px-4">No. Registrasi</th>
-            <th className="py-3 px-4">Calon Santri</th>
+            <th className="py-3 px-4">Calon Murid</th>
             <th className="py-3 px-4">Jadwal Sesi</th>
             <th className="py-3 px-4 text-center">Skor</th>
             <th className="py-3 px-4">Catatan</th>
@@ -59,7 +59,7 @@ export function ObserverWorklist({
             <tr key={candidate.id}>
               <td className="py-3 px-4 font-mono font-semibold">{candidate.registrationNumber}</td>
               <td className="py-3 px-4">
-                <p className="font-semibold text-[#454545]">{candidate.studentData?.fullName || "Calon Santri"}</p>
+                <p className="font-semibold text-[#454545]">{candidate.studentData?.fullName || "Calon Murid"}</p>
                 <p className="text-[11px] text-gray-500">Wali: {candidate.guardianName}</p>
               </td>
               <td className="py-3 px-4 text-gray-600">

@@ -1,9 +1,9 @@
 "use client";
 
+import { SpmbTopbar } from "@/components/SpmbTopbar";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { isStudentRegistrationComplete } from "@alfida/contracts";
-import { SpmbNavbar } from "@/components/SpmbNavbar";
 import { loadParentRegistration } from "@/lib/spmb-registration";
 
 export default function ParentBiodataCompatibilityPage() {
@@ -21,7 +21,7 @@ export default function ParentBiodataCompatibilityPage() {
           setMessage("Pendaftaran tidak ditemukan.");
           return;
         }
-        const path = isStudentRegistrationComplete(registration.studentData)
+        const path = registration.studentDataComplete === true
           ? "/parent/form-parents"
           : "/parent/form-student";
         window.location.replace(`${path}?registrationId=${encodeURIComponent(registration.id)}`);
@@ -31,8 +31,8 @@ export default function ParentBiodataCompatibilityPage() {
 
   return (
     <div className="min-h-screen bg-neutral text-primary font-body">
-      <SpmbNavbar />
-      <main className="max-w-3xl mx-auto px-4 py-12">
+
+      <SpmbTopbar /><main className="max-w-3xl mx-auto px-4 py-12">
         <p className="text-sm text-gray-600">{message}</p>
         <Link href="/parent" className="mt-4 inline-block text-sm font-semibold text-tertiary hover:underline">Kembali ke pendaftaran</Link>
       </main>

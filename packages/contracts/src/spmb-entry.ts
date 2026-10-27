@@ -13,8 +13,8 @@ export type SpmbEntry = {
 const PARENT_ENTRY: SpmbEntry = {
   id: "parent",
   path: "/parent",
-  label: "SPMB — Pendaftaran Anak",
-  description: "Daftarkan putra/putri, unggah berkas, pantau pembayaran, observasi, dan hasil seleksi.",
+  label: "SPMB — Pendaftaran Murid",
+  description: "Daftarkan murid, unggah berkas, pantau pembayaran, observasi, dan hasil seleksi.",
   icon: "family_restroom",
 };
 
@@ -38,6 +38,12 @@ function hasExactSpmbRole(roles: readonly UserRoleScope[], role: string): boolea
   return roles.some((item) => item.app === "spmb" && item.role === role);
 }
 
+function hasSpmbTeamRole(roles: readonly UserRoleScope[]): boolean {
+  return roles.some(
+    (item) => item.app === "spmb" && (item.role === "tim_spmb" || item.role === "tim_ppdb"),
+  );
+}
+
 function isCentralSuperAdmin(roles: readonly UserRoleScope[]): boolean {
   return roles.some(
     (item) => item.role === "super_admin" && (item.app === "*" || item.app === "auth" || item.app === "core"),
@@ -51,7 +57,7 @@ export function getSpmbEntries(roles: readonly UserRoleScope[]): SpmbEntry[] {
   if (
     isCentralSuperAdmin(roles)
     || hasExactSpmbRole(roles, "admin_unit")
-    || hasExactSpmbRole(roles, "tim_ppdb")
+    || hasSpmbTeamRole(roles)
   ) {
     entries.push(ADMIN_ENTRY);
   }

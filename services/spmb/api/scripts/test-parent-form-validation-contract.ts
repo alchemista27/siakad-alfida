@@ -59,21 +59,58 @@ async function run() {
     periodId: "11111111-1111-4111-8111-111111111111",
     status: "payment_verified",
   };
-  const service = new RegistrationsService({
+  const studentUpsertCalls: unknown[] = [];
+  const statusUpdateCalls: unknown[] = [];
+  const eventCalls: Array<{ toStatus?: string }> = [];
+  const transactionClient = {
     registration: {
       findUnique: async () => registration,
       findFirst: async () => null,
+      update: async (input: unknown) => {
+        statusUpdateCalls.push(input);
+        registration.status = "form_filling";
+        return registration;
+      },
     },
-    studentData: { upsert: async () => ({}) },
+    studentData: {
+      upsert: async (input: unknown) => {
+        studentUpsertCalls.push(input);
+        return {};
+      },
+    },
     parentData: { deleteMany: async () => ({}), create: async () => ({}) },
-    registrationEvent: { create: async () => ({}) },
-    $transaction: async (callback: any) => callback({}),
+    registrationEvent: {
+      create: async (input: { data?: { toStatus?: string } }) => {
+        eventCalls.push(input.data || {});
+        return {};
+      },
+    },
+  };
+  const service = new RegistrationsService({
+    ...transactionClient,
+    $transaction: async (callback: any) => callback(transactionClient),
   } as any);
 
   await rejects(
     () => (service as any).submitStudentData(registration.id, registration.parentId, { ...student, religion: "" }),
     "service must reject an incomplete student payload before persistence",
   );
+
+  const submitResult = await (service as any).submitStudentData(registration.id, registration.parentId, student);
+  assert(
+    JSON.stringify(submitResult) === JSON.stringify({
+      success: true,
+      status: "form_filling",
+      nextStep: "parent_form",
+      studentDataComplete: true,
+    }),
+    "student save must return the authoritative completed parent-form step",
+  );
+  assert(registration.status === "form_filling", "student save must transition the registration to form_filling");
+  assert(studentUpsertCalls.length === 1, "student save must persist the murid data exactly once");
+  assert(statusUpdateCalls.length === 1, "verified payment must receive exactly one form transition");
+  assert(eventCalls[0]?.toStatus === "form_filling", "student save must record the form_filling transition event");
+
   await rejects(
     () => (service as any).submitParentData(registration.id, registration.parentId, { father: parent }),
     "service must reject a missing mother payload before persistence",

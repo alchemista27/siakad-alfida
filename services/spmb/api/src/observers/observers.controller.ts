@@ -21,7 +21,7 @@ export class ObserversController {
 
   @Get()
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
+  @SpmbRoles("admin_unit", "tim_spmb")
   list(@Req() req: any, @Query("periodId") periodId?: string) {
     if (!periodId) throw new BadRequestException("periodId wajib diisi");
     return this.observersService.list(req.user, periodId);

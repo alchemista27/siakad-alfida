@@ -16,9 +16,9 @@ export const registrationStatuses = [
   "enrolled",
 ] as const;
 
-export type PpdbRegistrationStatus = (typeof registrationStatuses)[number];
+export type SpmbRegistrationStatus = (typeof registrationStatuses)[number];
 
-export const allowedTransitions: Readonly<Record<PpdbRegistrationStatus, readonly PpdbRegistrationStatus[]>> = {
+export const allowedTransitions: Readonly<Record<SpmbRegistrationStatus, readonly SpmbRegistrationStatus[]>> = {
   pending_payment: ["payment_uploaded"],
   payment_uploaded: ["payment_verified", "pending_payment"],
   payment_verified: ["form_filling"],
@@ -34,9 +34,9 @@ export const allowedTransitions: Readonly<Record<PpdbRegistrationStatus, readonl
   enrolled: [],
 };
 
-export function assertTransition(from: PpdbRegistrationStatus, to: PpdbRegistrationStatus): void {
+export function assertTransition(from: SpmbRegistrationStatus, to: SpmbRegistrationStatus): void {
   if (!allowedTransitions[from].includes(to)) {
-    throw new BadRequestException(`Transisi PPDB tidak valid: ${from} → ${to}`);
+    throw new BadRequestException(`Transisi SPMB tidak valid: ${from} → ${to}`);
   }
 }
 
@@ -65,11 +65,11 @@ export const requiredDocumentTypes = [
   "medical_result",
 ] as const;
 
-export function canTransition(from: PpdbRegistrationStatus, to: PpdbRegistrationStatus): boolean {
+export function canTransition(from: SpmbRegistrationStatus, to: SpmbRegistrationStatus): boolean {
   return allowedTransitions[from].includes(to);
 }
 
-export function getParentNextAction(status: PpdbRegistrationStatus): ParentNextAction {
+export function getParentNextAction(status: SpmbRegistrationStatus): ParentNextAction {
   switch (status) {
     case "pending_payment":
       return "upload_payment";

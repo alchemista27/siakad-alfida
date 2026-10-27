@@ -1,8 +1,9 @@
 "use client";
 
+import { SpmbTopbar } from "@/components/SpmbTopbar";
+
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { SpmbNavbar } from "@/components/SpmbNavbar";
 import { ParentRegistrationStepper } from "@/components/parent/parent-registration-stepper";
 import {
   getStageRouteForRegistration,
@@ -92,8 +93,8 @@ export default function ParentPaymentPage() {
   if (loadState.kind === "not_found") {
     return (
       <div className="min-h-screen bg-neutral text-primary font-body">
-        <SpmbNavbar />
-        <main className="max-w-3xl mx-auto px-4 py-12">
+
+        <SpmbTopbar /><main className="max-w-3xl mx-auto px-4 py-12">
           <div className="bg-surface border border-border rounded-lg p-6">
             <p className="text-sm text-gray-600">{loadState.message}</p>
             <Link href="/parent" className="mt-4 inline-block text-xs font-semibold text-tertiary hover:underline">Kembali ke Daftar Pendaftaran</Link>
@@ -106,8 +107,8 @@ export default function ParentPaymentPage() {
   if (loadState.kind === "error") {
     return (
       <div className="min-h-screen bg-neutral text-primary font-body">
-        <SpmbNavbar />
-        <main className="max-w-3xl mx-auto px-4 py-12">
+
+        <SpmbTopbar /><main className="max-w-3xl mx-auto px-4 py-12">
           <div className="bg-surface border border-red-200 rounded-lg p-6">
             <h1 className="font-heading font-bold text-xl">Data pendaftaran belum dapat dimuat</h1>
             <p className="mt-2 text-sm text-red-800">{loadState.message}</p>
@@ -126,8 +127,8 @@ export default function ParentPaymentPage() {
 
   return (
     <div className="min-h-screen bg-neutral text-primary font-body">
-      <SpmbNavbar />
-      <main className="max-w-5xl mx-auto px-4 py-8">
+
+      <SpmbTopbar /><main className="max-w-5xl mx-auto px-4 py-8">
         <ParentRegistrationStepper registration={registration} />
 
         {notice && (

@@ -1,8 +1,9 @@
 "use client";
 
+import { SpmbTopbar } from "@/components/SpmbTopbar";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { SpmbNavbar } from "@/components/SpmbNavbar";
 import { apiRequest, type PeriodSummary } from "@/lib/spmb-registration";
 
 export default function ParentSelectUnitPage() {
@@ -45,13 +46,13 @@ export default function ParentSelectUnitPage() {
 
   return (
     <div className="min-h-screen bg-neutral text-primary font-body">
-      <SpmbNavbar />
-      <main className="max-w-5xl mx-auto px-4 py-8 sm:py-10">
+
+      <SpmbTopbar /><main className="max-w-5xl mx-auto px-4 py-8 sm:py-10">
         <Link href="/parent" className="inline-flex items-center gap-1 text-xs font-semibold text-tertiary hover:underline"><span className="material-symbols-rounded text-base">arrow_back</span>Kembali ke pendaftaran</Link>
         <header className="mt-5 border-b border-border pb-6">
           <p className="text-xs font-semibold tracking-wider text-tertiary uppercase">Tahap 1</p>
           <h1 className="font-heading font-bold text-3xl mt-1">Pilih Unit dan Gelombang</h1>
-          <p className="mt-2 text-sm text-gray-600">Pilih satu unit yang tersedia. Data calon siswa diisi setelah pembayaran diverifikasi.</p>
+          <p className="mt-2 text-sm text-gray-600">Pilih satu unit yang tersedia. Data calon murid diisi setelah pembayaran diverifikasi.</p>
         </header>
 
         {notice && <div className={`mt-6 ${notice.type === "error" ? "spmb-notice-error" : "spmb-notice-success"}`}>{notice.message}</div>}

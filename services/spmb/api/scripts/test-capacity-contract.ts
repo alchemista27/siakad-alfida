@@ -223,7 +223,7 @@ async function run() {
     "period-concurrency-1",
   );
   assert(historicalAllocation.sequence === 8, "backfilled counter must continue after the largest registration suffix");
-  assert(historicalAllocation.registrationNumber === "PPDB-SDIT-1-2026-0008", "new draft must not reuse an historic registration number");
+  assert(historicalAllocation.registrationNumber === "SPMB-SDIT-1-2026-0008", "new draft must not reuse an historic registration number");
   const historicalCounter = historicalHarness.getCounter();
   assert(historicalCounter.nextSequence === 9, "allocation must advance the persisted sequence");
   assert(historicalCounter.intakeReserved === 8, "allocation must retain historical reserved capacity");
@@ -275,7 +275,7 @@ async function run() {
   const claimReg = {
     id: claimRegId,
     periodId: "period-concurrency-1",
-    registrationNumber: "PPDB-SDIT-2026-0001",
+    registrationNumber: "SPMB-SDIT-2026-0001",
     status: "pending_payment",
     parentId: null,
     claimedAt: null,

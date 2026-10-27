@@ -63,7 +63,7 @@ function createMockHarness() {
 
   let registration: any = {
     id: registrationId,
-    registrationNumber: "PPDB-SDIT-2026-0001",
+    registrationNumber: "SPMB-SDIT-2026-0001",
     periodId,
     status: "observation_done",
     handoffStatus: "pending",

@@ -38,7 +38,7 @@ export class AdminService {
     if (r.includes('bidang')) return UserRole.admin_bidang;
     if (r.includes('pengawas')) return UserRole.pengawas_yayasan;
     if (r.includes('murobbi')) return UserRole.murobbi;
-    if (r.includes('ppdb')) return UserRole.tim_ppdb;
+    if (r.includes('spmb') || r.includes('ppdb')) return UserRole.tim_ppdb;
     if (r.includes('guru') || r.includes('pengajar') || r.includes('ustadz')) return UserRole.guru;
     if (r.includes('karyawan') || r.includes('staff') || r.includes('staf')) return UserRole.karyawan;
     if (r.includes('observer')) return UserRole.observer;

@@ -7,11 +7,11 @@ import {
   SubmitObservationResultDto,
 } from "./observations.dto";
 import { Prisma } from "../generated/prisma";
-import { canTransition } from "../common/ppdb-workflow";
+import { canTransition } from "../common/spmb-workflow";
 import { allowedUnitIds, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
 import { rankObservationResults } from "./ranking.policy";
 
-const scheduleStaffRoles = ["admin_unit", "tim_ppdb", "observer"] as const;
+const scheduleStaffRoles = ["admin_unit", "tim_spmb", "observer"] as const;
 const serializable = { isolationLevel: Prisma.TransactionIsolationLevel.Serializable } as const;
 
 @Injectable()

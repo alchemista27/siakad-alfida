@@ -85,4 +85,11 @@ for (const stagePage of [
   assert(content.includes("/api/registrations/parent/") || content.includes("loadParentRegistration"), `stage page ${stagePage} must load owner-scoped registration via /api/registrations/parent/:id`);
 }
 
+const studentForm = readFileSync(resolve(root, "src/components/parent/student-registration-form.tsx"), "utf8");
+const parentFormPage = readFileSync(resolve(root, "src/app/parent/form-parents/page.tsx"), "utf8");
+assert(studentForm.includes('result.nextStep !== "parent_form"'), "student submit must only navigate after the API confirms the parent-form step");
+assert(studentForm.includes("studentDataComplete"), "student submit must require server-confirmed completed murid data");
+assert(parentFormPage.includes("registration.studentDataComplete"), "parent form gate must use the server completeness flag");
+assert(!parentFormPage.includes("isStudentRegistrationComplete"), "parent form must not re-decide murid completeness in the browser");
+
 console.log("SPMB parent route contract passed");

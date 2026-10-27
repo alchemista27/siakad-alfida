@@ -12,7 +12,7 @@ const principal = {
 
 const registration = {
   id: "reg-1",
-  registrationNumber: "PPDB-UNIT-2026-0001",
+  registrationNumber: "SPMB-UNIT-2026-0001",
   status: "accepted",
   parent: { id: "6a63ac4f-0221-4f00-9f9d-4a1ba2e294ee", fullName: "Parent", email: "parent@example.test", phone: null },
   studentData: { id: "student-1", fullName: "Student", nickname: null, gender: "male", birthPlace: "Jakarta", birthDate: new Date("2018-01-01"), nisn: null, address: "Alamat" },

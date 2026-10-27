@@ -3,7 +3,7 @@ import { Injectable, NotFoundException, BadRequestException, ForbiddenException 
 import { PrismaService } from "../prisma/prisma.service";
 import { SingleDecisionDto, BatchDecisionDto } from "./decisions.dto";
 import { RegistrationStatus, Prisma } from "../generated/prisma";
-import { canTransition } from "../common/ppdb-workflow";
+import { canTransition } from "../common/spmb-workflow";
 import { allowedUnitIds, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
 
 @Injectable()
@@ -11,14 +11,14 @@ export class DecisionsService {
   constructor(private readonly prisma: PrismaService) {}
 
   private assertReadPeriodAccess(period: { unitId: string }, principal: SpmbPrincipal) {
-    if (isSuperAdmin(principal) || allowedUnitIds(principal, ["admin_unit", "tim_ppdb"]).has(period.unitId)) return;
+    if (isSuperAdmin(principal) || allowedUnitIds(principal, ["admin_unit", "tim_spmb"]).has(period.unitId)) return;
     throw new NotFoundException("Pendaftaran tidak ditemukan");
   }
 
   private assertDecisionAuthority(period: { unitId: string }, principal: SpmbPrincipal) {
     if (isSuperAdmin(principal)) return;
     if (allowedUnitIds(principal, ["admin_unit"]).has(period.unitId)) return;
-    if (allowedUnitIds(principal, ["tim_ppdb"]).has(period.unitId)) {
+    if (allowedUnitIds(principal, ["tim_spmb"]).has(period.unitId)) {
       throw new ForbiddenException("Hanya Admin Unit yang berwenang menetapkan keputusan kelulusan.");
     }
     throw new NotFoundException("Pendaftaran tidak ditemukan");

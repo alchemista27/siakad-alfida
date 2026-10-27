@@ -2,7 +2,7 @@ import {
   canTransition,
   getParentNextAction,
   requiredDocumentTypes,
-} from "../src/common/ppdb-workflow";
+} from "../src/common/spmb-workflow";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -24,4 +24,4 @@ assert(requiredDocumentTypes.includes("birth_certificate"), "birth certificate m
 assert(requiredDocumentTypes.includes("family_card"), "family card must be mandatory");
 assert(requiredDocumentTypes.includes("photo"), "photo must be mandatory");
 
-console.log("PPDB parent workflow contract passed");
+console.log("SPMB parent workflow contract passed");

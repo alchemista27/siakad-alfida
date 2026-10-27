@@ -130,7 +130,7 @@ export function SpmbEntrySelector() {
           </div>
           <p className="text-xs font-semibold tracking-wider uppercase text-tertiary">SPMB {foundationName}</p>
           <h1 className="font-heading font-bold text-3xl mt-2">Pilih Ruang Kerja SPMB</h1>
-          <p className="text-sm text-gray-600 mt-2">Pilih akses sesuai peran Anda pada proses penerimaan siswa baru.</p>
+          <p className="text-sm text-gray-600 mt-2">Pilih akses sesuai peran Anda pada proses penerimaan murid baru.</p>
         </header>
         <div className="grid gap-4 sm:grid-cols-2">
           {state.entries.map((entry) => (

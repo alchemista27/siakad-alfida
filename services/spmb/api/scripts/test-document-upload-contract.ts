@@ -108,7 +108,7 @@ async function run() {
   }
   await download.createDownloadUrl(documentId, {
     id: "staff-1",
-    roles: [{ app: "spmb", role: "tim_ppdb", unitId }],
+    roles: [{ app: "spmb", role: "tim_spmb", unitId }],
   });
   await expectRejects(
     "foreign parent cannot open document",

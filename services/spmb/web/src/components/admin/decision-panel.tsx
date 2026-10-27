@@ -64,7 +64,7 @@ export function DecisionPanel({
           <div key={item.id} className="border border-[#E3E8E7] rounded p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div>
               <p className="font-semibold text-[#454545]">
-                {item.registrationNumber} · {item.studentData?.fullName || "Calon Santri"}
+                {item.registrationNumber} · {item.studentData?.fullName || "Calon Murid"}
               </p>
               <p className="text-gray-500">
                 Skor Observasi: {item.observationResult?.score ?? "-"} · Status: {item.status}

@@ -110,7 +110,7 @@ export class PaymentProofCloudinaryService {
     if (!fileUrl) throw new NotFoundException("Bukti pembayaran Cloudinary belum tersedia.");
 
     if (registration.parentId !== principal.id) {
-      assertUnitAccess(principal, registration.period.unitId, ["admin_unit", "tim_ppdb"]);
+      assertUnitAccess(principal, registration.period.unitId, ["admin_unit", "tim_spmb"]);
     }
 
     return { downloadUrl: fileUrl };

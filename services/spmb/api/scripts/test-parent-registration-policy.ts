@@ -73,7 +73,7 @@ async function run() {
       ...tx,
       $transaction: async (callback: any) => callback(tx),
     } as any,
-    { allocateRegistrationNumber: async () => ({ registrationNumber: `PPDB-SD-2026-${String(registrations.length + 1).padStart(4, "0")}` }) } as any,
+    { allocateRegistrationNumber: async () => ({ registrationNumber: `SPMB-SD-2026-${String(registrations.length + 1).padStart(4, "0")}` }) } as any,
   );
 
   const firstDraft = await (service as any).createOnline(parent, { periodId });

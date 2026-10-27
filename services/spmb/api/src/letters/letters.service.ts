@@ -25,7 +25,7 @@ export class LettersService {
     const isOwner = Boolean(principal?.id && reg.parentId === principal.id);
     const isScopedStaff =
       isSuperAdmin(principal) ||
-      allowedUnitIds(principal, ["admin_unit", "tim_ppdb"]).has(reg.period.unitId);
+      allowedUnitIds(principal, ["admin_unit", "tim_spmb"]).has(reg.period.unitId);
 
     if (!isOwner && !isScopedStaff) {
       throw new NotFoundException("Surat keterangan tidak ditemukan.");
@@ -46,11 +46,11 @@ export class LettersService {
       unitId: reg.period.unitId,
       unitName: reg.period.unitName,
       academicYearLabel: reg.period.label,
-      studentName: reg.studentData?.fullName || "Calon Santri",
+      studentName: reg.studentData?.fullName || "Calon Murid",
       gender: reg.studentData?.gender || null,
       birthPlace: reg.studentData?.birthPlace || null,
       birthDate: reg.studentData?.birthDate ? new Date(reg.studentData.birthDate).toISOString() : null,
-      decisionNote: decisionEvent?.note || "Dinyatakan LULUS seleksi penerimaan santri baru.",
+      decisionNote: decisionEvent?.note || "Dinyatakan LULUS seleksi penerimaan murid baru.",
       issuedAt: (decisionEvent?.createdAt ? new Date(decisionEvent.createdAt) : new Date()).toISOString(),
     };
   }

@@ -2,11 +2,11 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { Prisma } from "../generated/prisma";
 import { PrismaService } from "../prisma/prisma.service";
 import { allowedUnitIds, assertUnitAccess, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
-import { canTransition } from "../common/ppdb-workflow";
+import { canTransition } from "../common/spmb-workflow";
 import { rankObservationResults } from "../observations/ranking.policy";
 import { AssignObserverDto, SubmitMyObservationResultDto } from "./observers.dto";
 
-const observerRoles = ["admin_unit", "tim_ppdb", "observer"] as const;
+const observerRoles = ["admin_unit", "tim_spmb", "observer"] as const;
 const serializable = { isolationLevel: Prisma.TransactionIsolationLevel.Serializable } as const;
 
 @Injectable()

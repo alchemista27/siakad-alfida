@@ -117,14 +117,14 @@ export class RegistrationsController {
 
   @Post(":id/payment-proof/download-url")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("orang_tua", "admin_unit", "tim_ppdb")
+  @SpmbRoles("orang_tua", "admin_unit", "tim_spmb")
   async paymentProofDownloadUrl(@Param("id") id: string, @Req() req: any) {
     return this.paymentProofCloudinaryService.createDownloadUrl(id, req.user);
   }
 
   @Post(":id/verify-documents")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
+  @SpmbRoles("admin_unit", "tim_spmb")
   async verifyDocuments(
     @Param("id") id: string,
     @Req() req: any,
@@ -133,10 +133,10 @@ export class RegistrationsController {
     return this.registrationsService.verifyDocuments(id, req.user, body.isApproved, body.rejectionNote);
   }
 
-  // ================= ADMIN UNIT / TIM PPDB =================
+  // ================= ADMIN UNIT / TIM SPMB =================
   @Get()
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
+  @SpmbRoles("admin_unit", "tim_spmb")
   async findAll(
     @Req() req: any,
     @Query("periodId") periodId?: string,
@@ -149,7 +149,7 @@ export class RegistrationsController {
 
   @Get(":id")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
+  @SpmbRoles("admin_unit", "tim_spmb")
   async findOne(@Param("id") id: string, @Req() req: any) {
     return this.registrationsService.findOne(id, req.user);
   }
@@ -157,7 +157,7 @@ export class RegistrationsController {
 
   @Post(":id/verify-payment")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
-  @SpmbRoles("admin_unit", "tim_ppdb")
+  @SpmbRoles("admin_unit", "tim_spmb")
   async verifyPayment(
     @Param("id") id: string,
     @Req() req: any,

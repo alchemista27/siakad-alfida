@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { StudentRegistrationFormSchema } from "@alfida/contracts";
 import { TRANSPORTATION_EXAMPLES } from "@/lib/parent-form-fields";
-import { apiRequest, type ParentRegistration } from "@/lib/spmb-registration";
+import { apiRequest, type ParentRegistration, type SubmitStudentDataResponse } from "@/lib/spmb-registration";
 
 type StudentFormState = {
   fullName: string;
@@ -49,21 +49,27 @@ export function StudentRegistrationForm({ registration }: { registration: Parent
       siblingsCount: Number(form.siblingsCount),
     });
     if (!parsed.success) {
-      setNotice(parsed.error.issues[0]?.message || "Data siswa tidak valid.");
+      setNotice(parsed.error.issues[0]?.message || "Data murid tidak valid.");
       return;
     }
 
     setBusy(true);
     setNotice(null);
     try {
-      await apiRequest(`/api/registrations/${encodeURIComponent(registration.id)}/student`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
-      });
+      const result = await apiRequest<SubmitStudentDataResponse>(
+        `/api/registrations/${encodeURIComponent(registration.id)}/student`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(parsed.data),
+        },
+      );
+      if (result.nextStep !== "parent_form" || !result.studentDataComplete) {
+        throw new Error("Data murid belum tersimpan lengkap. Silakan coba lagi.");
+      }
       window.location.assign(`/parent/form-parents?registrationId=${encodeURIComponent(registration.id)}`);
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : "Gagal menyimpan data siswa.");
+      setNotice(error instanceof Error ? error.message : "Gagal menyimpan data murid.");
     } finally {
       setBusy(false);
     }
@@ -84,7 +90,7 @@ export function StudentRegistrationForm({ registration }: { registration: Parent
         <label className="block text-xs sm:col-span-2"><span className="font-semibold block mb-1">Alamat Lengkap *</span><textarea required rows={3} value={form.address} onChange={(e) => update("address", e.target.value)} className="w-full spmb-input" /></label>
         <label className="block text-xs sm:col-span-2"><span className="font-semibold block mb-1">Transportasi ke Sekolah *</span><input required value={form.transportation} onChange={(e) => update("transportation", e.target.value)} placeholder={TRANSPORTATION_EXAMPLES} className="w-full spmb-input" /></label>
       </div>
-      <button type="submit" disabled={busy} className="spmb-button-primary">{busy ? "Menyimpan..." : "Simpan Data Siswa"}</button>
+      <button type="submit" disabled={busy} className="spmb-button-primary">{busy ? "Menyimpan..." : "Simpan Data Murid"}</button>
     </form>
   );
 }

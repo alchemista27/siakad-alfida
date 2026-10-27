@@ -51,7 +51,7 @@ function foreignPeriod(id = "period-b") {
 function foreignRegistration() {
   return {
     id: "registration-b",
-    registrationNumber: "PPDB-UNIT-B-0001",
+    registrationNumber: "SPMB-UNIT-B-0001",
     periodId: "period-b",
     status: "observation_done",
     handoffStatus: "not_ready",

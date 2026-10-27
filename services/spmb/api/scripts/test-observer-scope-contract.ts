@@ -38,7 +38,7 @@ function registration(overrides: Record<string, unknown> = {}) {
   return {
     id: "registration-a",
     periodId: "period-a",
-    registrationNumber: "PPDB-A-001",
+    registrationNumber: "SPMB-A-001",
     status: "observation_scheduled",
     period: period(),
     observationBooking: { id: "booking-a", observationScheduleId: "schedule-a" },
@@ -111,8 +111,8 @@ async function run() {
     spmbObserver: { findFirst: async () => ({ id: "membership-a" }) },
     registration: {
       findMany: async () => [
-        registration({ id: "registration-2", registrationNumber: "PPDB-A-002", observationResult: { id: "result-2", score: 90, createdAt: new Date("2026-01-02"), notes: null } }),
-        registration({ id: "registration-1", registrationNumber: "PPDB-A-001", observationResult: { id: "result-1", score: 90, createdAt: new Date("2026-01-01"), notes: null } }),
+        registration({ id: "registration-2", registrationNumber: "SPMB-A-002", observationResult: { id: "result-2", score: 90, createdAt: new Date("2026-01-02"), notes: null } }),
+        registration({ id: "registration-1", registrationNumber: "SPMB-A-001", observationResult: { id: "result-1", score: 90, createdAt: new Date("2026-01-01"), notes: null } }),
       ],
     },
     observationResult: { update: async () => { rankWrite = true; return {}; } },

@@ -26,7 +26,7 @@ const unitOneAdmin: SpmbPrincipal = {
 };
 const unitOneStaff: SpmbPrincipal = {
   id: "staff-unit-1",
-  roles: [{ app: "spmb", role: "tim_ppdb", unitId: "unit-1" }],
+  roles: [{ app: "spmb", role: "tim_spmb", unitId: "unit-1" }],
 };
 const unitTwoAdmin: SpmbPrincipal = {
   id: "admin-unit-2",
@@ -123,8 +123,8 @@ function createHarness() {
 async function main() {
   const { state, service } = createHarness();
 
-  // 1. Only scoped admin_unit can decide (tim_ppdb rejected, foreign unit concealed)
-  await expectRejects("tim_ppdb cannot decide", ForbiddenException, () =>
+  // 1. Only scoped admin_unit can decide (tim_spmb rejected, foreign unit concealed)
+  await expectRejects("tim_spmb cannot decide", ForbiddenException, () =>
     service.setSingleDecision(unitOneStaff, { registrationId: "reg-1", status: "accepted" }),
   );
   await expectRejects("foreign admin_unit gets 404", NotFoundException, () =>

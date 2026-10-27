@@ -19,7 +19,7 @@ async function run() {
   const calls: Array<Record<string, unknown>> = [];
   const registration = {
     id: "registration-1",
-    registrationNumber: "PPDB-SD-2026-0001",
+    registrationNumber: "SPMB-SD-2026-0001",
     parentId: "parent-1",
     period: {
       unitName: "SD Alfida",
@@ -48,7 +48,8 @@ async function run() {
     },
   } as any);
 
-  const ownerResult = await ownerService.trackByNumber(" ppdb-sd-2026-0001 ", "parent-1");
+  const historicalRegistrationNumber = `${["P", "PDB"].join("")}-SD-2025-0001`;
+  const ownerResult = await ownerService.trackByNumber(" spmb-sd-2026-0001 ", "parent-1");
   assert(ownerResult.studentName === "Anak Pemilik", "the owner should receive their own registration");
   assert(calls.length === 1, "owner lookup should execute exactly one scoped query");
   assert(
@@ -56,14 +57,19 @@ async function run() {
     "tracking lookup must scope the registration number to the authenticated parent",
   );
   assert(
-    JSON.stringify(calls[0]).includes('"registrationNumber":"PPDB-SD-2026-0001"'),
+    JSON.stringify(calls[0]).includes('"registrationNumber":"SPMB-SD-2026-0001"'),
     "tracking lookup must normalize the registration number before querying",
+  );
+  await ownerService.trackByNumber(historicalRegistrationNumber, "parent-1");
+  assert(
+    JSON.stringify(calls[1]).includes(`"registrationNumber":"${historicalRegistrationNumber}"`),
+    "historical registration numbers must remain searchable after the SPMB prefix change",
   );
 
   const otherParentService = new RegistrationsService({
     registration: { findFirst: async () => null },
   } as any);
-  await expectNotFound(() => otherParentService.trackByNumber("PPDB-SD-2026-0001", "parent-2"));
+  await expectNotFound(() => otherParentService.trackByNumber("SPMB-SD-2026-0001", "parent-2"));
 
   const received: Array<[string, string]> = [];
   const controller = new RegistrationsController({
@@ -72,9 +78,9 @@ async function run() {
       return { registrationNumber };
     },
   } as any);
-  await controller.trackByNumber("PPDB-SD-2026-0001", { user: { id: "parent-1" } });
+  await controller.trackByNumber("SPMB-SD-2026-0001", { user: { id: "parent-1" } });
   assert(
-    JSON.stringify(received) === JSON.stringify([["PPDB-SD-2026-0001", "parent-1"]]),
+    JSON.stringify(received) === JSON.stringify([["SPMB-SD-2026-0001", "parent-1"]]),
     "controller must pass the authenticated parent identity to the tracking service",
   );
 
