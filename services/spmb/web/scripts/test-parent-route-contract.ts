@@ -61,6 +61,11 @@ assert(!/Referensi \/ Tautan Bukti Transfer/.test(paymentPage), "payment page mu
 const registrationLib = readFileSync(resolve(root, "src/lib/spmb-registration.ts"), "utf8");
 assert(/export class SpmbApiError extends Error/.test(registrationLib), "API client must preserve non-OK response status");
 assert(/new SpmbApiError\(/.test(registrationLib), "API client must throw structured errors for non-OK responses");
+assert(/function isRegistrationId\(/.test(registrationLib), "registration loader must validate the URL registration id before requesting it");
+assert(/function loadActiveParentRegistration\(/.test(registrationLib), "registration loader must have an owner-scoped active-registration recovery path");
+assert(/\/api\/registrations\/parent\/active/.test(registrationLib), "registration loader recovery must use the owner-scoped active registration endpoint");
+assert(/error instanceof SpmbApiError && error\.status === 404/.test(registrationLib), "a stale owner-scoped registration URL must recover only after a 404");
+assert(/return loadActiveParentRegistration\(\)/.test(registrationLib), "missing or malformed payment URLs must recover the parent's active registration");
 assert(/uploadPaymentProofToCloudinary/.test(registrationLib), "client library must upload payment proofs through Cloudinary before recording them");
 assert(/uploadDocumentToCloudinary/.test(registrationLib), "client library must upload every parent dossier file through Cloudinary");
 assert(!/payment-proof\/presign/.test(registrationLib), "client library must not request an S3 payment-proof presign URL");

@@ -237,13 +237,31 @@ export async function apiRequest<T = any>(url: string, options: RequestInit = {}
   return (response.status === 204 ? null : await response.json()) as T;
 }
 
+function isRegistrationId(value: string | null | undefined): value is string {
+  return typeof value === "string"
+    && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value.trim());
+}
+
+function loadActiveParentRegistration(): Promise<ParentRegistration | null> {
+  return apiRequest<ParentRegistration | null>("/api/registrations/parent/active");
+}
+
 export async function loadParentRegistration(registrationId?: string | null): Promise<ParentRegistration | null> {
-  if (registrationId) {
-    return apiRequest<ParentRegistration>(`/api/registrations/parent/${encodeURIComponent(registrationId)}`);
+  const normalizedRegistrationId = registrationId?.trim();
+  if (!isRegistrationId(normalizedRegistrationId)) {
+    return loadActiveParentRegistration();
   }
-  const list = await apiRequest<ParentRegistration[]>("/api/registrations/parent");
-  if (!list || list.length === 0) return null;
-  return apiRequest<ParentRegistration>(`/api/registrations/parent/${encodeURIComponent(list[0].id)}`);
+
+  try {
+    return await apiRequest<ParentRegistration>(
+      `/api/registrations/parent/${encodeURIComponent(normalizedRegistrationId)}`,
+    );
+  } catch (error) {
+    if (error instanceof SpmbApiError && error.status === 404) {
+      return loadActiveParentRegistration();
+    }
+    throw error;
+  }
 }
 
 function getCloudinaryErrorMessage(payload: unknown): string | null {
