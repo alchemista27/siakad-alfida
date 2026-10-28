@@ -8,6 +8,7 @@ const originalFetch = globalThis.fetch;
 
 const letter = {
   referralNumber: "SPMB-MED-2026-ABCD1234",
+  verificationToken: "a".repeat(64),
   issuedAt: "2026-10-28T00:00:00.000Z",
   registrationNumber: "SPMB-2026-SDIT-0001",
   unitName: "SDIT Alfida",
@@ -17,22 +18,20 @@ const letter = {
   birthPlace: "Bekasi",
   birthDate: "2019-04-10T00:00:00.000Z",
   unitLogoUrl: null,
-  signatoryName: "Ahmad Yusuf",
-  signatoryTitle: "Ketua Yayasan",
-  signatorySignatureUrl: "https://assets.test/signature.png",
-  letterheadMode: "foundation_fallback",
   foundationName: "Yayasan Alfida",
   foundationLogoUrl: "https://assets.test/foundation.png",
 };
 
 async function main() {
   let medicalLetterRequestUrl = "";
+  const imageUrls: string[] = [];
   globalThis.fetch = (async (input: RequestInfo | URL) => {
     const url = String(input);
     if (url.includes("/api/letters/medical-referral/")) {
       medicalLetterRequestUrl = url;
       return Response.json(letter);
     }
+    imageUrls.push(url);
     return new Response(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGP4DwQACfsD/fteaysAAAAASUVORK5CYII=", "base64"), { headers: { "content-type": "image/png" } });
   }) as typeof fetch;
 
@@ -47,8 +46,13 @@ async function main() {
     assert.equal(response.headers.get("cache-control"), "private, no-store");
     assert.equal(response.headers.get("x-content-type-options"), "nosniff");
     assert.equal(decoded.includes("<script>"), false, "hostile HTML must never be emitted as executable markup");
+    assert.equal(imageUrls.some((url) => url.includes("signature")), false, "PDF must not fetch a handwritten signature image");
     const pdfSource = readFileSync(resolve(process.cwd(), "src/lib/letters/medical-referral-pdf.ts"), "utf8");
-    assert.match(pdfSource, /text\(input\.signatoryTitle/, "foundation fallback must state its actual signing authority");
+    const routeSource = readFileSync(resolve(process.cwd(), "src/app/api/pdf/medical-referral/route.ts"), "utf8");
+    assert.match(pdfSource, /QRCode\.toBuffer/, "PDF must render an authenticity QR code");
+    assert.match(pdfSource, /verificationUrl/, "PDF must consume the verification URL");
+    assert.match(routeSource, /\/verify\/medical-referral\//, "PDF route must build a same-origin verification URL");
+    assert.doesNotMatch(pdfSource, /signatorySignatureUrl|signatoryTitle/, "PDF must not render a signature block");
     console.log("SPMB medical referral PDF route contract passed");
   } finally {
     globalThis.fetch = originalFetch;

@@ -17,8 +17,6 @@ export class FoundationService {
         foundationName: true,
         logoUrl: true,
         faviconUrl: true,
-        chairmanName: true,
-        chairmanSignatureUrl: true,
       },
     });
 
@@ -26,8 +24,6 @@ export class FoundationService {
       foundationName: "Yayasan Alfida",
       logoUrl: null,
       faviconUrl: null,
-      chairmanName: null,
-      chairmanSignatureUrl: null,
     };
   }
 
@@ -57,7 +53,6 @@ export class FoundationService {
       logoUrl: dto.logoUrl || null,
       faviconUrl: dto.faviconUrl || null,
       chairmanName: dto.chairmanName || null,
-      chairmanSignatureUrl: dto.chairmanSignatureUrl || null,
       bankName: dto.bankName || null,
       bankAccountNumber: dto.bankAccountNumber || null,
       bankAccountHolder: dto.bankAccountHolder || null,
@@ -86,7 +81,7 @@ export class FoundationService {
 
   private assertAllowedAssetUrls(
     dto: UpdateFoundationDto,
-    existing?: { logoUrl?: string | null; faviconUrl?: string | null; chairmanSignatureUrl?: string | null } | null
+    existing?: { logoUrl?: string | null; faviconUrl?: string | null } | null
   ) {
     const cloudName =
       process.env.CLOUDINARY_CLOUD_NAME ||
@@ -95,7 +90,6 @@ export class FoundationService {
     const assets = [
       ["logo", dto.logoUrl, existing?.logoUrl],
       ["favicon", dto.faviconUrl, existing?.faviconUrl],
-      ["tanda tangan ketua", dto.chairmanSignatureUrl, existing?.chairmanSignatureUrl],
     ] as const;
 
     for (const [label, url, existingUrl] of assets) {

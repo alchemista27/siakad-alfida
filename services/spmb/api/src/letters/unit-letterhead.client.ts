@@ -4,8 +4,6 @@ export type UnitLetterhead = {
   unitId: string;
   unitName: string;
   logoUrl: string | null;
-  principalName: string | null;
-  principalSignatureUrl: string | null;
 };
 
 export const SPMB_UNIT_LETTERHEAD_FETCH = Symbol("SPMB_UNIT_LETTERHEAD_FETCH");
@@ -21,7 +19,7 @@ function parseLetterhead(payload: unknown): UnitLetterhead {
     if (field === null || typeof field === "string") return field as string | null;
     throw new BadGatewayException("Profil kop surat unit tidak valid.");
   };
-  return { unitId: value.unitId, unitName: value.unitName, logoUrl: nullableString("logoUrl"), principalName: nullableString("principalName"), principalSignatureUrl: nullableString("principalSignatureUrl") };
+  return { unitId: value.unitId, unitName: value.unitName, logoUrl: nullableString("logoUrl") };
 }
 
 @Injectable()

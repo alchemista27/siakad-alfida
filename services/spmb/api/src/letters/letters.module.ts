@@ -1,11 +1,12 @@
 import { Module } from "@nestjs/common";
 import { LettersController } from "./letters.controller";
+import { PublicMedicalReferralVerificationController } from "./public-medical-referral-verification.controller";
 import { LettersService } from "./letters.service";
 import { FoundationBrandingClient, SPMB_FOUNDATION_BRANDING_FETCH } from "./foundation-branding.client";
 import { SPMB_UNIT_LETTERHEAD_FETCH, UnitLetterheadClient } from "./unit-letterhead.client";
 
 @Module({
-  controllers: [LettersController],
+  controllers: [LettersController, PublicMedicalReferralVerificationController],
   providers: [
     LettersService,
     UnitLetterheadClient,

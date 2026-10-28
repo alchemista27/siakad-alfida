@@ -72,18 +72,13 @@ export class UnitsService {
 
     const logoUrl = this.normalizeNullableText(dto.logoUrl);
     const principalName = this.normalizeNullableText(dto.principalName);
-    const principalSignatureUrl = this.normalizeNullableText(dto.principalSignatureUrl);
-    if (dto.logoUrl !== undefined) assertUnitLetterheadCloudinaryUrl(logoUrl, unitId, "logo");
-    if (dto.principalSignatureUrl !== undefined) {
-      assertUnitLetterheadCloudinaryUrl(principalSignatureUrl, unitId, "principalSignature");
-    }
+    if (dto.logoUrl !== undefined) assertUnitLetterheadCloudinaryUrl(logoUrl, unitId);
 
     return this.prisma.unit.update({
       where: { id: unitId },
       data: {
         ...(dto.logoUrl === undefined ? {} : { logoUrl }),
         ...(dto.principalName === undefined ? {} : { principalName }),
-        ...(dto.principalSignatureUrl === undefined ? {} : { principalSignatureUrl }),
       },
     });
   }
@@ -97,8 +92,6 @@ export class UnitsService {
         category: true,
         isActive: true,
         logoUrl: true,
-        principalName: true,
-        principalSignatureUrl: true,
       },
     });
     if (!unit || !unit.isActive || unit.category !== "pendidikan") {
@@ -108,8 +101,6 @@ export class UnitsService {
       unitId: unit.id,
       unitName: unit.name,
       logoUrl: unit.logoUrl,
-      principalName: unit.principalName,
-      principalSignatureUrl: unit.principalSignatureUrl,
     };
   }
 

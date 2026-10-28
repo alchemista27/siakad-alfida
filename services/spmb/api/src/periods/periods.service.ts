@@ -42,7 +42,7 @@ export class PeriodsService {
     return requested;
   }
 
-  private normalizeSourceAcademicYearId(value?: string): string | null {
+  private normalizeSourceAcademicYearId(value?: string | null): string | null {
     const sourceAcademicYearId = value?.trim() || "";
     if (!sourceAcademicYearId) return null;
     if (!UUID_REGEX.test(sourceAcademicYearId)) {
@@ -57,6 +57,32 @@ export class PeriodsService {
     const end = new Date(closesAt);
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start > end) {
       throw new BadRequestException("Tanggal pembukaan harus sebelum atau sama dengan tanggal penutupan.");
+    }
+  }
+
+  private async assertNoOpenConflict(unitId: string, exceptId?: string) {
+    const conflicting = await this.prisma.admissionPeriod.findFirst({
+      where: {
+        unitId,
+        isOpen: true,
+        ...(exceptId ? { id: { not: exceptId } } : {}),
+      },
+    });
+    if (conflicting) {
+      throw new BadRequestException("Tutup periode aktif lainnya sebelum membuka periode ini.");
+    }
+  }
+
+  private async assertNoLabelConflict(unitId: string, label: string, exceptId?: string) {
+    const conflicting = await this.prisma.admissionPeriod.findFirst({
+      where: {
+        unitId,
+        label,
+        ...(exceptId ? { id: { not: exceptId } } : {}),
+      },
+    });
+    if (conflicting) {
+      throw new BadRequestException("Label periode sudah digunakan pada unit ini.");
     }
   }
 
@@ -132,18 +158,8 @@ export class PeriodsService {
     this.validateDateRange(dto.opensAt, dto.closesAt);
     const isOpen = dto.isOpen ?? true;
 
-    if (isOpen && this.prisma.admissionPeriod.findFirst) {
-      const existingOpen = await this.prisma.admissionPeriod.findFirst({
-        where: {
-          unitId,
-          isOpen: true,
-          ...(sourceAcademicYearId ? { sourceAcademicYearId } : {}),
-        },
-      });
-      if (existingOpen) {
-        throw new BadRequestException("Unit sudah memiliki periode pendaftaran aktif pada tahun ajaran tersebut.");
-      }
-    }
+    await this.assertNoLabelConflict(unitId, dto.label);
+    if (isOpen) await this.assertNoOpenConflict(unitId);
 
     return this.prisma.admissionPeriod.create({
       data: {
@@ -172,20 +188,29 @@ export class PeriodsService {
       ? undefined
       : this.normalizeSourceAcademicYearId(dto.sourceAcademicYearId);
     this.validateDateRange(dto.opensAt ?? existing.opensAt, dto.closesAt ?? existing.closesAt);
+    if (dto.quota !== undefined && dto.quota < (existing._count?.registrations ?? 0)) {
+      throw new BadRequestException("Kuota tidak boleh lebih kecil dari jumlah pendaftar yang sudah tercatat.");
+    }
+    if (dto.label !== undefined && dto.label.trim() !== existing.label) {
+      await this.assertNoLabelConflict(existing.unitId, dto.label.trim(), id);
+    }
+    if (dto.isOpen === true && !existing.isOpen) {
+      await this.assertNoOpenConflict(existing.unitId, id);
+    }
 
     return this.prisma.admissionPeriod.update({
       where: { id },
       data: {
         sourceAcademicYearId,
-        label: dto.label,
+        label: dto.label?.trim(),
         isOpen: dto.isOpen,
         quota: dto.quota,
         fee: dto.fee,
         bankName: dto.bankName,
         bankNumber: dto.bankNumber,
         bankHolder: dto.bankHolder,
-        opensAt: dto.opensAt ? new Date(dto.opensAt) : undefined,
-        closesAt: dto.closesAt ? new Date(dto.closesAt) : undefined,
+        opensAt: dto.opensAt === undefined ? undefined : dto.opensAt ? new Date(dto.opensAt) : null,
+        closesAt: dto.closesAt === undefined ? undefined : dto.closesAt ? new Date(dto.closesAt) : null,
       },
     });
   }
@@ -195,18 +220,7 @@ export class PeriodsService {
     const existing = await this.findOne(id, principal);
     this.assertExistingPeriodAccess(existing, principal, ["admin_unit"]);
 
-    if (this.prisma.admissionPeriod.findFirst) {
-      const conflicting = await this.prisma.admissionPeriod.findFirst({
-        where: {
-          unitId: existing.unitId,
-          isOpen: true,
-          id: { not: id },
-        },
-      });
-      if (conflicting) {
-        throw new BadRequestException("Tutup periode aktif lainnya sebelum membuka periode ini.");
-      }
-    }
+    await this.assertNoOpenConflict(existing.unitId, id);
 
     return this.prisma.admissionPeriod.update({
       where: { id },
@@ -229,10 +243,6 @@ export class PeriodsService {
     this.assertPeriodMutationRole(principal);
     const existing = await this.findOne(id, principal);
     this.assertExistingPeriodAccess(existing, principal, ["admin_unit"]);
-
-    if (existing.isOpen) {
-      throw new BadRequestException("Tutup periode sebelum menghapusnya.");
-    }
 
     const registrations = existing._count?.registrations ?? 0;
     const schedules = existing._count?.schedules ?? 0;

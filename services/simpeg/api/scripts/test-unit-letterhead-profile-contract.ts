@@ -14,16 +14,16 @@ const moduleSource = read("src/units/units.module.ts");
 
 assert.match(schema, /logoUrl\s+String\?\s+@map\("logo_url"\)\s+@db\.Text/, "Unit must persist logo_url");
 assert.match(schema, /principalName\s+String\?\s+@map\("principal_name"\)\s+@db\.VarChar\(200\)/, "Unit must persist principal_name");
-assert.match(schema, /principalSignatureUrl\s+String\?\s+@map\("principal_signature_url"\)\s+@db\.Text/, "Unit must persist principal_signature_url");
 assert.match(dto, /export class UpdateUnitLetterheadDto/, "letterhead DTO is required");
 assert.match(dto, /logoUrl\?/, "letterhead DTO must accept logoUrl");
 assert.match(dto, /principalName\?/, "letterhead DTO must accept principalName");
-assert.match(dto, /principalSignatureUrl\?/, "letterhead DTO must accept principalSignatureUrl");
+assert.doesNotMatch(dto, /principalSignatureUrl/, "letterhead DTO must not accept signature uploads");
 assert.match(service, /async updateLetterheadProfile\(/, "scoped letterhead update service is required");
 assert.match(service, /canManageUnit\(principal\.roles, unitId\)/, "letterhead update must enforce unit scope");
 assert.match(service, /unit\.category !== "pendidikan"/, "non-education units must not issue school letterheads");
 assert.match(service, /assertUnitLetterheadCloudinaryUrl/, "letterhead assets must be validated server-side");
 assert.match(service, /async getLetterheadForInternal\(/, "minimal internal letterhead projection is required");
+assert.doesNotMatch(service, /principalSignatureUrl/, "service must not read or write legacy signature URLs");
 assert.match(controller, /@Patch\(":id\/letterhead-profile"\)/, "scoped letterhead endpoint is required");
 assert.match(controller, /@SimpegRoles\("super_admin", "admin_kepegawaian", "admin_unit"\)/, "letterhead endpoint must admit scoped education admins");
 assert.match(moduleSource, /InternalUnitLetterheadController/, "internal letterhead controller must be registered");

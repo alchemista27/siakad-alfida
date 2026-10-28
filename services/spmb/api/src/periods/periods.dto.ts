@@ -1,28 +1,108 @@
+import { IsBoolean, IsDateString, IsInt, IsOptional, IsString, IsUUID, MaxLength, Min } from "class-validator";
+
 export class CreatePeriodDto {
+  @IsOptional()
+  @IsUUID()
   unitId?: string;
+
+  @IsOptional()
+  @IsUUID()
   sourceAcademicYearId?: string;
+
+  @IsString()
+  @MaxLength(200)
   unitName: string;
+
+  @IsString()
+  @MaxLength(100)
   unitSlug: string;
-  label: string; // contoh: "2026/2027"
+
+  @IsString()
+  @MaxLength(50)
+  label: string;
+
+  @IsOptional()
+  @IsBoolean()
   isOpen?: boolean;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
   quota?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
   fee?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
   bankName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
   bankNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
   bankHolder?: string;
+
+  @IsOptional()
+  @IsDateString()
   opensAt?: string;
+
+  @IsOptional()
+  @IsDateString()
   closesAt?: string;
 }
 
 export class UpdatePeriodDto {
-  sourceAcademicYearId?: string;
+  @IsOptional()
+  @IsUUID()
+  sourceAcademicYearId?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
   label?: string;
+
+  @IsOptional()
+  @IsBoolean()
   isOpen?: boolean;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
   quota?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
   fee?: number;
-  bankName?: string;
-  bankNumber?: string;
-  bankHolder?: string;
-  opensAt?: string;
-  closesAt?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  bankName?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  bankNumber?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  bankHolder?: string | null;
+
+  @IsOptional()
+  @IsDateString()
+  opensAt?: string | null;
+
+  @IsOptional()
+  @IsDateString()
+  closesAt?: string | null;
 }

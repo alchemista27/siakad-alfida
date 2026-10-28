@@ -6,7 +6,6 @@ export const UpdateFoundationSchema = z.object({
   logoUrl: z.string().url("URL Logo tidak valid").optional().nullable().or(z.literal("")),
   faviconUrl: z.string().url("URL Favicon tidak valid").optional().nullable().or(z.literal("")),
   chairmanName: z.string().optional().nullable().or(z.literal("")),
-  chairmanSignatureUrl: z.string().url("URL Tanda tangan tidak valid").optional().nullable().or(z.literal("")),
   bankName: z.string().optional().nullable().or(z.literal("")),
   bankAccountNumber: z.string().optional().nullable().or(z.literal("")),
   bankAccountHolder: z.string().optional().nullable().or(z.literal("")),

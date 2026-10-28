@@ -1,23 +1,18 @@
 import { BadRequestException } from "@nestjs/common";
 
-type UnitLetterheadAsset = "logo" | "principalSignature";
-
 function cloudName() {
   return process.env.CLOUDINARY_CLOUD_NAME?.trim()
     || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim()
     || "hb1ropwm";
 }
 
-function expectedFolder(unitId: string, asset: UnitLetterheadAsset) {
-  return asset === "logo"
-    ? `simpeg/unit/${unitId}/logo/`
-    : `simpeg/unit/${unitId}/principal-signature/`;
+function expectedFolder(unitId: string) {
+  return `simpeg/unit/${unitId}/logo/`;
 }
 
 export function assertUnitLetterheadCloudinaryUrl(
   url: string | null | undefined,
   unitId: string,
-  asset: UnitLetterheadAsset,
 ) {
   if (!url) return;
 
@@ -26,7 +21,7 @@ export function assertUnitLetterheadCloudinaryUrl(
     const allowed = parsed.protocol === "https:"
       && parsed.hostname === "res.cloudinary.com"
       && parsed.pathname.startsWith(`/${cloudName()}/image/upload/`)
-      && parsed.pathname.includes(`/${expectedFolder(unitId, asset)}`);
+      && parsed.pathname.includes(`/${expectedFolder(unitId)}`);
     if (allowed) return;
   } catch {
     // Handled by the common rejection below.

@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useRef, useState } from "react";
 
-type FoundationAssetKind = "logo" | "favicon" | "chairman_signature";
+type FoundationAssetKind = "logo" | "favicon";
 
 type FoundationAssetUploaderProps = {
   kind: FoundationAssetKind;
@@ -32,12 +32,6 @@ const assetRules: Record<FoundationAssetKind, {
     maxBytes: 1 * 1024 * 1024,
     mimeTypes: ["image/png", "image/x-icon", "image/vnd.microsoft.icon", "image/svg+xml"],
     emptyIcon: "tab",
-  },
-  chairman_signature: {
-    folder: "foundation/chairman-signature",
-    maxBytes: 3 * 1024 * 1024,
-    mimeTypes: ["image/png", "image/webp"],
-    emptyIcon: "draw",
   },
 };
 

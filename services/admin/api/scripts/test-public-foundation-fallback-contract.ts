@@ -5,8 +5,6 @@ const stored = {
   foundationName: "Yayasan Alfida",
   logoUrl: "https://res.cloudinary.com/example/image/upload/foundation/logo/logo.png",
   faviconUrl: null,
-  chairmanName: "Ahmad Yusuf",
-  chairmanSignatureUrl: "https://res.cloudinary.com/example/image/upload/foundation/chairman-signature/signature.png",
 };
 
 const prisma: any = {
@@ -19,9 +17,11 @@ const prisma: any = {
 
 async function main() {
   const settings = await new FoundationService(prisma).getPublicSettings();
-  assert.equal(settings.chairmanName, "Ahmad Yusuf", "public branding must expose the named foundation fallback signer");
-  assert.equal(settings.chairmanSignatureUrl, stored.chairmanSignatureUrl, "public branding must expose the foundation fallback signature asset");
-  console.log("Admin public foundation fallback contract passed");
+  assert.equal(settings.foundationName, "Yayasan Alfida");
+  assert.equal(settings.logoUrl, stored.logoUrl);
+  assert.equal("chairmanName" in settings, false, "public branding must not expose internal signatory identity");
+  assert.equal("chairmanSignatureUrl" in settings, false, "public branding must not expose a signature asset");
+  console.log("Admin public foundation branding contract passed");
 }
 
 void main();

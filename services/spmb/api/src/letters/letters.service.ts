@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, Optional, ServiceUnavailableException } from "@nestjs/common";
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { FoundationBrandingClient } from "./foundation-branding.client";
 import { UnitLetterheadClient } from "./unit-letterhead.client";
 import { PrismaService } from "../prisma/prisma.service";
@@ -82,14 +82,22 @@ export class LettersService {
       throw new ServiceUnavailableException("Layanan kop surat belum tersedia.");
     }
 
-    const referral = registration.medicalReferral ?? await this.prisma.medicalReferral.upsert({
+    const verificationToken = randomBytes(32).toString("hex");
+    let referral = registration.medicalReferral ?? await this.prisma.medicalReferral.upsert({
       where: { registrationId: registration.id },
       create: {
         registrationId: registration.id,
         referralNumber: `SPMB-MED-${new Date().getUTCFullYear()}-${randomUUID().slice(0, 8).toUpperCase()}`,
+        verificationToken,
       },
       update: {},
     });
+    if (!referral.verificationToken) {
+      referral = await this.prisma.medicalReferral.update({
+        where: { id: referral.id },
+        data: { verificationToken },
+      });
+    }
     const [letterhead, foundation] = await Promise.all([
       this.unitLetterheadClient.getLetterhead(registration.period.unitId),
       this.foundationBrandingClient.getBranding(),
@@ -97,14 +105,13 @@ export class LettersService {
     if (letterhead.unitId !== registration.period.unitId || !letterhead.unitName.trim()) {
       throw new ConflictException("Profil kop surat unit tidak sesuai.");
     }
-    const hasUnitLetterhead = Boolean(letterhead.logoUrl && letterhead.principalName?.trim() && letterhead.principalSignatureUrl);
-    const hasFoundationFallback = Boolean(foundation.logoUrl && foundation.chairmanName?.trim() && foundation.chairmanSignatureUrl);
-    if (!hasUnitLetterhead && !hasFoundationFallback) {
-      throw new ConflictException("Profil kop surat unit belum lengkap dan identitas fallback yayasan belum tersedia.");
+    if (!foundation.logoUrl?.trim()) {
+      throw new ConflictException("Logo Yayasan belum tersedia untuk surat pengantar kesehatan.");
     }
 
     return {
       referralNumber: referral.referralNumber,
+      verificationToken: referral.verificationToken,
       issuedAt: new Date(referral.issuedAt).toISOString(),
       registrationNumber: registration.registrationNumber,
       unitName: letterhead.unitName,
@@ -113,13 +120,34 @@ export class LettersService {
       gender: registration.studentData.gender,
       birthPlace: registration.studentData.birthPlace,
       birthDate: new Date(registration.studentData.birthDate).toISOString(),
-      unitLogoUrl: hasUnitLetterhead ? letterhead.logoUrl : null,
-      signatoryName: hasUnitLetterhead ? letterhead.principalName! : foundation.chairmanName!,
-      signatoryTitle: hasUnitLetterhead ? "Kepala Sekolah" : "Ketua Yayasan",
-      signatorySignatureUrl: hasUnitLetterhead ? letterhead.principalSignatureUrl! : foundation.chairmanSignatureUrl!,
-      letterheadMode: hasUnitLetterhead ? "unit" : "foundation_fallback" as const,
+      unitLogoUrl: letterhead.logoUrl,
       foundationName: foundation.foundationName,
       foundationLogoUrl: foundation.logoUrl,
+    };
+  }
+
+  async verifyMedicalReferral(verificationToken: string) {
+    if (!/^[a-f0-9]{64}$/i.test(verificationToken)) return { valid: false };
+
+    const referral = await this.prisma.medicalReferral.findUnique({
+      where: { verificationToken },
+      include: {
+        registration: {
+          include: { period: true, studentData: true },
+        },
+      },
+    });
+    if (!referral || referral.registration.status === "rejected" || !referral.registration.studentData?.fullName) {
+      return { valid: false };
+    }
+
+    return {
+      valid: true,
+      studentName: referral.registration.studentData.fullName,
+      unitName: referral.registration.period.unitName,
+      academicYearLabel: referral.registration.period.label,
+      referralNumber: referral.referralNumber,
+      issuedAt: new Date(referral.issuedAt).toISOString(),
     };
   }
 }

@@ -19,6 +19,8 @@ assert.match(panel, /unit\.category === "pendidikan"/, "only education units may
 assert.match(panel, /manageableUnitIds\.includes\(unit\.id\)/, "profile action must honor scoped unit IDs");
 assert.match(readFileSync(modalPath, "utf8"), /\/api\/units\/\$\{unit\.id\}\/letterhead-profile/, "modal must target scoped profile endpoint");
 assert.match(readFileSync(uploaderPath, "utf8"), /api\.cloudinary\.com\/v1_1/, "assets must use direct Cloudinary upload");
+assert.doesNotMatch(readFileSync(modalPath, "utf8"), /principalSignatureUrl|Tanda Tangan Kepala Sekolah/, "modal must not offer signature uploads");
+assert.doesNotMatch(readFileSync(uploaderPath, "utf8"), /principalSignature|principal-signature/, "uploader must not target the legacy signature folder");
 assert.doesNotMatch(`${panel}\n${readFileSync(modalPath, "utf8")}`, /\b(alert|confirm)\(/, "unit profile must not use native dialogs");
 
 console.log("SIMPEG unit letterhead profile UI contract passed");

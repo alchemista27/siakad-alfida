@@ -3,18 +3,16 @@ import { createMedicalReferralPdf, type MedicalReferralPdfInput } from "@/lib/le
 
 export const runtime = "nodejs";
 
-type LetterPayload = MedicalReferralPdfInput;
+type LetterPayload = Omit<MedicalReferralPdfInput, "verificationUrl"> & { verificationToken: string };
 
 function parseLetter(payload: unknown): LetterPayload | null {
   if (!payload || typeof payload !== "object") return null;
   const value = payload as Record<string, unknown>;
-  const strings = ["referralNumber", "issuedAt", "registrationNumber", "unitName", "academicYearLabel", "studentName", "birthPlace", "birthDate", "signatoryName", "signatorySignatureUrl", "foundationName", "foundationLogoUrl"] as const;
+  const strings = ["referralNumber", "verificationToken", "issuedAt", "registrationNumber", "unitName", "academicYearLabel", "studentName", "birthPlace", "birthDate", "foundationName", "foundationLogoUrl"] as const;
   if (!strings.every((key) => typeof value[key] === "string" && value[key].trim())) return null;
   if (value.gender !== "male" && value.gender !== "female") return null;
   if (value.unitLogoUrl !== null && (typeof value.unitLogoUrl !== "string" || !value.unitLogoUrl.trim())) return null;
-  if (value.signatoryTitle !== "Kepala Sekolah" && value.signatoryTitle !== "Ketua Yayasan") return null;
-  if (value.letterheadMode !== "unit" && value.letterheadMode !== "foundation_fallback") return null;
-  if (value.letterheadMode === "unit" && value.unitLogoUrl === null) return null;
+  if (!/^[a-f0-9]{64}$/i.test(value.verificationToken as string)) return null;
   return value as LetterPayload;
 }
 
@@ -46,7 +44,11 @@ export async function GET(request: NextRequest) {
   const letter = parseLetter(await upstream.json());
   if (!letter) return NextResponse.json({ message: "Data surat pengantar kesehatan tidak valid." }, { status: 502 });
   try {
-    const pdf = await createMedicalReferralPdf(letter);
+    const verificationUrl = new URL(
+      `/verify/medical-referral/${encodeURIComponent(letter.verificationToken)}`,
+      request.nextUrl.origin,
+    ).toString();
+    const pdf = await createMedicalReferralPdf({ ...letter, verificationUrl });
     return new NextResponse(new Uint8Array(pdf).buffer as ArrayBuffer, {
       status: 200,
       headers: {

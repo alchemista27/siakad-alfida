@@ -1,7 +1,9 @@
 import PDFDocument from "pdfkit";
+import QRCode from "qrcode";
 
 export type MedicalReferralPdfInput = {
   referralNumber: string;
+  verificationUrl: string;
   issuedAt: string;
   registrationNumber: string;
   unitName: string;
@@ -11,10 +13,6 @@ export type MedicalReferralPdfInput = {
   birthPlace: string;
   birthDate: string;
   unitLogoUrl: string | null;
-  signatoryName: string;
-  signatoryTitle: "Kepala Sekolah" | "Ketua Yayasan";
-  signatorySignatureUrl: string;
-  letterheadMode: "unit" | "foundation_fallback";
   foundationName: string;
   foundationLogoUrl: string;
 };
@@ -45,10 +43,15 @@ function formatDate(value: string) {
 }
 
 export async function createMedicalReferralPdf(input: MedicalReferralPdfInput): Promise<Uint8Array> {
-  const [unitLogo, foundationLogo, signature] = await Promise.all([
+  const [unitLogo, foundationLogo, qrCode] = await Promise.all([
     input.unitLogoUrl ? imageBytes(input.unitLogoUrl) : Promise.resolve(null),
     imageBytes(input.foundationLogoUrl),
-    imageBytes(input.signatorySignatureUrl),
+    QRCode.toBuffer(input.verificationUrl, {
+      type: "png",
+      errorCorrectionLevel: "M",
+      margin: 0,
+      width: 128,
+    }),
   ]);
   const document = new PDFDocument({ size: "A4", margin: 56, info: { Title: "Surat Pengantar Pemeriksaan Kesehatan" } });
   const chunks: Buffer[] = [];
@@ -93,10 +96,11 @@ export async function createMedicalReferralPdf(input: MedicalReferralPdfInput): 
   document.moveDown();
   document.text("Hasil pemeriksaan kesehatan dapat diunggah kembali melalui portal SPMB sebagai kelengkapan verifikasi berkas.", { align: "justify" });
   document.moveDown(1.7);
-  document.text(`${input.unitName}, ${formatDate(input.issuedAt)}`, 315, document.y, { width: 224, align: "center" });
-  document.font("Helvetica-Bold").text(input.signatoryTitle, 315, document.y + 4, { width: 224, align: "center" });
-  document.image(signature, 365, document.y + 10, { fit: [120, 55], align: "center", valign: "center" });
-  document.font("Helvetica-Bold").text(input.signatoryName, 315, document.y + 72, { width: 224, align: "center" });
+  const verificationTop = document.y;
+  document.text(`${input.unitName}, ${formatDate(input.issuedAt)}`, 315, verificationTop, { width: 224, align: "center" });
+  document.font("Helvetica-Bold").fontSize(9).text("Verifikasi Keaslian Surat", 315, verificationTop + 18, { width: 224, align: "center" });
+  document.image(qrCode, 375, verificationTop + 34, { fit: [104, 104] });
+  document.font("Helvetica").fontSize(7).text("Pindai QR untuk memverifikasi peserta SPMB.", 315, verificationTop + 144, { width: 224, align: "center" });
   document.end();
   return completed;
 }

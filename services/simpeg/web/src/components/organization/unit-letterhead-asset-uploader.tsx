@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useRef, useState } from "react";
 
-type AssetKind = "logo" | "principalSignature";
+type AssetKind = "logo";
 
 type Props = {
   kind: AssetKind;
@@ -19,11 +19,6 @@ const rules: Record<AssetKind, { folder: (unitId: string) => string; accept: str
     folder: (unitId) => `simpeg/unit/${unitId}/logo`,
     accept: "image/png,image/jpeg",
     mimeTypes: ["image/png", "image/jpeg"],
-  },
-  principalSignature: {
-    folder: (unitId) => `simpeg/unit/${unitId}/principal-signature`,
-    accept: "image/png",
-    mimeTypes: ["image/png"],
   },
 };
 

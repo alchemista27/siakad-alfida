@@ -98,7 +98,7 @@ export default function ParentMedicalPage() {
           <h1 className="font-heading font-bold text-2xl">Tahap 4 — Pemeriksaan Kesehatan (IMC)</h1>
           {["medical_pending", "medical_uploaded"].includes(registration.status) && (
             <div className="mt-5 rounded-md border border-border bg-neutral p-4">
-              <p className="text-sm text-slate-700">Unduh surat pengantar pemeriksaan kesehatan sebelum membawa calon murid ke fasilitas kesehatan. Surat ini memakai kop unit dan ditandatangani kepala sekolah.</p>
+              <p className="text-sm text-slate-700">Unduh surat pengantar pemeriksaan kesehatan sebelum membawa calon murid ke fasilitas kesehatan. Surat ini memuat QR untuk memverifikasi bahwa calon murid terdaftar sebagai peserta SPMB.</p>
               <a href={`/api/pdf/medical-referral?registrationId=${encodeURIComponent(registration.id)}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex rounded-sm border border-tertiary bg-white px-4 py-2 text-xs font-semibold text-tertiary hover:bg-[#eef7f5]">
                 Surat Pengantar Pemeriksaan Kesehatan
               </a>

@@ -72,9 +72,4 @@ export class UpdateUnitLetterheadDto {
   @IsString()
   @MaxLength(200)
   principalName?: string | null;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(5000)
-  principalSignatureUrl?: string | null;
 }

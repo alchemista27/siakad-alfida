@@ -16,7 +16,6 @@ export default function SettingsPage() {
     logoUrl: "",
     faviconUrl: "",
     chairmanName: "",
-    chairmanSignatureUrl: "",
     bankName: "",
     bankAccountNumber: "",
     bankAccountHolder: "",
@@ -39,7 +38,6 @@ export default function SettingsPage() {
               logoUrl: json.data.logoUrl || "",
               faviconUrl: json.data.faviconUrl || "",
               chairmanName: json.data.chairmanName || "",
-              chairmanSignatureUrl: json.data.chairmanSignatureUrl || "",
               bankName: json.data.bankName || "",
               bankAccountNumber: json.data.bankAccountNumber || "",
               bankAccountHolder: json.data.bankAccountHolder || "",
@@ -63,7 +61,7 @@ export default function SettingsPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAssetUploadingChange = (kind: "logo" | "favicon" | "chairman_signature", isUploading: boolean) => {
+  const handleAssetUploadingChange = (kind: "logo" | "favicon", isUploading: boolean) => {
     setUploadingAssets((current) => {
       const next = new Set(current);
       if (isUploading) next.add(kind);
@@ -115,11 +113,12 @@ export default function SettingsPage() {
               Identitas Resmi & Rekening Yayasan
             </h1>
             <p className="text-xs text-gray-500 mt-1">
-              Atur logo resmi, ikon favicon browser, tanda tangan digital ketua yayasan, dan rekening bank pusat.
+              Atur logo resmi, ikon favicon browser, nama ketua yayasan, dan rekening bank pusat.
             </p>
           </div>
           <button
-            onClick={handleSubmit}
+            type="submit"
+            form="foundation-settings-form"
             disabled={saving || loading || uploadingAssets.size > 0}
             className="px-5 py-2.5 rounded bg-tertiary hover:bg-[#0b6355] text-white font-semibold text-xs transition-colors flex items-center gap-2 self-start md:self-auto shadow-sm disabled:opacity-60"
           >
@@ -157,7 +156,7 @@ export default function SettingsPage() {
             <p className="text-xs">Memuat data identitas yayasan...</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form id="foundation-settings-form" onSubmit={handleSubmit} className="space-y-6">
             {/* Bagian 1: Data Utama & Visual Branding */}
             <div className="bg-white rounded-xl border border-border p-6 shadow-sm space-y-5">
               <h3 className="text-base font-bold font-heading text-primary flex items-center gap-2 border-b border-border pb-3">
@@ -199,13 +198,12 @@ export default function SettingsPage() {
                     placeholder="Contoh: Dr. H. Fulan, M.Pd."
                   />
                   <p className="text-[11px] text-gray-400 mt-1">
-                    Ditampilkan pada tanda tangan sertifikat, raport, dan SK penetapan yayasan.
+                    Dicatat sebagai identitas pimpinan yayasan untuk dokumen administratif.
                   </p>
                 </div>
               </div>
 
-              {/* Grid 3 Kolom: Logo, Favicon, Tanda Tangan */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
                 <FoundationAssetUploader
                   kind="logo"
                   label="Logo Resmi Yayasan"
@@ -226,17 +224,6 @@ export default function SettingsPage() {
                   onChange={(faviconUrl) => setFormData((prev) => ({ ...prev, faviconUrl }))}
                   onRemove={() => setFormData((prev) => ({ ...prev, faviconUrl: "" }))}
                   onUploadingChange={(isUploading) => handleAssetUploadingChange("favicon", isUploading)}
-                />
-
-                <FoundationAssetUploader
-                  kind="chairman_signature"
-                  label="Tanda Tangan Digital Ketua"
-                  hint="PNG atau WebP berlatar transparan; maksimal 3 MB."
-                  accept="image/png,image/webp"
-                  value={formData.chairmanSignatureUrl}
-                  onChange={(chairmanSignatureUrl) => setFormData((prev) => ({ ...prev, chairmanSignatureUrl }))}
-                  onRemove={() => setFormData((prev) => ({ ...prev, chairmanSignatureUrl: "" }))}
-                  onUploadingChange={(isUploading) => handleAssetUploadingChange("chairman_signature", isUploading)}
                 />
               </div>
             </div>
@@ -343,6 +330,15 @@ export default function SettingsPage() {
                   />
                 </div>
               </div>
+            </div>
+            <div className="flex justify-end border-t border-border pt-5">
+              <button
+                type="submit"
+                disabled={saving || loading || uploadingAssets.size > 0}
+                className="rounded-sm bg-tertiary px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+              >
+                {saving ? "Menyimpan Perubahan..." : "Simpan Perubahan"}
+              </button>
             </div>
           </form>
         )}

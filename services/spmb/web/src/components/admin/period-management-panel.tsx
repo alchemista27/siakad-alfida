@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { PeriodEditModal } from "./period-edit-modal";
 
 export interface AdminPeriodItem {
   id: string;
@@ -12,6 +13,9 @@ export interface AdminPeriodItem {
   isOpen: boolean;
   quota: number;
   fee?: number;
+  bankName?: string | null;
+  bankNumber?: string | null;
+  bankHolder?: string | null;
   opensAt?: string | null;
   closesAt?: string | null;
 }
@@ -43,6 +47,7 @@ export function PeriodManagementPanel({
   const [opensAt, setOpensAt] = useState("");
   const [closesAt, setClosesAt] = useState("");
   const [busy, setBusy] = useState(false);
+  const [editCandidate, setEditCandidate] = useState<AdminPeriodItem | null>(null);
   const [deleteCandidate, setDeleteCandidate] = useState<AdminPeriodItem | null>(null);
 
   const handleCreate = async (event: FormEvent) => {
@@ -149,16 +154,22 @@ export function PeriodManagementPanel({
               >
                 {period.isOpen ? "Tutup Periode" : "Buka Periode"}
               </button>
-              {!period.isOpen && (
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => setDeleteCandidate(period)}
-                  className="px-3 py-1.5 rounded border border-[#e7c9c4] text-xs font-semibold text-[#9b3b2e] hover:bg-[#fdf0ee] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  Hapus Periode
-                </button>
-              )}
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setEditCandidate(period)}
+                className="px-3 py-1.5 rounded border border-[#E3E8E7] text-xs font-semibold text-[#454545] hover:bg-[#F7F8F8] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Edit Periode
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setDeleteCandidate(period)}
+                className="px-3 py-1.5 rounded border border-[#e7c9c4] text-xs font-semibold text-[#9b3b2e] hover:bg-[#fdf0ee] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Hapus Periode
+              </button>
             </div>
           </div>
         ))}
@@ -176,7 +187,7 @@ export function PeriodManagementPanel({
             Hapus periode {deleteCandidate.label}?
           </h3>
           <p id="delete-period-description" className="mt-2 text-xs leading-5 text-[#454545]/75">
-            Periode dan pengaturan kosongnya akan dihapus permanen. Periode dengan pendaftar atau jadwal observasi tidak dapat dihapus.
+            {deleteCandidate.isOpen ? "Periode aktif ini akan langsung ditutup melalui penghapusan. " : ""}Periode dan pengaturan kosongnya akan dihapus permanen. Periode dengan pendaftar atau jadwal observasi tidak dapat dihapus.
           </p>
           <div className="mt-4 flex flex-wrap justify-end gap-2">
             <button
@@ -197,6 +208,15 @@ export function PeriodManagementPanel({
             </button>
           </div>
         </div>
+      )}
+
+      {editCandidate && (
+        <PeriodEditModal
+          period={editCandidate}
+          onClose={() => setEditCandidate(null)}
+          onSaved={onChanged}
+          onNotify={onNotify}
+        />
       )}
 
       <form onSubmit={handleCreate} className="border-t border-[#E3E8E7] pt-4 grid sm:grid-cols-4 gap-3">

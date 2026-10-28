@@ -3,8 +3,6 @@ import { BadGatewayException, Inject, Injectable, ServiceUnavailableException } 
 export type FoundationBranding = {
   foundationName: string;
   logoUrl: string | null;
-  chairmanName: string | null;
-  chairmanSignatureUrl: string | null;
 };
 export const SPMB_FOUNDATION_BRANDING_FETCH = Symbol("SPMB_FOUNDATION_BRANDING_FETCH");
 
@@ -38,8 +36,6 @@ export class FoundationBrandingClient {
     return {
       foundationName: (payload as { foundationName: string }).foundationName,
       logoUrl: nullableString("logoUrl"),
-      chairmanName: nullableString("chairmanName"),
-      chairmanSignatureUrl: nullableString("chairmanSignatureUrl"),
     };
   }
 }

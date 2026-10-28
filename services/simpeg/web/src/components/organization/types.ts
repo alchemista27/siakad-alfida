@@ -8,7 +8,6 @@ export interface OrganizationUnit {
   address?: string | null;
   logoUrl?: string | null;
   principalName?: string | null;
-  principalSignatureUrl?: string | null;
   isActive: boolean;
 }
 
