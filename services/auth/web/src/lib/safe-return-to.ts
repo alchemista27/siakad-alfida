@@ -8,6 +8,7 @@ const TRUSTED_RETURN_ORIGINS = new Set([
   "https://sim.alfida.or.id",
   "https://simpeg.alfida.or.id",
   "https://simakin.alfida.or.id",
+  "https://siyaum.alfida.or.id",
   "http://localhost:3000",
   "http://localhost:3001",
   "http://localhost:3002",

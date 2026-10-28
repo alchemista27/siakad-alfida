@@ -10,6 +10,7 @@ interface UserInfo {
   id: string;
   email: string;
   fullName: string;
+  avatarUrl?: string | null;
   roles?: UserRoleScope[];
 }
 
@@ -240,6 +241,8 @@ export default function ModulesPage() {
       serviceName="Portal Modul"
       userName={user?.fullName || "Pengguna Alfida"}
       userRole={primaryRole}
+      avatarUrl={user?.avatarUrl}
+      profileHref="/profile"
       onLogout={handleLogout}
       sidebarGroups={sidebarGroups}
     >

@@ -6,6 +6,7 @@ const authOrigin = "https://auth.alfida.or.id";
 assert.equal(safeReturnTo("/modules", authOrigin), "/modules");
 assert.equal(safeReturnTo("/modules?tab=staff", authOrigin), "/modules?tab=staff");
 assert.equal(safeReturnTo("https://spmb.alfida.or.id/parent", authOrigin), "https://spmb.alfida.or.id/parent");
+assert.equal(safeReturnTo("https://siyaum.alfida.or.id", authOrigin), "https://siyaum.alfida.or.id/");
 assert.equal(safeReturnTo("https://attacker.example/steal", authOrigin), "/modules");
 assert.equal(safeReturnTo("//attacker.example", authOrigin), "/modules");
 assert.equal(safeReturnTo("javascript:alert(1)", authOrigin), "/modules");
