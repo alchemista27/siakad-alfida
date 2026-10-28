@@ -3,6 +3,9 @@ import { BadGatewayException, Inject, Injectable, ServiceUnavailableException } 
 export type UnitLetterhead = {
   unitId: string;
   unitName: string;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
   logoUrl: string | null;
 };
 
@@ -16,10 +19,17 @@ function parseLetterhead(payload: unknown): UnitLetterhead {
   }
   const nullableString = (key: string): string | null => {
     const field = value[key];
-    if (field === null || typeof field === "string") return field as string | null;
+    if (field === undefined || field === null || typeof field === "string") return field as string | null;
     throw new BadGatewayException("Profil kop surat unit tidak valid.");
   };
-  return { unitId: value.unitId, unitName: value.unitName, logoUrl: nullableString("logoUrl") };
+  return {
+    unitId: value.unitId,
+    unitName: value.unitName,
+    address: nullableString("address"),
+    phone: nullableString("phone"),
+    email: nullableString("email"),
+    logoUrl: nullableString("logoUrl"),
+  };
 }
 
 @Injectable()

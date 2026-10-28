@@ -136,42 +136,51 @@ export function PeriodManagementPanel({
         </p>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-3">
+      <div className="grid gap-3 md:grid-cols-2">
         {periods.map((period) => (
-          <div key={period.id} className="border border-[#E3E8E7] rounded-md p-4 flex items-center justify-between gap-3">
-            <div>
-              <p className="font-semibold text-xs text-[#454545]">{period.unitName} · {period.label}</p>
-              <p className="text-[11px] text-gray-500 mt-1">
-                Kuota: {period.quota} · Status: {period.isOpen ? "Dibuka" : "Ditutup"}
-              </p>
+          <article key={period.id} data-period-card={period.id} className="flex min-h-44 flex-col rounded-md border border-[#E3E8E7] bg-[#F7F8F8] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-heading text-base font-bold text-[#454545]">{period.unitName}</p>
+                <p className="mt-1 text-xs font-semibold text-[#454545]">Gelombang {period.label}</p>
+              </div>
+              <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${period.isOpen ? "bg-[#e6f4f1] text-[#0f7f6d]" : "bg-[#e9eded] text-[#454545]"}`}>
+                {period.isOpen ? "Dibuka" : "Ditutup"}
+              </span>
             </div>
-            <div className="flex shrink-0 flex-wrap justify-end gap-2">
+            <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2 text-xs text-[#454545]/75">
+              <div><dt className="text-[11px] text-[#454545]/55">Kuota</dt><dd className="mt-0.5 font-semibold text-[#454545]">{period.quota} murid</dd></div>
+              <div><dt className="text-[11px] text-[#454545]/55">Biaya formulir</dt><dd className="mt-0.5 font-semibold text-[#454545]">Rp{(period.fee || 0).toLocaleString("id-ID")}</dd></div>
+            </dl>
+            <div className="mt-auto flex flex-wrap gap-2 border-t border-[#E3E8E7] pt-4">
               <button
                 type="button"
+                aria-label="Buka edit gelombang"
                 disabled={busy}
-                onClick={() => toggleOpen(period)}
-                className="px-3 py-1.5 rounded border border-[#E3E8E7] text-xs font-semibold text-[#0f7f6d] hover:bg-[#e6f4f1] disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={() => setEditCandidate(period)}
+                className="rounded-sm border border-[#E3E8E7] bg-white px-3 py-1.5 text-xs font-semibold text-[#454545] hover:bg-[#F7F8F8] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {period.isOpen ? "Tutup Periode" : "Buka Periode"}
+                Edit
               </button>
               <button
                 type="button"
+                aria-label={period.isOpen ? "Tutup gelombang" : "Buka gelombang"}
                 disabled={busy}
-                onClick={() => setEditCandidate(period)}
-                className="px-3 py-1.5 rounded border border-[#E3E8E7] text-xs font-semibold text-[#454545] hover:bg-[#F7F8F8] disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={() => toggleOpen(period)}
+                className="rounded-sm border border-[#b8ded6] bg-[#e6f4f1] px-3 py-1.5 text-xs font-semibold text-[#0f7f6d] hover:bg-[#d7eee9] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Edit Periode
+                {period.isOpen ? "Tutup Gelombang" : "Buka Gelombang"}
               </button>
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => setDeleteCandidate(period)}
-                className="px-3 py-1.5 rounded border border-[#e7c9c4] text-xs font-semibold text-[#9b3b2e] hover:bg-[#fdf0ee] disabled:cursor-not-allowed disabled:opacity-60"
+                className="ml-auto rounded-sm border border-[#e7c9c4] bg-white px-3 py-1.5 text-xs font-semibold text-[#9b3b2e] hover:bg-[#fdf0ee] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Hapus Periode
               </button>
             </div>
-          </div>
+          </article>
         ))}
       </div>
 

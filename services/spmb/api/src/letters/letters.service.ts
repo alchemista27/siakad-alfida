@@ -1,7 +1,7 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException, Optional, ServiceUnavailableException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, NotFoundException, Optional } from "@nestjs/common";
 import { randomBytes, randomUUID } from "node:crypto";
 import { FoundationBrandingClient } from "./foundation-branding.client";
-import { UnitLetterheadClient } from "./unit-letterhead.client";
+import { UnitLetterheadClient, type UnitLetterhead } from "./unit-letterhead.client";
 import { PrismaService } from "../prisma/prisma.service";
 import { allowedUnitIds, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
 
@@ -19,33 +19,20 @@ export class LettersService {
       include: {
         period: true,
         studentData: true,
-        events: {
-          orderBy: { createdAt: "asc" },
-        },
+        events: { orderBy: { createdAt: "asc" } },
       },
     });
 
-    if (!reg) {
-      throw new NotFoundException("Surat keterangan tidak ditemukan.");
-    }
+    if (!reg) throw new NotFoundException("Surat keterangan tidak ditemukan.");
 
     const isOwner = Boolean(principal?.id && reg.parentId === principal.id);
-    const isScopedStaff =
-      isSuperAdmin(principal) ||
-      allowedUnitIds(principal, ["admin_unit", "tim_spmb"]).has(reg.period.unitId);
-
-    if (!isOwner && !isScopedStaff) {
-      throw new NotFoundException("Surat keterangan tidak ditemukan.");
-    }
-
+    const isScopedStaff = isSuperAdmin(principal) || allowedUnitIds(principal, ["admin_unit", "tim_spmb"]).has(reg.period.unitId);
+    if (!isOwner && !isScopedStaff) throw new NotFoundException("Surat keterangan tidak ditemukan.");
     if (reg.status !== "accepted" && reg.status !== "enrolled") {
       throw new BadRequestException("Surat keterangan diterima hanya tersedia bagi pendaftar yang dinyatakan lulus.");
     }
 
-    const decisionEvent = [...(reg.events || [])]
-      .reverse()
-      .find((event) => event.toStatus === "accepted");
-
+    const decisionEvent = [...(reg.events || [])].reverse().find((event) => event.toStatus === "accepted");
     return {
       registrationId: reg.id,
       registrationNumber: reg.registrationNumber,
@@ -78,8 +65,13 @@ export class LettersService {
     if (!registration.studentData?.fullName || !registration.studentData.birthPlace || !registration.studentData.birthDate || !registration.studentData.gender) {
       throw new ConflictException("Biodata murid belum lengkap untuk surat pengantar kesehatan.");
     }
-    if (!this.unitLetterheadClient || !this.foundationBrandingClient) {
-      throw new ServiceUnavailableException("Layanan kop surat belum tersedia.");
+
+    const [letterhead, foundation] = await Promise.all([
+      this.getUnitLetterhead(registration.period.unitId, registration.period.unitName),
+      this.getFoundationBranding(),
+    ]);
+    if (letterhead.unitId !== registration.period.unitId || !letterhead.unitName.trim()) {
+      throw new ConflictException("Profil kop surat unit tidak sesuai.");
     }
 
     const verificationToken = randomBytes(32).toString("hex");
@@ -98,16 +90,6 @@ export class LettersService {
         data: { verificationToken },
       });
     }
-    const [letterhead, foundation] = await Promise.all([
-      this.unitLetterheadClient.getLetterhead(registration.period.unitId),
-      this.foundationBrandingClient.getBranding(),
-    ]);
-    if (letterhead.unitId !== registration.period.unitId || !letterhead.unitName.trim()) {
-      throw new ConflictException("Profil kop surat unit tidak sesuai.");
-    }
-    if (!foundation.logoUrl?.trim()) {
-      throw new ConflictException("Logo Yayasan belum tersedia untuk surat pengantar kesehatan.");
-    }
 
     return {
       referralNumber: referral.referralNumber,
@@ -120,6 +102,9 @@ export class LettersService {
       gender: registration.studentData.gender,
       birthPlace: registration.studentData.birthPlace,
       birthDate: new Date(registration.studentData.birthDate).toISOString(),
+      unitAddress: letterhead.address,
+      unitPhone: letterhead.phone,
+      unitEmail: letterhead.email,
       unitLogoUrl: letterhead.logoUrl,
       foundationName: foundation.foundationName,
       foundationLogoUrl: foundation.logoUrl,
@@ -131,15 +116,9 @@ export class LettersService {
 
     const referral = await this.prisma.medicalReferral.findUnique({
       where: { verificationToken },
-      include: {
-        registration: {
-          include: { period: true, studentData: true },
-        },
-      },
+      include: { registration: { include: { period: true, studentData: true } } },
     });
-    if (!referral || referral.registration.status === "rejected" || !referral.registration.studentData?.fullName) {
-      return { valid: false };
-    }
+    if (!referral || referral.registration.status === "rejected" || !referral.registration.studentData?.fullName) return { valid: false };
 
     return {
       valid: true,
@@ -149,5 +128,32 @@ export class LettersService {
       referralNumber: referral.referralNumber,
       issuedAt: new Date(referral.issuedAt).toISOString(),
     };
+  }
+
+  private async getUnitLetterhead(unitId: string, fallbackName: string): Promise<UnitLetterhead> {
+    const fallback: UnitLetterhead = {
+      unitId,
+      unitName: fallbackName.trim() || "Unit Pendidikan Al Fida",
+      address: null,
+      phone: null,
+      email: null,
+      logoUrl: null,
+    };
+    if (!this.unitLetterheadClient) return fallback;
+    try {
+      return await this.unitLetterheadClient.getLetterhead(unitId);
+    } catch {
+      return fallback;
+    }
+  }
+
+  private async getFoundationBranding() {
+    const fallback = { foundationName: "Yayasan Alfida", logoUrl: null as string | null };
+    if (!this.foundationBrandingClient) return fallback;
+    try {
+      return await this.foundationBrandingClient.getBranding();
+    } catch {
+      return fallback;
+    }
   }
 }

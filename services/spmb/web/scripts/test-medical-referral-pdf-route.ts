@@ -17,9 +17,12 @@ const letter = {
   gender: "male",
   birthPlace: "Bekasi",
   birthDate: "2019-04-10T00:00:00.000Z",
+  unitAddress: null,
+  unitPhone: null,
+  unitEmail: null,
   unitLogoUrl: null,
   foundationName: "Yayasan Alfida",
-  foundationLogoUrl: "https://assets.test/foundation.png",
+  foundationLogoUrl: "https://assets.test/foundation-missing.png",
 };
 
 async function main() {
@@ -32,14 +35,14 @@ async function main() {
       return Response.json(letter);
     }
     imageUrls.push(url);
-    return new Response(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGP4DwQACfsD/fteaysAAAAASUVORK5CYII=", "base64"), { headers: { "content-type": "image/png" } });
+    return new Response("not found", { status: 404, headers: { "content-type": "text/plain" } });
   }) as typeof fetch;
 
   try {
     const response = await GET(new NextRequest("https://spmb.test/api/pdf/medical-referral?registrationId=abc"));
     const bytes = new Uint8Array(await response.arrayBuffer());
     const decoded = new TextDecoder().decode(bytes);
-    assert.equal(response.status, 200);
+    assert.equal(response.status, 200, "a missing remote logo must not block the PDF");
     assert.match(medicalLetterRequestUrl, /^http:\/\/127\.0\.0\.1:3001\/api\/letters\/medical-referral\//, "co-located SPMB API must use its runtime port by default");
     assert.match(response.headers.get("content-type") || "", /^application\/pdf\b/i);
     assert.equal(new TextDecoder().decode(bytes.slice(0, 5)), "%PDF-");
@@ -50,8 +53,11 @@ async function main() {
     const pdfSource = readFileSync(resolve(process.cwd(), "src/lib/letters/medical-referral-pdf.ts"), "utf8");
     const routeSource = readFileSync(resolve(process.cwd(), "src/app/api/pdf/medical-referral/route.ts"), "utf8");
     assert.match(pdfSource, /QRCode\.toBuffer/, "PDF must render an authenticity QR code");
+    assert.match(pdfSource, /optionalImageBytes/, "each remote letterhead image must be optional");
     assert.match(pdfSource, /verificationUrl/, "PDF must consume the verification URL");
     assert.match(routeSource, /\/verify\/medical-referral\//, "PDF route must build a same-origin verification URL");
+    assert.match(routeSource, /nullableStrings\s*=\s*\[[^\]]*"foundationLogoUrl"/, "route must accept a missing foundation logo");
+    assert.doesNotMatch(routeSource, /Aset kop surat tidak dapat dimuat/, "route must not expose asset loading as a hard failure");
     assert.doesNotMatch(pdfSource, /signatorySignatureUrl|signatoryTitle/, "PDF must not render a signature block");
     console.log("SPMB medical referral PDF route contract passed");
   } finally {

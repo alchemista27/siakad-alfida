@@ -8,10 +8,10 @@ type LetterPayload = Omit<MedicalReferralPdfInput, "verificationUrl"> & { verifi
 function parseLetter(payload: unknown): LetterPayload | null {
   if (!payload || typeof payload !== "object") return null;
   const value = payload as Record<string, unknown>;
-  const strings = ["referralNumber", "verificationToken", "issuedAt", "registrationNumber", "unitName", "academicYearLabel", "studentName", "birthPlace", "birthDate", "foundationName", "foundationLogoUrl"] as const;
+  const strings = ["referralNumber", "verificationToken", "issuedAt", "registrationNumber", "unitName", "academicYearLabel", "studentName", "birthPlace", "birthDate", "foundationName"] as const;
   if (!strings.every((key) => typeof value[key] === "string" && value[key].trim())) return null;
-  if (value.gender !== "male" && value.gender !== "female") return null;
-  if (value.unitLogoUrl !== null && (typeof value.unitLogoUrl !== "string" || !value.unitLogoUrl.trim())) return null;
+  const nullableStrings = ["unitAddress", "unitPhone", "unitEmail", "unitLogoUrl", "foundationLogoUrl"] as const;
+  if (!nullableStrings.every((key) => value[key] === null || (typeof value[key] === "string" && value[key].trim()))) return null;
   if (!/^[a-f0-9]{64}$/i.test(value.verificationToken as string)) return null;
   return value as LetterPayload;
 }
@@ -59,6 +59,6 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch {
-    return NextResponse.json({ message: "Aset kop surat tidak dapat dimuat. Hubungi admin unit." }, { status: 503 });
+    return NextResponse.json({ message: "Surat pengantar kesehatan belum dapat dibuat." }, { status: 500 });
   }
 }

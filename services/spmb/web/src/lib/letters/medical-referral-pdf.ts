@@ -12,9 +12,12 @@ export type MedicalReferralPdfInput = {
   gender: "male" | "female";
   birthPlace: string;
   birthDate: string;
+  unitAddress: string | null;
+  unitPhone: string | null;
+  unitEmail: string | null;
   unitLogoUrl: string | null;
   foundationName: string;
-  foundationLogoUrl: string;
+  foundationLogoUrl: string | null;
 };
 
 function cloudinaryPng(url: string) {
@@ -38,14 +41,23 @@ async function imageBytes(url: string) {
   return Buffer.from(await response.arrayBuffer());
 }
 
+async function optionalImageBytes(url: string | null) {
+  if (!url?.trim()) return null;
+  try {
+    return await imageBytes(url);
+  } catch {
+    return null;
+  }
+}
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" }).format(new Date(value));
 }
 
 export async function createMedicalReferralPdf(input: MedicalReferralPdfInput): Promise<Uint8Array> {
   const [unitLogo, foundationLogo, qrCode] = await Promise.all([
-    input.unitLogoUrl ? imageBytes(input.unitLogoUrl) : Promise.resolve(null),
-    imageBytes(input.foundationLogoUrl),
+    optionalImageBytes(input.unitLogoUrl),
+    optionalImageBytes(input.foundationLogoUrl),
     QRCode.toBuffer(input.verificationUrl, {
       type: "png",
       errorCorrectionLevel: "M",
@@ -62,12 +74,18 @@ export async function createMedicalReferralPdf(input: MedicalReferralPdfInput): 
   });
 
   if (unitLogo) document.image(unitLogo, 56, 42, { fit: [64, 64], valign: "center" });
-  document.image(foundationLogo, 475, 42, { fit: [64, 64], align: "right", valign: "center" });
-  document.font("Helvetica-Bold").fontSize(14).text(input.unitName, 130, 46, { width: 335, align: "center" });
-  document.font("Helvetica").fontSize(9).text(input.foundationName, 130, 66, { width: 335, align: "center" });
-  document.moveTo(56, 116).lineTo(539, 116).lineWidth(1.2).strokeColor("#454545").stroke();
+  if (foundationLogo) document.image(foundationLogo, 475, 42, { fit: [64, 64], align: "right", valign: "center" });
+  const headerLeft = unitLogo ? 130 : 56;
+  const headerWidth = (foundationLogo ? 465 : 539) - headerLeft;
+  const unitDetails = [input.unitAddress, input.unitPhone, input.unitEmail].filter((value): value is string => Boolean(value?.trim())).join(" • ");
+  document.font("Helvetica-Bold").fontSize(14).text(input.unitName, headerLeft, 46, { width: headerWidth, align: "center" });
+  document.font("Helvetica").fontSize(9).text(input.foundationName, headerLeft, 66, { width: headerWidth, align: "center" });
+  if (unitDetails) document.fontSize(7.5).text(unitDetails, headerLeft, 84, { width: headerWidth, align: "center" });
+  const dividerY = unitDetails ? 116 : 106;
+  document.moveTo(56, dividerY).lineTo(539, dividerY).lineWidth(1.2).strokeColor("#454545").stroke();
+  document.y = dividerY;
 
-  document.moveDown(3).font("Helvetica-Bold").fontSize(14).text("SURAT PENGANTAR PEMERIKSAAN KESEHATAN", { align: "center" });
+  document.moveDown(2.2).font("Helvetica-Bold").fontSize(14).text("SURAT PENGANTAR PEMERIKSAAN KESEHATAN", { align: "center" });
   document.moveDown(0.4).font("Helvetica").fontSize(10).text(`Nomor: ${input.referralNumber}`, { align: "center" });
   document.moveDown(2);
   document.fontSize(11).text("Kepada Yth.");
