@@ -97,8 +97,10 @@ export class LettersService {
     if (letterhead.unitId !== registration.period.unitId || !letterhead.unitName.trim()) {
       throw new ConflictException("Profil kop surat unit tidak sesuai.");
     }
-    if (!letterhead.logoUrl || !letterhead.principalName?.trim() || !letterhead.principalSignatureUrl || !foundation.logoUrl) {
-      throw new ConflictException("Profil kop surat unit atau logo yayasan belum lengkap.");
+    const hasUnitLetterhead = Boolean(letterhead.logoUrl && letterhead.principalName?.trim() && letterhead.principalSignatureUrl);
+    const hasFoundationFallback = Boolean(foundation.logoUrl && foundation.chairmanName?.trim() && foundation.chairmanSignatureUrl);
+    if (!hasUnitLetterhead && !hasFoundationFallback) {
+      throw new ConflictException("Profil kop surat unit belum lengkap dan identitas fallback yayasan belum tersedia.");
     }
 
     return {
@@ -111,9 +113,11 @@ export class LettersService {
       gender: registration.studentData.gender,
       birthPlace: registration.studentData.birthPlace,
       birthDate: new Date(registration.studentData.birthDate).toISOString(),
-      unitLogoUrl: letterhead.logoUrl,
-      principalName: letterhead.principalName,
-      principalSignatureUrl: letterhead.principalSignatureUrl,
+      unitLogoUrl: hasUnitLetterhead ? letterhead.logoUrl : null,
+      signatoryName: hasUnitLetterhead ? letterhead.principalName! : foundation.chairmanName!,
+      signatoryTitle: hasUnitLetterhead ? "Kepala Sekolah" : "Ketua Yayasan",
+      signatorySignatureUrl: hasUnitLetterhead ? letterhead.principalSignatureUrl! : foundation.chairmanSignatureUrl!,
+      letterheadMode: hasUnitLetterhead ? "unit" : "foundation_fallback" as const,
       foundationName: foundation.foundationName,
       foundationLogoUrl: foundation.logoUrl,
     };

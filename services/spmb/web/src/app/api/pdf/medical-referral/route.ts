@@ -8,9 +8,13 @@ type LetterPayload = MedicalReferralPdfInput;
 function parseLetter(payload: unknown): LetterPayload | null {
   if (!payload || typeof payload !== "object") return null;
   const value = payload as Record<string, unknown>;
-  const strings = ["referralNumber", "issuedAt", "registrationNumber", "unitName", "academicYearLabel", "studentName", "birthPlace", "birthDate", "unitLogoUrl", "principalName", "principalSignatureUrl", "foundationName", "foundationLogoUrl"] as const;
+  const strings = ["referralNumber", "issuedAt", "registrationNumber", "unitName", "academicYearLabel", "studentName", "birthPlace", "birthDate", "signatoryName", "signatorySignatureUrl", "foundationName", "foundationLogoUrl"] as const;
   if (!strings.every((key) => typeof value[key] === "string" && value[key].trim())) return null;
   if (value.gender !== "male" && value.gender !== "female") return null;
+  if (value.unitLogoUrl !== null && (typeof value.unitLogoUrl !== "string" || !value.unitLogoUrl.trim())) return null;
+  if (value.signatoryTitle !== "Kepala Sekolah" && value.signatoryTitle !== "Ketua Yayasan") return null;
+  if (value.letterheadMode !== "unit" && value.letterheadMode !== "foundation_fallback") return null;
+  if (value.letterheadMode === "unit" && value.unitLogoUrl === null) return null;
   return value as LetterPayload;
 }
 
@@ -21,7 +25,7 @@ function safeFilename(value: string) {
 export async function GET(request: NextRequest) {
   const registrationId = request.nextUrl.searchParams.get("registrationId")?.trim();
   if (!registrationId) return NextResponse.json({ message: "registrationId wajib diisi." }, { status: 400 });
-  const apiBase = (process.env.SPMB_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3012").replace(/\/$/, "");
+  const apiBase = (process.env.SPMB_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3001").replace(/\/$/, "");
   let upstream: Response;
   try {
     upstream = await fetch(`${apiBase}/api/letters/medical-referral/${encodeURIComponent(registrationId)}`, {

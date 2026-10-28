@@ -1,6 +1,11 @@
 import { BadGatewayException, Inject, Injectable, ServiceUnavailableException } from "@nestjs/common";
 
-export type FoundationBranding = { foundationName: string; logoUrl: string | null };
+export type FoundationBranding = {
+  foundationName: string;
+  logoUrl: string | null;
+  chairmanName: string | null;
+  chairmanSignatureUrl: string | null;
+};
 export const SPMB_FOUNDATION_BRANDING_FETCH = Symbol("SPMB_FOUNDATION_BRANDING_FETCH");
 
 @Injectable()
@@ -25,8 +30,16 @@ export class FoundationBrandingClient {
     if (!payload || typeof payload !== "object" || typeof (payload as { foundationName?: unknown }).foundationName !== "string") {
       throw new BadGatewayException("Data logo yayasan tidak valid.");
     }
-    const logoUrl = (payload as { logoUrl?: unknown }).logoUrl;
-    if (logoUrl !== null && typeof logoUrl !== "string") throw new BadGatewayException("Data logo yayasan tidak valid.");
-    return { foundationName: (payload as { foundationName: string }).foundationName, logoUrl: logoUrl as string | null };
+    const nullableString = (key: string) => {
+      const value = (payload as Record<string, unknown>)[key];
+      if (value === null || typeof value === "string") return value as string | null;
+      throw new BadGatewayException("Data identitas yayasan tidak valid.");
+    };
+    return {
+      foundationName: (payload as { foundationName: string }).foundationName,
+      logoUrl: nullableString("logoUrl"),
+      chairmanName: nullableString("chairmanName"),
+      chairmanSignatureUrl: nullableString("chairmanSignatureUrl"),
+    };
   }
 }

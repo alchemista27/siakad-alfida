@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { NextRequest } from "next/server";
 import { GET } from "../src/app/api/pdf/medical-referral/route";
 
@@ -14,17 +16,23 @@ const letter = {
   gender: "male",
   birthPlace: "Bekasi",
   birthDate: "2019-04-10T00:00:00.000Z",
-  unitLogoUrl: "https://assets.test/unit.png",
-  principalName: "Siti Aminah",
-  principalSignatureUrl: "https://assets.test/signature.png",
+  unitLogoUrl: null,
+  signatoryName: "Ahmad Yusuf",
+  signatoryTitle: "Ketua Yayasan",
+  signatorySignatureUrl: "https://assets.test/signature.png",
+  letterheadMode: "foundation_fallback",
   foundationName: "Yayasan Alfida",
   foundationLogoUrl: "https://assets.test/foundation.png",
 };
 
 async function main() {
+  let medicalLetterRequestUrl = "";
   globalThis.fetch = (async (input: RequestInfo | URL) => {
     const url = String(input);
-    if (url.includes("/api/letters/medical-referral/")) return Response.json(letter);
+    if (url.includes("/api/letters/medical-referral/")) {
+      medicalLetterRequestUrl = url;
+      return Response.json(letter);
+    }
     return new Response(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGP4DwQACfsD/fteaysAAAAASUVORK5CYII=", "base64"), { headers: { "content-type": "image/png" } });
   }) as typeof fetch;
 
@@ -33,11 +41,14 @@ async function main() {
     const bytes = new Uint8Array(await response.arrayBuffer());
     const decoded = new TextDecoder().decode(bytes);
     assert.equal(response.status, 200);
+    assert.match(medicalLetterRequestUrl, /^http:\/\/127\.0\.0\.1:3001\/api\/letters\/medical-referral\//, "co-located SPMB API must use its runtime port by default");
     assert.match(response.headers.get("content-type") || "", /^application\/pdf\b/i);
     assert.equal(new TextDecoder().decode(bytes.slice(0, 5)), "%PDF-");
     assert.equal(response.headers.get("cache-control"), "private, no-store");
     assert.equal(response.headers.get("x-content-type-options"), "nosniff");
     assert.equal(decoded.includes("<script>"), false, "hostile HTML must never be emitted as executable markup");
+    const pdfSource = readFileSync(resolve(process.cwd(), "src/lib/letters/medical-referral-pdf.ts"), "utf8");
+    assert.match(pdfSource, /text\(input\.signatoryTitle/, "foundation fallback must state its actual signing authority");
     console.log("SPMB medical referral PDF route contract passed");
   } finally {
     globalThis.fetch = originalFetch;

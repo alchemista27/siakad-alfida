@@ -36,7 +36,12 @@ const prisma: any = {
 const unitClient = {
   getLetterhead: async () => ({ unitId: registration.period.unitId, unitName: "SDIT Alfida", logoUrl: "https://res.cloudinary.com/example/image/upload/simpeg/unit/b2222222-2222-4222-8222-222222222222/logo/logo.png", principalName: "Siti Aminah", principalSignatureUrl: "https://res.cloudinary.com/example/image/upload/simpeg/unit/b2222222-2222-4222-8222-222222222222/principal-signature/signature.png" }),
 } as unknown as UnitLetterheadClient;
-const foundationClient = { getBranding: async () => ({ foundationName: "Yayasan Alfida", logoUrl: "https://res.cloudinary.com/example/image/upload/foundation/logo/logo.png" }) } as unknown as FoundationBrandingClient;
+const foundationClient = { getBranding: async () => ({
+  foundationName: "Yayasan Alfida",
+  logoUrl: "https://res.cloudinary.com/example/image/upload/foundation/logo/logo.png",
+  chairmanName: "Ahmad Yusuf",
+  chairmanSignatureUrl: "https://res.cloudinary.com/example/image/upload/foundation/chairman-signature/signature.png",
+}) } as unknown as FoundationBrandingClient;
 
 async function main() {
   const service = new LettersService(prisma, unitClient, foundationClient);
@@ -44,14 +49,21 @@ async function main() {
   const second = await service.getMedicalReferralLetter(registration.id, owner);
   assert.equal(first.referralNumber, second.referralNumber, "referral number must be durable");
   assert.equal(first.studentName, "Ahmad Fauzan");
-  assert.equal(first.principalName, "Siti Aminah");
+  assert.equal(first.signatoryName, "Siti Aminah");
+  assert.equal(first.signatoryTitle, "Kepala Sekolah");
   assert.equal(issued.pdfUrl, null, "generated PDF must not be persisted publicly");
   await expectRejects(NotFoundException, () => service.getMedicalReferralLetter(registration.id, outsider));
   registration.status = "documents_uploaded";
   await expectRejects(BadRequestException, () => service.getMedicalReferralLetter(registration.id, owner));
   registration.status = "medical_pending";
   const incompleteUnitClient = { getLetterhead: async () => ({ unitId: registration.period.unitId, unitName: "SDIT Alfida", logoUrl: null, principalName: null, principalSignatureUrl: null }) } as unknown as UnitLetterheadClient;
-  await expectRejects(ConflictException, () => new LettersService(prisma, incompleteUnitClient, foundationClient).getMedicalReferralLetter(registration.id, owner));
+  const fallback = await new LettersService(prisma, incompleteUnitClient, foundationClient).getMedicalReferralLetter(registration.id, owner);
+  assert.equal(fallback.unitLogoUrl, null, "foundation fallback must not impersonate a missing unit logo");
+  assert.equal(fallback.signatoryName, "Ahmad Yusuf");
+  assert.equal(fallback.signatoryTitle, "Ketua Yayasan");
+  assert.equal(fallback.letterheadMode, "foundation_fallback");
+  const incompleteFoundationClient = { getBranding: async () => ({ foundationName: "Yayasan Alfida", logoUrl: "https://res.cloudinary.com/example/image/upload/foundation/logo/logo.png", chairmanName: null, chairmanSignatureUrl: null }) } as unknown as FoundationBrandingClient;
+  await expectRejects(ConflictException, () => new LettersService(prisma, incompleteUnitClient, incompleteFoundationClient).getMedicalReferralLetter(registration.id, owner));
   console.log("SPMB medical referral letter contract passed");
 }
 

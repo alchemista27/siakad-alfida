@@ -10,9 +10,11 @@ export type MedicalReferralPdfInput = {
   gender: "male" | "female";
   birthPlace: string;
   birthDate: string;
-  unitLogoUrl: string;
-  principalName: string;
-  principalSignatureUrl: string;
+  unitLogoUrl: string | null;
+  signatoryName: string;
+  signatoryTitle: "Kepala Sekolah" | "Ketua Yayasan";
+  signatorySignatureUrl: string;
+  letterheadMode: "unit" | "foundation_fallback";
   foundationName: string;
   foundationLogoUrl: string;
 };
@@ -44,9 +46,9 @@ function formatDate(value: string) {
 
 export async function createMedicalReferralPdf(input: MedicalReferralPdfInput): Promise<Uint8Array> {
   const [unitLogo, foundationLogo, signature] = await Promise.all([
-    imageBytes(input.unitLogoUrl),
+    input.unitLogoUrl ? imageBytes(input.unitLogoUrl) : Promise.resolve(null),
     imageBytes(input.foundationLogoUrl),
-    imageBytes(input.principalSignatureUrl),
+    imageBytes(input.signatorySignatureUrl),
   ]);
   const document = new PDFDocument({ size: "A4", margin: 56, info: { Title: "Surat Pengantar Pemeriksaan Kesehatan" } });
   const chunks: Buffer[] = [];
@@ -56,7 +58,7 @@ export async function createMedicalReferralPdf(input: MedicalReferralPdfInput): 
     document.on("error", reject);
   });
 
-  document.image(unitLogo, 56, 42, { fit: [64, 64], valign: "center" });
+  if (unitLogo) document.image(unitLogo, 56, 42, { fit: [64, 64], valign: "center" });
   document.image(foundationLogo, 475, 42, { fit: [64, 64], align: "right", valign: "center" });
   document.font("Helvetica-Bold").fontSize(14).text(input.unitName, 130, 46, { width: 335, align: "center" });
   document.font("Helvetica").fontSize(9).text(input.foundationName, 130, 66, { width: 335, align: "center" });
@@ -92,9 +94,9 @@ export async function createMedicalReferralPdf(input: MedicalReferralPdfInput): 
   document.text("Hasil pemeriksaan kesehatan dapat diunggah kembali melalui portal SPMB sebagai kelengkapan verifikasi berkas.", { align: "justify" });
   document.moveDown(1.7);
   document.text(`${input.unitName}, ${formatDate(input.issuedAt)}`, 315, document.y, { width: 224, align: "center" });
-  document.font("Helvetica-Bold").text("Kepala Sekolah", 315, document.y + 4, { width: 224, align: "center" });
+  document.font("Helvetica-Bold").text(input.signatoryTitle, 315, document.y + 4, { width: 224, align: "center" });
   document.image(signature, 365, document.y + 10, { fit: [120, 55], align: "center", valign: "center" });
-  document.font("Helvetica-Bold").text(input.principalName, 315, document.y + 72, { width: 224, align: "center" });
+  document.font("Helvetica-Bold").text(input.signatoryName, 315, document.y + 72, { width: 224, align: "center" });
   document.end();
   return completed;
 }
