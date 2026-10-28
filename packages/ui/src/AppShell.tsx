@@ -9,6 +9,8 @@ export interface AppShellProps {
   serviceName: string;
   userName?: string;
   userRole?: string;
+  avatarUrl?: string | null;
+  profileHref?: string;
   logoUrl?: string;
   foundationName?: string;
   onLogout?: () => void;
@@ -22,6 +24,8 @@ export const AppShell: React.FC<AppShellProps> = ({
   serviceName,
   userName = "Pengguna",
   userRole,
+  avatarUrl = null,
+  profileHref,
   logoUrl = "https://s3.alfida.or.id/sim-alfida/sim-alfida/foundation/logo-1790054535826",
   foundationName = "SIM-Alfida",
   onLogout,
@@ -31,6 +35,8 @@ export const AppShell: React.FC<AppShellProps> = ({
   topbarActions,
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const showAvatarImage = Boolean(avatarUrl) && !avatarFailed;
 
   // Ambil inisial huruf dari nama pengguna
   const initials = userName
@@ -44,6 +50,26 @@ export const AppShell: React.FC<AppShellProps> = ({
     : "A";
 
   const hasSidebar = sidebarGroups.length > 0;
+  const identityContent = (
+    <>
+      <div className="w-8 h-8 overflow-hidden rounded-full bg-[#0f7f6d] text-[#F7F8F8] flex items-center justify-center font-semibold text-xs shadow-xs select-none">
+        {showAvatarImage ? (
+          <img
+            src={avatarUrl!}
+            alt={`Foto profil ${userName}`}
+            className="h-full w-full object-cover"
+            onError={() => setAvatarFailed(true)}
+          />
+        ) : (
+          initials
+        )}
+      </div>
+      <div className="hidden sm:block text-left">
+        <div className="text-xs font-semibold text-[#454545] leading-tight">{userName}</div>
+        {userRole && <div className="text-[11px] text-gray-500 leading-tight">{userRole}</div>}
+      </div>
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-[#F7F8F8] text-[#454545] flex flex-col font-body">
@@ -76,21 +102,17 @@ export const AppShell: React.FC<AppShellProps> = ({
         <div className="flex items-center gap-3 sm:gap-4">
           {topbarActions}
 
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-[#0f7f6d] text-[#F7F8F8] flex items-center justify-center font-semibold text-xs shadow-xs select-none">
-              {initials}
-            </div>
-            <div className="hidden sm:block text-left">
-              <div className="text-xs font-semibold text-[#454545] leading-tight">
-                {userName}
-              </div>
-              {userRole && (
-                <div className="text-[11px] text-gray-500 leading-tight">
-                  {userRole}
-                </div>
-              )}
-            </div>
-          </div>
+          {profileHref ? (
+            <a
+              href={profileHref}
+              className="flex items-center gap-2.5 rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tertiary"
+              aria-label="Buka profil saya"
+            >
+              {identityContent}
+            </a>
+          ) : (
+            <div className="flex items-center gap-2.5">{identityContent}</div>
+          )}
 
           {onLogout && (
             <button

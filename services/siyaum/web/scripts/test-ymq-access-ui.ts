@@ -32,6 +32,12 @@ assert.match(groups, /role="dialog"/, "create-group action must use an accessibl
 assert.match(shell, /AppShell/, "SIYAUM must use the shared application shell");
 assert.match(shell, /userName=/, "shared shell must receive signed-in user identity");
 assert.match(shell, /userRole=/, "shared shell must receive the signed-in role label");
+assert.match(shell, /topbarActions=/, "SIYAUM must supply an explicit topbar module-switcher action");
+assert.match(shell, /https:\/\/auth\.alfida\.or\.id\/modules/, "SIYAUM module switcher must target Auth module selection");
+assert.match(shell, /aria-label="Pilih modul"/, "module switcher must be accessible");
+assert.match(shell, /avatarUrl=\{user\?\.avatarUrl\}/, "SIYAUM must pass the signed-in avatar to the shared topbar");
+assert.match(shell, /profileHref=/, "SIYAUM identity must link to the Auth profile page");
+assert.match(currentUser, /avatarUrl\?: string \| null/, "SIYAUM current-user contract must carry the profile avatar");
 assert.doesNotMatch(shell, /<aside/, "SIYAUM must not retain a bespoke sidebar alongside the shared shell");
 assert.match(executive, /canViewExecutive/);
 assert.ok(!/method:\s*["'](?:POST|PUT|PATCH|DELETE)["']/.test(executive), "Executive dashboard must be read-only");

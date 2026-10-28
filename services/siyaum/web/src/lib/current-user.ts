@@ -13,6 +13,7 @@ export interface CurrentUser {
   id: string;
   fullName: string;
   email?: string;
+  avatarUrl?: string | null;
   roles: Array<{ app?: string; role: SiyaumRole | string }>;
 }
 

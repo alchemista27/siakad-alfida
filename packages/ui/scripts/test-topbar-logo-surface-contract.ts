@@ -23,5 +23,13 @@ for (const file of ["src/AppShell.tsx", "src/Navbar.tsx"]) {
   assert.match(source, /TopbarFoundationLogo/, `${file} must render the shared topbar logo`);
 }
 
+const appShell = read("src/AppShell.tsx");
+assert.match(appShell, /avatarUrl\?: string \| null/, "AppShell must accept a persisted profile-avatar URL");
+assert.match(appShell, /profileHref\?: string/, "AppShell must expose an optional profile destination");
+assert.match(appShell, /onError=\{\(\) => setAvatarFailed\(true\)\}/, "failed avatar images must fall back safely");
+assert.match(appShell, /<img[\s\S]*src=\{avatarUrl!?\}/, "AppShell must render the supplied avatar image");
+assert.match(appShell, /userName/, "AppShell must continue displaying the signed-in name");
+assert.match(appShell, /userRole/, "AppShell must continue displaying the signed-in role");
+
 assert.match(read("src/index.ts"), /TopbarFoundationLogo/);
 console.log("UI topbar logo surface contract passed");
