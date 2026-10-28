@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
+  NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import * as bcrypt from "bcryptjs";
@@ -9,6 +10,7 @@ import { randomUUID, createHash } from "crypto";
 import { createAuthToken, AuthUser, verifyAuthToken } from "@alfida/auth-sdk";
 import { UserRoleScope } from "@alfida/contracts";
 import { RegisterParentDto, RegisterStaffDto } from "./dto/register.dto";
+import { ChangeOwnPasswordDto, UpdateOwnProfileDto } from "./dto/profile.dto";
 import { isValidPkceVerifier, pkceChallengeForVerifier } from "./mobile-pkce";
 
 export const ALFIDA_UNITS = [
@@ -208,6 +210,7 @@ export class AuthService {
       fullName: user.fullName,
       username: user.username,
       phone: user.phone,
+      avatarUrl: user.avatarUrl,
       roles: userRoles,
       isActive: user.isActive,
     };
@@ -277,6 +280,91 @@ export class AuthService {
     };
   }
 
+  private normalizePhone(value: string | null) {
+    return value?.trim() || null;
+  }
+
+  private isOwnedAvatarUrl(userId: string, rawUrl: string | null) {
+    if (!rawUrl) return true;
+    try {
+      const parsed = new URL(rawUrl);
+      const expectedFolder = `/auth/user/${userId}/avatar/`;
+      return parsed.protocol === "https:"
+        && parsed.hostname === "res.cloudinary.com"
+        && decodeURIComponent(parsed.pathname).includes(expectedFolder);
+    } catch {
+      return false;
+    }
+  }
+
+  async updateOwnProfile(userId: string, dto: UpdateOwnProfileDto): Promise<AuthUser> {
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, isActive: true },
+      select: { id: true, email: true },
+    });
+    if (!user) throw new NotFoundException("Pengguna aktif tidak ditemukan.");
+
+    const email = dto.email.toLowerCase().trim();
+    if (!this.isOwnedAvatarUrl(userId, dto.avatarUrl)) {
+      throw new BadRequestException("Folder foto profil tidak valid.");
+    }
+
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing && existing.id !== userId) {
+      throw new BadRequestException("Email sudah digunakan oleh akun lain.");
+    }
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.user.update({
+          where: { id: userId },
+          data: {
+            fullName: dto.fullName.trim(),
+            email,
+            phone: this.normalizePhone(dto.phone),
+            avatarUrl: dto.avatarUrl,
+          },
+        });
+        if (email !== user.email) {
+          await tx.account.updateMany({
+            where: { userId, providerId: "credential", accountId: user.email },
+            data: { accountId: email },
+          });
+        }
+      });
+    } catch (error: any) {
+      if (error?.code === "P2002") {
+        throw new BadRequestException("Email sudah digunakan oleh akun lain.");
+      }
+      throw error;
+    }
+
+    return this.getMe(userId);
+  }
+
+  async changeOwnPassword(userId: string, dto: ChangeOwnPasswordDto) {
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, isActive: true },
+      include: { accounts: { where: { providerId: "credential" } } },
+    });
+    if (!user) throw new NotFoundException("Pengguna aktif tidak ditemukan.");
+
+    const credentialAccount = user.accounts.find((account) => account.providerId === "credential");
+    const effectiveHash = credentialAccount?.password || user.passwordHash;
+    if (!(await bcrypt.compare(dto.currentPassword, effectiveHash))) {
+      throw new UnauthorizedException("Password saat ini tidak sesuai.");
+    }
+
+    const passwordHash = await bcrypt.hash(dto.newPassword, 10);
+    await this.prisma.$transaction([
+      this.prisma.user.update({ where: { id: userId }, data: { passwordHash: passwordHash } }),
+      this.prisma.account.updateMany({ where: { userId, providerId: "credential" }, data: { password: passwordHash } }),
+      this.prisma.session.deleteMany({ where: { userId } }),
+    ]);
+
+    return { success: true, message: "Password berhasil diubah. Silakan masuk kembali." };
+  }
+
   async logout(sessionToken: string) {
     if (!sessionToken) return;
     await this.prisma.session.deleteMany({
@@ -300,6 +388,7 @@ export class AuthService {
       fullName: user.fullName,
       username: user.username,
       phone: user.phone,
+      avatarUrl: user.avatarUrl,
       roles: user.roles.map((r) => ({
         role: r.role,
         app: r.app as any,

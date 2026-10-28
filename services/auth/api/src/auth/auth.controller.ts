@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Patch,
   Get,
   Body,
   Res,
@@ -19,6 +20,12 @@ import {
   ALFIDA_SESSION_COOKIE,
 } from "@alfida/auth-sdk";
 import { RegisterParentDto, RegisterStaffDto } from "./dto/register.dto";
+import {
+  ChangeOwnPasswordDto,
+  parseChangeOwnPassword,
+  parseUpdateOwnProfile,
+  UpdateOwnProfileDto,
+} from "./dto/profile.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -120,6 +127,40 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async exchangeMobileCode(@Body() body: { code: string; code_verifier: string }) {
     return this.authService.exchangeMobileAuthorizationCode(body.code, body.code_verifier);
+  }
+
+  @Patch("me")
+  @UseGuards(ServiceJwtAuthGuard)
+  async updateMyProfile(@CurrentUser("id") userId: string, @Body() body: unknown) {
+    let dto: UpdateOwnProfileDto;
+    try {
+      dto = parseUpdateOwnProfile(body);
+    } catch (error) {
+      throw new BadRequestException(error instanceof Error ? error.message : "Data profil tidak valid.");
+    }
+    const user = await this.authService.updateOwnProfile(userId, dto);
+    return { success: true, user, message: "Profil berhasil disimpan." };
+  }
+
+  @Post("me/password")
+  @UseGuards(ServiceJwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async changeMyPassword(
+    @CurrentUser("id") userId: string,
+    @Body() body: unknown,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    let dto: ChangeOwnPasswordDto;
+    try {
+      dto = parseChangeOwnPassword(body);
+    } catch (error) {
+      throw new BadRequestException(error instanceof Error ? error.message : "Data password tidak valid.");
+    }
+    const result = await this.authService.changeOwnPassword(userId, dto);
+    const isProd = process.env.NODE_ENV === "production";
+    const cookieDomain = process.env.COOKIE_DOMAIN || (isProd ? ".alfida.or.id" : undefined);
+    res.clearCookie(ALFIDA_SESSION_COOKIE, { domain: cookieDomain, path: "/" });
+    return result;
   }
 
   @Get("me")

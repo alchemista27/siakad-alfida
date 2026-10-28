@@ -9,6 +9,7 @@ export interface AuthUser {
   fullName: string;
   username?: string | null;
   phone?: string | null;
+  avatarUrl?: string | null;
   roles: UserRoleScope[];
   isActive: boolean;
 }
