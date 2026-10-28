@@ -70,6 +70,9 @@ export class UnitsService {
       throw new BadRequestException("Profil kop surat hanya tersedia untuk unit pendidikan.");
     }
 
+    const address = this.normalizeNullableText(dto.address);
+    const phone = this.normalizeNullableText(dto.phone);
+    const email = this.normalizeNullableText(dto.email)?.toLowerCase() ?? null;
     const logoUrl = this.normalizeNullableText(dto.logoUrl);
     const principalName = this.normalizeNullableText(dto.principalName);
     if (dto.logoUrl !== undefined) assertUnitLetterheadCloudinaryUrl(logoUrl, unitId);
@@ -77,6 +80,9 @@ export class UnitsService {
     return this.prisma.unit.update({
       where: { id: unitId },
       data: {
+        ...(dto.address === undefined ? {} : { address }),
+        ...(dto.phone === undefined ? {} : { phone }),
+        ...(dto.email === undefined ? {} : { email }),
         ...(dto.logoUrl === undefined ? {} : { logoUrl }),
         ...(dto.principalName === undefined ? {} : { principalName }),
       },
@@ -91,6 +97,9 @@ export class UnitsService {
         name: true,
         category: true,
         isActive: true,
+        address: true,
+        phone: true,
+        email: true,
         logoUrl: true,
       },
     });
@@ -100,6 +109,9 @@ export class UnitsService {
     return {
       unitId: unit.id,
       unitName: unit.name,
+      address: unit.address,
+      phone: unit.phone,
+      email: unit.email,
       logoUrl: unit.logoUrl,
     };
   }

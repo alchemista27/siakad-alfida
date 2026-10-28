@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, ArrayUnique, IsArray, IsBoolean, IsIn, IsOptional, IsString, IsUUID, MaxLength, MinLength } from "class-validator";
+import { ArrayNotEmpty, ArrayUnique, IsArray, IsBoolean, IsEmail, IsIn, IsOptional, IsString, IsUUID, MaxLength, MinLength } from "class-validator";
 
 export class CreateUnitDto {
   @IsString()
@@ -63,6 +63,21 @@ export class AssignUnitAdminDto {
 }
 
 export class UpdateUnitLetterheadDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  address?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(30)
+  phone?: string | null;
+
+  @IsOptional()
+  @IsEmail()
+  @MaxLength(255)
+  email?: string | null;
+
   @IsOptional()
   @IsString()
   @MaxLength(5000)

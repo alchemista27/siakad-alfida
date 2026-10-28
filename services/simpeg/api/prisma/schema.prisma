@@ -123,6 +123,8 @@ model Unit {
   code                  String    @unique @db.VarChar(50)
   category              String    @default("pendidikan") @db.VarChar(30) // pendidikan | nondik
   address               String?   @db.Text
+  phone                 String?   @db.VarChar(30)
+  email                 String?   @db.VarChar(255)
   logoUrl               String?   @map("logo_url") @db.Text
   principalName         String?   @map("principal_name") @db.VarChar(200)
   principalSignatureUrl String?   @map("principal_signature_url") @db.Text

@@ -17,7 +17,15 @@ assert.match(panel, /manageableUnitIds: string\[\]/, "panel must know scoped uni
 assert.match(panel, /Profil Unit/, "panel must offer a Unit Profile action");
 assert.match(panel, /unit\.category === "pendidikan"/, "only education units may open school letterhead profile");
 assert.match(panel, /manageableUnitIds\.includes\(unit\.id\)/, "profile action must honor scoped unit IDs");
-assert.match(readFileSync(modalPath, "utf8"), /\/api\/units\/\$\{unit\.id\}\/letterhead-profile/, "modal must target scoped profile endpoint");
+const modal = readFileSync(modalPath, "utf8");
+assert.match(modal, /\/api\/units\/\$\{unit\.id\}\/letterhead-profile/, "modal must target scoped profile endpoint");
+assert.match(modal, /Alamat Unit/, "profile modal must include the unit address");
+assert.match(modal, /Telepon Unit/, "profile modal must include the unit phone");
+assert.match(modal, /Email Unit/, "profile modal must include the unit email");
+assert.match(modal, /address: address\.trim\(\) \|\| null/, "profile request must send normalized address");
+assert.match(modal, /phone: phone\.trim\(\) \|\| null/, "profile request must send normalized phone");
+assert.match(modal, /email: email\.trim\(\) \|\| null/, "profile request must send normalized email");
+assert.doesNotMatch(modal, /Nama Kepala Sekolah<input required/, "principal identity must remain optional");
 assert.match(readFileSync(uploaderPath, "utf8"), /api\.cloudinary\.com\/v1_1/, "assets must use direct Cloudinary upload");
 assert.doesNotMatch(readFileSync(modalPath, "utf8"), /principalSignatureUrl|Tanda Tangan Kepala Sekolah/, "modal must not offer signature uploads");
 assert.doesNotMatch(readFileSync(uploaderPath, "utf8"), /principalSignature|principal-signature/, "uploader must not target the legacy signature folder");
