@@ -6,6 +6,7 @@ import {
   canReadExecutiveDashboard,
   canReadGroup,
   canReadOwnMembership,
+  hasYmqRole,
   type YmqPrincipal,
 } from "../src/ymq/ymq-access.policy";
 
@@ -25,6 +26,7 @@ assert.equal(canManageGroup(principal("pembina-other", "pembina_ymq"), group), f
 assert.equal(canManageGroup(principal("group-admin", "admin_kelompok"), group), true);
 assert.equal(canManageGroup(principal("other", "admin_kelompok"), group), false);
 assert.equal(canManageGroup(principal("root", "super_admin", "auth"), group), true);
+assert.equal(hasYmqRole(principal("root", "super_admin", "auth"), "admin_ymq"), true, "global Super Admin must inherit admin_ymq capability");
 assert.equal(canReadExecutiveDashboard(principal("pengawas", "pengawas")), true);
 assert.equal(canReadExecutiveDashboard(principal("pimpinan", "pimpinan")), true);
 assert.equal(canReadExecutiveDashboard(principal("peserta", "peserta")), false);
@@ -48,6 +50,7 @@ const context = (user: YmqPrincipal) => ({
 });
 assert.equal(guard.canActivate(context(principal("admin", "admin_ymq")) as any), true);
 assert.equal(guard.canActivate(context(principal("pembina", "pembina_ymq")) as any), true);
+assert.equal(guard.canActivate(context(principal("root", "super_admin", "auth")) as any), true, "global Super Admin must pass routes guarded for admin_ymq");
 assert.throws(() => guard.canActivate(context(principal("foreign", "admin_ymq", "simakin")) as any), ForbiddenException);
 assert.equal(new YmqRolesGuard({ getAllAndOverride: () => undefined } as any).canActivate(context(principal("x", "peserta")) as any), true);
 
