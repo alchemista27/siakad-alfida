@@ -32,13 +32,30 @@ function cloudinaryPng(url: string) {
   }
 }
 
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const JPEG_SIGNATURE = Buffer.from([0xff, 0xd8, 0xff]);
+const PDF_FONT_REGULAR = "Times-Roman";
+const PDF_FONT_BOLD = "Times-Bold";
+
+function startsWithBytes(bytes: Uint8Array, signature: Uint8Array) {
+  return bytes.length >= signature.length && signature.every((value, index) => bytes[index] === value);
+}
+
+export function isSupportedPdfRaster(bytes: Uint8Array) {
+  return startsWithBytes(bytes, PNG_SIGNATURE) || startsWithBytes(bytes, JPEG_SIGNATURE);
+}
+
 async function imageBytes(url: string) {
   const response = await fetch(cloudinaryPng(url), { signal: AbortSignal.timeout(5000), cache: "no-store" });
-  const contentType = response.headers.get("content-type")?.toLowerCase() || "";
-  if (!response.ok || (!contentType.includes("image/png") && !contentType.includes("image/jpeg"))) {
+  if (!response.ok) {
     throw new Error("Aset gambar kop surat tidak dapat digunakan.");
   }
-  return Buffer.from(await response.arrayBuffer());
+
+  const bytes = Buffer.from(await response.arrayBuffer());
+  if (!isSupportedPdfRaster(bytes)) {
+    throw new Error("Aset gambar kop surat bukan PNG atau JPEG yang didukung.");
+  }
+  return bytes;
 }
 
 async function optionalImageBytes(url: string | null) {
@@ -78,19 +95,19 @@ export async function createMedicalReferralPdf(input: MedicalReferralPdfInput): 
   const headerLeft = unitLogo ? 130 : 56;
   const headerWidth = (foundationLogo ? 465 : 539) - headerLeft;
   const unitDetails = [input.unitAddress, input.unitPhone, input.unitEmail].filter((value): value is string => Boolean(value?.trim())).join(" • ");
-  document.font("Helvetica-Bold").fontSize(14).text(input.unitName, headerLeft, 46, { width: headerWidth, align: "center" });
-  document.font("Helvetica").fontSize(9).text(input.foundationName, headerLeft, 66, { width: headerWidth, align: "center" });
-  if (unitDetails) document.fontSize(7.5).text(unitDetails, headerLeft, 84, { width: headerWidth, align: "center" });
+  document.font(PDF_FONT_BOLD).fontSize(14).text(input.unitName, headerLeft, 46, { width: headerWidth, align: "center" });
+  document.font(PDF_FONT_REGULAR).fontSize(9).text(input.foundationName, headerLeft, 66, { width: headerWidth, align: "center" });
+  if (unitDetails) document.font(PDF_FONT_REGULAR).fontSize(7.5).text(unitDetails, headerLeft, 84, { width: headerWidth, align: "center" });
   const dividerY = unitDetails ? 116 : 106;
   document.moveTo(56, dividerY).lineTo(539, dividerY).lineWidth(1.2).strokeColor("#454545").stroke();
   document.y = dividerY;
 
-  document.moveDown(2.2).font("Helvetica-Bold").fontSize(14).text("SURAT PENGANTAR PEMERIKSAAN KESEHATAN", { align: "center" });
-  document.moveDown(0.4).font("Helvetica").fontSize(10).text(`Nomor: ${input.referralNumber}`, { align: "center" });
+  document.moveDown(2.2).font(PDF_FONT_BOLD).fontSize(14).text("SURAT PENGANTAR PEMERIKSAAN KESEHATAN", { align: "center" });
+  document.moveDown(0.4).font(PDF_FONT_REGULAR).fontSize(10).text(`Nomor: ${input.referralNumber}`, { align: "center" });
   document.moveDown(2);
-  document.fontSize(11).text("Kepada Yth.");
-  document.text("Petugas Pemeriksaan Kesehatan");
-  document.text("di tempat");
+  document.font(PDF_FONT_REGULAR).fontSize(11).text("Kepada Yth.");
+  document.font(PDF_FONT_BOLD).text("Klinik IMC");
+  document.font(PDF_FONT_REGULAR).text("di tempat");
   document.moveDown();
   document.text("Dengan hormat,");
   document.moveDown(0.7);
@@ -107,18 +124,21 @@ export async function createMedicalReferralPdf(input: MedicalReferralPdfInput): 
   ];
   rows.forEach(([label, value]) => {
     const y = document.y;
-    document.font("Helvetica-Bold").text(label, labelX, y, { width: 125 });
-    document.font("Helvetica").text(`: ${value}`, valueX, y, { width: 300 });
+    document.font(PDF_FONT_BOLD).text(label, labelX, y, { width: 125 });
+    document.font(PDF_FONT_REGULAR).text(`: ${value}`, valueX, y, { width: 300 });
     document.moveDown(0.45);
   });
   document.moveDown();
   document.text("Hasil pemeriksaan kesehatan dapat diunggah kembali melalui portal SPMB sebagai kelengkapan verifikasi berkas.", { align: "justify" });
   document.moveDown(1.7);
   const verificationTop = document.y;
-  document.text(`${input.unitName}, ${formatDate(input.issuedAt)}`, 315, verificationTop, { width: 224, align: "center" });
-  document.font("Helvetica-Bold").fontSize(9).text("Verifikasi Keaslian Surat", 315, verificationTop + 18, { width: 224, align: "center" });
-  document.image(qrCode, 375, verificationTop + 34, { fit: [104, 104] });
-  document.font("Helvetica").fontSize(7).text("Pindai QR untuk memverifikasi peserta SPMB.", 315, verificationTop + 144, { width: 224, align: "center" });
+  const QR_TOP_OFFSET = 58;
+  const QR_SIZE = 104;
+  const QR_CAPTION_OFFSET = QR_TOP_OFFSET + QR_SIZE + 8;
+  document.font(PDF_FONT_REGULAR).fontSize(10).text(`${input.unitName}, ${formatDate(input.issuedAt)}`, 315, verificationTop, { width: 224, align: "center" });
+  document.font(PDF_FONT_BOLD).fontSize(9).text("Verifikasi Keaslian Surat", 315, verificationTop + 20, { width: 224, align: "center" });
+  document.image(qrCode, 375, verificationTop + QR_TOP_OFFSET, { fit: [QR_SIZE, QR_SIZE] });
+  document.font(PDF_FONT_REGULAR).fontSize(7).text("Pindai QR untuk memverifikasi peserta SPMB.", 315, verificationTop + QR_CAPTION_OFFSET, { width: 224, align: "center" });
   document.end();
   return completed;
 }

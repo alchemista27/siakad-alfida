@@ -3,8 +3,13 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { NextRequest } from "next/server";
 import { GET } from "../src/app/api/pdf/medical-referral/route";
+import { isSupportedPdfRaster } from "../src/lib/letters/medical-referral-pdf";
 
 const originalFetch = globalThis.fetch;
+const PNG_1X1 = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGP4DwQACfsD/fteaysAAAAASUVORK5CYII=",
+  "base64",
+);
 
 const letter = {
   referralNumber: "SPMB-MED-2026-ABCD1234",
@@ -22,7 +27,7 @@ const letter = {
   unitEmail: null,
   unitLogoUrl: null,
   foundationName: "Yayasan Alfida",
-  foundationLogoUrl: "https://assets.test/foundation-missing.png",
+  foundationLogoUrl: "https://s3.alfida.or.id/sim-alfida/foundation/logo.png",
 };
 
 async function main() {
@@ -33,6 +38,9 @@ async function main() {
     if (url.includes("/api/letters/medical-referral/")) {
       medicalLetterRequestUrl = url;
       return Response.json(letter);
+    }
+    if (url.includes("/foundation/logo.png")) {
+      return new Response(PNG_1X1, { headers: { "content-type": "application/octet-stream" } });
     }
     imageUrls.push(url);
     return new Response("not found", { status: 404, headers: { "content-type": "text/plain" } });
@@ -50,11 +58,20 @@ async function main() {
     assert.equal(response.headers.get("x-content-type-options"), "nosniff");
     assert.equal(decoded.includes("<script>"), false, "hostile HTML must never be emitted as executable markup");
     assert.equal(imageUrls.some((url) => url.includes("signature")), false, "PDF must not fetch a handwritten signature image");
+    assert.equal(isSupportedPdfRaster(PNG_1X1), true, "a valid PNG must be accepted even when object storage reports octet-stream");
+    assert.equal(isSupportedPdfRaster(Buffer.from("not-an-image")), false, "arbitrary binary must remain rejected");
+    assert.equal(imageUrls.some((url) => url.includes("/foundation/logo.png")), false, "the configured foundation logo must be consumed as a valid asset");
     const pdfSource = readFileSync(resolve(process.cwd(), "src/lib/letters/medical-referral-pdf.ts"), "utf8");
     const routeSource = readFileSync(resolve(process.cwd(), "src/app/api/pdf/medical-referral/route.ts"), "utf8");
     assert.match(pdfSource, /QRCode\.toBuffer/, "PDF must render an authenticity QR code");
     assert.match(pdfSource, /optionalImageBytes/, "each remote letterhead image must be optional");
     assert.match(pdfSource, /verificationUrl/, "PDF must consume the verification URL");
+    assert.match(pdfSource, /Times-Roman/, "medical referral body must use Times-Roman");
+    assert.match(pdfSource, /Times-Bold/, "medical referral headings must use Times-Bold");
+    assert.match(pdfSource, /Klinik IMC/, "recipient must explicitly name Klinik IMC");
+    assert.doesNotMatch(pdfSource, /Petugas Pemeriksaan Kesehatan/, "generic clinic recipient copy must be removed");
+    assert.match(pdfSource, /const QR_TOP_OFFSET = 58/, "QR layout must use a deliberate vertical offset from the date");
+    assert.match(pdfSource, /verificationTop \+ QR_TOP_OFFSET/, "QR placement must use the declared offset");
     assert.match(routeSource, /\/verify\/medical-referral\//, "PDF route must build a same-origin verification URL");
     assert.match(routeSource, /nullableStrings\s*=\s*\[[^\]]*"foundationLogoUrl"/, "route must accept a missing foundation logo");
     assert.doesNotMatch(routeSource, /Aset kop surat tidak dapat dimuat/, "route must not expose asset loading as a hard failure");
