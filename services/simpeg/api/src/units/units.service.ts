@@ -3,7 +3,8 @@ import { canManageUnit, isAllowedUnitAdminApp, ScopedRole, UnitAdminApp } from "
 import { AuthOrganizationRoleClient } from "../organization-sync/auth-organization-role.client";
 import { OrganizationSyncService } from "../organization-sync/organization-sync.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { AssignUnitAdminDto } from "./units.dto";
+import { AssignUnitAdminDto, UpdateUnitLetterheadDto } from "./units.dto";
+import { assertUnitLetterheadCloudinaryUrl } from "./unit-letterhead-asset.policy";
 
 type UnitInput = {
   name?: string;
@@ -58,6 +59,58 @@ export class UnitsService {
       await this.enqueueUnitProjection(tx, unit);
       return unit;
     });
+  }
+
+  async updateLetterheadProfile(unitId: string, dto: UpdateUnitLetterheadDto, principal: Principal) {
+    const unit = await this.ensureExists(unitId);
+    if (!canManageUnit(principal.roles, unitId)) {
+      throw new ForbiddenException("Anda tidak berwenang mengelola profil unit ini.");
+    }
+    if (unit.category !== "pendidikan") {
+      throw new BadRequestException("Profil kop surat hanya tersedia untuk unit pendidikan.");
+    }
+
+    const logoUrl = this.normalizeNullableText(dto.logoUrl);
+    const principalName = this.normalizeNullableText(dto.principalName);
+    const principalSignatureUrl = this.normalizeNullableText(dto.principalSignatureUrl);
+    if (dto.logoUrl !== undefined) assertUnitLetterheadCloudinaryUrl(logoUrl, unitId, "logo");
+    if (dto.principalSignatureUrl !== undefined) {
+      assertUnitLetterheadCloudinaryUrl(principalSignatureUrl, unitId, "principalSignature");
+    }
+
+    return this.prisma.unit.update({
+      where: { id: unitId },
+      data: {
+        ...(dto.logoUrl === undefined ? {} : { logoUrl }),
+        ...(dto.principalName === undefined ? {} : { principalName }),
+        ...(dto.principalSignatureUrl === undefined ? {} : { principalSignatureUrl }),
+      },
+    });
+  }
+
+  async getLetterheadForInternal(unitId: string) {
+    const unit = await this.prisma.unit.findUnique({
+      where: { id: unitId },
+      select: {
+        id: true,
+        name: true,
+        category: true,
+        isActive: true,
+        logoUrl: true,
+        principalName: true,
+        principalSignatureUrl: true,
+      },
+    });
+    if (!unit || !unit.isActive || unit.category !== "pendidikan") {
+      throw new NotFoundException("Profil kop surat unit tidak ditemukan.");
+    }
+    return {
+      unitId: unit.id,
+      unitName: unit.name,
+      logoUrl: unit.logoUrl,
+      principalName: unit.principalName,
+      principalSignatureUrl: unit.principalSignatureUrl,
+    };
   }
 
   async remove(id: string, principal?: Principal) {
@@ -261,6 +314,11 @@ export class UnitsService {
     const unit = await this.ensureExists(id);
     if (!unit.isActive) throw new BadRequestException("Unit tidak aktif.");
     return unit;
+  }
+
+  private normalizeNullableText(value: string | null | undefined) {
+    if (value === undefined) return undefined;
+    return value?.trim() || null;
   }
 
   private normalizeInput(data: UnitInput, creating: boolean) {

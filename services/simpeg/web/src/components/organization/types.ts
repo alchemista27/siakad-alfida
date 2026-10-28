@@ -6,6 +6,9 @@ export interface OrganizationUnit {
   code: string;
   category: UnitCategory;
   address?: string | null;
+  logoUrl?: string | null;
+  principalName?: string | null;
+  principalSignatureUrl?: string | null;
   isActive: boolean;
 }
 

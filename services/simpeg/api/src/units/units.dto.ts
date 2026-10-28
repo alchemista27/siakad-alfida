@@ -61,3 +61,20 @@ export class AssignUnitAdminDto {
   @IsIn(["siakad", "spmb", "simpeg"], { each: true })
   apps!: Array<"siakad" | "spmb" | "simpeg">;
 }
+
+export class UpdateUnitLetterheadDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  logoUrl?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  principalName?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  principalSignatureUrl?: string | null;
+}

@@ -1012,7 +1012,7 @@ export default function SimpegDashboard() {
 
             {/* TAB 4: UNIT & LOKASI KERJA */}
             {activeTab === "units" && (
-              <UnitManagementPanel units={units} onRefresh={fetchData} onManageAdmins={setManagedUnit} />
+              <UnitManagementPanel units={units.filter((unit) => canManageAllUnits || manageableUnitIds?.includes(unit.id))} canManageAllUnits={canManageAllUnits} manageableUnitIds={manageableUnitIds ?? []} onRefresh={fetchData} onManageAdmins={setManagedUnit} />
             )}
 
             {/* TAB 5: BIDANG & DEPARTEMEN */}

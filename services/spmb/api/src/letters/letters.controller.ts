@@ -13,4 +13,10 @@ export class LettersController {
   async getAcceptanceLetter(@Param("registrationId") registrationId: string, @Req() req: any) {
     return this.lettersService.getAcceptanceLetter(registrationId, req.user);
   }
+
+  @Get("medical-referral/:registrationId")
+  @SpmbRoles("orang_tua", "admin_unit", "tim_spmb")
+  async getMedicalReferral(@Param("registrationId") registrationId: string, @Req() req: any) {
+    return this.lettersService.getMedicalReferralLetter(registrationId, req.user);
+  }
 }

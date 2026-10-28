@@ -15,12 +15,14 @@
     "@alfida/ui": "workspace:*",
     "clsx": "^2.1.1",
     "next": "^15.1.4",
+    "pdfkit": "^0.20.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.7",
+    "@types/pdfkit": "^0.17.7",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
     "autoprefixer": "^10.4.20",

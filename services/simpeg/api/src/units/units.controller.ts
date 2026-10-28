@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards, ValidationPipe } from "@nestjs/common";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 import { SimpegRoles, SimpegRolesGuard } from "../common/guards/simpeg-roles.guard";
-import { CreateUnitDto, UpdateUnitDto, AssignUnitAdminDto } from "./units.dto";
+import { CreateUnitDto, UpdateUnitDto, AssignUnitAdminDto, UpdateUnitLetterheadDto } from "./units.dto";
 import { UnitsService } from "./units.service";
 
 const UNIT_READ_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik"];
@@ -55,6 +55,16 @@ export class UnitsController {
   @SimpegRoles("super_admin", "admin_kepegawaian")
   update(@Param("id") id: string, @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) body: UpdateUnitDto) {
     return this.unitsService.update(id, body);
+  }
+
+  @Patch(":id/letterhead-profile")
+  @SimpegRoles("super_admin", "admin_kepegawaian", "admin_unit")
+  updateLetterheadProfile(
+    @Param("id") id: string,
+    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) body: UpdateUnitLetterheadDto,
+    @Req() req: any,
+  ) {
+    return this.unitsService.updateLetterheadProfile(id, body, req.user);
   }
 
   @Delete(":id")
