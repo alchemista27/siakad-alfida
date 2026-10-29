@@ -6,11 +6,18 @@ import { UnitManagementPanel } from "../components/organization/unit-management-
 import { UnitAdminModal } from "../components/organization/unit-admin-modal";
 import { DepartmentManagementPanel } from "../components/organization/department-management-panel";
 import { DepartmentAdminModal } from "../components/organization/department-admin-modal";
+import { ConfirmActionModal } from "../components/organization/confirm-action-modal";
 import { OrganizationDepartment, OrganizationEmployee, OrganizationUnit } from "../components/organization/types";
 import { WorkdayManagementPanel } from "../components/attendance/workday-management-panel";
 import type { Holiday, SaturdayDuty } from "../components/attendance/workday-management-panel";
 import { YmqAdminManager } from "../components/ymq/ymq-admin-manager";
-import { hasSimpegManagementAccess, isPegawaiRole, simpegLandingTab, type SimpegRole } from "../lib/simpeg-access";
+import {
+  hasSimpegAssignmentWriteAccess,
+  hasSimpegManagementAccess,
+  isPegawaiRole,
+  simpegLandingTab,
+  type SimpegRole,
+} from "../lib/simpeg-access";
 
 interface Assignment {
   id: string;
@@ -22,12 +29,17 @@ interface Assignment {
   startDate: string;
   endDate?: string | null;
   skNumber?: string | null;
+  notes?: string | null;
   user?: {
     fullName: string;
     email: string;
     phone?: string;
   };
 }
+
+type AssignmentForm = Pick<Assignment, "unitId" | "role" | "isPrimary" | "startDate" | "endDate" | "skNumber" | "notes"> & {
+  userId: string;
+};
 
 interface LeaveRequest {
   id: string;
@@ -56,6 +68,25 @@ async function readManagementJson<T>(url: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+async function responseMessage(response: Response, fallback: string): Promise<string> {
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) return fallback;
+  const body = await response.json().catch(() => null) as { message?: string | string[] } | null;
+  if (Array.isArray(body?.message)) return body.message.join(" ");
+  return body?.message || fallback;
+}
+
+function toDateInput(value: string | null | undefined): string {
+  return value ? new Date(value).toISOString().slice(0, 10) : "";
+}
+
+function isAssignmentActiveToday(assignment: Assignment, today = new Date()): boolean {
+  const day = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+  const starts = new Date(assignment.startDate);
+  const ends = assignment.endDate ? new Date(assignment.endDate) : null;
+  return starts <= day && (!ends || ends >= day);
+}
+
 export default function SimpegDashboard() {
   const [activeTab, setActiveTab] = useState<SimpegTab>("assignments");
   const [loading, setLoading] = useState(true);
@@ -81,6 +112,17 @@ export default function SimpegDashboard() {
   // Form states
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAddAssignmentModal, setShowAddAssignmentModal] = useState(false);
+  const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
+  const [mutatingAssignment, setMutatingAssignment] = useState<Assignment | null>(null);
+  const [deletingAssignment, setDeletingAssignment] = useState<Assignment | null>(null);
+  const [mutationForm, setMutationForm] = useState({
+    unitId: "",
+    role: "",
+    effectiveDate: new Date().toISOString().slice(0, 10),
+    skNumber: "",
+    notes: "",
+  });
+  const [assignmentFormError, setAssignmentFormError] = useState<string | null>(null);
   const [showGpsConfigModal, setShowGpsConfigModal] = useState(false);
   const [gpsConfigForm, setGpsConfigForm] = useState({ unitId: "", latitude: "", longitude: "", radiusMeters: "50" });
   const [gpsError, setGpsError] = useState<string | null>(null);
@@ -88,12 +130,12 @@ export default function SimpegDashboard() {
   const [managedDepartment, setManagedDepartment] = useState<OrganizationDepartment | null>(null);
   const [newAssignment, setNewAssignment] = useState({
     userId: "",
-    unitName: "",
     unitId: "",
     role: "Guru Kelas",
-    isPrimary: true,
+    isPrimary: false,
     startDate: new Date().toISOString().slice(0, 10),
     skNumber: "SK/001/YAF/2026",
+    notes: "",
   });
 
   const [leaveForm, setLeaveForm] = useState({
@@ -105,8 +147,9 @@ export default function SimpegDashboard() {
 
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [feedbackError, setFeedbackError] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ fullName: string; role: string; avatarUrl?: string | null } | null>(null);
   const [isManager, setIsManager] = useState(false);
+  const [canWriteAssignments, setCanWriteAssignments] = useState(false);
   const [isPegawai, setIsPegawai] = useState(false);
   const [locationPreviewMeters, setLocationPreviewMeters] = useState<number | null>(null);
 
@@ -173,7 +216,7 @@ export default function SimpegDashboard() {
       }
       if (resUnits && resUnits.length > 0) {
         setNewAssignment((prev) => !prev.unitId
-          ? { ...prev, unitId: resUnits[0].id, unitName: resUnits[0].name }
+          ? { ...prev, unitId: resUnits[0].id }
           : prev);
       }
     } catch (err: any) {
@@ -227,8 +270,13 @@ export default function SimpegDashboard() {
         setCanManageAllUnits(globalSuperAdmin || roles.some((entry: any) => entry?.role === "admin_kepegawaian" && entry?.app === "simpeg"));
         setCanManageYmqAdmins(globalSuperAdmin);
         setManageableUnitIds(roles.filter((entry: any) => entry?.app === "simpeg" && (entry?.role === "admin_unit" || entry?.role === "admin_unit_nondik") && entry?.unitId).map((entry: any) => entry.unitId));
-        setCurrentUser({ fullName: data.user.fullName || data.user.email || "Pengguna SIMPEG", role: primaryRole });
+        setCurrentUser({
+          fullName: data.user.fullName || data.user.email || "Pengguna SIMPEG",
+          role: primaryRole,
+          avatarUrl: typeof data.user.avatarUrl === "string" ? data.user.avatarUrl : null,
+        });
         setIsManager(manager);
+        setCanWriteAssignments(hasSimpegAssignmentWriteAccess(roles));
         setIsPegawai(pegawai);
         setActiveTab(simpegLandingTab(roles));
 
@@ -283,24 +331,118 @@ export default function SimpegDashboard() {
 
   const handleCreateAssignment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAssignment.userId || !newAssignment.unitId || !newAssignment.unitName) return;
+    if (!newAssignment.userId || !newAssignment.unitId) return;
 
     setIsSubmitting(true);
+    setAssignmentFormError(null);
     try {
       const res = await fetch("/api/assignments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newAssignment),
       });
-
-      if (!res.ok) throw new Error("Gagal menyimpan penugasan unit.");
+      if (!res.ok) throw new Error(await responseMessage(res, "Gagal menyimpan penugasan unit."));
 
       setShowAddAssignmentModal(false);
-      setActionSuccess("Penugasan unit pegawai berhasil ditambahkan.");
+      setActionSuccess(newAssignment.isPrimary
+        ? "Penugasan utama pertama berhasil ditambahkan."
+        : "Tugas tambahan berhasil ditambahkan.");
       setTimeout(() => setActionSuccess(null), 4000);
-      fetchData();
-    } catch (err: any) {
-      setFeedbackError(err.message || "Terjadi kesalahan saat menyimpan.");
+      await fetchData();
+    } catch (caught) {
+      setAssignmentFormError(caught instanceof Error ? caught.message : "Terjadi kesalahan saat menyimpan.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openEditAssignment = (assignment: Assignment) => {
+    setAssignmentFormError(null);
+    setEditingAssignment({
+      ...assignment,
+      startDate: toDateInput(assignment.startDate),
+      endDate: toDateInput(assignment.endDate),
+    });
+  };
+
+  const openMutationAssignment = (assignment: Assignment) => {
+    setAssignmentFormError(null);
+    setMutatingAssignment(assignment);
+    setMutationForm({
+      unitId: "",
+      role: assignment.role,
+      effectiveDate: new Date().toISOString().slice(0, 10),
+      skNumber: assignment.skNumber || "",
+      notes: assignment.notes || "",
+    });
+  };
+
+  const handleUpdateAssignment = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!editingAssignment) return;
+    setIsSubmitting(true);
+    setAssignmentFormError(null);
+    try {
+      const response = await fetch(`/api/assignments/${editingAssignment.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          unitId: editingAssignment.unitId,
+          role: editingAssignment.role,
+          isPrimary: editingAssignment.isPrimary,
+          startDate: editingAssignment.startDate,
+          endDate: editingAssignment.endDate || null,
+          skNumber: editingAssignment.skNumber || null,
+          notes: editingAssignment.notes || null,
+        }),
+      });
+      if (!response.ok) throw new Error(await responseMessage(response, "Penugasan gagal diperbarui."));
+      setEditingAssignment(null);
+      setActionSuccess("Penugasan berhasil diperbarui.");
+      await fetchData();
+    } catch (caught) {
+      setAssignmentFormError(caught instanceof Error ? caught.message : "Penugasan gagal diperbarui.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleMutateAssignment = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!mutatingAssignment || !mutationForm.unitId) return;
+    setIsSubmitting(true);
+    setAssignmentFormError(null);
+    try {
+      const response = await fetch(`/api/assignments/${mutatingAssignment.id}/mutate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(mutationForm),
+      });
+      if (!response.ok) throw new Error(await responseMessage(response, "Mutasi penugasan gagal disimpan."));
+      setMutatingAssignment(null);
+      setActionSuccess("Mutasi penugasan berhasil disimpan.");
+      await fetchData();
+    } catch (caught) {
+      setAssignmentFormError(caught instanceof Error ? caught.message : "Mutasi penugasan gagal disimpan.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteAssignment = async () => {
+    if (!deletingAssignment) return;
+    setIsSubmitting(true);
+    setFeedbackError(null);
+    try {
+      const response = await fetch(`/api/assignments/${deletingAssignment.id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error(await responseMessage(response, "Penugasan gagal dihapus."));
+      setDeletingAssignment(null);
+      setActionSuccess(deletingAssignment.isPrimary
+        ? "Penugasan utama dihapus. Pegawai perlu memiliki penugasan aktif sebelum presensi."
+        : "Penugasan tambahan berhasil dihapus.");
+      await fetchData();
+    } catch (caught) {
+      setFeedbackError(caught instanceof Error ? caught.message : "Penugasan gagal dihapus.");
     } finally {
       setIsSubmitting(false);
     }
@@ -558,6 +700,10 @@ export default function SimpegDashboard() {
   ];
 
   const isEmployeeOnly = isPegawai && !isManager;
+  const activeAssignments = assignments.filter((assignment) => isAssignmentActiveToday(assignment));
+  const historicalAssignments = assignments.filter((assignment) => !isAssignmentActiveToday(assignment));
+  const activePrimaryCount = activeAssignments.filter((assignment) => assignment.isPrimary).length;
+  const activeAdditionalCount = activeAssignments.filter((assignment) => !assignment.isPrimary).length;
   const visibleSidebarGroups = isEmployeeOnly ? [
     {
       title: "Presensi Mandiri",
@@ -580,6 +726,7 @@ export default function SimpegDashboard() {
       serviceName="SIMPEG"
       userName={currentUser?.fullName || "Memuat..."}
       userRole={currentUser?.role || ""}
+      avatarUrl={currentUser?.avatarUrl}
       sidebarGroups={visibleSidebarGroups}
       onLogout={handleLogout}
       topbarActions={
@@ -613,13 +760,16 @@ export default function SimpegDashboard() {
             >
               Segarkan Data
             </Button>
-            {isManager && (
+            {canWriteAssignments && (
               <Button
                 variant="primary"
                 size="sm"
-                onClick={() => setShowAddAssignmentModal(true)}
+                onClick={() => {
+                  setAssignmentFormError(null);
+                  setShowAddAssignmentModal(true);
+                }}
               >
-                Tambah Penugasan Unit
+                Tambah Tugas Tambahan
               </Button>
             )}
           </div>
@@ -702,78 +852,122 @@ export default function SimpegDashboard() {
           <div>
             {/* TAB 1: PENUGASAN UNIT PEGAWAI */}
             {activeTab === "assignments" && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <Card className="p-4 bg-white border border-slate-200">
-                    <p className="text-xs text-slate-500 uppercase font-medium">Total Penugasan</p>
-                    <p className="text-2xl font-bold text-slate-900 mt-1">{assignments.length}</p>
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <Card className="border-border bg-surface p-4">
+                    <p className="text-xs font-medium uppercase text-slate-500">Penugasan Aktif</p>
+                    <p className="mt-1 text-2xl font-bold text-primary">{activeAssignments.length}</p>
                   </Card>
-                  <Card className="p-4 bg-white border border-slate-200">
-                    <p className="text-xs text-slate-500 uppercase font-medium">Penugasan Utama</p>
-                    <p className="text-2xl font-bold text-emerald-600 mt-1">
-                      {assignments.filter((a) => a.isPrimary).length}
-                    </p>
+                  <Card className="border-border bg-surface p-4">
+                    <p className="text-xs font-medium uppercase text-slate-500">Penugasan Utama Aktif</p>
+                    <p className="mt-1 text-2xl font-bold text-tertiary">{activePrimaryCount}</p>
                   </Card>
-                  <Card className="p-4 bg-white border border-slate-200">
-                    <p className="text-xs text-slate-500 uppercase font-medium">Penugasan Tambahan</p>
-                    <p className="text-2xl font-bold text-blue-600 mt-1">
-                      {assignments.filter((a) => !a.isPrimary).length}
-                    </p>
+                  <Card className="border-border bg-surface p-4">
+                    <p className="text-xs font-medium uppercase text-slate-500">Tugas Tambahan Aktif</p>
+                    <p className="mt-1 text-2xl font-bold text-primary">{activeAdditionalCount}</p>
                   </Card>
                 </div>
 
-                {assignments.length === 0 ? (
+                {activeAssignments.length === 0 ? (
                   <EmptyState
-                    title="Belum ada penugasan unit"
-                    description="Belum ada catatan penugasan pegawai ke unit kerja atau sekolah."
-                    actionLabel="Tambah Penugasan Pertama"
-                    onAction={() => setShowAddAssignmentModal(true)}
+                    title="Belum ada penugasan aktif"
+                    description="Belum ada catatan penugasan pegawai yang aktif pada hari ini."
+                    actionLabel={canWriteAssignments ? "Tambah Penugasan Pertama" : undefined}
+                    onAction={canWriteAssignments ? () => {
+                      setAssignmentFormError(null);
+                      setShowAddAssignmentModal(true);
+                    } : undefined}
                   />
                 ) : (
-                  <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                  <div className="overflow-hidden rounded-md border border-border bg-surface">
+                    <div className="border-b border-border px-5 py-4">
+                      <h2 className="font-heading text-lg font-bold text-primary">Penugasan Aktif</h2>
+                      <p className="mt-1 text-sm text-slate-600">Penugasan utama dan tugas tambahan yang berlaku hari ini.</p>
+                    </div>
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-sm text-slate-700">
-                        <thead className="bg-slate-50 text-xs font-semibold text-slate-500 uppercase border-b border-slate-200">
+                        <thead className="border-b border-border bg-neutral text-xs font-semibold uppercase text-slate-500">
                           <tr>
-                            <th className="px-6 py-3">Nama Pegawai</th>
-                            <th className="px-6 py-3">Unit Kerja</th>
-                            <th className="px-6 py-3">Peran / Posisi</th>
-                            <th className="px-6 py-3">Status</th>
-                            <th className="px-6 py-3">No. SK</th>
-                            <th className="px-6 py-3">Periode</th>
+                            <th className="px-5 py-3">Nama Pegawai</th>
+                            <th className="px-5 py-3">Unit Kerja</th>
+                            <th className="px-5 py-3">Peran / Posisi</th>
+                            <th className="px-5 py-3">Status</th>
+                            <th className="px-5 py-3">No. SK</th>
+                            <th className="px-5 py-3">Periode</th>
+                            {canWriteAssignments && <th className="px-5 py-3 text-right">Aksi</th>}
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {assignments.map((item) => (
-                            <tr key={item.id} className="hover:bg-slate-50">
-                              <td className="px-6 py-4 font-medium text-slate-900">
+                        <tbody className="divide-y divide-border">
+                          {activeAssignments.map((item) => (
+                            <tr key={item.id} className="hover:bg-neutral">
+                              <td className="px-5 py-4 font-medium text-primary">
                                 {item.user?.fullName || "Pegawai Terdaftar"}
-                                <div className="text-xs text-slate-400 font-normal">
-                                  {item.user?.email}
-                                </div>
+                                <div className="text-xs font-normal text-slate-400">{item.user?.email}</div>
                               </td>
-                              <td className="px-6 py-4 font-medium text-slate-800">
-                                {item.unitName}
+                              <td className="px-5 py-4 font-medium text-primary">{item.unitName}</td>
+                              <td className="px-5 py-4">{item.role}</td>
+                              <td className="px-5 py-4">
+                                <Badge variant={item.isPrimary ? "success" : "neutral"}>{item.isPrimary ? "Utama" : "Tambahan"}</Badge>
                               </td>
-                              <td className="px-6 py-4 text-slate-600">
-                                {item.role}
-                              </td>
-                              <td className="px-6 py-4">
-                                {item.isPrimary ? (
-                                  <Badge variant="success">Utama</Badge>
-                                ) : (
-                                  <Badge variant="neutral">Tambahan</Badge>
-                                )}
-                              </td>
-                              <td className="px-6 py-4 text-slate-500 text-xs font-mono">
-                                {item.skNumber || "Belum ada SK"}
-                              </td>
-                              <td className="px-6 py-4 text-slate-500 text-xs">
+                              <td className="px-5 py-4 font-mono text-xs text-slate-500">{item.skNumber || "Belum ada SK"}</td>
+                              <td className="px-5 py-4 text-xs text-slate-500">
                                 {new Date(item.startDate).toLocaleDateString("id-ID")}
-                                {item.endDate
-                                  ? ` s/d ${new Date(item.endDate).toLocaleDateString("id-ID")}`
-                                  : " s/d Sekarang"}
+                                {item.endDate ? ` s/d ${new Date(item.endDate).toLocaleDateString("id-ID")}` : " s/d Sekarang"}
                               </td>
+                              {canWriteAssignments && (
+                                <td className="px-5 py-4">
+                                  <div className="flex justify-end gap-2">
+                                    <Button type="button" variant="secondary" size="sm" onClick={() => openEditAssignment(item)}>Edit</Button>
+                                    {item.isPrimary && <Button type="button" variant="secondary" size="sm" onClick={() => openMutationAssignment(item)}>Mutasi Unit</Button>}
+                                    <Button type="button" variant="danger" size="sm" onClick={() => setDeletingAssignment(item)}>Hapus</Button>
+                                  </div>
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {historicalAssignments.length > 0 && (
+                  <div className="overflow-hidden rounded-md border border-border bg-surface">
+                    <div className="border-b border-border px-5 py-4">
+                      <h2 className="font-heading text-lg font-bold text-primary">Riwayat Mutasi & Penugasan Selesai</h2>
+                      <p className="mt-1 text-sm text-slate-600">Penugasan terdahulu tidak dihitung sebagai tugas tambahan aktif.</p>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm text-slate-700">
+                        <thead className="border-b border-border bg-neutral text-xs font-semibold uppercase text-slate-500">
+                          <tr>
+                            <th className="px-5 py-3">Nama Pegawai</th>
+                            <th className="px-5 py-3">Unit Kerja</th>
+                            <th className="px-5 py-3">Peran / Posisi</th>
+                            <th className="px-5 py-3">Status Riwayat</th>
+                            <th className="px-5 py-3">Periode</th>
+                            {canWriteAssignments && <th className="px-5 py-3 text-right">Aksi</th>}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {historicalAssignments.map((item) => (
+                            <tr key={item.id} className="bg-neutral/40">
+                              <td className="px-5 py-4 font-medium text-primary">{item.user?.fullName || "Pegawai Terdaftar"}</td>
+                              <td className="px-5 py-4">{item.unitName}</td>
+                              <td className="px-5 py-4">{item.role}</td>
+                              <td className="px-5 py-4"><Badge variant="neutral">{item.isPrimary ? "Riwayat Utama" : "Selesai"}</Badge></td>
+                              <td className="px-5 py-4 text-xs text-slate-500">
+                                {new Date(item.startDate).toLocaleDateString("id-ID")}
+                                {item.endDate ? ` s/d ${new Date(item.endDate).toLocaleDateString("id-ID")}` : ""}
+                              </td>
+                              {canWriteAssignments && (
+                                <td className="px-5 py-4">
+                                  <div className="flex justify-end gap-2">
+                                    <Button type="button" variant="secondary" size="sm" onClick={() => openEditAssignment(item)}>Edit</Button>
+                                    <Button type="button" variant="danger" size="sm" onClick={() => setDeletingAssignment(item)}>Hapus</Button>
+                                  </div>
+                                </td>
+                              )}
                             </tr>
                           ))}
                         </tbody>
@@ -1078,134 +1272,91 @@ export default function SimpegDashboard() {
 
         {/* Modal Tambah Penugasan */}
         {showAddAssignmentModal && (
-          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 space-y-4">
-              <div className="flex justify-between items-center border-b pb-3">
-                <h3 className="font-semibold text-slate-900">
-                  Tambah Penugasan Unit Baru
-                </h3>
-                <button
-                  onClick={() => setShowAddAssignmentModal(false)}
-                  className="text-slate-400 hover:text-slate-600 text-lg"
-                >
-                  ✕
-                </button>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-labelledby="add-assignment-title">
+            <div className="w-full max-w-md rounded-md border border-border bg-surface p-5">
+              <div className="flex items-start justify-between border-b border-border pb-3">
+                <div>
+                  <h3 id="add-assignment-title" className="font-heading text-lg font-bold text-primary">Tambah Penugasan</h3>
+                  <p className="mt-1 text-xs text-slate-500">Gunakan tugas tambahan untuk peran tambahan. Untuk pindah unit utama, gunakan Mutasi Unit pada record aktif.</p>
+                </div>
+                <button type="button" onClick={() => setShowAddAssignmentModal(false)} className="text-slate-500" aria-label="Tutup tambah penugasan"><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
               </div>
-
-              <form onSubmit={handleCreateAssignment} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
-                    Pilih Pegawai
-                  </label>
-                  <select
-                    value={newAssignment.userId}
-                    onChange={(e) =>
-                      setNewAssignment({ ...newAssignment, userId: e.target.value })
-                    }
-                    className="w-full text-sm border border-slate-300 rounded px-3 py-2 bg-white"
-                    required
-                  >
-                    <option value="">Pilih Pegawai...</option>
-                    {employees.map((emp) => (
-                      <option key={emp.id} value={emp.id}>
-                        {emp.fullName} ({emp.email})
-                      </option>
-                    ))}
+              {assignmentFormError && <p className="mt-4 rounded-sm border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800" role="alert">{assignmentFormError}</p>}
+              <form onSubmit={handleCreateAssignment} className="mt-4 space-y-4">
+                <label className="block text-xs font-semibold text-primary">Pegawai
+                  <select value={newAssignment.userId} onChange={(event) => setNewAssignment({ ...newAssignment, userId: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" required>
+                    <option value="">Pilih pegawai</option>
+                    {employees.map((employee) => <option key={employee.id} value={employee.id}>{employee.fullName} ({employee.email})</option>)}
                   </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
-                    Pilih Unit Kerja
-                  </label>
-                  <select
-                    value={newAssignment.unitId}
-                    onChange={(e) => {
-                      const selectedOpt = e.target.options[e.target.selectedIndex];
-                      setNewAssignment({
-                        ...newAssignment,
-                        unitId: e.target.value,
-                        unitName: selectedOpt.text,
-                      });
-                    }}
-                    className="w-full text-sm border border-slate-300 rounded px-3 py-2 bg-white"
-                    required
-                  >
-                    {units.filter((unit) => unit.isActive).length === 0 ? (
-                      <option value="">Buat unit kerja terlebih dahulu</option>
-                    ) : (
-                      units.filter((unit) => unit.isActive).map((unit) => (
-                        <option key={unit.id} value={unit.id}>{unit.name}</option>
-                      ))
-                    )}
+                </label>
+                <label className="block text-xs font-semibold text-primary">Unit Kerja
+                  <select value={newAssignment.unitId} onChange={(event) => setNewAssignment({ ...newAssignment, unitId: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" required>
+                    <option value="">Pilih unit</option>
+                    {units.filter((unit) => unit.isActive).map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}
                   </select>
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="block text-xs font-semibold text-primary">Peran / Posisi<input value={newAssignment.role} onChange={(event) => setNewAssignment({ ...newAssignment, role: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" required /></label>
+                  <label className="block text-xs font-semibold text-primary">Tanggal Mulai<input type="date" value={newAssignment.startDate} onChange={(event) => setNewAssignment({ ...newAssignment, startDate: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" required /></label>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
-                    Peran / Jabatan di Unit
-                  </label>
-                  <input
-                    type="text"
-                    value={newAssignment.role}
-                    onChange={(e) =>
-                      setNewAssignment({ ...newAssignment, role: e.target.value })
-                    }
-                    className="w-full text-sm border border-slate-300 rounded px-3 py-2"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
-                    Nomor SK Penugasan
-                  </label>
-                  <input
-                    type="text"
-                    value={newAssignment.skNumber}
-                    onChange={(e) =>
-                      setNewAssignment({ ...newAssignment, skNumber: e.target.value })
-                    }
-                    className="w-full text-sm border border-slate-300 rounded px-3 py-2"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="isPrimary"
-                    checked={newAssignment.isPrimary}
-                    onChange={(e) =>
-                      setNewAssignment({ ...newAssignment, isPrimary: e.target.checked })
-                    }
-                  />
-                  <label htmlFor="isPrimary" className="text-xs text-slate-700">
-                    Jadikan sebagai unit penugasan utama
-                  </label>
-                </div>
-
-                <div className="flex justify-end gap-3 pt-3 border-t">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setShowAddAssignmentModal(false)}
-                  >
-                    Batal
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="sm"
-                    disabled={isSubmitting}
-                  >
-                    Simpan Penugasan
-                  </Button>
-                </div>
+                <label className="block text-xs font-semibold text-primary">Nomor SK<input value={newAssignment.skNumber} onChange={(event) => setNewAssignment({ ...newAssignment, skNumber: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" /></label>
+                <label className="block text-xs font-semibold text-primary">Catatan<textarea value={newAssignment.notes} onChange={(event) => setNewAssignment({ ...newAssignment, notes: event.target.value })} className="mt-1.5 min-h-20 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" /></label>
+                <label className="flex items-start gap-2 text-xs text-slate-700"><input type="checkbox" checked={newAssignment.isPrimary} onChange={(event) => setNewAssignment({ ...newAssignment, isPrimary: event.target.checked })} /><span>Jadikan penugasan utama hanya jika pegawai belum memiliki primary aktif.</span></label>
+                <div className="flex justify-end gap-2 border-t border-border pt-3"><Button type="button" variant="secondary" size="sm" onClick={() => setShowAddAssignmentModal(false)}>Batal</Button><Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>{isSubmitting ? "Menyimpan..." : "Simpan"}</Button></div>
               </form>
             </div>
           </div>
         )}
+
+        {editingAssignment && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-labelledby="edit-assignment-title">
+            <div className="w-full max-w-md rounded-md border border-border bg-surface p-5">
+              <div className="flex items-start justify-between border-b border-border pb-3">
+                <div><h3 id="edit-assignment-title" className="font-heading text-lg font-bold text-primary">Edit Penugasan</h3><p className="mt-1 text-xs text-slate-500">Mengubah unit di sini memperbarui penugasan yang sama. Gunakan Mutasi Unit bila riwayat perpindahan perlu disimpan.</p></div>
+                <button type="button" onClick={() => setEditingAssignment(null)} className="text-slate-500" aria-label="Tutup edit penugasan"><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
+              </div>
+              {assignmentFormError && <p className="mt-4 rounded-sm border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800" role="alert">{assignmentFormError}</p>}
+              <form onSubmit={handleUpdateAssignment} className="mt-4 space-y-4">
+                <label className="block text-xs font-semibold text-primary">Unit Kerja<select value={editingAssignment.unitId} onChange={(event) => setEditingAssignment({ ...editingAssignment, unitId: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" required>{units.filter((unit) => unit.isActive).map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select></label>
+                <div className="grid grid-cols-2 gap-3"><label className="block text-xs font-semibold text-primary">Peran / Posisi<input value={editingAssignment.role} onChange={(event) => setEditingAssignment({ ...editingAssignment, role: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" required /></label><label className="block text-xs font-semibold text-primary">Tanggal Mulai<input type="date" value={editingAssignment.startDate} onChange={(event) => setEditingAssignment({ ...editingAssignment, startDate: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" required /></label></div>
+                <label className="block text-xs font-semibold text-primary">Tanggal Selesai (opsional)<input type="date" value={editingAssignment.endDate || ""} onChange={(event) => setEditingAssignment({ ...editingAssignment, endDate: event.target.value || null })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" /></label>
+                <label className="block text-xs font-semibold text-primary">Nomor SK<input value={editingAssignment.skNumber || ""} onChange={(event) => setEditingAssignment({ ...editingAssignment, skNumber: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" /></label>
+                <label className="block text-xs font-semibold text-primary">Catatan<textarea value={editingAssignment.notes || ""} onChange={(event) => setEditingAssignment({ ...editingAssignment, notes: event.target.value })} className="mt-1.5 min-h-20 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" /></label>
+                <label className="flex items-start gap-2 text-xs text-slate-700"><input type="checkbox" checked={editingAssignment.isPrimary} onChange={(event) => setEditingAssignment({ ...editingAssignment, isPrimary: event.target.checked })} /><span>Penugasan utama digunakan untuk presensi dan penempatan utama pegawai.</span></label>
+                <div className="flex justify-end gap-2 border-t border-border pt-3"><Button type="button" variant="secondary" size="sm" onClick={() => setEditingAssignment(null)}>Batal</Button><Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>{isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}</Button></div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {mutatingAssignment && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-labelledby="mutate-assignment-title">
+            <div className="w-full max-w-md rounded-md border border-border bg-surface p-5">
+              <div className="flex items-start justify-between border-b border-border pb-3"><div><h3 id="mutate-assignment-title" className="font-heading text-lg font-bold text-primary">Mutasi Unit</h3><p className="mt-1 text-xs text-slate-500">{mutatingAssignment.user?.fullName || "Pegawai"}: {mutatingAssignment.unitName}. Penugasan utama sebelumnya masuk riwayat sehari sebelum tanggal efektif.</p></div><button type="button" onClick={() => setMutatingAssignment(null)} className="text-slate-500" aria-label="Tutup mutasi unit"><span className="material-symbols-rounded" aria-hidden="true">close</span></button></div>
+              {assignmentFormError && <p className="mt-4 rounded-sm border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800" role="alert">{assignmentFormError}</p>}
+              <form onSubmit={handleMutateAssignment} className="mt-4 space-y-4">
+                <label className="block text-xs font-semibold text-primary">Unit Tujuan<select value={mutationForm.unitId} onChange={(event) => setMutationForm({ ...mutationForm, unitId: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" required><option value="">Pilih unit tujuan</option>{units.filter((unit) => unit.isActive && unit.id !== mutatingAssignment.unitId).map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select></label>
+                <div className="grid grid-cols-2 gap-3"><label className="block text-xs font-semibold text-primary">Peran / Posisi<input value={mutationForm.role} onChange={(event) => setMutationForm({ ...mutationForm, role: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" required /></label><label className="block text-xs font-semibold text-primary">Tanggal Efektif<input type="date" value={mutationForm.effectiveDate} onChange={(event) => setMutationForm({ ...mutationForm, effectiveDate: event.target.value })} min={toDateInput(mutatingAssignment.startDate)} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" required /></label></div>
+                <label className="block text-xs font-semibold text-primary">Nomor SK<input value={mutationForm.skNumber} onChange={(event) => setMutationForm({ ...mutationForm, skNumber: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" /></label>
+                <label className="block text-xs font-semibold text-primary">Catatan<textarea value={mutationForm.notes} onChange={(event) => setMutationForm({ ...mutationForm, notes: event.target.value })} className="mt-1.5 min-h-20 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" /></label>
+                <div className="flex justify-end gap-2 border-t border-border pt-3"><Button type="button" variant="secondary" size="sm" onClick={() => setMutatingAssignment(null)}>Batal</Button><Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>{isSubmitting ? "Menyimpan..." : "Simpan Mutasi"}</Button></div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        <ConfirmActionModal
+          isOpen={Boolean(deletingAssignment)}
+          title="Hapus Penugasan"
+          description={deletingAssignment?.isPrimary
+            ? "Penugasan utama aktif akan dihapus. Pegawai tidak akan memiliki unit kerja aktif sampai penugasan lain dibuat."
+            : "Penugasan ini akan dihapus permanen dari daftar pegawai."}
+          confirmLabel="Hapus Penugasan"
+          isDestructive
+          isSubmitting={isSubmitting}
+          onCancel={() => setDeletingAssignment(null)}
+          onConfirm={handleDeleteAssignment}
+        />
       </div>
     </AppShell>
   );

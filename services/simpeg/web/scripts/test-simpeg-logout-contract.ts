@@ -19,5 +19,7 @@ assert.doesNotMatch(
   /onLogout=\{\(\) => \{\s*window\.location\.href = "https:\/\/auth\.alfida\.or\.id\/login";/,
   "AppShell must not redirect to login without invalidating the session",
 );
+assert.match(page, /avatarUrl:\s*typeof data\.user\.avatarUrl === "string" \? data\.user\.avatarUrl : null/, "SIMPEG must retain the canonical Auth avatar in current-user state");
+assert.match(page, /avatarUrl=\{currentUser\?\.avatarUrl\}/, "SIMPEG must pass the canonical avatar to AppShell");
 
 console.log("SIMPEG central logout contract passed");

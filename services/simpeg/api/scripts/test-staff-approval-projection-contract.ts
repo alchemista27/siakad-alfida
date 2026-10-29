@@ -33,10 +33,7 @@ async function main() {
         },
       },
       employeeUnitAssignment: {
-        updateMany: async ({ where }: any) => {
-          audit.push(`demote:${where.userId}`);
-          return { count: 0 };
-        },
+        findFirst: async () => null,
         upsert: async ({ where, create, update }: any) => {
           audit.push(`assignment:${where.sourceKey}:${create.unitId}:${create.role}:${update.isPrimary}`);
           return { id: "assignment-1", ...create };
@@ -59,7 +56,6 @@ async function main() {
 
   assert.deepEqual(audit, [
     `user:${userId}:true`,
-    `demote:${userId}`,
     `assignment:auth-staff-approval:${userId}:${unitId}:guru:true`,
   ], "SIMPEG must idempotently project the approved user and primary unit assignment");
 

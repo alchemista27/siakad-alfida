@@ -22,6 +22,15 @@ export function hasSimpegManagementAccess(roles: SimpegRole[] | undefined): bool
   });
 }
 
+export function hasSimpegAssignmentWriteAccess(roles: SimpegRole[] | undefined): boolean {
+  return (roles ?? []).some((entry) => {
+    const role = roleName(entry);
+    const app = appName(entry);
+    if (role === "super_admin" && ["*", "auth", "core", "simpeg"].includes(app)) return true;
+    return (app === "*" || app === "simpeg") && role === "admin_kepegawaian";
+  });
+}
+
 export function isPegawaiRole(roles: SimpegRole[] | undefined): boolean {
   return (roles ?? []).some((entry) => {
     const role = roleName(entry);

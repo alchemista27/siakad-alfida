@@ -65,6 +65,7 @@ export class StaffApprovalProjectionService {
     if (!unit.isActive) throw new BadRequestException("Unit penugasan sudah tidak aktif.");
 
     const sourceKey = `auth-staff-approval:${input.id}`;
+    const today = new Date();
     return this.prisma.$transaction(async (tx) => {
       await tx.user.upsert({
         where: { id: input.id },
@@ -86,10 +87,17 @@ export class StaffApprovalProjectionService {
           isActive: true,
         },
       });
-      await tx.employeeUnitAssignment.updateMany({
-        where: { userId: input.id, isPrimary: true },
-        data: { isPrimary: false },
+
+      const activePrimary = await tx.employeeUnitAssignment.findFirst({
+        where: {
+          userId: input.id,
+          isPrimary: true,
+          startDate: { lte: today },
+          OR: [{ endDate: null }, { endDate: { gte: today } }],
+        },
       });
+      if (activePrimary) return activePrimary;
+
       return tx.employeeUnitAssignment.upsert({
         where: { sourceKey },
         create: {
@@ -98,7 +106,7 @@ export class StaffApprovalProjectionService {
           unitName: unit.name,
           role: input.employmentRole,
           isPrimary: true,
-          startDate: new Date(),
+          startDate: today,
           notes: "Penugasan awal dari persetujuan Super Admin.",
           sourceKey,
         },
