@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import PDFDocument from "pdfkit";
 import QRCode from "qrcode";
 
@@ -34,8 +36,24 @@ function cloudinaryPng(url: string) {
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const JPEG_SIGNATURE = Buffer.from([0xff, 0xd8, 0xff]);
-const PDF_FONT_REGULAR = "Times-Roman";
-const PDF_FONT_BOLD = "Times-Bold";
+const PDF_FONT_REGULAR = "LiberationSerifRegular";
+const PDF_FONT_BOLD = "LiberationSerifBold";
+const LIBERATION_SERIF_FONT_DIRECTORY = existsSync(join(process.cwd(), "assets/fonts"))
+  ? join(process.cwd(), "assets/fonts")
+  : join(process.cwd(), "services/spmb/web/assets/fonts");
+const LIBERATION_SERIF_REGULAR_PATH = join(
+  LIBERATION_SERIF_FONT_DIRECTORY,
+  "LiberationSerif-Regular.ttf",
+);
+const LIBERATION_SERIF_BOLD_PATH = join(
+  LIBERATION_SERIF_FONT_DIRECTORY,
+  "LiberationSerif-Bold.ttf",
+);
+
+export const MEDICAL_REFERRAL_QR_SIZE = 72;
+export const MEDICAL_REFERRAL_QR_TOP_OFFSET = 76;
+export const MEDICAL_REFERRAL_QR_CAPTION_OFFSET =
+  MEDICAL_REFERRAL_QR_TOP_OFFSET + MEDICAL_REFERRAL_QR_SIZE + 8;
 
 function startsWithBytes(bytes: Uint8Array, signature: Uint8Array) {
   return bytes.length >= signature.length && signature.every((value, index) => bytes[index] === value);
@@ -83,6 +101,8 @@ export async function createMedicalReferralPdf(input: MedicalReferralPdfInput): 
     }),
   ]);
   const document = new PDFDocument({ size: "A4", margin: 56, info: { Title: "Surat Pengantar Pemeriksaan Kesehatan" } });
+  document.registerFont(PDF_FONT_REGULAR, readFileSync(LIBERATION_SERIF_REGULAR_PATH));
+  document.registerFont(PDF_FONT_BOLD, readFileSync(LIBERATION_SERIF_BOLD_PATH));
   const chunks: Buffer[] = [];
   const completed = new Promise<Uint8Array>((resolve, reject) => {
     document.on("data", (chunk: Buffer) => chunks.push(Buffer.from(chunk)));
@@ -132,13 +152,17 @@ export async function createMedicalReferralPdf(input: MedicalReferralPdfInput): 
   document.text("Hasil pemeriksaan kesehatan dapat diunggah kembali melalui portal SPMB sebagai kelengkapan verifikasi berkas.", { align: "justify" });
   document.moveDown(1.7);
   const verificationTop = document.y;
-  const QR_TOP_OFFSET = 58;
-  const QR_SIZE = 104;
-  const QR_CAPTION_OFFSET = QR_TOP_OFFSET + QR_SIZE + 8;
   document.font(PDF_FONT_REGULAR).fontSize(10).text(`${input.unitName}, ${formatDate(input.issuedAt)}`, 315, verificationTop, { width: 224, align: "center" });
   document.font(PDF_FONT_BOLD).fontSize(9).text("Verifikasi Keaslian Surat", 315, verificationTop + 20, { width: 224, align: "center" });
-  document.image(qrCode, 375, verificationTop + QR_TOP_OFFSET, { fit: [QR_SIZE, QR_SIZE] });
-  document.font(PDF_FONT_REGULAR).fontSize(7).text("Pindai QR untuk memverifikasi peserta SPMB.", 315, verificationTop + QR_CAPTION_OFFSET, { width: 224, align: "center" });
+  document.image(qrCode, 391, verificationTop + MEDICAL_REFERRAL_QR_TOP_OFFSET, {
+    fit: [MEDICAL_REFERRAL_QR_SIZE, MEDICAL_REFERRAL_QR_SIZE],
+  });
+  document.font(PDF_FONT_REGULAR).fontSize(7).text(
+    "Pindai QR untuk memverifikasi peserta SPMB.",
+    315,
+    verificationTop + MEDICAL_REFERRAL_QR_CAPTION_OFFSET,
+    { width: 224, align: "center" },
+  );
   document.end();
   return completed;
 }

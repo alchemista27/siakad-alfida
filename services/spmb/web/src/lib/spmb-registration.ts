@@ -281,10 +281,44 @@ function getCloudinaryErrorMessage(payload: unknown): string | null {
     : null;
 }
 
+export type SpmbCloudinaryPublicEnv = {
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?: string;
+  NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET?: string;
+};
+
+export function resolveSpmbCloudinaryUploadConfig(
+  env: SpmbCloudinaryPublicEnv = {
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
+  },
+) {
+  const cloudName = env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
+  const uploadPreset = env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET?.trim();
+  if (!cloudName || !uploadPreset) {
+    throw new Error("Konfigurasi upload Cloudinary belum tersedia. Silakan hubungi panitia.");
+  }
+  return { cloudName, uploadPreset };
+}
+
+export function validateSpmbUploadFile(file: Pick<File, "type" | "size" | "name">) {
+  if (file.type === "application/pdf") {
+    if (file.size <= 0 || file.size > 5 * 1024 * 1024) {
+      throw new Error("File PDF hasil kesehatan maksimal 5 MB.");
+    }
+    return;
+  }
+  if (file.type === "image/jpeg" || file.type === "image/png") {
+    if (file.size <= 0 || file.size > 2 * 1024 * 1024) {
+      throw new Error("File JPG atau PNG hasil kesehatan maksimal 2 MB.");
+    }
+    return;
+  }
+  throw new Error("Hasil kesehatan harus berformat PDF, JPG, atau PNG.");
+}
+
 export async function uploadSpmbFileToCloudinary(file: File, folder: string): Promise<string> {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "hb1ropwm";
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "alfida_unsigned";
-  if (!cloudName || !uploadPreset) throw new Error("Konfigurasi upload Cloudinary belum tersedia.");
+  const { cloudName, uploadPreset } = resolveSpmbCloudinaryUploadConfig();
+  validateSpmbUploadFile(file);
 
   const data = new FormData();
   data.append("file", file);

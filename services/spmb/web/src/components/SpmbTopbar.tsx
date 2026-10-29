@@ -15,11 +15,16 @@ function formatRole(role?: string): string {
 export function SpmbTopbar() {
   const { foundationName } = useFoundationBranding();
   const [user, setUser] = useState<SsoUser | null>(null);
+  const [avatarFailed, setAvatarFailed] = useState(false);
   const authUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://auth.alfida.or.id";
 
   useEffect(() => {
     void getCurrentSsoUser().then(setUser).catch(() => setUser(null));
   }, []);
+
+  useEffect(() => {
+    setAvatarFailed(false);
+  }, [user?.avatarUrl]);
 
   const displayName = user?.fullName || user?.email || "Pengguna";
   const initials = displayName
@@ -55,8 +60,17 @@ export function SpmbTopbar() {
 
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-tertiary text-xs font-semibold text-white">
-            {initials}
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-tertiary text-xs font-semibold text-white">
+            {user?.avatarUrl && !avatarFailed ? (
+              <img
+                src={user.avatarUrl}
+                alt={`Foto profil ${displayName}`}
+                className="h-full w-full object-cover"
+                onError={() => setAvatarFailed(true)}
+              />
+            ) : (
+              initials
+            )}
           </span>
           <span className="hidden min-w-0 sm:block">
             <span className="block truncate text-xs font-semibold text-primary">{user?.fullName || displayName}</span>

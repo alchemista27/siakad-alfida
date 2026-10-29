@@ -1,11 +1,12 @@
 import { BadRequestException } from "@nestjs/common";
 
 export function getCloudinaryCloudName(): string {
-  return (
-    process.env.CLOUDINARY_CLOUD_NAME?.trim()
-    || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim()
-    || "hb1ropwm"
-  );
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim()
+    || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME?.trim();
+  if (!cloudName) {
+    throw new BadRequestException("Konfigurasi Cloudinary server belum tersedia.");
+  }
+  return cloudName;
 }
 
 export function assertCloudinaryUploadUrl(fileUrl: string, requiredFolder: string): void {

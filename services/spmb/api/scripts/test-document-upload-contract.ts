@@ -2,6 +2,7 @@ import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { readFile } from "node:fs/promises";
 import { DocumentsService } from "../src/documents/documents.service";
 import { assertUploadMetadata } from "../src/documents/document-upload.policy";
+import { getCloudinaryCloudName } from "../src/documents/cloudinary-upload.policy";
 
 const registrationId = "11111111-1111-4111-8111-111111111111";
 const parentId = "22222222-2222-4222-8222-222222222222";
@@ -38,6 +39,13 @@ function registration(status = "documents_uploaded") {
 }
 
 async function run() {
+  delete process.env.CLOUDINARY_CLOUD_NAME;
+  delete process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  expectThrows(
+    "server Cloudinary cloud name must be configured",
+    () => getCloudinaryCloudName(),
+    BadRequestException,
+  );
   process.env.CLOUDINARY_CLOUD_NAME = "test-cloud";
 
   assertUploadMetadata({ documentType: "photo", fileName: "photo.jpg", mimeType: "image/jpeg", fileSize: 2 * 1024 * 1024 });

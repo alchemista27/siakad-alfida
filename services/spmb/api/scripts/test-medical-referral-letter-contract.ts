@@ -63,6 +63,11 @@ async function main() {
   assert.equal(first.unitAddress, "Jl. Pendidikan No. 1");
   assert.equal(first.unitPhone, "021-12345678");
   assert.equal(first.unitEmail, "admin@sdit.test");
+  assert.equal(
+    first.foundationLogoUrl,
+    "https://res.cloudinary.com/example/image/upload/foundation/logo/logo.png",
+    "the Admin-provided foundation logo URL must reach the PDF renderer payload",
+  );
   assert.equal(issued.pdfUrl, null, "generated PDF must not be persisted publicly");
   assert.equal("signatoryName" in first, false, "medical referral must not expose a signatory name");
   assert.equal("signatorySignatureUrl" in first, false, "medical referral must not expose a signature asset");

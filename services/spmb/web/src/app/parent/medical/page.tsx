@@ -10,6 +10,7 @@ import {
   getStageRouteForRegistration,
   loadParentRegistration,
   uploadDocumentToCloudinary,
+  validateSpmbUploadFile,
   type ParentRegistration,
 } from "@/lib/spmb-registration";
 
@@ -31,6 +32,23 @@ export default function ParentMedicalPage() {
       .catch((err) => setNotice({ type: "error", message: err instanceof Error ? err.message : "Gagal memuat data kesehatan." }))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleMedicalFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+    if (!file) {
+      setMedicalFile(null);
+      return;
+    }
+    try {
+      validateSpmbUploadFile(file);
+      setMedicalFile(file);
+      setNotice(null);
+    } catch (error) {
+      setMedicalFile(null);
+      event.target.value = "";
+      setNotice({ type: "error", message: error instanceof Error ? error.message : "File hasil kesehatan tidak valid." });
+    }
+  };
 
   const handleUploadMedical = async () => {
     if (!registration) return;
@@ -110,8 +128,8 @@ export default function ParentMedicalPage() {
                 <span className="font-semibold block mb-1">File Hasil Pemeriksaan Kesehatan (IMC) *</span>
                 <input
                   type="file"
-                  accept=".jpg,.jpeg,.png,.pdf"
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setMedicalFile(e.target.files?.[0] || null)}
+                  accept="image/jpeg,image/png,application/pdf"
+                  onChange={handleMedicalFileChange}
                   className="w-full text-xs"
                 />
               </label>

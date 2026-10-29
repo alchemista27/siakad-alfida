@@ -11,6 +11,10 @@ const PNG_1X1 = Buffer.from(
   "base64",
 );
 
+function countPdfImageXObjects(pdf: Uint8Array) {
+  return (new TextDecoder().decode(pdf).match(/\/Subtype\s*\/Image\b/g) || []).length;
+}
+
 const letter = {
   referralNumber: "SPMB-MED-2026-ABCD1234",
   verificationToken: "a".repeat(64),
@@ -60,18 +64,26 @@ async function main() {
     assert.equal(imageUrls.some((url) => url.includes("signature")), false, "PDF must not fetch a handwritten signature image");
     assert.equal(isSupportedPdfRaster(PNG_1X1), true, "a valid PNG must be accepted even when object storage reports octet-stream");
     assert.equal(isSupportedPdfRaster(Buffer.from("not-an-image")), false, "arbitrary binary must remain rejected");
-    assert.equal(imageUrls.some((url) => url.includes("/foundation/logo.png")), false, "the configured foundation logo must be consumed as a valid asset");
+    assert.match(decoded, /\+LiberationSerif\b(?!-Bold)/, "PDF must embed the approved Liberation Serif regular face");
+    assert.match(decoded, /\+LiberationSerif-Bold\b/, "PDF must embed the approved Liberation Serif bold face");
+    assert.ok(
+      countPdfImageXObjects(bytes) >= 2,
+      "generated PDF must contain both the foundation-logo image and QR image XObjects",
+    );
     const pdfSource = readFileSync(resolve(process.cwd(), "src/lib/letters/medical-referral-pdf.ts"), "utf8");
     const routeSource = readFileSync(resolve(process.cwd(), "src/app/api/pdf/medical-referral/route.ts"), "utf8");
     assert.match(pdfSource, /QRCode\.toBuffer/, "PDF must render an authenticity QR code");
     assert.match(pdfSource, /optionalImageBytes/, "each remote letterhead image must be optional");
     assert.match(pdfSource, /verificationUrl/, "PDF must consume the verification URL");
-    assert.match(pdfSource, /Times-Roman/, "medical referral body must use Times-Roman");
-    assert.match(pdfSource, /Times-Bold/, "medical referral headings must use Times-Bold");
     assert.match(pdfSource, /Klinik IMC/, "recipient must explicitly name Klinik IMC");
     assert.doesNotMatch(pdfSource, /Petugas Pemeriksaan Kesehatan/, "generic clinic recipient copy must be removed");
-    assert.match(pdfSource, /const QR_TOP_OFFSET = 58/, "QR layout must use a deliberate vertical offset from the date");
-    assert.match(pdfSource, /verificationTop \+ QR_TOP_OFFSET/, "QR placement must use the declared offset");
+    assert.match(pdfSource, /LiberationSerif-Regular\.ttf/, "renderer must load the bundled Liberation Serif regular font");
+    assert.match(pdfSource, /LiberationSerif-Bold\.ttf/, "renderer must load the bundled Liberation Serif bold font");
+    assert.doesNotMatch(pdfSource, /const PDF_FONT_REGULAR = "Times-Roman"/, "Base-14 Times-Roman must not remain the renderer font");
+    assert.doesNotMatch(pdfSource, /const PDF_FONT_BOLD = "Times-Bold"/, "Base-14 Times-Bold must not remain the renderer font");
+    assert.match(pdfSource, /export const MEDICAL_REFERRAL_QR_SIZE = 72/, "QR must be reduced to a 72 point square");
+    assert.match(pdfSource, /export const MEDICAL_REFERRAL_QR_TOP_OFFSET = 76/, "QR must start lower than the date block");
+    assert.match(pdfSource, /verificationTop \+ MEDICAL_REFERRAL_QR_TOP_OFFSET/, "QR placement must use the declared lower offset");
     assert.match(routeSource, /\/verify\/medical-referral\//, "PDF route must build a same-origin verification URL");
     assert.match(routeSource, /nullableStrings\s*=\s*\[[^\]]*"foundationLogoUrl"/, "route must accept a missing foundation logo");
     assert.doesNotMatch(routeSource, /Aset kop surat tidak dapat dimuat/, "route must not expose asset loading as a hard failure");
