@@ -31,6 +31,19 @@ import {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  private writeSessionCookie(res: Response, token: string, expiresAt: Date) {
+    const isProd = process.env.NODE_ENV === "production";
+    const cookieDomain = process.env.COOKIE_DOMAIN || (isProd ? ".alfida.or.id" : undefined);
+    res.cookie(ALFIDA_SESSION_COOKIE, token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "lax",
+      domain: cookieDomain,
+      expires: expiresAt,
+      path: "/",
+    });
+  }
+
   @Get("units")
   async getUnits() {
     return this.authService.getUnits();
@@ -56,18 +69,7 @@ export class AuthController {
   ) {
     const result = await this.authService.login(body.email, body.password);
 
-    const isProd = process.env.NODE_ENV === "production";
-    const cookieDomain = process.env.COOKIE_DOMAIN || (isProd ? ".alfida.or.id" : undefined);
-
-    // Pasang cookie sesi SSO yang berlaku lintas subdomain
-    res.cookie(ALFIDA_SESSION_COOKIE, result.token, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "lax" : "lax",
-      domain: cookieDomain,
-      expires: result.expiresAt,
-      path: "/",
-    });
+    this.writeSessionCookie(res, result.token, result.expiresAt);
 
     return {
       success: true,
@@ -131,7 +133,11 @@ export class AuthController {
 
   @Patch("me")
   @UseGuards(ServiceJwtAuthGuard)
-  async updateMyProfile(@CurrentUser("id") userId: string, @Body() body: unknown) {
+  async updateMyProfile(
+    @CurrentUser("id") userId: string,
+    @Body() body: unknown,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     let dto: UpdateOwnProfileDto;
     try {
       dto = parseUpdateOwnProfile(body);
@@ -139,6 +145,8 @@ export class AuthController {
       throw new BadRequestException(error instanceof Error ? error.message : "Data profil tidak valid.");
     }
     const user = await this.authService.updateOwnProfile(userId, dto);
+    const token = await this.authService.createJwtToken(user, user.roles);
+    this.writeSessionCookie(res, token, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
     return { success: true, user, message: "Profil berhasil disimpan." };
   }
 

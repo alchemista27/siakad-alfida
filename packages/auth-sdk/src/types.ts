@@ -18,6 +18,7 @@ export interface AuthTokenPayload {
   sub: string;
   email: string;
   name: string;
+  avatarUrl?: string | null;
   roles: UserRoleScope[];
   iss?: string;
   aud?: string;

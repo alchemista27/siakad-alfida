@@ -51,5 +51,12 @@ assert.match(controllerSource, /@Post\("me\/password"\)/, "password endpoint mus
 const passwordHandler = controllerSource.slice(controllerSource.indexOf('@Post("me/password")'), controllerSource.indexOf('@Get("me")'));
 assert.match(passwordHandler, /res\.clearCookie\(ALFIDA_SESSION_COOKIE/, "password replacement must clear the current browser session cookie");
 assert.match(sdkTypes, /avatarUrl\?: string \| null/, "shared AuthUser contract must expose avatar URL");
+const updateHandler = controllerSource.slice(
+  controllerSource.indexOf('@Patch("me")'),
+  controllerSource.indexOf('@Post("me/password")'),
+);
+assert.match(updateHandler, /@Res\(\{\s*passthrough:\s*true\s*\}\)/, "profile update must receive the HTTP response for cookie refresh");
+assert.match(updateHandler, /writeSessionCookie\(res, token,/, "profile update must replace the central session cookie after saving avatar/name/email");
+assert.match(serviceSource, /avatarUrl:\s*user\.avatarUrl/, "issued Auth JWT must include the persisted profile avatar URL");
 
 console.log("Auth self-profile contract passed");

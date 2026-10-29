@@ -13,6 +13,10 @@ function getJwks(jwksUrl: string): JWTVerifyGetKey {
   return cachedJwks;
 }
 
+function readAvatarUrl(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
 export async function createAuthToken(
   payload: AuthTokenPayload,
   secretKey: string,
@@ -22,6 +26,7 @@ export async function createAuthToken(
   const jwt = new SignJWT({
     email: payload.email,
     name: payload.name,
+    avatarUrl: payload.avatarUrl ?? null,
     roles: payload.roles,
   })
     .setProtectedHeader({ alg: "HS256" })
@@ -56,6 +61,7 @@ export async function verifyAuthToken(
         sub: payload.sub as string,
         email: (payload.email as string) || "",
         name: (payload.name as string) || "",
+        avatarUrl: readAvatarUrl(payload.avatarUrl),
         roles: (payload.roles as any) || [],
         iss: payload.iss,
         aud: payload.aud as string,
@@ -73,6 +79,7 @@ export async function verifyAuthToken(
         sub: payload.sub as string,
         email: (payload.email as string) || "",
         name: (payload.name as string) || "",
+        avatarUrl: readAvatarUrl(payload.avatarUrl),
         roles: (payload.roles as any) || [],
         iss: payload.iss,
         aud: payload.aud as string,

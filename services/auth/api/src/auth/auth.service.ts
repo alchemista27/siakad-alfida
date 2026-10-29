@@ -223,12 +223,16 @@ export class AuthService {
     };
   }
 
-  async createJwtToken(user: { id: string; email: string; fullName: string }, roles: UserRoleScope[]) {
+  async createJwtToken(
+    user: Pick<AuthUser, "id" | "email" | "fullName" | "avatarUrl">,
+    roles: UserRoleScope[],
+  ) {
     return createAuthToken(
       {
         sub: user.id,
         email: user.email,
         name: user.fullName,
+        avatarUrl: user.avatarUrl ?? null,
         roles,
       },
       this.secretKey,
@@ -245,7 +249,7 @@ export class AuthService {
     }
     const user = await this.getMe(userId);
     return createAuthToken(
-      { sub: user.id, email: user.email, name: user.fullName, roles: user.roles },
+      { sub: user.id, email: user.email, name: user.fullName, avatarUrl: user.avatarUrl ?? null, roles: user.roles },
       this.secretKey,
       { issuer: "https://auth.alfida.or.id", audience: `mobile:${codeChallenge}`, expiresIn: "60s" },
     );

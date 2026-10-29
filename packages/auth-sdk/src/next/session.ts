@@ -39,6 +39,7 @@ export async function getNextServerSession(
     id: payload.sub,
     email: payload.email,
     fullName: payload.name,
+    avatarUrl: payload.avatarUrl ?? null,
     roles: payload.roles || [],
     isActive: true,
   };
