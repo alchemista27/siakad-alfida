@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { AppShell, type NavGroup } from "@alfida/ui";
 import type { CurrentUser } from "@/lib/current-user";
 import { hasSiyaumRole, roleLabel } from "@/lib/current-user";
@@ -8,6 +8,22 @@ import { hasSiyaumRole, roleLabel } from "@/lib/current-user";
 type ActivePage = "monitoring" | "groups" | "curriculum" | "executive" | "tilawah";
 
 export function SiyaumAppShell({ user, active, children }: { user: CurrentUser | null; active: ActivePage; children: ReactNode }) {
+  const [logoutError, setLogoutError] = useState<string | null>(null);
+
+  const handleLogout = async () => {
+    setLogoutError(null);
+    try {
+      const response = await fetch("https://auth.alfida.or.id/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Sesi pusat tidak dapat diakhiri.");
+      window.location.replace("https://auth.alfida.or.id/login");
+    } catch (error) {
+      setLogoutError(error instanceof Error ? error.message : "Tidak dapat keluar dari sistem. Silakan coba lagi.");
+    }
+  };
+
   const canManageGroups = hasSiyaumRole(user, "admin_ymq");
   const canManageSessions = hasSiyaumRole(user, "admin_ymq", "pembina_ymq", "admin_kelompok");
   const canViewExecutive = hasSiyaumRole(user, "admin_ymq", "pengawas", "pimpinan");
@@ -31,6 +47,7 @@ export function SiyaumAppShell({ user, active, children }: { user: CurrentUser |
       userRole={roleLabel(user)}
       avatarUrl={user?.avatarUrl}
       profileHref="https://auth.alfida.or.id/profile?return_to=https%3A%2F%2Fsiyaum.alfida.or.id"
+      onLogout={handleLogout}
       topbarActions={
         <a
           href="https://auth.alfida.or.id/modules"
@@ -44,6 +61,14 @@ export function SiyaumAppShell({ user, active, children }: { user: CurrentUser |
       sidebarGroups={sidebarGroups}
       className="mx-auto w-full max-w-6xl"
     >
+      {logoutError && (
+        <div
+          role="status"
+          className="mx-auto mb-4 w-full max-w-6xl rounded-sm border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
+        >
+          {logoutError}
+        </div>
+      )}
       {children}
     </AppShell>
   );

@@ -38,6 +38,16 @@ assert.match(shell, /aria-label="Pilih modul"/, "module switcher must be accessi
 assert.match(shell, /avatarUrl=\{user\?\.avatarUrl\}/, "SIYAUM must pass the signed-in avatar to the shared topbar");
 assert.match(shell, /profileHref=/, "SIYAUM identity must link to the Auth profile page");
 assert.match(currentUser, /avatarUrl\?: string \| null/, "SIYAUM current-user contract must carry the profile avatar");
+assert.match(shell, /const handleLogout = async \(\) =>/, "SIYAUM must own an explicit central logout handler");
+assert.match(
+  shell,
+  /fetch\("https:\/\/auth\.alfida\.or\.id\/api\/auth\/logout",\s*\{[\s\S]*?method:\s*"POST",\s*credentials:\s*"include",?\s*\}\)/,
+  "SIYAUM logout must invalidate the central Auth session with cross-subdomain credentials",
+);
+assert.match(shell, /if \(!response\.ok\)\s*throw new Error/, "SIYAUM must not redirect as logged out when Auth rejects logout");
+assert.match(shell, /window\.location\.replace\("https:\/\/auth\.alfida\.or\.id\/login"\)/, "successful SIYAUM logout must redirect to Auth login");
+assert.match(shell, /onLogout=\{handleLogout\}/, "SIYAUM must pass its logout handler to AppShell");
+assert.doesNotMatch(shell, /\b(alert|confirm)\(/, "SIYAUM logout feedback must not use native browser dialogs");
 assert.doesNotMatch(shell, /<aside/, "SIYAUM must not retain a bespoke sidebar alongside the shared shell");
 assert.match(executive, /canViewExecutive/);
 assert.ok(!/method:\s*["'](?:POST|PUT|PATCH|DELETE)["']/.test(executive), "Executive dashboard must be read-only");
