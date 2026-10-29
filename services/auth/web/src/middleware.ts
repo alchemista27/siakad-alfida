@@ -23,7 +23,8 @@ export function middleware(request: NextRequest) {
   // Jika belum login dan mencoba akses rute privat (/modules atau /admin/users)
   if (!sessionToken && !isPublic) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("return_to", request.url);
+    const returnTo = `${pathname}${request.nextUrl.search}`;
+    loginUrl.searchParams.set("return_to", returnTo);
     return NextResponse.redirect(loginUrl);
   }
 
