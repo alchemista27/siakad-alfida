@@ -28,6 +28,11 @@ scratch
 # Not needed to build or run the app
 docs
 assets
+# The PDF renderer embeds these licensed faces at runtime; keep them in the build context.
+!services/spmb/web/assets/
+!services/spmb/web/assets/fonts/
+!services/spmb/web/assets/fonts/LiberationSerif-Regular.ttf
+!services/spmb/web/assets/fonts/LiberationSerif-Bold.ttf
 apps/web/tests
 approve.exp
 *.md
