@@ -7,7 +7,6 @@ import {
   Body,
   Param,
   Query,
-  Req,
   UseGuards,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
@@ -32,15 +31,6 @@ export class UsersController {
     @Query("role") role?: string
   ) {
     return this.usersService.findAll({ page, limit, search, app, role });
-  }
-
-  @Get("observer-candidates")
-  async listObserverCandidates(
-    @Req() request: { user: { roles?: Array<{ app?: string; role?: string; unitId?: string | null }> } },
-    @Query("unitId") unitId = "",
-    @Query("search") search = "",
-  ) {
-    return this.usersService.findObserverCandidates(request.user, unitId, search);
   }
 
   @Get(":id")

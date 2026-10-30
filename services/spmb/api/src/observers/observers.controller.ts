@@ -27,6 +27,14 @@ export class ObserversController {
     return this.observersService.list(req.user, periodId);
   }
 
+  @Get("candidates")
+  @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbRoles("admin_unit")
+  candidates(@Req() req: any, @Query("unitId") unitId?: string, @Query("search") search = "") {
+    if (!unitId) throw new BadRequestException("unitId wajib diisi");
+    return this.observersService.listCandidates(req.user, unitId, search);
+  }
+
   @Post()
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
   @SpmbRoles("admin_unit")

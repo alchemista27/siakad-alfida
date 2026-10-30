@@ -48,12 +48,41 @@ function registration(overrides: Record<string, unknown> = {}) {
 }
 
 async function run() {
+  const candidateCalls: Array<{ unitId: string; search: string }> = [];
+  const candidateSearch = new ObserversService({} as any, {
+    findCandidates: async (unitId: string, search: string) => {
+      candidateCalls.push({ unitId, search });
+      return [{ id: "teacher-a", fullName: "Guru Unit", email: "guru@example.test", avatarUrl: null }];
+    },
+  } as any);
+  const candidates = await candidateSearch.listCandidates(adminA, unitA, "guru");
+  assert(candidates.length === 1 && candidates[0].id === "teacher-a", "candidate search must return SIMPEG unit employees");
+  assert(candidateCalls[0]?.unitId === unitA, "candidate search must be scoped to the selected unit");
+
   const assignments = new ObserversService({
     spmbObserver: { upsert: async () => ({}) },
-  } as any);
+  } as any, { assertCurrentUnitEmployee: async () => {} } as any);
   await expectException("foreign observer assignment", ForbiddenException, () =>
     assignments.assign(adminA, { userId: "observer-b", unitId: unitB }),
   );
+
+  let checkedAssignment: { unitId: string; userId: string } | null = null;
+  let grantedObserver: { unitId: string; userId: string } | null = null;
+  const verifiedAssignment = new ObserversService({
+    spmbObserver: { findUnique: async () => null, upsert: async () => ({ id: "observer-a" }) },
+  } as any, {
+    findCandidates: async () => [],
+    assertCurrentUnitEmployee: async (unitId: string, userId: string) => {
+      checkedAssignment = { unitId, userId };
+    },
+  } as any, {
+    grant: async (unitId: string, userId: string) => {
+      grantedObserver = { unitId, userId };
+    },
+  } as any);
+  await verifiedAssignment.assign(adminA, { userId: "teacher-a", unitId: unitA });
+  assert(checkedAssignment?.unitId === unitA && checkedAssignment.userId === "teacher-a", "assignment must verify the selected employee still has an active SIMPEG unit assignment");
+  assert(grantedObserver?.unitId === unitA && grantedObserver.userId === "teacher-a", "assignment must grant the observer role through the Auth role broker");
 
   const inactive = new ObserversService({
     admissionPeriod: { findUnique: async () => period() },

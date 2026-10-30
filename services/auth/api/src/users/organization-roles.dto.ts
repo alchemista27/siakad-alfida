@@ -23,8 +23,15 @@ type UnitOrganizationRoleInput =
       userId: string;
       scope: "unit";
       unitId: string;
-      app: "siakad" | "spmb";
+      app: "siakad";
       role: "admin_unit";
+    }
+  | {
+      userId: string;
+      scope: "unit";
+      unitId: string;
+      app: "spmb";
+      role: "admin_unit" | "observer";
     };
 
 export type OrganizationRoleInput = DepartmentOrganizationRoleInput | UnitOrganizationRoleInput;
@@ -68,26 +75,14 @@ export function validateOrganizationRoleInput(value: unknown): OrganizationRoleI
       || typeof input.unitId !== "string"
       || !UUID.test(input.unitId)
       || (input.app !== "simpeg" && input.app !== "siakad" && input.app !== "spmb")
-      || (input.role !== "admin_unit" && input.role !== "admin_unit_nondik")
-      || ((input.app === "siakad" || input.app === "spmb") && input.role !== "admin_unit")
+      || typeof input.role !== "string"
+      || !["admin_unit", "admin_unit_nondik", "observer"].includes(input.role)
+      || (input.app === "siakad" && input.role !== "admin_unit")
+      || (input.app === "spmb" && input.role !== "admin_unit" && input.role !== "observer")
     ) {
       throw new BadRequestException("Peran unit tidak didukung.");
     }
-    return input.app === "simpeg"
-      ? {
-          userId: input.userId,
-          scope: "unit",
-          unitId: input.unitId,
-          app: input.app,
-          role: input.role,
-        }
-      : {
-          userId: input.userId,
-          scope: "unit",
-          unitId: input.unitId,
-          app: input.app,
-          role: "admin_unit",
-        };
+    return input as OrganizationRoleInput;
   }
 
   throw new BadRequestException("Scope peran organisasi tidak didukung.");
@@ -124,8 +119,11 @@ export function validatePublicOrganizationRoleInput(value: unknown): Organizatio
   }
 
   const input = validateOrganizationRoleInput(value);
-  if (input.scope === "department" && input.role !== "admin_bidang") {
-    throw new BadRequestException("Peran admin_biro hanya tersedia untuk layanan internal.");
+  if (
+    (input.scope === "department" && input.role !== "admin_bidang")
+    || (input.scope === "unit" && input.app === "spmb" && input.role === "observer")
+  ) {
+    throw new BadRequestException("Peran ini hanya tersedia untuk layanan internal.");
   }
   return input;
 }

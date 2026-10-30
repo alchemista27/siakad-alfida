@@ -4,7 +4,7 @@ import { timingSafeEqual } from "node:crypto";
 @Injectable()
 export class InternalOrganizationRolesGuard implements CanActivate {
   canActivate(context: ExecutionContext) {
-    const expected = process.env.AUTH_INTERNAL_SERVICE_TOKEN;
+    const expected = process.env.AUTH_INTERNAL_SERVICE_TOKEN?.trim() || process.env.INTERNAL_SERVICE_SECRET?.trim();
     const request = context.switchToHttp().getRequest<{ header(name: string): string | undefined }>();
     const received = request.header("x-internal-service-token");
     if (!expected || !received) throw new UnauthorizedException("Kredensial layanan internal diperlukan.");

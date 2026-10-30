@@ -159,13 +159,13 @@ export function ObserverAssignmentPanel({
 
       <form onSubmit={handleAssign} className="pt-3 border-t border-[#E3E8E7] space-y-2">
         <label className="block text-xs font-semibold text-[#454545]" htmlFor="observer-search">
-          Cari observer aktif
+          Cari karyawan atau guru unit
         </label>
         <div className="relative">
           <input
             id="observer-search"
             autoComplete="off"
-            placeholder="Ketik nama atau email observer (min. 2 karakter)"
+            placeholder="Ketik nama, email, atau NIP (min. 2 karakter)"
             value={search}
             onChange={(event) => {
               setSearch(event.target.value);
@@ -176,7 +176,7 @@ export function ObserverAssignmentPanel({
           {!selectedCandidate && search.trim().length >= 2 && (
             <div className="absolute z-10 mt-1 w-full overflow-hidden rounded border border-[#E3E8E7] bg-white">
               {candidateLoading ? (
-                <p className="px-3 py-2 text-xs text-gray-500">Mencari observer...</p>
+                <p className="px-3 py-2 text-xs text-gray-500">Mencari karyawan atau guru...</p>
               ) : candidateError ? (
                 <p className="px-3 py-2 text-xs text-red-700">{candidateError}</p>
               ) : candidates.length > 0 ? (
@@ -203,7 +203,7 @@ export function ObserverAssignmentPanel({
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-[11px] text-gray-500">
-            {selectedCandidate ? `Dipilih: ${selectedCandidate.fullName}` : "Hanya akun aktif dengan peran Observer SPMB yang ditampilkan."}
+            {selectedCandidate ? `Dipilih: ${selectedCandidate.fullName}` : "Menampilkan karyawan dan guru dengan penugasan aktif di unit periode ini."}
           </p>
           <button
             type="submit"

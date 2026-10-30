@@ -7,6 +7,54 @@ import { UpsertEmployeeProfileDto, SyncUserDto } from "./employees.dto";
 export class EmployeesService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async observerCandidates(unitId: string, search?: string) {
+    const normalizedUnitId = unitId.trim();
+    const term = typeof search === "string" ? search.trim().slice(0, 100) : "";
+    if (!normalizedUnitId || term.length < 2) return [];
+
+    const today = new Date();
+    return this.prisma.user.findMany({
+      where: {
+        isActive: true,
+        unitAssignments: {
+          some: {
+            unitId: normalizedUnitId,
+            startDate: { lte: today },
+            OR: [{ endDate: null }, { endDate: { gte: today } }],
+          },
+        },
+        OR: [
+          { fullName: { contains: term, mode: "insensitive" } },
+          { email: { contains: term, mode: "insensitive" } },
+          { username: { contains: term, mode: "insensitive" } },
+          { profile: { is: { nip: { contains: term, mode: "insensitive" } } } },
+        ],
+      },
+      select: { id: true, fullName: true, email: true, avatarUrl: true },
+      orderBy: { fullName: "asc" },
+      take: 10,
+    });
+  }
+
+  async isCurrentUnitEmployee(unitId: string, userId: string) {
+    const today = new Date();
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+        isActive: true,
+        unitAssignments: {
+          some: {
+            unitId,
+            startDate: { lte: today },
+            OR: [{ endDate: null }, { endDate: { gte: today } }],
+          },
+        },
+      },
+      select: { id: true },
+    });
+    return Boolean(user);
+  }
+
   async suggestions(search?: string, unitId?: string, principal?: { roles?: unknown }) {
     const roles = Array.isArray(principal?.roles) ? principal.roles as ScopedRole[] : [];
     const global = roles.some((entry) => entry && typeof entry === "object" && (

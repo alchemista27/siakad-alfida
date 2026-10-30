@@ -5,13 +5,19 @@ import { allowedUnitIds, assertUnitAccess, isSuperAdmin, type SpmbPrincipal } fr
 import { canTransition } from "../common/spmb-workflow";
 import { rankObservationResults } from "../observations/ranking.policy";
 import { AssignObserverDto, SubmitMyObservationResultDto } from "./observers.dto";
+import { SimpegObserverCandidateClient } from "./simpeg-observer-candidate.client";
+import { SpmbObserverRoleBrokerClient } from "./spmb-observer-role-broker.client";
 
 const observerRoles = ["admin_unit", "tim_spmb", "observer"] as const;
 const serializable = { isolationLevel: Prisma.TransactionIsolationLevel.Serializable } as const;
 
 @Injectable()
 export class ObserversService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly simpegObserverCandidates: SimpegObserverCandidateClient,
+    private readonly observerRoles: SpmbObserverRoleBrokerClient,
+  ) {}
 
   private assertExistingPeriodAccess(period: { unitId: string }, principal: SpmbPrincipal) {
     if (isSuperAdmin(principal) || allowedUnitIds(principal, observerRoles).has(period.unitId)) return;
@@ -41,13 +47,33 @@ export class ObserversService {
     });
   }
 
+  async listCandidates(principal: SpmbPrincipal, unitId: string, search: string) {
+    assertUnitAccess(principal, unitId, ["admin_unit"]);
+    return this.simpegObserverCandidates.findCandidates(unitId, search);
+  }
+
   async assign(principal: SpmbPrincipal, dto: AssignObserverDto) {
     assertUnitAccess(principal, dto.unitId, ["admin_unit"]);
-    return this.prisma.spmbObserver.upsert({
+    await this.simpegObserverCandidates.assertCurrentUnitEmployee(dto.unitId, dto.userId);
+    const previous = await this.prisma.spmbObserver.findUnique({
+      where: { unitId_userId: { unitId: dto.unitId, userId: dto.userId } },
+    });
+    const assignment = await this.prisma.spmbObserver.upsert({
       where: { unitId_userId: { unitId: dto.unitId, userId: dto.userId } },
       create: { unitId: dto.unitId, userId: dto.userId, isActive: true },
       update: { isActive: true },
     });
+    try {
+      await this.observerRoles.grant(dto.unitId, dto.userId);
+      return assignment;
+    } catch (error) {
+      if (previous) {
+        await this.prisma.spmbObserver.update({ where: { id: previous.id }, data: { isActive: previous.isActive } });
+      } else {
+        await this.prisma.spmbObserver.delete({ where: { id: assignment.id } });
+      }
+      throw error;
+    }
   }
 
   async deactivate(principal: SpmbPrincipal, userId: string, unitId: string) {
@@ -58,7 +84,14 @@ export class ObserversService {
     if (!isSuperAdmin(principal) && !allowedUnitIds(principal, ["admin_unit"]).has(assignment.unitId)) {
       throw new NotFoundException("Data observer tidak ditemukan");
     }
-    return this.prisma.spmbObserver.update({ where: { id: assignment.id }, data: { isActive: false } });
+    const deactivated = await this.prisma.spmbObserver.update({ where: { id: assignment.id }, data: { isActive: false } });
+    try {
+      await this.observerRoles.revoke(unitId, userId);
+      return deactivated;
+    } catch (error) {
+      await this.prisma.spmbObserver.update({ where: { id: assignment.id }, data: { isActive: true } });
+      throw error;
+    }
   }
 
   async getMyWorklist(principal: SpmbPrincipal, periodId: string) {
