@@ -466,7 +466,11 @@ export default function SpmbAdminPage() {
         {adminTab === "observations" && (
           <div className="space-y-5">
             <ObservationSchedulePanel periodId={selectedPeriodId} onNotify={notify} />
-            <ObserverAssignmentPanel periodId={selectedPeriodId} onNotify={notify} />
+            <ObserverAssignmentPanel
+              periodId={selectedPeriodId}
+              unitId={periods.find((period) => period.id === selectedPeriodId)?.unitId}
+              onNotify={notify}
+            />
           </div>
         )}
 

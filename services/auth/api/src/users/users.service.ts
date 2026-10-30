@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import * as bcrypt from "bcryptjs";
@@ -72,6 +73,64 @@ export class UsersService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  async findObserverCandidates(
+    principal: { roles?: Array<{ app?: string; role?: string; unitId?: string | null }> },
+    unitId: string,
+    search: string,
+  ) {
+    const normalizedUnitId = unitId.trim();
+    const normalizedSearch = search.trim().slice(0, 100);
+
+    if (!normalizedUnitId) {
+      throw new BadRequestException("Unit penugasan wajib dipilih");
+    }
+
+    if (!this.canManageSpmbObservers(principal, normalizedUnitId)) {
+      throw new ForbiddenException("Anda tidak memiliki akses untuk mengelola observer unit ini");
+    }
+
+    if (normalizedSearch.length < 2) {
+      return [];
+    }
+
+    const users = await this.prisma.user.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          { fullName: { contains: normalizedSearch, mode: "insensitive" } },
+          { email: { contains: normalizedSearch, mode: "insensitive" } },
+          { username: { contains: normalizedSearch, mode: "insensitive" } },
+        ],
+        roles: {
+          some: {
+            app: "spmb",
+            role: "observer",
+          },
+        },
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        avatarUrl: true,
+      },
+      orderBy: { fullName: "asc" },
+      take: 10,
+    });
+
+    return users;
+  }
+
+  private canManageSpmbObservers(
+    principal: { roles?: Array<{ app?: string; role?: string; unitId?: string | null }> },
+    unitId: string,
+  ) {
+    return (principal.roles ?? []).some((assignment) =>
+      (assignment.role === "super_admin" && ["*", "auth", "core"].includes(assignment.app || "")) ||
+      (assignment.role === "admin_unit" && ["*", "spmb"].includes(assignment.app || "") && assignment.unitId === unitId),
+    );
   }
 
   async findById(id: string) {
