@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { canManageUnit } from "../common/organization-access.policy";
 import { PrismaService } from "../prisma/prisma.service";
+import { AuthStaffCandidateClient } from "../employees/auth-staff-candidate.client";
 import {
   CreateAssignmentDto,
   MutateAssignmentDto,
@@ -17,7 +18,10 @@ type Principal = { roles?: unknown };
 
 @Injectable()
 export class AssignmentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly authStaffCandidates: AuthStaffCandidateClient,
+  ) {}
 
   private hasGlobalAccess(principal?: Principal): boolean {
     if (!Array.isArray(principal?.roles)) return false;
@@ -153,6 +157,9 @@ export class AssignmentsService {
 
   async create(dto: CreateAssignmentDto, principal?: Principal) {
     this.assertWritable(principal);
+    if (!await this.authStaffCandidates.isEligible(dto.userId)) {
+      throw new BadRequestException("Hanya akun pegawai/guru/karyawan aktif yang dapat ditugaskan.");
+    }
     const [unit] = await Promise.all([
       this.requireActiveUnit(dto.unitId),
       this.requireActiveEmployee(dto.userId),

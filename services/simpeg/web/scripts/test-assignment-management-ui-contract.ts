@@ -19,6 +19,11 @@ assert.match(page, /Mutasi Unit/);
 assert.match(page, /Hapus Penugasan/);
 assert.match(page, /Riwayat Mutasi/);
 assert.match(page, /responseMessage/, "assignment mutations must safely parse proxy/API errors");
+assert.match(page, /EmployeeSuggestionPicker/, "the add-assignment modal must reuse the shared staff search picker");
+assert.match(page, /selectedAssignmentEmployee/, "selected staff must be held separately from the assignment form");
+assert.match(page, /userId:\s*employee\?\.id\s*\?\?\s*""/, "only the selected candidate ID may enter the assignment payload");
+assert.match(page, /resetNewAssignmentEmployee/, "opening, cancelling, and saving must clear stale staff selections");
+assert.doesNotMatch(page, /<select\s+value=\{newAssignment\.userId\}/, "the assignment employee field must not be a prefetched dropdown");
 assert.doesNotMatch(page, /window\.(?:alert|confirm)\s*\(/);
 assert.match(confirmModal, /role="dialog"/);
 

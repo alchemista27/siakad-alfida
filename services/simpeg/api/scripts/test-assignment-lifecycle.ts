@@ -6,6 +6,7 @@ import { AssignmentsService } from "../src/assignments/assignments.service";
 import { StaffApprovalProjectionService } from "../src/staff-approval-projection/staff-approval-projection.service";
 
 const userId = "00000000-0000-4000-8000-000000000001";
+const parentUserId = "00000000-0000-4000-8000-000000000002";
 const sourceAssignmentId = "00000000-0000-4000-8000-000000000010";
 const unitA = "00000000-0000-4000-8000-000000000011";
 const unitB = "00000000-0000-4000-8000-000000000012";
@@ -97,7 +98,7 @@ function createAssignmentPrisma() {
     },
     user: {
       async findUnique({ where }: any) {
-        return where.id === userId ? { id: userId, isActive: true } : null;
+        return [userId, parentUserId].includes(where.id) ? { id: where.id, isActive: true } : null;
       },
       async upsert({ create, update }: any) {
         audit.push(`user:${create.id}:${update.isActive}`);
@@ -122,7 +123,14 @@ async function main() {
   assert.match(module, /SimpegRolesGuard/, "AssignmentsModule must provide SimpegRolesGuard");
 
   const lifecycle = createAssignmentPrisma();
-  const service = new AssignmentsService(lifecycle.prisma as never);
+  const eligibilityAudit: string[] = [];
+  const authStaffCandidates = {
+    async isEligible(candidateId: string) {
+      eligibilityAudit.push(candidateId);
+      return candidateId !== parentUserId;
+    },
+  };
+  const service = new AssignmentsService(lifecycle.prisma as never, authStaffCandidates as never);
   const result = await (service as any).mutate(sourceAssignmentId, {
     unitId: unitB,
     role: "guru_mapel",
@@ -153,6 +161,21 @@ async function main() {
     (error: unknown) => error instanceof BadRequestException && /Gunakan mutasi/i.test(error.message),
     "creating another active primary must direct HR to mutation",
   );
+  assert.deepEqual(eligibilityAudit, [userId], "the selected user must be checked against Auth before an assignment is created");
+
+  await assert.rejects(
+    () => service.create({
+      userId: parentUserId,
+      unitId: unitB,
+      role: "tugas_tambahan",
+      isPrimary: false,
+      startDate: "2026-02-01",
+    } as any, hrPrincipal),
+    (error: unknown) => error instanceof BadRequestException
+      && error.message === "Hanya akun pegawai/guru/karyawan aktif yang dapat ditugaskan.",
+    "a parent-only account must be rejected even when it exists in SIMPEG's user projection",
+  );
+  assert.deepEqual(eligibilityAudit, [userId, parentUserId]);
 
   const updated = await service.update(sourceAssignmentId, {
     unitId: unitB,

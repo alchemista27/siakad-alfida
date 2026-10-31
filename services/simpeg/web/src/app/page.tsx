@@ -7,6 +7,7 @@ import { UnitAdminModal } from "../components/organization/unit-admin-modal";
 import { DepartmentManagementPanel } from "../components/organization/department-management-panel";
 import { DepartmentAdminModal } from "../components/organization/department-admin-modal";
 import { ConfirmActionModal } from "../components/organization/confirm-action-modal";
+import { EmployeeSuggestion, EmployeeSuggestionPicker } from "../components/organization/employee-suggestion-picker";
 import { OrganizationDepartment, OrganizationEmployee, OrganizationUnit } from "../components/organization/types";
 import { WorkdayManagementPanel } from "../components/attendance/workday-management-panel";
 import type { Holiday, SaturdayDuty } from "../components/attendance/workday-management-panel";
@@ -137,6 +138,7 @@ export default function SimpegDashboard() {
     skNumber: "SK/001/YAF/2026",
     notes: "",
   });
+  const [selectedAssignmentEmployee, setSelectedAssignmentEmployee] = useState<EmployeeSuggestion | null>(null);
 
   const [leaveForm, setLeaveForm] = useState({
     type: "cuti",
@@ -167,6 +169,22 @@ export default function SimpegDashboard() {
     } catch (caught) {
       setFeedbackError(caught instanceof Error ? caught.message : "Tidak dapat keluar dari sistem. Silakan coba lagi.");
     }
+  };
+
+  const resetNewAssignmentEmployee = () => {
+    setSelectedAssignmentEmployee(null);
+    setNewAssignment((current) => ({ ...current, userId: "" }));
+  };
+
+  const openAddAssignmentModal = () => {
+    resetNewAssignmentEmployee();
+    setAssignmentFormError(null);
+    setShowAddAssignmentModal(true);
+  };
+
+  const closeAddAssignmentModal = () => {
+    setShowAddAssignmentModal(false);
+    resetNewAssignmentEmployee();
   };
 
   const fetchWorkdayData = async () => {
@@ -211,9 +229,6 @@ export default function SimpegDashboard() {
       setGpsConfigs(resGpsConfigs || []);
       setHolidays(resHolidays || []);
       setSaturdayDuties(resSaturdayDuties || []);
-      if (resEmployees && resEmployees.length > 0 && !newAssignment.userId) {
-        setNewAssignment((prev) => ({ ...prev, userId: resEmployees[0].id }));
-      }
       if (resUnits && resUnits.length > 0) {
         setNewAssignment((prev) => !prev.unitId
           ? { ...prev, unitId: resUnits[0].id }
@@ -343,10 +358,10 @@ export default function SimpegDashboard() {
       });
       if (!res.ok) throw new Error(await responseMessage(res, "Gagal menyimpan penugasan unit."));
 
-      setShowAddAssignmentModal(false);
       setActionSuccess(newAssignment.isPrimary
         ? "Penugasan utama pertama berhasil ditambahkan."
         : "Tugas tambahan berhasil ditambahkan.");
+      closeAddAssignmentModal();
       setTimeout(() => setActionSuccess(null), 4000);
       await fetchData();
     } catch (caught) {
@@ -764,10 +779,7 @@ export default function SimpegDashboard() {
               <Button
                 variant="primary"
                 size="sm"
-                onClick={() => {
-                  setAssignmentFormError(null);
-                  setShowAddAssignmentModal(true);
-                }}
+                onClick={openAddAssignmentModal}
               >
                 Tambah Tugas Tambahan
               </Button>
@@ -873,10 +885,7 @@ export default function SimpegDashboard() {
                     title="Belum ada penugasan aktif"
                     description="Belum ada catatan penugasan pegawai yang aktif pada hari ini."
                     actionLabel={canWriteAssignments ? "Tambah Penugasan Pertama" : undefined}
-                    onAction={canWriteAssignments ? () => {
-                      setAssignmentFormError(null);
-                      setShowAddAssignmentModal(true);
-                    } : undefined}
+                    onAction={canWriteAssignments ? openAddAssignmentModal : undefined}
                   />
                 ) : (
                   <div className="overflow-hidden rounded-md border border-border bg-surface">
@@ -1279,16 +1288,17 @@ export default function SimpegDashboard() {
                   <h3 id="add-assignment-title" className="font-heading text-lg font-bold text-primary">Tambah Penugasan</h3>
                   <p className="mt-1 text-xs text-slate-500">Gunakan tugas tambahan untuk peran tambahan. Untuk pindah unit utama, gunakan Mutasi Unit pada record aktif.</p>
                 </div>
-                <button type="button" onClick={() => setShowAddAssignmentModal(false)} className="text-slate-500" aria-label="Tutup tambah penugasan"><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
+                <button type="button" onClick={closeAddAssignmentModal} className="text-slate-500" aria-label="Tutup tambah penugasan"><span className="material-symbols-rounded" aria-hidden="true">close</span></button>
               </div>
               {assignmentFormError && <p className="mt-4 rounded-sm border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800" role="alert">{assignmentFormError}</p>}
               <form onSubmit={handleCreateAssignment} className="mt-4 space-y-4">
-                <label className="block text-xs font-semibold text-primary">Pegawai
-                  <select value={newAssignment.userId} onChange={(event) => setNewAssignment({ ...newAssignment, userId: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" required>
-                    <option value="">Pilih pegawai</option>
-                    {employees.map((employee) => <option key={employee.id} value={employee.id}>{employee.fullName} ({employee.email})</option>)}
-                  </select>
-                </label>
+                <EmployeeSuggestionPicker
+                  selected={selectedAssignmentEmployee}
+                  onSelect={(employee) => {
+                    setSelectedAssignmentEmployee(employee);
+                    setNewAssignment((current) => ({ ...current, userId: employee?.id ?? "" }));
+                  }}
+                />
                 <label className="block text-xs font-semibold text-primary">Unit Kerja
                   <select value={newAssignment.unitId} onChange={(event) => setNewAssignment({ ...newAssignment, unitId: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" required>
                     <option value="">Pilih unit</option>
@@ -1302,7 +1312,7 @@ export default function SimpegDashboard() {
                 <label className="block text-xs font-semibold text-primary">Nomor SK<input value={newAssignment.skNumber} onChange={(event) => setNewAssignment({ ...newAssignment, skNumber: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" /></label>
                 <label className="block text-xs font-semibold text-primary">Catatan<textarea value={newAssignment.notes} onChange={(event) => setNewAssignment({ ...newAssignment, notes: event.target.value })} className="mt-1.5 min-h-20 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" /></label>
                 <label className="flex items-start gap-2 text-xs text-slate-700"><input type="checkbox" checked={newAssignment.isPrimary} onChange={(event) => setNewAssignment({ ...newAssignment, isPrimary: event.target.checked })} /><span>Jadikan penugasan utama hanya jika pegawai belum memiliki primary aktif.</span></label>
-                <div className="flex justify-end gap-2 border-t border-border pt-3"><Button type="button" variant="secondary" size="sm" onClick={() => setShowAddAssignmentModal(false)}>Batal</Button><Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>{isSubmitting ? "Menyimpan..." : "Simpan"}</Button></div>
+                <div className="flex justify-end gap-2 border-t border-border pt-3"><Button type="button" variant="secondary" size="sm" onClick={closeAddAssignmentModal}>Batal</Button><Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>{isSubmitting ? "Menyimpan..." : "Simpan"}</Button></div>
               </form>
             </div>
           </div>

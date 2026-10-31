@@ -8,6 +8,13 @@ import * as bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { OrganizationRoleInput, validateOrganizationRoleInput } from "./organization-roles.dto";
 
+export type InternalStaffCandidate = {
+  id: string;
+  fullName: string;
+  email: string;
+  avatarUrl: string | null;
+};
+
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
@@ -92,6 +99,45 @@ export class UsersService {
       createdAt: user.createdAt,
       roles: user.roles,
     };
+  }
+
+  private staffRoleWhere() {
+    return {
+      some: {
+        OR: [
+          { app: "simpeg", role: "pegawai" },
+          { app: "siakad", role: "guru" },
+        ],
+      },
+    };
+  }
+
+  async findInternalStaffCandidates(search?: string): Promise<InternalStaffCandidate[]> {
+    const term = typeof search === "string" ? search.trim().slice(0, 100) : "";
+    if (!term) return [];
+    return this.prisma.user.findMany({
+      where: {
+        isActive: true,
+        roles: this.staffRoleWhere(),
+        OR: [
+          { fullName: { contains: term, mode: "insensitive" } },
+          { email: { contains: term, mode: "insensitive" } },
+          { username: { contains: term, mode: "insensitive" } },
+        ],
+      },
+      select: { id: true, fullName: true, email: true, avatarUrl: true },
+      orderBy: { fullName: "asc" },
+      take: 10,
+    });
+  }
+
+  async requireInternalStaffCandidate(userId: string): Promise<InternalStaffCandidate> {
+    const candidate = await this.prisma.user.findFirst({
+      where: { id: userId, isActive: true, roles: this.staffRoleWhere() },
+      select: { id: true, fullName: true, email: true, avatarUrl: true },
+    });
+    if (!candidate) throw new NotFoundException("Pegawai aktif tidak ditemukan.");
+    return candidate;
   }
 
   async createUser(data: {

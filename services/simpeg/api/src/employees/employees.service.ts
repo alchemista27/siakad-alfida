@@ -2,10 +2,14 @@ import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/commo
 import { canManageUnit, ScopedRole } from "../common/organization-access.policy";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpsertEmployeeProfileDto, SyncUserDto } from "./employees.dto";
+import { AuthStaffCandidateClient } from "./auth-staff-candidate.client";
 
 @Injectable()
 export class EmployeesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly authStaffCandidates: AuthStaffCandidateClient,
+  ) {}
 
   async observerCandidates(unitId: string, search?: string) {
     const normalizedUnitId = unitId.trim();
@@ -65,23 +69,9 @@ export class EmployeesService {
       throw new ForbiddenException("Anda tidak berwenang mencari pegawai untuk unit ini.");
     }
 
-    const term = typeof search === "string" ? search.trim() : "";
+    const term = typeof search === "string" ? search.trim().slice(0, 100) : "";
     if (!term) return [];
-
-    return this.prisma.user.findMany({
-      where: {
-        isActive: true,
-        OR: [
-          { fullName: { contains: term, mode: "insensitive" } },
-          { email: { contains: term, mode: "insensitive" } },
-          { username: { contains: term, mode: "insensitive" } },
-          { profile: { is: { nip: { contains: term, mode: "insensitive" } } } },
-        ],
-      },
-      select: { id: true, fullName: true, email: true, username: true, avatarUrl: true },
-      orderBy: { fullName: "asc" },
-      take: 10,
-    });
+    return this.authStaffCandidates.find(term);
   }
 
   async findAll(query?: { search?: string; type?: string }) {

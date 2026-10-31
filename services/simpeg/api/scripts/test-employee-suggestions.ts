@@ -8,9 +8,24 @@ import { EmployeesController } from "../src/employees/employees.controller";
 import { EmployeesService } from "../src/employees/employees.service";
 
 async function main() {
-  const calls: any[] = [];
-  const prisma = { user: { findMany: async (query: any) => { calls.push(query); return [{ id: "employee-1", fullName: "Alice", email: "alice@example.org" }]; } } };
-  const service = new EmployeesService(prisma as any);
+  const prismaCalls: any[] = [];
+  const authCalls: string[] = [];
+  const staff = [{ id: "employee-1", fullName: "Alice Guru", email: "alice@example.org", avatarUrl: null }];
+  const prisma = {
+    user: {
+      findMany: async (query: any) => {
+        prismaCalls.push(query);
+        return [];
+      },
+    },
+  };
+  const authStaffCandidates = {
+    async find(search: string) {
+      authCalls.push(search);
+      return staff;
+    },
+  };
+  const service = new EmployeesService(prisma as any, authStaffCandidates as any);
   const controller = new EmployeesController(service);
 
   assert.equal(typeof controller.suggestions, "function", "GET /employees/suggestions must exist");
@@ -20,36 +35,26 @@ async function main() {
   assert.deepEqual(Reflect.getMetadata(SIMPEG_ROLES_KEY, controller.suggestions), [
     "super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik",
   ]);
-  const result = await controller.suggestions("a", undefined, { user: { roles: [{ app: "simpeg", role: "admin_kepegawaian" }] } });
-  assert.deepEqual(result, [{ id: "employee-1", fullName: "Alice", email: "alice@example.org" }]);
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].where.isActive, true);
-  assert.equal(calls[0].take, 10);
-  assert.deepEqual(calls[0].where.OR, [
-    { fullName: { contains: "a", mode: "insensitive" } },
-    { email: { contains: "a", mode: "insensitive" } },
-    { username: { contains: "a", mode: "insensitive" } },
-    { profile: { is: { nip: { contains: "a", mode: "insensitive" } } } },
-  ]);
-  assert.deepEqual(calls[0].select, { id: true, fullName: true, email: true, username: true, avatarUrl: true });
-  assert.equal(calls[0].include, undefined);
 
-  // One character is enough; whitespace alone never triggers an unbounded query.
-  await service.suggestions(" A ", undefined, { roles: [{ app: "auth", role: "super_admin" }] });
-  assert.equal(calls[1].where.OR[0].fullName.contains, "A");
-  assert.equal(calls[1].where.OR[0].fullName.mode, "insensitive");
+  const result = await controller.suggestions(" Alice ", undefined, { user: { roles: [{ app: "simpeg", role: "admin_kepegawaian" }] } });
+  assert.deepEqual(result, staff, "suggestions must return Auth-verified staff candidates only");
+  assert.deepEqual(authCalls, ["Alice"]);
+  assert.equal(prismaCalls.length, 0, "suggestions must not query SIMPEG's role-unaware user projection");
+
+  await service.suggestions("x".repeat(101), undefined, { roles: [{ app: "auth", role: "super_admin" }] });
+  assert.equal(authCalls[1]?.length, 100, "search must be bounded before calling Auth");
   assert.deepEqual(await service.suggestions("   ", undefined, { roles: [{ app: "simpeg", role: "admin_kepegawaian" }] }), []);
-  assert.equal(calls.length, 2);
+  assert.equal(authCalls.length, 2, "blank searches must not call Auth");
 
   const unitId = "00000000-0000-4000-8000-000000000010";
   const otherUnitId = "00000000-0000-4000-8000-000000000011";
   for (const role of ["admin_unit", "admin_unit_nondik"]) {
     const principal = { roles: [{ app: "simpeg", role, unitId }] };
-    await controller.suggestions("a", unitId, { user: principal });
-    await assert.rejects(() => service.suggestions("a", undefined, principal), ForbiddenException);
-    await assert.rejects(() => service.suggestions("a", otherUnitId, principal), ForbiddenException);
+    await controller.suggestions("alice", unitId, { user: principal });
+    await assert.rejects(() => service.suggestions("alice", undefined, principal), ForbiddenException);
+    await assert.rejects(() => service.suggestions("alice", otherUnitId, principal), ForbiddenException);
   }
-  const beforeDenials = calls.length;
+  const beforeDenials = authCalls.length;
   for (const roles of [
     [],
     [{ app: "simakin", role: "admin_bidang", departmentId: "dept" }],
@@ -57,9 +62,9 @@ async function main() {
     [{ app: "simpeg", role: "admin_unit" }],
     [{ app: "other", role: "super_admin" }],
   ]) {
-    await assert.rejects(() => service.suggestions("a", unitId, { roles }), ForbiddenException);
+    await assert.rejects(() => service.suggestions("alice", unitId, { roles }), ForbiddenException);
   }
-  assert.equal(calls.length, beforeDenials, "unauthorized requests must never query users");
+  assert.equal(authCalls.length, beforeDenials, "unauthorized requests must never call Auth");
   console.log("Employee suggestions contract passed");
 }
 
