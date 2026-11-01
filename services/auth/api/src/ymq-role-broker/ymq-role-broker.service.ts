@@ -90,8 +90,11 @@ export class YmqRoleBrokerService {
   }
 
   private assertTargetEligible(targetRoles: RoleScope[], requestedRole: YmqBrokerManagedRole) {
-    if (requestedRole === "peserta" && !targetRoles.some((entry) => entry.app === "simpeg" && entry.role === "pegawai")) {
-      throw new BadRequestException("Target peserta harus memiliki peran pegawai SIMPEG aktif.");
+    const eligibleForYmq = targetRoles.some(
+      (entry) => entry.app === "simpeg" && (entry.role === "pegawai" || entry.role === "pimpinan"),
+    );
+    if (requestedRole === "peserta" && !eligibleForYmq) {
+      throw new BadRequestException("Target peserta harus memiliki peran pegawai atau pimpinan SIMPEG aktif.");
     }
     if (["pembina_ymq", "admin_kelompok"].includes(requestedRole)
       && !targetRoles.some((entry) => entry.app === "siyaum" && entry.role === "peserta")) {

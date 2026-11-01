@@ -3,8 +3,9 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 import { YmqRoleBrokerModule } from "./ymq-role-broker/ymq-role-broker.module";
+import { YmqRosterBrokerModule } from "./ymq-roster-broker/ymq-roster-broker.module";
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, YmqRoleBrokerModule],
+  imports: [PrismaModule, AuthModule, UsersModule, YmqRoleBrokerModule, YmqRosterBrokerModule],
 })
 export class AppModule {}

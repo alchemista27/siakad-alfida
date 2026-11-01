@@ -5,20 +5,33 @@ import { resolve } from "node:path";
 async function main() {
   const source = await readFile(resolve(process.cwd(), "src/app/modules/page.tsx"), "utf8");
 
-  assert.match(source, /href:\s*SERVICE_URL\.siakad/, "sidebar must use the canonical SIAKAD URL");
-  assert.match(source, /url:\s*SERVICE_URL\.siakad/, "SIAKAD card must use the canonical URL");
-  assert.match(source, /getSpmbEntries\(roles\)/, "SPMB entry must be resolved from actual SSO roles");
-  assert.doesNotMatch(source, /spmb:\s*["']https:\/\/spmb\.alfida\.or\.id\/admin["']/, "SPMB must not have a universal admin URL");
-  assert.match(source, /spmbEntries\.map/, "SPMB cards must be rendered from role-specific entries");
-  assert.match(source, /isParentOnlyPortalUser\(roles\)/, "page must derive parent-only visibility from scopes");
-  assert.match(source, /\$\{SERVICE_URL\.siakad\}\/parent/, "parent SIAKAD entry must target /parent");
-  assert.match(source, /isParentOnly\s*\?/, "both catalog variants must be selected explicitly");
+  assert.match(source, /canSeeCoreServiceModule/, "core services must use the shared assignment helper");
   assert.match(
     source,
-    /id:\s*"siskeu"[\s\S]*?url:\s*SERVICE_URL\.siskeu[\s\S]*?isActive:\s*true/,
-    "SISKEU must be an active module targeting its public domain",
+    /const visibleCoreServiceModules = coreServiceModules\.filter\([\s\S]*?canSeeCoreServiceModule\(roles, module\.id\)/,
+    "one shared assignment filter must derive visible core services",
   );
-  assert.match(source, /label:\s*"SISKEU \(Keuangan & SPP\)"[\s\S]*?href:\s*SERVICE_URL\.siskeu/, "sidebar must include SISKEU");
+  assert.match(
+    source,
+    /visibleCoreServiceModules\.map\([\s\S]*?navLabel[\s\S]*?href: module\.url/,
+    "the sidebar must be derived from the visible core service list",
+  );
+  assert.match(
+    source,
+    /\.\.\.visibleCoreServiceModules,/
+    , "cards must be derived from the same visible core service list as the sidebar");
+  assert.match(source, /getSpmbEntries\(roles\)/, "SPMB entries must be resolved from actual SSO roles");
+  assert.match(source, /\.\.\.spmbModuleCards,/, "SPMB cards must come only from role-specific SPMB entries");
+  assert.doesNotMatch(source, /isParentOnlyPortalUser|isParentOnly\s*\?/, "the catalog must not use a parent-only branch");
+  assert.doesNotMatch(source, /id:\s*"sisarpras"|id:\s*"sisurat"/, "unassigned inactive placeholders must not appear in the catalog");
+  assert.match(
+    source,
+    /const isGlobalSuperAdmin = roles\.some\([\s\S]*?r\.role === "super_admin"[\s\S]*?r\.app === "\*"[\s\S]*?r\.app === "auth"[\s\S]*?r\.app === "core"/,
+    "Admin Yayasan must be restricted to a global Super Admin scope",
+  );
+  assert.match(source, /userName=\{user\?\.fullName/, "the signed-in full name must remain in the AppShell");
+  assert.match(source, /userRole=\{primaryRole\}/, "the signed-in primary role must remain in the AppShell");
+  assert.match(source, /avatarUrl=\{user\?\.avatarUrl\}/, "the signed-in avatar must remain in the AppShell");
 
   console.log("Auth module catalog contract passed");
 }

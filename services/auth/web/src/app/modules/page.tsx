@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@alfida/ui";
 import { getSpmbEntries, type UserRoleScope } from "@alfida/contracts";
-import { isParentOnlyPortalUser } from "@/lib/module-visibility";
+import { canSeeCoreServiceModule, type CoreServiceModule } from "@/lib/module-visibility";
 
 interface UserInfo {
   id: string;
@@ -24,6 +24,77 @@ interface ModuleItem {
   badge?: string;
   external?: boolean;
 }
+
+interface CoreServiceModuleItem extends ModuleItem {
+  id: CoreServiceModule;
+  navLabel: string;
+}
+
+const SERVICE_URL = {
+  simakin: "https://simakin.alfida.or.id",
+  simpeg: "https://simpeg.alfida.or.id",
+  siyaum: "https://siyaum.alfida.or.id",
+  siakad: "https://siakad.alfida.or.id",
+  siskeu: "https://siskeu.alfida.or.id",
+} as const;
+
+const coreServiceModules: CoreServiceModuleItem[] = [
+  {
+    id: "simakin",
+    title: "SIMAKIN (Manajemen Kinerja)",
+    navLabel: "SIMAKIN (Kinerja)",
+    description: "Perencanaan strategis, program kerja, monitoring KPI, dan log realisasi kegiatan.",
+    icon: "trending_up",
+    url: SERVICE_URL.simakin,
+    isActive: true,
+    badge: "Aktif",
+    external: true,
+  },
+  {
+    id: "simpeg",
+    title: "SIMPEG (Kepegawaian & SDM)",
+    navLabel: "SIMPEG (Kepegawaian)",
+    description: "Data kepegawaian, penugasan unit, presensi GPS, pengajuan cuti, dan mentoring BPI.",
+    icon: "badge",
+    url: SERVICE_URL.simpeg,
+    isActive: true,
+    badge: "Aktif",
+    external: true,
+  },
+  {
+    id: "siyaum",
+    title: "SIYAUM (Yaum Ma'al Quran)",
+    navLabel: "SIYAUM (Tilawah Quran)",
+    description: "Pencatatan setoran tilawah Al-Quran harian serta rekapan kelompok halaqah YMQ.",
+    icon: "menu_book",
+    url: SERVICE_URL.siyaum,
+    isActive: true,
+    badge: "Aktif",
+    external: true,
+  },
+  {
+    id: "siakad",
+    title: "SIAKAD (Akademik & Sekolah)",
+    navLabel: "SIAKAD (Akademik)",
+    description: "Jadwal mengajar, jurnal kelas, absensi siswa, dan input nilai raport pendidikan.",
+    icon: "auto_stories",
+    url: SERVICE_URL.siakad,
+    isActive: true,
+    badge: "Aktif",
+    external: true,
+  },
+  {
+    id: "siskeu",
+    title: "SISKEU (Keuangan & SPP)",
+    navLabel: "SISKEU (Keuangan & SPP)",
+    description: "Tagihan SPP, status pembayaran, rekonsiliasi, dan laporan keuangan yayasan.",
+    icon: "payments",
+    url: SERVICE_URL.siskeu,
+    isActive: true,
+    badge: "Aktif",
+    external: true,
+  },
+];
 
 export default function ModulesPage() {
   const router = useRouter();
@@ -58,7 +129,9 @@ export default function ModulesPage() {
   };
 
   const roles = user?.roles || [];
-  const isSuperAdmin = roles.some((r) => r.role === "super_admin");
+  const isGlobalSuperAdmin = roles.some(
+    (r) => r.role === "super_admin" && (r.app === "*" || r.app === "auth" || r.app === "core"),
+  );
   const primaryRole = roles[0]?.role ? roles[0].role.replace(/_/g, " ").toUpperCase() : "STAFF";
   const spmbOrigin = "https://spmb.alfida.or.id";
   const spmbEntries = getSpmbEntries(roles);
@@ -72,40 +145,17 @@ export default function ModulesPage() {
     badge: "Aktif",
     external: true,
   }));
-  const SERVICE_URL = {
-    simakin: "https://simakin.alfida.or.id",
-    simpeg: "https://simpeg.alfida.or.id",
-    siyaum: "https://siyaum.alfida.or.id",
-    siakad: "https://siakad.alfida.or.id",
-    siskeu: "https://siskeu.alfida.or.id",
-  } as const;
-  const isParentOnly = isParentOnlyPortalUser(roles);
-  const parentSpmbModuleCards = spmbModuleCards.filter((entry) => entry.id === "spmb-parent");
-  const parentSiakadModule: ModuleItem = {
-    id: "siakad-parent",
-    title: "SIAKAD — Akademik Anak",
-    description: "Pantau ringkasan akademik, perkembangan, kegiatan, dan tagihan SPP anak.",
-    icon: "auto_stories",
-    url: `${SERVICE_URL.siakad}/parent`,
-    isActive: true,
-    badge: "Aktif",
-    external: true,
-  };
-  const serviceNavItems = isParentOnly
-    ? [
-        ...spmbEntries
-          .filter((entry) => entry.id === "parent")
-          .map((entry) => ({ label: entry.label, href: `${spmbOrigin}${entry.path}`, icon: entry.icon })),
-        { label: "SIAKAD — Akademik Anak", href: `${SERVICE_URL.siakad}/parent`, icon: "auto_stories" },
-      ]
-    : [
-        ...spmbEntries.map((entry) => ({ label: entry.label, href: `${spmbOrigin}${entry.path}`, icon: entry.icon })),
-        { label: "SIMAKIN (Kinerja)", href: SERVICE_URL.simakin, icon: "trending_up" },
-        { label: "SIMPEG (Kepegawaian)", href: SERVICE_URL.simpeg, icon: "badge" },
-        { label: "SIYAUM (Tilawah Quran)", href: SERVICE_URL.siyaum, icon: "menu_book" },
-        { label: "SIAKAD (Akademik)", href: SERVICE_URL.siakad, icon: "auto_stories" },
-        { label: "SISKEU (Keuangan & SPP)", href: SERVICE_URL.siskeu, icon: "payments" },
-      ];
+  const visibleCoreServiceModules = coreServiceModules.filter((module) =>
+    canSeeCoreServiceModule(roles, module.id),
+  );
+  const serviceNavItems = [
+    ...spmbEntries.map((entry) => ({ label: entry.label, href: `${spmbOrigin}${entry.path}`, icon: entry.icon })),
+    ...visibleCoreServiceModules.map((module) => ({
+      label: module.navLabel,
+      href: module.url,
+      icon: module.icon,
+    })),
+  ];
 
   const sidebarGroups = [
     {
@@ -117,7 +167,7 @@ export default function ModulesPage() {
           icon: "apps",
           active: true,
         },
-        ...(isSuperAdmin
+        ...(isGlobalSuperAdmin
           ? [
               {
                 label: "Admin Yayasan & Pengguna",
@@ -135,8 +185,8 @@ export default function ModulesPage() {
     },
   ];
 
-  const allModules: ModuleItem[] = [
-    ...(isSuperAdmin
+  const modules: ModuleItem[] = [
+    ...(isGlobalSuperAdmin
       ? [
           {
             id: "admin",
@@ -151,77 +201,8 @@ export default function ModulesPage() {
         ]
       : []),
     ...spmbModuleCards,
-    {
-      id: "simakin",
-      title: "SIMAKIN (Manajemen Kinerja)",
-      description: "Perencanaan strategis, program kerja, monitoring KPI, dan log realisasi kegiatan.",
-      icon: "trending_up",
-      url: SERVICE_URL.simakin,
-      isActive: true,
-      badge: "Aktif",
-      external: true,
-    },
-    {
-      id: "simpeg",
-      title: "SIMPEG (Kepegawaian & SDM)",
-      description: "Data kepegawaian, penugasan unit, presensi GPS, pengajuan cuti, dan mentoring BPI.",
-      icon: "badge",
-      url: SERVICE_URL.simpeg,
-      isActive: true,
-      badge: "Aktif",
-      external: true,
-    },
-    {
-      id: "siyaum",
-      title: "SIYAUM (Yaum Ma'al Quran)",
-      description: "Pencatatan setoran tilawah Al-Quran harian serta rekapan kelompok halaqah YMQ.",
-      icon: "menu_book",
-      url: SERVICE_URL.siyaum,
-      isActive: true,
-      badge: "Aktif",
-      external: true,
-    },
-    {
-      id: "siakad",
-      title: "SIAKAD (Akademik & Sekolah)",
-      description: "Jadwal mengajar, jurnal kelas, absensi siswa, dan input nilai raport pendidikan.",
-      icon: "auto_stories",
-      url: SERVICE_URL.siakad,
-      isActive: true,
-      badge: "Aktif",
-      external: true,
-    },
-    {
-      id: "siskeu",
-      title: "SISKEU (Keuangan & SPP)",
-      description: "Tagihan SPP, status pembayaran, rekonsiliasi, dan laporan keuangan yayasan.",
-      icon: "payments",
-      url: SERVICE_URL.siskeu,
-      isActive: true,
-      badge: "Aktif",
-      external: true,
-    },
-    {
-      id: "sisarpras",
-      title: "SISARPRAS (Sarana & Aset)",
-      description: "Manajemen inventaris sarana dan prasarana sekolah serta pemeliharaan aset.",
-      icon: "inventory_2",
-      url: "#",
-      isActive: false,
-      badge: "Segera Hadir",
-    },
-    {
-      id: "sisurat",
-      title: "SISURAT (Administrasi Surat)",
-      description: "Penomoran surat otomatis, disposisi digital, dan pengarsipan tata usaha.",
-      icon: "mail",
-      url: "#",
-      isActive: false,
-      badge: "Segera Hadir",
-    },
+    ...visibleCoreServiceModules,
   ];
-
-  const modules: ModuleItem[] = isParentOnly ? [...parentSpmbModuleCards, parentSiakadModule] : allModules;
 
   if (loading) {
     return (

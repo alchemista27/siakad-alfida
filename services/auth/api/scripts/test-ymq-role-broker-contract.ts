@@ -130,6 +130,11 @@ async function main() {
     BadRequestException,
     "only SIMPEG employees can become participants",
   );
+  await assert.doesNotReject(
+    () => new YmqRoleBrokerService(createPrisma({ targetRoles: [{ app: "simpeg", role: "pimpinan" }] }).prisma as any)
+      .assign({ actorUserId, userId, role: "peserta" }),
+    "SIMPEG leadership may become a YMQ participant",
+  );
   await assert.rejects(
     () => new YmqRoleBrokerService(createPrisma({ targetRoles: [{ app: "simpeg", role: "pegawai" }] }).prisma as any)
       .assign({ actorUserId, userId, role: "pembina_ymq" }),
