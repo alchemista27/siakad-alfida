@@ -12,25 +12,17 @@ import { UserRoleScope } from "@alfida/contracts";
 import { RegisterParentDto, RegisterStaffDto } from "./dto/register.dto";
 import { ChangeOwnPasswordDto, UpdateOwnProfileDto } from "./dto/profile.dto";
 import { isValidPkceVerifier, pkceChallengeForVerifier } from "./mobile-pkce";
-
-export const ALFIDA_UNITS = [
-  { id: "0f3505db-ba0b-48e3-a500-2de9790bdd63", name: "TK Islam Terpadu Auladuna 1", slug: "tk-auladuna-1" },
-  { id: "9fe99902-40e0-48dd-9275-d73531584365", name: "TK Islam Terpadu Auladuna 2", slug: "tk-auladuna-2" },
-  { id: "dcaa14b2-b20c-416a-ba90-9367016ce295", name: "SD Islam Terpadu Iqra 1", slug: "sd-iqra-1" },
-  { id: "c09fb430-b5d3-4ae2-a6cc-2220430da453", name: "SD Islam Terpadu Iqra 2", slug: "sd-iqra-2" },
-  { id: "5edd8be0-86ac-406b-b23c-418b3e387528", name: "SD Islam Terpadu Iqra 3", slug: "sd-iqra-3" },
-  { id: "a09edaf4-c656-4632-abf1-4c0a25150c98", name: "SMP Islam Terpadu Iqra", slug: "smp-iqra" },
-  { id: "28225003-d1d3-4276-901c-f9a42a7cac69", name: "SMA Islam Terpadu Iqra", slug: "sma-iqra" },
-  { id: "18d0d36c-aea5-4ba6-a89b-320f9a4f240d", name: "Pesantren Quran Alfida", slug: "pesantren-quran" },
-  { id: "fed6e093-3fe7-46f7-b5c4-7b33e95ea8bb", name: "Kantor Pusat Yayasan", slug: "kantor-pusat" },
-];
+import { SimpegUnitCatalogClient } from "./simpeg-unit-catalog.client";
 
 @Injectable()
 export class AuthService {
   private secretKey: string;
   private readonly usedMobileAuthorizationCodes = new Map<string, number>();
 
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly simpegUnits: SimpegUnitCatalogClient,
+  ) {
     this.secretKey =
       process.env.AUTH_SECRET ||
       process.env.BETTER_AUTH_SECRET ||
@@ -38,7 +30,7 @@ export class AuthService {
   }
 
   async getUnits() {
-    return ALFIDA_UNITS;
+    return this.simpegUnits.listActive();
   }
 
   async registerParent(dto: RegisterParentDto) {
@@ -93,7 +85,8 @@ export class AuthService {
     if (existing) {
       throw new BadRequestException("Email sudah terdaftar. Silakan gunakan email lain atau hubungi admin.");
     }
-    if (!ALFIDA_UNITS.some((unit) => unit.id === dto.unitId)) {
+    const units = await this.getUnits();
+    if (!units.some((unit) => unit.id === dto.unitId)) {
       throw new BadRequestException("Unit kerja yang dipilih tidak valid.");
     }
 

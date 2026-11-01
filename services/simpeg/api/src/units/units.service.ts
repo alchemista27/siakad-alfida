@@ -34,6 +34,14 @@ export class UnitsService {
     return this.prisma.unit.findMany(query);
   }
 
+  async listActiveForInternal() {
+    return this.prisma.unit.findMany({
+      where: { isActive: true },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    });
+  }
+
   async findOne(id: string, principal?: Principal) {
     const unit = await this.prisma.unit.findUnique({ where: { id } });
     if (!unit) throw new NotFoundException("Unit tidak ditemukan.");

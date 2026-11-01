@@ -1,6 +1,6 @@
 // @contract-test: external
 import { PrismaClient as AuthPrisma } from "../src/generated/prisma";
-import { AuthService, ALFIDA_UNITS } from "../src/auth/auth.service";
+import { AuthService } from "../src/auth/auth.service";
 import fs from "fs";
 import path from "path";
 
@@ -16,7 +16,12 @@ async function main() {
   const authUrl = authMatch[0].replace("DATABASE_URL=", "").replace("bkoopidoln9uolhwy3zillrd", "localhost");
 
   const prisma = new AuthPrisma({ datasources: { db: { url: authUrl } } });
-  const authService = new AuthService(prisma as any);
+  const activeUnitCatalog = {
+    async listActive() {
+      return [{ id: "0f3505db-ba0b-48e3-a500-2de9790bdd63", name: "TK Islam Terpadu Auladuna 1" }];
+    },
+  };
+  const authService = new AuthService(prisma as any, activeUnitCatalog as any);
 
   let passed = 0;
   let failed = 0;
@@ -32,8 +37,8 @@ async function main() {
   try {
     // Test 1: getUnits
     const units = await authService.getUnits();
-    if (Array.isArray(units) && units.length >= 8) {
-      console.log(`[PASS] getUnits() mengembalikan ${units.length} unit yayasan resmi`);
+    if (Array.isArray(units) && units.length > 0) {
+      console.log(`[PASS] getUnits() mengembalikan ${units.length} unit aktif dari katalog SIMPEG`);
       passed++;
     } else {
       throw new Error("getUnits() tidak mengembalikan unit yang valid");

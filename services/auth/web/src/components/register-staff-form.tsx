@@ -7,25 +7,19 @@ import { PasswordMeter } from "@/components/password-meter";
 interface UnitOption {
   id: string;
   name: string;
-  slug: string;
 }
 
-const FALLBACK_UNITS: UnitOption[] = [
-  { id: "0f3505db-ba0b-48e3-a500-2de9790bdd63", name: "TK Islam Terpadu Auladuna 1", slug: "tk-auladuna-1" },
-  { id: "9fe99902-40e0-48dd-9275-d73531584365", name: "TK Islam Terpadu Auladuna 2", slug: "tk-auladuna-2" },
-  { id: "dcaa14b2-b20c-416a-ba90-9367016ce295", name: "SD Islam Terpadu Iqra 1", slug: "sd-iqra-1" },
-  { id: "c09fb430-b5d3-4ae2-a6cc-2220430da453", name: "SD Islam Terpadu Iqra 2", slug: "sd-iqra-2" },
-  { id: "5edd8be0-86ac-406b-b23c-418b3e387528", name: "SD Islam Terpadu Iqra 3", slug: "sd-iqra-3" },
-  { id: "a09edaf4-c656-4632-abf1-4c0a25150c98", name: "SMP Islam Terpadu Iqra", slug: "smp-iqra" },
-  { id: "28225003-d1d3-4276-901c-f9a42a7cac69", name: "SMA Islam Terpadu Iqra", slug: "sma-iqra" },
-  { id: "18d0d36c-aea5-4ba6-a89b-320f9a4f240d", name: "Pesantren Quran Alfida", slug: "pesantren-quran" },
-  { id: "fed6e093-3fe7-46f7-b5c4-7b33e95ea8bb", name: "Kantor Pusat Yayasan", slug: "kantor-pusat" },
-];
+function isUnitOption(value: unknown): value is UnitOption {
+  if (!value || typeof value !== "object") return false;
+  const unit = value as Record<string, unknown>;
+  return typeof unit.id === "string" && unit.id.length > 0
+    && typeof unit.name === "string" && unit.name.trim().length > 0;
+}
 
 export function RegisterStaffForm() {
-  const [units, setUnits] = useState<UnitOption[]>(FALLBACK_UNITS);
+  const [units, setUnits] = useState<UnitOption[]>([]);
   const [role, setRole] = useState<"guru" | "karyawan">("guru");
-  const [unitId, setUnitId] = useState(FALLBACK_UNITS[0].id);
+  const [unitId, setUnitId] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -34,27 +28,50 @@ export function RegisterStaffForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [unitsLoading, setUnitsLoading] = useState(true);
+  const [unitCatalogError, setUnitCatalogError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [success, setSuccess] = useState(false);
   const [isAccountActive, setIsAccountActive] = useState(false);
 
   useEffect(() => {
-    fetch("/api/auth/units")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setUnits(data);
-          setUnitId(data[0].id);
+    let cancelled = false;
+    const loadUnits = async () => {
+      try {
+        const response = await fetch("/api/auth/units", { cache: "no-store" });
+        const data: unknown = response.ok ? await response.json() : null;
+        if (!Array.isArray(data) || data.length === 0 || !data.every(isUnitOption)) {
+          throw new Error("Daftar unit kerja belum tersedia. Silakan muat ulang halaman ini.");
         }
-      })
-      .catch(() => {
-        // Fallback gracefully to default list
-      });
+        if (!cancelled) {
+          setUnits(data);
+          setUnitId((current) => (data.some((unit) => unit.id === current) ? current : data[0].id));
+        }
+      } catch {
+        if (!cancelled) {
+          setUnits([]);
+          setUnitId("");
+          setUnitCatalogError("Daftar unit kerja belum tersedia. Silakan muat ulang halaman ini.");
+        }
+      } finally {
+        if (!cancelled) setUnitsLoading(false);
+      }
+    };
+
+    void loadUnits();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
+
+    if (unitCatalogError || !unitId) {
+      setErrorMessage("Daftar unit kerja belum tersedia. Silakan muat ulang halaman ini.");
+      return;
+    }
 
     if (!fullName.trim() || !email.trim() || !phone.trim() || !password) {
       setErrorMessage("Semua kolom bertanda bintang (*) wajib diisi.");
@@ -230,8 +247,11 @@ export function RegisterStaffForm() {
                     value={unitId}
                     onChange={(e) => setUnitId(e.target.value)}
                     className="w-full px-3 py-2 rounded border border-border text-primary focus:outline-none focus:ring-2 focus:ring-[#0f7f6d] text-xs bg-white"
-                    disabled={loading}
+                    disabled={loading || unitsLoading}
                   >
+                    <option value="" disabled>
+                      {unitsLoading ? "Memuat unit kerja..." : "Pilih unit kerja"}
+                    </option>
                     {units.map((u) => (
                       <option key={u.id} value={u.id}>
                         {u.name}
@@ -360,7 +380,7 @@ export function RegisterStaffForm() {
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || unitsLoading || !unitId}
                   className="w-full py-2.5 px-4 rounded bg-tertiary hover:bg-[#0b6355] text-white font-semibold text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0f7f6d] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center mt-2 shadow-sm"
                 >
                   {loading ? (

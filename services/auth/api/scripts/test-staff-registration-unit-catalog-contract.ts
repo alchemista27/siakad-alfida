@@ -1,17 +1,14 @@
 import assert from "node:assert/strict";
-import { ALFIDA_UNITS } from "../src/auth/auth.service";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
-const canonicalSimpegUnits = [
-  ["fed6e093-3fe7-46f7-b5c4-7b33e95ea8bb", "Kantor Pusat Yayasan"],
-  ["18d0d36c-aea5-4ba6-a89b-320f9a4f240d", "Pesantren Quran Alfida"],
-] as const;
+const service = readFileSync(resolve(import.meta.dirname, "../src/auth/auth.service.ts"), "utf8");
+const moduleSource = readFileSync(resolve(import.meta.dirname, "../src/auth/auth.module.ts"), "utf8");
 
-for (const [id, name] of canonicalSimpegUnits) {
-  assert.equal(
-    ALFIDA_UNITS.find((unit) => unit.name === name)?.id,
-    id,
-    `staff registration must issue SIMPEG's canonical ${name} ID`,
-  );
-}
+assert.doesNotMatch(service, /ALFIDA_UNITS/, "staff registration must not keep a stale hardcoded unit catalog");
+assert.match(service, /simpegUnits\.listActive\(\)/, "public unit options must come from SIMPEG's active catalog");
+assert.match(service, /const units = await this\.getUnits\(\)/, "staff validation must use the same live catalog as the public endpoint");
+assert.match(moduleSource, /SimpegUnitCatalogClient/, "AuthModule must register the SIMPEG catalog client");
+assert.match(moduleSource, /SIMPEG_UNIT_CATALOG_FETCH/, "AuthModule must inject the runtime fetch implementation");
 
 console.log("Auth staff registration unit catalog contract passed");
