@@ -15,6 +15,7 @@ import {
 import { YmqRosterBrokerService } from "../src/ymq-roster-broker/ymq-roster-broker.service";
 
 const actorUserId = "00000000-0000-4000-8000-000000000001";
+const legacyActorUserId = "00000000-0000-0000-0000-000000000001";
 const unitId = "00000000-0000-4000-8000-000000000002";
 
 const standardAccount = {
@@ -136,6 +137,7 @@ function createPrisma(options: {
 
 async function main() {
   assert.deepEqual(validateYmqRosterPreviewInput(previewInput()), previewInput());
+  assert.equal(validateYmqRosterPreviewInput({ ...previewInput(), actorUserId: legacyActorUserId }).actorUserId, legacyActorUserId, "legacy UUID-shaped actor IDs must remain accepted");
   assert.deepEqual(validateYmqRosterProvisionInput(provisionInput()), provisionInput());
   assert.throws(
     () => validateYmqRosterPreviewInput({ ...previewInput(), unexpected: true }),
