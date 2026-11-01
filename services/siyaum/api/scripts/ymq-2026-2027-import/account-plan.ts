@@ -58,7 +58,7 @@ type AccountDraft = {
 };
 
 export function createAlfidaEmail(fullName: string): string | null {
-  const tokens = fullName
+  const tokens = normalizeYmqName(fullName)
     .normalize("NFKD")
     .replace(/\p{M}/gu, "")
     .toLocaleLowerCase("id-ID")

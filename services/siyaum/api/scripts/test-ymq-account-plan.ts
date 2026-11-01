@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { normalizeYmqName } from "./ymq-2026-2027-import/aliases";
 import {
   buildYmqAccountPlan,
   createAlfidaEmail,
@@ -28,6 +29,10 @@ function row(
 
 async function main() {
   assert.equal(createAlfidaEmail("Abdul Rahmat"), "abdul.rahmat@alfida.or.id");
+  assert.equal(createAlfidaEmail("Ahmad Baihaqi Manulang, M.Pd."), "ahmad.manulang@alfida.or.id");
+  assert.equal(createAlfidaEmail("Eka Lusianti, S.Pd.Gr."), "eka.lusianti@alfida.or.id");
+  assert.equal(normalizeYmqName("Ardiansyah, S.Pd.Gr."), "ardiansyah", "trailing academic credentials must not create a second roster identity");
+  assert.equal(normalizeYmqName("Ardiansyah S.Pd."), "ardiansyah");
   assert.equal(createAlfidaEmail("Sutrisno"), "sutrisno@alfida.or.id");
 
   const pembinaPlan = buildYmqAccountPlan([
