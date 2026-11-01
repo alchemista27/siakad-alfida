@@ -63,7 +63,7 @@ async function main() {
       const body = JSON.parse(String(init?.body));
       assert.equal(body.initialPassword, "contract-only-password");
       return new Response(JSON.stringify({ accounts: [{
-        id: "00000000-0000-4000-8000-000000000003",
+        id: "00000000-0000-0000-0000-000000000003",
         fullName: "Abdul Rahmat",
         email: "abdul.rahmat@alfida.or.id",
         isActive: true,
@@ -73,7 +73,7 @@ async function main() {
   });
   assert.deepEqual(await provisionClient.provision(previewInput), {
     accounts: [{
-      id: "00000000-0000-4000-8000-000000000003",
+      id: "00000000-0000-0000-0000-000000000003",
       fullName: "Abdul Rahmat",
       email: "abdul.rahmat@alfida.or.id",
       isActive: true,
