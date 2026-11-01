@@ -100,6 +100,15 @@ export const YmqGroupLevel: {
 export type YmqGroupLevel = (typeof YmqGroupLevel)[keyof typeof YmqGroupLevel]
 
 
+export const YmqProgressLevel: {
+  pra_tahsin: 'pra_tahsin',
+  tahsin: 'tahsin',
+  tahfiz: 'tahfiz'
+};
+
+export type YmqProgressLevel = (typeof YmqProgressLevel)[keyof typeof YmqProgressLevel]
+
+
 export const IwrLevel: {
   iwr_1: 'iwr_1',
   iwr_2: 'iwr_2'
@@ -146,6 +155,10 @@ export const VerificationStatus: typeof $Enums.VerificationStatus
 export type YmqGroupLevel = $Enums.YmqGroupLevel
 
 export const YmqGroupLevel: typeof $Enums.YmqGroupLevel
+
+export type YmqProgressLevel = $Enums.YmqProgressLevel
+
+export const YmqProgressLevel: typeof $Enums.YmqProgressLevel
 
 export type IwrLevel = $Enums.IwrLevel
 
@@ -3431,6 +3444,7 @@ export namespace Prisma {
 
   export type YmqGroupMinAggregateOutputType = {
     id: string | null
+    sourceKey: string | null
     name: string | null
     pembinaUserId: string | null
     level: $Enums.YmqGroupLevel | null
@@ -3446,6 +3460,7 @@ export namespace Prisma {
 
   export type YmqGroupMaxAggregateOutputType = {
     id: string | null
+    sourceKey: string | null
     name: string | null
     pembinaUserId: string | null
     level: $Enums.YmqGroupLevel | null
@@ -3461,6 +3476,7 @@ export namespace Prisma {
 
   export type YmqGroupCountAggregateOutputType = {
     id: number
+    sourceKey: number
     name: number
     pembinaUserId: number
     level: number
@@ -3478,6 +3494,7 @@ export namespace Prisma {
 
   export type YmqGroupMinAggregateInputType = {
     id?: true
+    sourceKey?: true
     name?: true
     pembinaUserId?: true
     level?: true
@@ -3493,6 +3510,7 @@ export namespace Prisma {
 
   export type YmqGroupMaxAggregateInputType = {
     id?: true
+    sourceKey?: true
     name?: true
     pembinaUserId?: true
     level?: true
@@ -3508,6 +3526,7 @@ export namespace Prisma {
 
   export type YmqGroupCountAggregateInputType = {
     id?: true
+    sourceKey?: true
     name?: true
     pembinaUserId?: true
     level?: true
@@ -3596,6 +3615,7 @@ export namespace Prisma {
 
   export type YmqGroupGroupByOutputType = {
     id: string
+    sourceKey: string | null
     name: string
     pembinaUserId: string | null
     level: $Enums.YmqGroupLevel | null
@@ -3628,6 +3648,7 @@ export namespace Prisma {
 
   export type YmqGroupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    sourceKey?: boolean
     name?: boolean
     pembinaUserId?: boolean
     level?: boolean
@@ -3648,6 +3669,7 @@ export namespace Prisma {
 
   export type YmqGroupSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    sourceKey?: boolean
     name?: boolean
     pembinaUserId?: boolean
     level?: boolean
@@ -3664,6 +3686,7 @@ export namespace Prisma {
 
   export type YmqGroupSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    sourceKey?: boolean
     name?: boolean
     pembinaUserId?: boolean
     level?: boolean
@@ -3680,6 +3703,7 @@ export namespace Prisma {
 
   export type YmqGroupSelectScalar = {
     id?: boolean
+    sourceKey?: boolean
     name?: boolean
     pembinaUserId?: boolean
     level?: boolean
@@ -3693,7 +3717,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type YmqGroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "pembinaUserId" | "level" | "unitId" | "unitName" | "description" | "scheduleDay" | "scheduleTime" | "whatsappLink" | "createdAt" | "updatedAt", ExtArgs["result"]["ymqGroup"]>
+  export type YmqGroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sourceKey" | "name" | "pembinaUserId" | "level" | "unitId" | "unitName" | "description" | "scheduleDay" | "scheduleTime" | "whatsappLink" | "createdAt" | "updatedAt", ExtArgs["result"]["ymqGroup"]>
   export type YmqGroupInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     pembina?: boolean | YmqGroup$pembinaArgs<ExtArgs>
     members?: boolean | YmqGroup$membersArgs<ExtArgs>
@@ -3718,6 +3742,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      sourceKey: string | null
       name: string
       pembinaUserId: string | null
       level: $Enums.YmqGroupLevel | null
@@ -4157,6 +4182,7 @@ export namespace Prisma {
    */
   interface YmqGroupFieldRefs {
     readonly id: FieldRef<"YmqGroup", 'String'>
+    readonly sourceKey: FieldRef<"YmqGroup", 'String'>
     readonly name: FieldRef<"YmqGroup", 'String'>
     readonly pembinaUserId: FieldRef<"YmqGroup", 'String'>
     readonly level: FieldRef<"YmqGroup", 'YmqGroupLevel'>
@@ -4687,6 +4713,7 @@ export namespace Prisma {
     id: string | null
     groupId: string | null
     userId: string | null
+    progressLevel: $Enums.YmqProgressLevel | null
     joinedAt: Date | null
     leftAt: Date | null
   }
@@ -4695,6 +4722,7 @@ export namespace Prisma {
     id: string | null
     groupId: string | null
     userId: string | null
+    progressLevel: $Enums.YmqProgressLevel | null
     joinedAt: Date | null
     leftAt: Date | null
   }
@@ -4703,6 +4731,7 @@ export namespace Prisma {
     id: number
     groupId: number
     userId: number
+    progressLevel: number
     joinedAt: number
     leftAt: number
     _all: number
@@ -4713,6 +4742,7 @@ export namespace Prisma {
     id?: true
     groupId?: true
     userId?: true
+    progressLevel?: true
     joinedAt?: true
     leftAt?: true
   }
@@ -4721,6 +4751,7 @@ export namespace Prisma {
     id?: true
     groupId?: true
     userId?: true
+    progressLevel?: true
     joinedAt?: true
     leftAt?: true
   }
@@ -4729,6 +4760,7 @@ export namespace Prisma {
     id?: true
     groupId?: true
     userId?: true
+    progressLevel?: true
     joinedAt?: true
     leftAt?: true
     _all?: true
@@ -4810,6 +4842,7 @@ export namespace Prisma {
     id: string
     groupId: string
     userId: string
+    progressLevel: $Enums.YmqProgressLevel | null
     joinedAt: Date
     leftAt: Date | null
     _count: YmqMemberCountAggregateOutputType | null
@@ -4835,6 +4868,7 @@ export namespace Prisma {
     id?: boolean
     groupId?: boolean
     userId?: boolean
+    progressLevel?: boolean
     joinedAt?: boolean
     leftAt?: boolean
     group?: boolean | YmqGroupDefaultArgs<ExtArgs>
@@ -4848,6 +4882,7 @@ export namespace Prisma {
     id?: boolean
     groupId?: boolean
     userId?: boolean
+    progressLevel?: boolean
     joinedAt?: boolean
     leftAt?: boolean
     group?: boolean | YmqGroupDefaultArgs<ExtArgs>
@@ -4858,6 +4893,7 @@ export namespace Prisma {
     id?: boolean
     groupId?: boolean
     userId?: boolean
+    progressLevel?: boolean
     joinedAt?: boolean
     leftAt?: boolean
     group?: boolean | YmqGroupDefaultArgs<ExtArgs>
@@ -4868,11 +4904,12 @@ export namespace Prisma {
     id?: boolean
     groupId?: boolean
     userId?: boolean
+    progressLevel?: boolean
     joinedAt?: boolean
     leftAt?: boolean
   }
 
-  export type YmqMemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "groupId" | "userId" | "joinedAt" | "leftAt", ExtArgs["result"]["ymqMember"]>
+  export type YmqMemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "groupId" | "userId" | "progressLevel" | "joinedAt" | "leftAt", ExtArgs["result"]["ymqMember"]>
   export type YmqMemberInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     group?: boolean | YmqGroupDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -4901,6 +4938,7 @@ export namespace Prisma {
       id: string
       groupId: string
       userId: string
+      progressLevel: $Enums.YmqProgressLevel | null
       joinedAt: Date
       leftAt: Date | null
     }, ExtArgs["result"]["ymqMember"]>
@@ -5333,6 +5371,7 @@ export namespace Prisma {
     readonly id: FieldRef<"YmqMember", 'String'>
     readonly groupId: FieldRef<"YmqMember", 'String'>
     readonly userId: FieldRef<"YmqMember", 'String'>
+    readonly progressLevel: FieldRef<"YmqMember", 'YmqProgressLevel'>
     readonly joinedAt: FieldRef<"YmqMember", 'DateTime'>
     readonly leftAt: FieldRef<"YmqMember", 'DateTime'>
   }
@@ -15107,6 +15146,7 @@ export namespace Prisma {
 
   export const YmqGroupScalarFieldEnum: {
     id: 'id',
+    sourceKey: 'sourceKey',
     name: 'name',
     pembinaUserId: 'pembinaUserId',
     level: 'level',
@@ -15127,6 +15167,7 @@ export namespace Prisma {
     id: 'id',
     groupId: 'groupId',
     userId: 'userId',
+    progressLevel: 'progressLevel',
     joinedAt: 'joinedAt',
     leftAt: 'leftAt'
   };
@@ -15331,6 +15372,18 @@ export namespace Prisma {
    */
   export type ListEnumYmqGroupLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'YmqGroupLevel[]'>
     
+
+
+  /**
+   * Reference to a field of type 'YmqProgressLevel'
+   */
+  export type EnumYmqProgressLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'YmqProgressLevel'>
+
+
+  /**
+   * Reference to a field of type 'YmqProgressLevel[]'
+   */
+  export type ListEnumYmqProgressLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'YmqProgressLevel[]'>
 
 
   /**
@@ -15553,6 +15606,7 @@ export namespace Prisma {
     OR?: YmqGroupWhereInput[]
     NOT?: YmqGroupWhereInput | YmqGroupWhereInput[]
     id?: UuidFilter<"YmqGroup"> | string
+    sourceKey?: StringNullableFilter<"YmqGroup"> | string | null
     name?: StringFilter<"YmqGroup"> | string
     pembinaUserId?: UuidNullableFilter<"YmqGroup"> | string | null
     level?: EnumYmqGroupLevelNullableFilter<"YmqGroup"> | $Enums.YmqGroupLevel | null
@@ -15572,6 +15626,7 @@ export namespace Prisma {
 
   export type YmqGroupOrderByWithRelationInput = {
     id?: SortOrder
+    sourceKey?: SortOrderInput | SortOrder
     name?: SortOrder
     pembinaUserId?: SortOrderInput | SortOrder
     level?: SortOrderInput | SortOrder
@@ -15591,6 +15646,7 @@ export namespace Prisma {
 
   export type YmqGroupWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    sourceKey?: string
     AND?: YmqGroupWhereInput | YmqGroupWhereInput[]
     OR?: YmqGroupWhereInput[]
     NOT?: YmqGroupWhereInput | YmqGroupWhereInput[]
@@ -15609,10 +15665,11 @@ export namespace Prisma {
     members?: YmqMemberListRelationFilter
     groupAdmins?: YmqGroupAdminAssignmentListRelationFilter
     learningSessions?: YmqLearningSessionListRelationFilter
-  }, "id">
+  }, "id" | "sourceKey">
 
   export type YmqGroupOrderByWithAggregationInput = {
     id?: SortOrder
+    sourceKey?: SortOrderInput | SortOrder
     name?: SortOrder
     pembinaUserId?: SortOrderInput | SortOrder
     level?: SortOrderInput | SortOrder
@@ -15634,6 +15691,7 @@ export namespace Prisma {
     OR?: YmqGroupScalarWhereWithAggregatesInput[]
     NOT?: YmqGroupScalarWhereWithAggregatesInput | YmqGroupScalarWhereWithAggregatesInput[]
     id?: UuidWithAggregatesFilter<"YmqGroup"> | string
+    sourceKey?: StringNullableWithAggregatesFilter<"YmqGroup"> | string | null
     name?: StringWithAggregatesFilter<"YmqGroup"> | string
     pembinaUserId?: UuidNullableWithAggregatesFilter<"YmqGroup"> | string | null
     level?: EnumYmqGroupLevelNullableWithAggregatesFilter<"YmqGroup"> | $Enums.YmqGroupLevel | null
@@ -15654,6 +15712,7 @@ export namespace Prisma {
     id?: UuidFilter<"YmqMember"> | string
     groupId?: UuidFilter<"YmqMember"> | string
     userId?: UuidFilter<"YmqMember"> | string
+    progressLevel?: EnumYmqProgressLevelNullableFilter<"YmqMember"> | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFilter<"YmqMember"> | Date | string
     leftAt?: DateTimeNullableFilter<"YmqMember"> | Date | string | null
     group?: XOR<YmqGroupScalarRelationFilter, YmqGroupWhereInput>
@@ -15666,6 +15725,7 @@ export namespace Prisma {
     id?: SortOrder
     groupId?: SortOrder
     userId?: SortOrder
+    progressLevel?: SortOrderInput | SortOrder
     joinedAt?: SortOrder
     leftAt?: SortOrderInput | SortOrder
     group?: YmqGroupOrderByWithRelationInput
@@ -15682,6 +15742,7 @@ export namespace Prisma {
     NOT?: YmqMemberWhereInput | YmqMemberWhereInput[]
     groupId?: UuidFilter<"YmqMember"> | string
     userId?: UuidFilter<"YmqMember"> | string
+    progressLevel?: EnumYmqProgressLevelNullableFilter<"YmqMember"> | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFilter<"YmqMember"> | Date | string
     leftAt?: DateTimeNullableFilter<"YmqMember"> | Date | string | null
     group?: XOR<YmqGroupScalarRelationFilter, YmqGroupWhereInput>
@@ -15694,6 +15755,7 @@ export namespace Prisma {
     id?: SortOrder
     groupId?: SortOrder
     userId?: SortOrder
+    progressLevel?: SortOrderInput | SortOrder
     joinedAt?: SortOrder
     leftAt?: SortOrderInput | SortOrder
     _count?: YmqMemberCountOrderByAggregateInput
@@ -15708,6 +15770,7 @@ export namespace Prisma {
     id?: UuidWithAggregatesFilter<"YmqMember"> | string
     groupId?: UuidWithAggregatesFilter<"YmqMember"> | string
     userId?: UuidWithAggregatesFilter<"YmqMember"> | string
+    progressLevel?: EnumYmqProgressLevelNullableWithAggregatesFilter<"YmqMember"> | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeWithAggregatesFilter<"YmqMember"> | Date | string
     leftAt?: DateTimeNullableWithAggregatesFilter<"YmqMember"> | Date | string | null
   }
@@ -16481,6 +16544,7 @@ export namespace Prisma {
 
   export type YmqGroupCreateInput = {
     id?: string
+    sourceKey?: string | null
     name: string
     level?: $Enums.YmqGroupLevel | null
     unitId?: string | null
@@ -16499,6 +16563,7 @@ export namespace Prisma {
 
   export type YmqGroupUncheckedCreateInput = {
     id?: string
+    sourceKey?: string | null
     name: string
     pembinaUserId?: string | null
     level?: $Enums.YmqGroupLevel | null
@@ -16517,6 +16582,7 @@ export namespace Prisma {
 
   export type YmqGroupUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
     unitId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16535,6 +16601,7 @@ export namespace Prisma {
 
   export type YmqGroupUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     pembinaUserId?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
@@ -16553,6 +16620,7 @@ export namespace Prisma {
 
   export type YmqGroupCreateManyInput = {
     id?: string
+    sourceKey?: string | null
     name: string
     pembinaUserId?: string | null
     level?: $Enums.YmqGroupLevel | null
@@ -16568,6 +16636,7 @@ export namespace Prisma {
 
   export type YmqGroupUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
     unitId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16582,6 +16651,7 @@ export namespace Prisma {
 
   export type YmqGroupUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     pembinaUserId?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
@@ -16597,6 +16667,7 @@ export namespace Prisma {
 
   export type YmqMemberCreateInput = {
     id?: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
     group: YmqGroupCreateNestedOneWithoutMembersInput
@@ -16609,6 +16680,7 @@ export namespace Prisma {
     id?: string
     groupId: string
     userId: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
     attendance?: YmqSessionAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -16617,6 +16689,7 @@ export namespace Prisma {
 
   export type YmqMemberUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     group?: YmqGroupUpdateOneRequiredWithoutMembersNestedInput
@@ -16629,6 +16702,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attendance?: YmqSessionAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -16639,12 +16713,14 @@ export namespace Prisma {
     id?: string
     groupId: string
     userId: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
   }
 
   export type YmqMemberUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -16653,6 +16729,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -17644,6 +17721,7 @@ export namespace Prisma {
 
   export type YmqGroupCountOrderByAggregateInput = {
     id?: SortOrder
+    sourceKey?: SortOrder
     name?: SortOrder
     pembinaUserId?: SortOrder
     level?: SortOrder
@@ -17659,6 +17737,7 @@ export namespace Prisma {
 
   export type YmqGroupMaxOrderByAggregateInput = {
     id?: SortOrder
+    sourceKey?: SortOrder
     name?: SortOrder
     pembinaUserId?: SortOrder
     level?: SortOrder
@@ -17674,6 +17753,7 @@ export namespace Prisma {
 
   export type YmqGroupMinOrderByAggregateInput = {
     id?: SortOrder
+    sourceKey?: SortOrder
     name?: SortOrder
     pembinaUserId?: SortOrder
     level?: SortOrder
@@ -17695,6 +17775,13 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumYmqGroupLevelNullableFilter<$PrismaModel>
     _max?: NestedEnumYmqGroupLevelNullableFilter<$PrismaModel>
+  }
+
+  export type EnumYmqProgressLevelNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.YmqProgressLevel | EnumYmqProgressLevelFieldRefInput<$PrismaModel> | null
+    in?: $Enums.YmqProgressLevel[] | ListEnumYmqProgressLevelFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.YmqProgressLevel[] | ListEnumYmqProgressLevelFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumYmqProgressLevelNullableFilter<$PrismaModel> | $Enums.YmqProgressLevel | null
   }
 
   export type YmqGroupScalarRelationFilter = {
@@ -17736,6 +17823,7 @@ export namespace Prisma {
     id?: SortOrder
     groupId?: SortOrder
     userId?: SortOrder
+    progressLevel?: SortOrder
     joinedAt?: SortOrder
     leftAt?: SortOrder
   }
@@ -17744,6 +17832,7 @@ export namespace Prisma {
     id?: SortOrder
     groupId?: SortOrder
     userId?: SortOrder
+    progressLevel?: SortOrder
     joinedAt?: SortOrder
     leftAt?: SortOrder
   }
@@ -17752,8 +17841,19 @@ export namespace Prisma {
     id?: SortOrder
     groupId?: SortOrder
     userId?: SortOrder
+    progressLevel?: SortOrder
     joinedAt?: SortOrder
     leftAt?: SortOrder
+  }
+
+  export type EnumYmqProgressLevelNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.YmqProgressLevel | EnumYmqProgressLevelFieldRefInput<$PrismaModel> | null
+    in?: $Enums.YmqProgressLevel[] | ListEnumYmqProgressLevelFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.YmqProgressLevel[] | ListEnumYmqProgressLevelFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumYmqProgressLevelNullableWithAggregatesFilter<$PrismaModel> | $Enums.YmqProgressLevel | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumYmqProgressLevelNullableFilter<$PrismaModel>
+    _max?: NestedEnumYmqProgressLevelNullableFilter<$PrismaModel>
   }
 
   export type EnumSetoranTypeFilter<$PrismaModel = never> = {
@@ -18782,6 +18882,10 @@ export namespace Prisma {
     connect?: YmqLearningProgressWhereUniqueInput | YmqLearningProgressWhereUniqueInput[]
   }
 
+  export type NullableEnumYmqProgressLevelFieldUpdateOperationsInput = {
+    set?: $Enums.YmqProgressLevel | null
+  }
+
   export type YmqGroupUpdateOneRequiredWithoutMembersNestedInput = {
     create?: XOR<YmqGroupCreateWithoutMembersInput, YmqGroupUncheckedCreateWithoutMembersInput>
     connectOrCreate?: YmqGroupCreateOrConnectWithoutMembersInput
@@ -19448,6 +19552,23 @@ export namespace Prisma {
     _max?: NestedEnumYmqGroupLevelNullableFilter<$PrismaModel>
   }
 
+  export type NestedEnumYmqProgressLevelNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.YmqProgressLevel | EnumYmqProgressLevelFieldRefInput<$PrismaModel> | null
+    in?: $Enums.YmqProgressLevel[] | ListEnumYmqProgressLevelFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.YmqProgressLevel[] | ListEnumYmqProgressLevelFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumYmqProgressLevelNullableFilter<$PrismaModel> | $Enums.YmqProgressLevel | null
+  }
+
+  export type NestedEnumYmqProgressLevelNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.YmqProgressLevel | EnumYmqProgressLevelFieldRefInput<$PrismaModel> | null
+    in?: $Enums.YmqProgressLevel[] | ListEnumYmqProgressLevelFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.YmqProgressLevel[] | ListEnumYmqProgressLevelFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumYmqProgressLevelNullableWithAggregatesFilter<$PrismaModel> | $Enums.YmqProgressLevel | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumYmqProgressLevelNullableFilter<$PrismaModel>
+    _max?: NestedEnumYmqProgressLevelNullableFilter<$PrismaModel>
+  }
+
   export type NestedEnumSetoranTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.SetoranType | EnumSetoranTypeFieldRefInput<$PrismaModel>
     in?: $Enums.SetoranType[] | ListEnumSetoranTypeFieldRefInput<$PrismaModel>
@@ -19606,6 +19727,7 @@ export namespace Prisma {
 
   export type YmqGroupCreateWithoutPembinaInput = {
     id?: string
+    sourceKey?: string | null
     name: string
     level?: $Enums.YmqGroupLevel | null
     unitId?: string | null
@@ -19623,6 +19745,7 @@ export namespace Prisma {
 
   export type YmqGroupUncheckedCreateWithoutPembinaInput = {
     id?: string
+    sourceKey?: string | null
     name: string
     level?: $Enums.YmqGroupLevel | null
     unitId?: string | null
@@ -19650,6 +19773,7 @@ export namespace Prisma {
 
   export type YmqMemberCreateWithoutUserInput = {
     id?: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
     group: YmqGroupCreateNestedOneWithoutMembersInput
@@ -19660,6 +19784,7 @@ export namespace Prisma {
   export type YmqMemberUncheckedCreateWithoutUserInput = {
     id?: string
     groupId: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
     attendance?: YmqSessionAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -19841,6 +19966,7 @@ export namespace Prisma {
     OR?: YmqGroupScalarWhereInput[]
     NOT?: YmqGroupScalarWhereInput | YmqGroupScalarWhereInput[]
     id?: UuidFilter<"YmqGroup"> | string
+    sourceKey?: StringNullableFilter<"YmqGroup"> | string | null
     name?: StringFilter<"YmqGroup"> | string
     pembinaUserId?: UuidNullableFilter<"YmqGroup"> | string | null
     level?: EnumYmqGroupLevelNullableFilter<"YmqGroup"> | $Enums.YmqGroupLevel | null
@@ -19877,6 +20003,7 @@ export namespace Prisma {
     id?: UuidFilter<"YmqMember"> | string
     groupId?: UuidFilter<"YmqMember"> | string
     userId?: UuidFilter<"YmqMember"> | string
+    progressLevel?: EnumYmqProgressLevelNullableFilter<"YmqMember"> | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFilter<"YmqMember"> | Date | string
     leftAt?: DateTimeNullableFilter<"YmqMember"> | Date | string | null
   }
@@ -20037,6 +20164,7 @@ export namespace Prisma {
 
   export type YmqMemberCreateWithoutGroupInput = {
     id?: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
     user: UserCreateNestedOneWithoutMembershipsInput
@@ -20047,6 +20175,7 @@ export namespace Prisma {
   export type YmqMemberUncheckedCreateWithoutGroupInput = {
     id?: string
     userId: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
     attendance?: YmqSessionAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -20235,6 +20364,7 @@ export namespace Prisma {
 
   export type YmqGroupCreateWithoutMembersInput = {
     id?: string
+    sourceKey?: string | null
     name: string
     level?: $Enums.YmqGroupLevel | null
     unitId?: string | null
@@ -20252,6 +20382,7 @@ export namespace Prisma {
 
   export type YmqGroupUncheckedCreateWithoutMembersInput = {
     id?: string
+    sourceKey?: string | null
     name: string
     pembinaUserId?: string | null
     level?: $Enums.YmqGroupLevel | null
@@ -20396,6 +20527,7 @@ export namespace Prisma {
 
   export type YmqGroupUpdateWithoutMembersInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
     unitId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20413,6 +20545,7 @@ export namespace Prisma {
 
   export type YmqGroupUncheckedUpdateWithoutMembersInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     pembinaUserId?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
@@ -20874,6 +21007,7 @@ export namespace Prisma {
 
   export type YmqGroupCreateWithoutGroupAdminsInput = {
     id?: string
+    sourceKey?: string | null
     name: string
     level?: $Enums.YmqGroupLevel | null
     unitId?: string | null
@@ -20891,6 +21025,7 @@ export namespace Prisma {
 
   export type YmqGroupUncheckedCreateWithoutGroupAdminsInput = {
     id?: string
+    sourceKey?: string | null
     name: string
     pembinaUserId?: string | null
     level?: $Enums.YmqGroupLevel | null
@@ -20967,6 +21102,7 @@ export namespace Prisma {
 
   export type YmqGroupUpdateWithoutGroupAdminsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
     unitId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20984,6 +21120,7 @@ export namespace Prisma {
 
   export type YmqGroupUncheckedUpdateWithoutGroupAdminsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     pembinaUserId?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
@@ -21050,6 +21187,7 @@ export namespace Prisma {
 
   export type YmqGroupCreateWithoutLearningSessionsInput = {
     id?: string
+    sourceKey?: string | null
     name: string
     level?: $Enums.YmqGroupLevel | null
     unitId?: string | null
@@ -21067,6 +21205,7 @@ export namespace Prisma {
 
   export type YmqGroupUncheckedCreateWithoutLearningSessionsInput = {
     id?: string
+    sourceKey?: string | null
     name: string
     pembinaUserId?: string | null
     level?: $Enums.YmqGroupLevel | null
@@ -21168,6 +21307,7 @@ export namespace Prisma {
 
   export type YmqGroupUpdateWithoutLearningSessionsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
     unitId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21185,6 +21325,7 @@ export namespace Prisma {
 
   export type YmqGroupUncheckedUpdateWithoutLearningSessionsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     pembinaUserId?: NullableStringFieldUpdateOperationsInput | string | null
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
@@ -21261,6 +21402,7 @@ export namespace Prisma {
 
   export type YmqMemberCreateWithoutAttendanceInput = {
     id?: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
     group: YmqGroupCreateNestedOneWithoutMembersInput
@@ -21272,6 +21414,7 @@ export namespace Prisma {
     id?: string
     groupId: string
     userId: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
     progress?: YmqLearningProgressUncheckedCreateNestedManyWithoutMemberInput
@@ -21328,6 +21471,7 @@ export namespace Prisma {
 
   export type YmqMemberUpdateWithoutAttendanceInput = {
     id?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     group?: YmqGroupUpdateOneRequiredWithoutMembersNestedInput
@@ -21339,6 +21483,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     progress?: YmqLearningProgressUncheckedUpdateManyWithoutMemberNestedInput
@@ -21373,6 +21518,7 @@ export namespace Prisma {
 
   export type YmqMemberCreateWithoutProgressInput = {
     id?: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
     group: YmqGroupCreateNestedOneWithoutMembersInput
@@ -21384,6 +21530,7 @@ export namespace Prisma {
     id?: string
     groupId: string
     userId: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
     attendance?: YmqSessionAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -21501,6 +21648,7 @@ export namespace Prisma {
 
   export type YmqMemberUpdateWithoutProgressInput = {
     id?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     group?: YmqGroupUpdateOneRequiredWithoutMembersNestedInput
@@ -21512,6 +21660,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attendance?: YmqSessionAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -21661,6 +21810,7 @@ export namespace Prisma {
 
   export type YmqGroupCreateManyPembinaInput = {
     id?: string
+    sourceKey?: string | null
     name: string
     level?: $Enums.YmqGroupLevel | null
     unitId?: string | null
@@ -21676,6 +21826,7 @@ export namespace Prisma {
   export type YmqMemberCreateManyUserInput = {
     id?: string
     groupId: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
   }
@@ -21734,6 +21885,7 @@ export namespace Prisma {
 
   export type YmqGroupUpdateWithoutPembinaInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
     unitId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21751,6 +21903,7 @@ export namespace Prisma {
 
   export type YmqGroupUncheckedUpdateWithoutPembinaInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
     unitId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21768,6 +21921,7 @@ export namespace Prisma {
 
   export type YmqGroupUncheckedUpdateManyWithoutPembinaInput = {
     id?: StringFieldUpdateOperationsInput | string
+    sourceKey?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
     level?: NullableEnumYmqGroupLevelFieldUpdateOperationsInput | $Enums.YmqGroupLevel | null
     unitId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21782,6 +21936,7 @@ export namespace Prisma {
 
   export type YmqMemberUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     group?: YmqGroupUpdateOneRequiredWithoutMembersNestedInput
@@ -21792,6 +21947,7 @@ export namespace Prisma {
   export type YmqMemberUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attendance?: YmqSessionAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -21801,6 +21957,7 @@ export namespace Prisma {
   export type YmqMemberUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -21964,6 +22121,7 @@ export namespace Prisma {
   export type YmqMemberCreateManyGroupInput = {
     id?: string
     userId: string
+    progressLevel?: $Enums.YmqProgressLevel | null
     joinedAt?: Date | string
     leftAt?: Date | string | null
   }
@@ -21988,6 +22146,7 @@ export namespace Prisma {
 
   export type YmqMemberUpdateWithoutGroupInput = {
     id?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     user?: UserUpdateOneRequiredWithoutMembershipsNestedInput
@@ -21998,6 +22157,7 @@ export namespace Prisma {
   export type YmqMemberUncheckedUpdateWithoutGroupInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attendance?: YmqSessionAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -22007,6 +22167,7 @@ export namespace Prisma {
   export type YmqMemberUncheckedUpdateManyWithoutGroupInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    progressLevel?: NullableEnumYmqProgressLevelFieldUpdateOperationsInput | $Enums.YmqProgressLevel | null
     joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }

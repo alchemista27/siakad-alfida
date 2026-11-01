@@ -16,7 +16,12 @@ interface Employee {
   isActive: boolean;
 }
 
-interface Member { id: string; userId: string; user?: Employee; }
+interface Member {
+  id: string;
+  userId: string;
+  progressLevel?: "pra_tahsin" | "tahsin" | "tahfiz" | null;
+  user?: Employee;
+}
 interface Group {
   id: string;
   name: string;
@@ -96,6 +101,29 @@ export function GroupStaffManager() {
     });
     return [...items.entries()].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name, "id"));
   }, [employees]);
+  const groupsByPembina = useMemo(() => {
+    const pembinaMap = new Map<string, { pembinaName: string; units: Map<string, { unitName: string; groups: Group[] }> }>();
+    for (const item of groups) {
+      const pembinaKey = item.pembinaUserId || "unassigned";
+      const pembinaName = item.pembina?.fullName || "Pembina belum ditetapkan";
+      const unitKey = item.unitId || item.unitName || "unassigned";
+      const unitName = item.unitName || "Unit belum tersedia";
+      const pembina = pembinaMap.get(pembinaKey) || { pembinaName, units: new Map() };
+      const unit = pembina.units.get(unitKey) || { unitName, groups: [] };
+      unit.groups.push(item);
+      pembina.units.set(unitKey, unit);
+      pembinaMap.set(pembinaKey, pembina);
+    }
+    return [...pembinaMap.entries()]
+      .map(([id, pembina]) => ({
+        id,
+        ...pembina,
+        units: [...pembina.units.entries()]
+          .map(([unitId, unit]) => ({ unitId, ...unit, groups: [...unit.groups].sort((a, b) => a.name.localeCompare(b.name, "id")) }))
+          .sort((a, b) => a.unitName.localeCompare(b.unitName, "id")),
+      }))
+      .sort((a, b) => a.pembinaName.localeCompare(b.pembinaName, "id"));
+  }, [groups]);
   const selectedCandidate = employees.find((employee) => employee.id === candidateId);
   const isSelectedParticipant = participants.some((participant) => participant.id === candidateId);
 
@@ -188,12 +216,23 @@ export function GroupStaffManager() {
         ) : (
           <>
             <Card className="shadow-none">
-              <label className="block text-sm font-semibold">Pilih kelompok
-                <select value={groupId} onChange={(event) => setGroupId(event.target.value)} className="mt-2 block w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm">
-                  <option value="">Pilih kelompok untuk dikelola</option>
-                  {groups.map((item) => <option key={item.id} value={item.id}>{item.name} — {item.unitName || "Unit belum tersedia"}</option>)}
-                </select>
-              </label>
+              <div>
+                <p className="text-sm font-semibold">Struktur roster</p>
+                <p className="mt-1 text-sm text-primary/65">Pilih pembina, kemudian unit, lalu kelompok yang akan dikelola.</p>
+              </div>
+              <div className="mt-4 space-y-5">
+                {groupsByPembina.map((pembina) => <section key={pembina.id} className="border-l-2 border-tertiary/30 pl-4">
+                  <h2 className="font-heading text-lg font-bold">{pembina.pembinaName}</h2>
+                  <div className="mt-3 space-y-3">
+                    {pembina.units.map((unit) => <div key={unit.unitId}>
+                      <h3 className="text-sm font-semibold text-primary/75">{unit.unitName}</h3>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {unit.groups.map((item) => <Button key={item.id} type="button" size="sm" variant={item.id === groupId ? "secondary" : "outline"} onClick={() => setGroupId(item.id)}>{item.name}</Button>)}
+                      </div>
+                    </div>)}
+                  </div>
+                </section>)}
+              </div>
             </Card>
 
             {group && <div className="grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
@@ -201,12 +240,12 @@ export function GroupStaffManager() {
                 <h2 className="font-heading text-xl font-bold">{group.name}</h2>
                 <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                   <div><dt className="text-primary/60">Unit aktif</dt><dd className="font-medium">{group.unitName || "Belum tersedia"}</dd></div>
-                  <div><dt className="text-primary/60">Level</dt><dd className="font-medium">{group.level?.replaceAll("_", " ") || "Belum tersedia"}</dd></div>
+                  <div><dt className="text-primary/60">Struktur roster</dt><dd className="font-medium">Pembina → Unit → Peserta</dd></div>
                   <div><dt className="text-primary/60">Pembina YMQ</dt><dd className="font-medium">{group.pembina?.fullName || "Belum ditugaskan"}</dd></div>
                   <div><dt className="text-primary/60">Peserta aktif</dt><dd className="font-medium">{group.members?.length || group._count?.members || 0}</dd></div>
                 </dl>
                 <div className="mt-6 border-t border-border pt-4"><h3 className="font-semibold">Admin Kelompok aktif</h3>{(group.groupAdmins || []).filter((assignment) => !assignment.revokedAt).length ? <ul className="mt-2 space-y-2">{group.groupAdmins?.filter((assignment) => !assignment.revokedAt).map((assignment) => <li key={assignment.user.id} className="flex items-center justify-between rounded-sm border border-border px-3 py-2 text-sm"><span>{assignment.user.fullName}<small className="ml-2 text-primary/60">{assignment.user.unitName}</small></span><Button type="button" size="sm" variant="danger" disabled={saving} onClick={() => void mutate("admin", "DELETE", assignment.user.id)}>Cabut</Button></li>)}</ul> : <p className="mt-2 text-sm text-primary/65">Belum ada admin kelompok aktif.</p>}</div>
-                <div className="mt-6 border-t border-border pt-4"><h3 className="font-semibold">Roster aktif</h3>{group.members?.length ? <ul className="mt-2 space-y-2">{group.members.map((member) => <li key={member.id} className="flex items-center justify-between rounded-sm border border-border px-3 py-2 text-sm"><span>{member.user?.fullName || member.userId}<small className="ml-2 text-primary/60">{member.user?.unitName}</small></span><Button type="button" size="sm" variant="outline" disabled={saving} onClick={() => void mutate("remove-member", "DELETE", member.userId)}>Pindahkan</Button></li>)}</ul> : <p className="mt-2 text-sm text-primary/65">Belum ada roster aktif.</p>}</div>
+                <div className="mt-6 border-t border-border pt-4"><h3 className="font-semibold">Roster aktif</h3>{group.members?.length ? <ul className="mt-2 space-y-2">{group.members.map((member) => <li key={member.id} className="flex items-center justify-between rounded-sm border border-border px-3 py-2 text-sm"><span>{member.user?.fullName || member.userId}<small className="ml-2 text-primary/60">{member.user?.unitName}</small><small className="ml-2 text-primary/60">Progress: {member.progressLevel?.replaceAll("_", " ") || "Belum ditetapkan"}</small></span><Button type="button" size="sm" variant="outline" disabled={saving} onClick={() => void mutate("remove-member", "DELETE", member.userId)}>Pindahkan</Button></li>)}</ul> : <p className="mt-2 text-sm text-primary/65">Belum ada roster aktif.</p>}</div>
               </Card>
               <Card className="shadow-none">
                 <h2 className="font-heading text-xl font-bold">Pilih pegawai aktif</h2>

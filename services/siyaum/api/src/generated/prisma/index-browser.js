@@ -137,6 +137,7 @@ exports.Prisma.UserScalarFieldEnum = {
 
 exports.Prisma.YmqGroupScalarFieldEnum = {
   id: 'id',
+  sourceKey: 'sourceKey',
   name: 'name',
   pembinaUserId: 'pembinaUserId',
   level: 'level',
@@ -154,6 +155,7 @@ exports.Prisma.YmqMemberScalarFieldEnum = {
   id: 'id',
   groupId: 'groupId',
   userId: 'userId',
+  progressLevel: 'progressLevel',
   joinedAt: 'joinedAt',
   leftAt: 'leftAt'
 };
@@ -270,6 +272,12 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 exports.YmqGroupLevel = exports.$Enums.YmqGroupLevel = {
+  pra_tahsin: 'pra_tahsin',
+  tahsin: 'tahsin',
+  tahfiz: 'tahfiz'
+};
+
+exports.YmqProgressLevel = exports.$Enums.YmqProgressLevel = {
   pra_tahsin: 'pra_tahsin',
   tahsin: 'tahsin',
   tahfiz: 'tahfiz'

@@ -22,8 +22,17 @@ export class GroupsService {
       },
       orderBy: [{ name: "asc" }, { id: "asc" }],
     });
-    if (hasAnyYmqRole(principal, ["admin_ymq", "pengawas", "pimpinan"])) return groups;
-    return groups.filter((group) => canReadGroup(principal, group));
+    const visibleGroups = hasAnyYmqRole(principal, ["admin_ymq", "pengawas", "pimpinan"])
+      ? groups
+      : groups.filter((group) => canReadGroup(principal, group));
+    return visibleGroups.sort((left, right) => {
+      const pembina = (left.pembina?.fullName || "").localeCompare(right.pembina?.fullName || "", "id");
+      if (pembina) return pembina;
+      const unit = (left.unitName || "").localeCompare(right.unitName || "", "id");
+      if (unit) return unit;
+      const name = left.name.localeCompare(right.name, "id");
+      return name || left.id.localeCompare(right.id, "id");
+    });
   }
 
   async findOne(id: string, principal: YmqPrincipal) {
@@ -32,7 +41,15 @@ export class GroupsService {
       include: {
         pembina: { select: { id: true, fullName: true, email: true, phone: true } },
         groupAdmins: { where: { revokedAt: null }, select: { userId: true, revokedAt: true } },
-        members: { where: { leftAt: null }, include: { user: { select: { id: true, fullName: true, email: true, unitId: true, unitName: true } } } },
+        members: {
+          where: { leftAt: null },
+          select: {
+            id: true,
+            userId: true,
+            progressLevel: true,
+            user: { select: { id: true, fullName: true, email: true, unitId: true, unitName: true } },
+          },
+        },
       },
     });
     if (!group) throw new NotFoundException("Kelompok YMQ tidak ditemukan.");

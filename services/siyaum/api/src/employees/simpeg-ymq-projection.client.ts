@@ -28,9 +28,11 @@ export class SimpegYmqProjectionClient {
     const payload = await response.json() as unknown;
     const rows = Array.isArray(payload)
       ? payload
-      : payload && typeof payload === "object" && Array.isArray((payload as { data?: unknown }).data)
-        ? (payload as { data: unknown[] }).data
-        : null;
+      : payload && typeof payload === "object" && Array.isArray((payload as { employees?: unknown }).employees)
+        ? (payload as { employees: unknown[] }).employees
+        : payload && typeof payload === "object" && Array.isArray((payload as { data?: unknown }).data)
+          ? (payload as { data: unknown[] }).data
+          : null;
     if (!rows) throw new ServiceUnavailableException("Respons proyeksi SIMPEG tidak valid.");
     return rows.map(mapYmqEmployeeProjection);
   }
