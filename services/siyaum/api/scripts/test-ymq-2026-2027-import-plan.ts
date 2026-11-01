@@ -4,6 +4,11 @@ import { resolve } from "node:path";
 import { buildYmqImportPlan, type ResolvedRosterRow } from "./ymq-2026-2027-import/plan";
 import { reconcileYmqWorkbookRows } from "./ymq-2026-2027-import/reconcile";
 
+const importerSource = readFileSync(resolve(import.meta.dirname, "import-ymq-2026-2027.ts"), "utf8");
+assert.match(importerSource, /AuthRosterBrokerClient/);
+assert.match(importerSource, /buildYmqAccountPlan/);
+assert.doesNotMatch(importerSource, /fetchSimpegYmqProjections|createAuthRoleBroker/);
+
 const schema = readFileSync(resolve(import.meta.dirname, "../prisma/schema.prisma"), "utf8");
 assert.match(schema, /enum\s+YmqProgressLevel\s+\{[\s\S]*pra_tahsin[\s\S]*tahsin[\s\S]*tahfiz[\s\S]*\}/);
 assert.match(schema, /sourceKey\s+String\?\s+@unique\s+@map\("source_key"\)/);
