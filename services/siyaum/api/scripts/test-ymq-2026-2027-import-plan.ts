@@ -6,6 +6,7 @@ import { reconcileYmqWorkbookRows } from "./ymq-2026-2027-import/reconcile";
 
 const importerSource = readFileSync(resolve(import.meta.dirname, "import-ymq-2026-2027.ts"), "utf8");
 assert.match(importerSource, /AuthRosterBrokerClient/);
+assert.match(importerSource, /SimpegYmqRosterProjectionClient/);
 assert.match(importerSource, /buildYmqAccountPlan/);
 assert.doesNotMatch(importerSource, /fetchSimpegYmqProjections|createAuthRoleBroker/);
 

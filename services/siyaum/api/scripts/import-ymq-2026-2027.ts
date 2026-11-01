@@ -6,6 +6,7 @@ import { buildYmqAccountPlan, type AccountPlanRosterRow } from "./ymq-2026-2027-
 import { AuthRosterBrokerClient } from "./ymq-2026-2027-import/auth-roster-broker";
 import { normalizeYmqName } from "./ymq-2026-2027-import/aliases";
 import { reconcileYmqWorkbookRows, type UnitIssue } from "./ymq-2026-2027-import/reconcile";
+import { SimpegYmqRosterProjectionClient } from "./ymq-2026-2027-import/simpeg-roster-projection";
 import { resolveCanonicalUnitName } from "./ymq-2026-2027-import/unit-map";
 import { fetchActiveSimpegUnits } from "./ymq-2026-2027-import/units";
 import { readYmqWorkbook } from "./ymq-2026-2027-import/workbook";
@@ -85,6 +86,7 @@ async function main() {
   };
   if (blockers.length) return finish(options, report, 2, `YMQ import blocked after Auth provisioning: ${blockers.length} issue(s). Review ${options.report}`);
 
+  const simpegProjection = await new SimpegYmqRosterProjectionClient().sync(provisioned.accounts, accountPlan.accounts);
   const prisma = new PrismaClient();
   try {
     const applied = await applyYmqImport(prisma, reconciliation.plan, provisioned.accounts, accountPlan.accounts);
@@ -95,6 +97,7 @@ async function main() {
         created: provisioned.accounts.length,
       },
       siyaumProjection: applied.projectionSync,
+      simpegProjection,
     };
     return finish(options, result, 0, `YMQ import applied: ${applied.groups} groups, ${applied.members} memberships; ${applied.projectionSync.created + applied.projectionSync.updated} projection users synchronized.`);
   } finally {
