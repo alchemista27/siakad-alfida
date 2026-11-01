@@ -55,6 +55,13 @@ async function main() {
     secret: "test-internal-secret",
   }]);
 
+  const previewWithInternalMetadata = {
+    ...previewInput,
+    accounts: previewInput.accounts.map((account) => ({ ...account, normalizedName: "abdul rahmat" })),
+  };
+  await client.preview(previewWithInternalMetadata);
+  assert.deepEqual(requests.at(-1)?.body, previewInput, "broker payload must omit importer-only account metadata");
+
   const provisionClient = new AuthRosterBrokerClient({
     baseUrl: "https://auth.internal.test",
     serviceSecret: "test-internal-secret",
@@ -101,6 +108,35 @@ async function main() {
     fetchImplementation: async () => new Response(JSON.stringify({ accounts: [{ id: "not-a-uuid" }] }), { status: 200 }),
   });
   await assert.rejects(() => malformed.provision(previewInput), /respons Auth roster/i);
+
+  const batchSizes: number[] = [];
+  const batchClient = new AuthRosterBrokerClient({
+    baseUrl: "https://auth.internal.test",
+    serviceSecret: "test-internal-secret",
+    fetchImplementation: async (_url, init) => {
+      const body = JSON.parse(String(init?.body)) as AuthRosterPreviewInput;
+      batchSizes.push(body.accounts.length);
+      return new Response(JSON.stringify({
+        accounts: body.accounts.map((account) => ({
+          sourceKey: account.sourceKey,
+          status: "created",
+          desiredRoles: account.assignments,
+          conflicts: [],
+        })),
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
+    },
+  });
+  const batchInput: AuthRosterPreviewInput = {
+    ...previewInput,
+    accounts: Array.from({ length: 51 }, (_, index) => ({
+      ...previewInput.accounts[0],
+      sourceKey: `ymq-2026-2027:account-${index}`,
+      email: `account-${index}@alfida.or.id`,
+    })),
+  };
+  const batchPreview = await batchClient.preview(batchInput);
+  assert.deepEqual(batchSizes, [...Array(10).fill(5), 1], "large roster requests must be split before reaching the proxy body limit");
+  assert.equal(batchPreview.accounts.length, 51);
 
   console.log("SIYAUM Auth roster broker contract passed");
 }

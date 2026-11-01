@@ -40,6 +40,7 @@ type ClientOptions = {
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ROSTER_REQUEST_BATCH_SIZE = 5;
 
 export class AuthRosterBrokerClient {
   private readonly baseUrl: string;
@@ -58,18 +59,38 @@ export class AuthRosterBrokerClient {
   }
 
   preview(input: AuthRosterPreviewInput): Promise<{ accounts: AuthRosterPreviewAccount[] }> {
-    return this.request("/api/internal/ymq-roster-broker/preview", input, parsePreviewResponse);
+    return this.requestBatches(
+      "/api/internal/ymq-roster-broker/preview",
+      input,
+      (accounts) => ({ ...input, accounts: accounts.map(serializeAccount) }),
+      parsePreviewResponse,
+    );
   }
 
   provision(input: AuthRosterPreviewInput): Promise<{ accounts: AuthRosterDirectoryUser[] }> {
     if (!this.initialPassword || this.initialPassword.length < 8) {
       throw new Error("YMQ_INITIAL_PASSWORD wajib tersedia untuk provisioning roster YMQ.");
     }
-    return this.request(
+    return this.requestBatches(
       "/api/internal/ymq-roster-broker/provision",
-      { ...input, initialPassword: this.initialPassword },
+      input,
+      (accounts) => ({ ...input, accounts: accounts.map(serializeAccount), initialPassword: this.initialPassword }),
       parseDirectoryResponse,
     );
+  }
+
+  private async requestBatches<T>(
+    path: string,
+    input: AuthRosterPreviewInput,
+    payload: (accounts: AuthRosterAccount[]) => unknown,
+    parse: (value: unknown) => { accounts: T[] },
+  ): Promise<{ accounts: T[] }> {
+    const accounts: T[] = [];
+    for (let offset = 0; offset < input.accounts.length; offset += ROSTER_REQUEST_BATCH_SIZE) {
+      const batch = input.accounts.slice(offset, offset + ROSTER_REQUEST_BATCH_SIZE);
+      accounts.push(...(await this.request(path, payload(batch), parse)).accounts);
+    }
+    return { accounts };
   }
 
   private async request<T>(path: string, payload: unknown, parse: (value: unknown) => T): Promise<T> {
@@ -91,6 +112,15 @@ export class AuthRosterBrokerClient {
       throw new Error("Respons Auth roster YMQ tidak valid.");
     }
   }
+}
+
+function serializeAccount(account: AuthRosterAccount): AuthRosterAccount {
+  return {
+    sourceKey: account.sourceKey,
+    fullName: account.fullName,
+    email: account.email,
+    assignments: account.assignments,
+  };
 }
 
 function parsePreviewResponse(value: unknown): { accounts: AuthRosterPreviewAccount[] } {
