@@ -55,6 +55,35 @@ async function main() {
   });
   await assert.rejects(() => malformed.sync(directory, accounts), /respons proyeksi SIMPEG/i);
 
+  const mixedDirectory = [
+    ...directory,
+    { id: "00000000-0000-0000-0000-000000000004", fullName: "Pimpinan", email: "pimpinan@alfida.or.id", isActive: true, sourceUpdatedAt: directory[0].sourceUpdatedAt },
+    { id: "00000000-0000-0000-0000-000000000005", fullName: "Admin SIYAUM", email: "admin.siyaum@alfida.or.id", isActive: true, sourceUpdatedAt: directory[0].sourceUpdatedAt },
+  ];
+  const mixedAccounts = [
+    ...accounts,
+    { sourceKey: "ymq-2026-2027:pimpinan", fullName: "Pimpinan", normalizedName: "pimpinan", email: "pimpinan@alfida.or.id", assignments: [{ app: "simpeg" as const, role: "pimpinan" as const, unitId: null }] },
+    { sourceKey: "ymq-2026-2027:admin-siyaum", fullName: "Admin SIYAUM", normalizedName: "admin siyaum", email: "admin.siyaum@alfida.or.id", assignments: [{ app: "siyaum" as const, role: "admin_ymq" as const, unitId: null }] },
+  ];
+  const mixedRequests: unknown[] = [];
+  const mixedClient = new SimpegYmqRosterProjectionClient({
+    baseUrl: "https://simpeg.internal.test",
+    serviceSecret: "test-internal-secret",
+    fetchImplementation: async (_url, init) => {
+      const body = JSON.parse(String(init?.body)) as { accounts: Array<{ unitIds: string[] }> };
+      mixedRequests.push(body);
+      return Response.json({ users: body.accounts.length, assignments: body.accounts.reduce((total, account) => total + account.unitIds.length, 0) });
+    },
+  });
+  assert.deepEqual(await mixedClient.sync(mixedDirectory, mixedAccounts), { users: 2, assignments: 1 });
+  assert.deepEqual(mixedRequests, [{
+    rosterVersion: "ymq-2026-2027",
+    accounts: [
+      { id: mixedDirectory[0].id, fullName: mixedDirectory[0].fullName, email: mixedDirectory[0].email, isActive: true, sourceUpdatedAt: mixedDirectory[0].sourceUpdatedAt, unitIds: [unitId] },
+      { id: mixedDirectory[1].id, fullName: mixedDirectory[1].fullName, email: mixedDirectory[1].email, isActive: true, sourceUpdatedAt: mixedDirectory[1].sourceUpdatedAt, unitIds: [] },
+    ],
+  }], "SIMPEG receives pegawai and pimpinan, while SIYAUM-only admin remains Auth-only");
+
   console.log("SIYAUM SIMPEG YMQ roster projection contract passed");
 }
 

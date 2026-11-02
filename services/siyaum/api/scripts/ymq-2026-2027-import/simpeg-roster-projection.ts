@@ -36,7 +36,11 @@ export class SimpegYmqRosterProjectionClient {
 
   async sync(directory: AuthRosterDirectoryUser[], accounts: PlannedAuthAccount[]): Promise<{ users: number; assignments: number }> {
     const accountsByEmail = new Map(accounts.map((account) => [account.email.toLowerCase(), account]));
-    const payloadAccounts = directory.map((entry) => toSimpegAccount(entry, accountsByEmail.get(entry.email.toLowerCase())));
+    const payloadAccounts = directory.flatMap((entry) => {
+      const account = toSimpegAccount(entry, accountsByEmail.get(entry.email.toLowerCase()));
+      return account ? [account] : [];
+    });
+    if (payloadAccounts.length === 0) return { users: 0, assignments: 0 };
     let users = 0;
     let assignments = 0;
     for (let offset = 0; offset < payloadAccounts.length; offset += REQUEST_BATCH_SIZE) {
@@ -66,13 +70,15 @@ export class SimpegYmqRosterProjectionClient {
   }
 }
 
-function toSimpegAccount(entry: AuthRosterDirectoryUser, account: PlannedAuthAccount | undefined): SimpegRosterAccount {
+function toSimpegAccount(entry: AuthRosterDirectoryUser, account: PlannedAuthAccount | undefined): SimpegRosterAccount | null {
   if (!account) throw new Error("Directory Auth tidak dapat dipetakan ke account plan untuk proyeksi SIMPEG.");
   if (!UUID.test(entry.id)) throw new Error("ID directory Auth untuk proyeksi SIMPEG tidak valid.");
-  const unitIds = [...new Set(account.assignments
-    .filter((assignment): assignment is Extract<typeof assignment, { app: "simpeg"; role: "pegawai" }> => assignment.app === "simpeg" && assignment.role === "pegawai")
+  const simpegAssignments = account.assignments.filter((assignment) => assignment.app === "simpeg");
+  const unitIds = [...new Set(simpegAssignments
+    .filter((assignment): assignment is Extract<typeof assignment, { app: "simpeg"; role: "pegawai" }> => assignment.role === "pegawai")
     .map((assignment) => assignment.unitId))].sort();
-  if (unitIds.length === 0) throw new Error("Akun roster YMQ harus memiliki unit pegawai SIMPEG.");
+  const isPimpinan = simpegAssignments.some((assignment) => assignment.role === "pimpinan");
+  if (unitIds.length === 0 && !isPimpinan) return null;
   return {
     id: entry.id,
     fullName: entry.fullName,
