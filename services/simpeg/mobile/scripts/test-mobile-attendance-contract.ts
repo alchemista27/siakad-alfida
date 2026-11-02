@@ -39,9 +39,12 @@ async function main() {
     readFile(resolve(process.cwd(), "src/lib/mobile-auth.ts"), "utf8"),
     readFile(resolve(process.cwd(), "src/lib/attendance-api.ts"), "utf8"),
   ]);
-  assert.match(app, /startMobileLogin/, "The app must use the Auth PKCE handoff instead of a local credential form");
+  assert.match(app, /loginWithAuthCredentials/, "The app must authenticate directly against the central Auth account API");
+  assert.match(mobileAuth, /fetch\(`\$\{AUTH_URL\}\/api\/auth\/login`/, "Native credentials must be checked by Auth Alfida");
   assert.match(mobileAuth, /expo-secure-store/, "Access tokens must be stored in native secure storage");
-  assert.match(mobileAuth, /code_verifier/, "The mobile handoff must exchange a PKCE verifier");
+  assert.match(app, /TextInput/, "The unauthenticated screen must render native credential inputs");
+  assert.match(app, /secureTextEntry/, "The native password input must not expose the password by default");
+  assert.match(app, /Masuk ke SIMPEG/, "The application must open on its own login screen");
   assert.match(attendanceApi, /\/attendance\/context/, "Mobile must reuse SIMPEG attendance context");
   assert.match(app, /validateLocationFix\(position/, "Every submission must validate the fresh GPS fix");
   assert.match(app, /getCurrentPositionAsync\(\{ accuracy: Location\.Accuracy\.High \}\)/);
@@ -53,7 +56,7 @@ async function main() {
   assert.match(app, /const current = await getTodayAttendance\(SIMPEG_API_URL, token\)/, "Never submit using a stale context");
   assert.match(app, /mockStatus === "tidak dapat diverifikasi"/, "An absent mock flag must be labeled unverifiable in the UI");
   assert.doesNotMatch(app, /\bAlert\.alert\(|\bconsole\.(?:log|error)\(/);
-  assert.doesNotMatch(app, /TextInput|password|fetch\([^)]*\/login/i, "The client must not implement a password-grant login flow");
+  assert.doesNotMatch(mobileAuth, /openAuthSessionAsync|code_verifier|mobile\/authorize/, "Native login must stay inside the application instead of opening a browser SSO flow");
   console.log("SIMPEG mobile attendance foundation contract passed");
 }
 

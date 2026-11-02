@@ -2,13 +2,17 @@ import { useFonts } from "expo-font";
 import * as Location from "expo-location";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, AppState, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, AppState, KeyboardAvoidingView, Modal, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { AttendanceApiError, getTodayAttendance, nextAttendanceAction, overtimeStatus, submitAttendance, type AttendanceContext } from "./src/lib/attendance-api";
 import { AlmatsuratCard } from "./src/components/almatsurat-card";
+import { FoundationLogo } from "./src/components/foundation-logo";
+import { ProfilePage } from "./src/components/profile-page";
 import { HijriCalendarCard } from "./src/components/hijri-calendar-card";
 import { PrayerTimesCard } from "./src/components/prayer-times-card";
+import { getAuthProfile, type AuthProfile } from "./src/lib/auth-profile";
 import { SIMPEG_API_URL } from "./src/lib/config";
-import { clearMobileAccessToken, getMobileAccessToken, startMobileLogin } from "./src/lib/mobile-auth";
+import { getFoundationBranding, type FoundationBranding } from "./src/lib/foundation-branding";
+import { clearMobileAccessToken, getMobileAccessToken, loginWithAuthCredentials } from "./src/lib/mobile-auth";
 import { validateLocationFix } from "./src/lib/location-policy";
 import { validatePrayerLocation, type PrayerLocation } from "./src/lib/prayer-location";
 import { prayerTimesFor, type PrayerSlot } from "./src/lib/prayer-times";
@@ -16,6 +20,15 @@ import { colors, radius, space } from "./src/theme/tokens";
 
 type MobileUser = { id: string; fullName: string; email: string };
 type NoticeState = { text: string; kind: "error" | "success" | "info" };
+type MobilePage = "attendance" | "calendar" | "prayer" | "almatsurat" | "profile";
+
+const NAVIGATION: Array<{ id: MobilePage; sidebarLabel: string; title: string }> = [
+  { id: "attendance", sidebarLabel: "Absensi", title: "Absensi hari ini" },
+  { id: "calendar", sidebarLabel: "Kalender Hijriyah", title: "Kalender Hijriyah" },
+  { id: "prayer", sidebarLabel: "Jadwal Salat", title: "Jadwal Salat" },
+  { id: "almatsurat", sidebarLabel: "Al-Ma’tsurat", title: "Al-Ma’tsurat" },
+  { id: "profile", sidebarLabel: "Profil", title: "Profil Saya" },
+];
 
 function clock(value?: string | null): string {
   if (!value) return "Belum ada";
@@ -31,10 +44,20 @@ export default function App() {
     Inter: require("./assets/fonts/Inter.ttf"),
   });
   const [token, setToken] = useState<string | null>(null);
+  const [branding, setBranding] = useState<FoundationBranding>({ foundationName: "Yayasan Alfida", logoUrl: null });
+  const [activePage, setActivePage] = useState<MobilePage>("attendance");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [emailOrUsername, setEmailOrUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const passwordInputRef = useRef<any>(null);
   const [user, setUser] = useState<MobileUser | null>(null);
   const [context, setContext] = useState<AttendanceContext | null>(null);
   const [notice, setNotice] = useState<NoticeState | null>(null);
   const [busy, setBusy] = useState(true);
+  const [profile, setProfile] = useState<AuthProfile | null>(null);
+  const [profileBusy, setProfileBusy] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
   const [prayerLocation, setPrayerLocation] = useState<PrayerLocation | null>(null);
   const [prayerError, setPrayerError] = useState<string | null>(null);
   const [prayerBusy, setPrayerBusy] = useState(false);
@@ -44,6 +67,12 @@ export default function App() {
   useEffect(() => {
     const timer = setInterval(() => setPrayerNow(new Date()), 60_000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void getFoundationBranding().then(next => { if (active) setBranding(next); });
+    return () => { active = false; };
   }, []);
 
   const handleError = useCallback(async (error: unknown, fallback: string) => {
@@ -75,18 +104,41 @@ export default function App() {
     }
   }, [handleError]);
 
+  const loadProfile = useCallback(async (accessToken: string) => {
+    setProfileBusy(true);
+    setProfileError(null);
+    try {
+      const nextProfile = await getAuthProfile(accessToken);
+      setProfile(nextProfile);
+      setUser({ id: nextProfile.id, fullName: nextProfile.fullName, email: nextProfile.email });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Profil belum dapat dimuat.";
+      if (message.startsWith("Sesi berakhir")) {
+        await clearMobileAccessToken();
+        setToken(null);
+        setUser(null);
+        setProfile(null);
+        setNotice({ text: message, kind: "error" });
+      } else {
+        setProfileError(message);
+      }
+    } finally {
+      setProfileBusy(false);
+    }
+  }, []);
+
   useEffect(() => {
     let active = true;
     getMobileAccessToken().then(stored => {
       if (!active) return;
       setToken(stored);
-      if (stored) void loadContext(stored);
-      else { setNotice({ text: "Masuk melalui Auth Alfida untuk melihat absensi.", kind: "info" }); setBusy(false); }
+      if (stored) { void loadContext(stored); void loadProfile(stored); }
+      else { setBusy(false); }
     }).catch(() => {
       if (active) { setNotice({ text: "Penyimpanan sesi tidak tersedia. Coba lagi.", kind: "error" }); setBusy(false); }
     });
     return () => { active = false; };
-  }, [loadContext]);
+  }, [loadContext, loadProfile]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", state => {
@@ -104,10 +156,11 @@ export default function App() {
     setBusy(true);
     setNotice(null);
     try {
-      const session = await startMobileLogin();
+      const session = await loginWithAuthCredentials(emailOrUsername, password);
+      setPassword("");
       setToken(session.token);
       setUser(session.user);
-      await loadContext(session.token);
+      await Promise.all([loadContext(session.token), loadProfile(session.token)]);
     } catch (error) {
       await handleError(error, "Tidak dapat masuk ke SIMPEG.");
       setBusy(false);
@@ -181,19 +234,67 @@ export default function App() {
   if (!token) return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
-      <View style={styles.container}>
-        <Brand />
-        <View style={styles.hero}>
-          <Text style={styles.kicker}>ABSENSI PEGAWAI</Text>
-          <Text style={styles.title}>Hari kerja, tercatat dengan jelas.</Text>
-          <Text style={styles.copy}>Masuk melalui Auth Alfida. Kredensial Anda tetap di halaman Auth; aplikasi ini hanya menyimpan token akses pada penyimpanan aman perangkat.</Text>
-        </View>
-        {notice ? <Notice notice={notice} /> : null}
-        <Pressable accessibilityRole="button" style={[styles.button, busy && styles.disabled]} onPress={() => void handleLogin()} disabled={busy}>
-          <Text style={styles.buttonText}>{busy ? "Memuat…" : "Masuk dengan Auth Alfida"}</Text>
-        </Pressable>
-        <Text style={styles.footnote}>SSO • PKCE • Lokasi diminta saat presensi</Text>
-      </View>
+      {/* app.json applies softwareKeyboardLayoutMode: "resize" on Android. */}
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.loginKeyboard}>
+        <ScrollView contentContainerStyle={styles.loginScrollContent} keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
+          <View style={styles.loginCard}>
+            <FoundationLogo branding={branding} />
+            <Text style={styles.loginTitle}>Masuk ke SIMPEG</Text>
+            {notice?.kind === "error" ? <Notice notice={notice} /> : null}
+            <View style={styles.loginForm}>
+              <Text style={styles.inputLabel}>Email atau username</Text>
+              <TextInput
+                accessibilityLabel="Email atau username"
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="username"
+                editable={!busy}
+                onChangeText={setEmailOrUsername}
+                onSubmitEditing={() => passwordInputRef.current?.focus()}
+                placeholder="nama@alfida.or.id atau username"
+                placeholderTextColor="#737373"
+                returnKeyType="next"
+                style={styles.input}
+                value={emailOrUsername}
+              />
+              <Text style={styles.inputLabel}>Password</Text>
+              <View style={styles.passwordField}>
+                <TextInput
+                  ref={passwordInputRef}
+                  accessibilityLabel="Password"
+                  autoCapitalize="none"
+                  autoComplete="current-password"
+                  editable={!busy}
+                  onChangeText={setPassword}
+                  onSubmitEditing={() => void handleLogin()}
+                  placeholder="Masukkan password"
+                  placeholderTextColor="#737373"
+                  returnKeyType="go"
+                  secureTextEntry={!passwordVisible}
+                  style={styles.passwordInput}
+                  value={password}
+                />
+                {passwordVisible ? <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Sembunyikan password"
+                  disabled={busy}
+                  onPress={() => setPasswordVisible(false)}
+                  style={styles.passwordToggle}
+                ><Text style={styles.passwordToggleText}>Sembunyikan</Text></Pressable> : <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Tampilkan password"
+                  disabled={busy}
+                  onPress={() => setPasswordVisible(true)}
+                  style={styles.passwordToggle}
+                ><Text style={styles.passwordToggleText}>Tampilkan</Text></Pressable>}
+              </View>
+            </View>
+            <Pressable accessibilityRole="button" style={[styles.button, busy && styles.disabled]} onPress={() => void handleLogin()} disabled={busy}>
+              <Text style={styles.buttonText}>{busy ? "Memproses…" : "Masuk"}</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 
@@ -210,18 +311,44 @@ export default function App() {
       prayerCalculationError = error instanceof Error ? error.message : "Jadwal salat belum tersedia untuk lokasi ini.";
     }
   }
+  const currentPage = NAVIGATION.find(item => item.id === activePage) ?? NAVIGATION[0];
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
-      <ScrollView contentContainerStyle={styles.container}>
-        <Brand />
+      <Modal animationType="slide" transparent visible={sidebarOpen} onRequestClose={() => setSidebarOpen(false)}>
+        <View style={styles.drawerOverlay}>
+          <View accessibilityRole="menu" style={styles.sidebar}>
+            <FoundationLogo branding={branding} size={56} />
+            <Text style={styles.sidebarUser}>{user?.fullName ?? "Pegawai Alfida"}</Text>
+            {NAVIGATION.map(item => <Pressable
+              key={item.id}
+              accessibilityRole="menuitem"
+              accessibilityState={{ selected: activePage === item.id }}
+              onPress={() => { setActivePage(item.id); setSidebarOpen(false); }}
+              style={[styles.sidebarItem, activePage === item.id && styles.sidebarItemActive]}
+            ><Text style={[styles.sidebarItemText, activePage === item.id && styles.sidebarItemTextActive]}>{item.sidebarLabel}</Text></Pressable>)}
+            <View style={styles.sidebarDivider} />
+            <Pressable accessibilityRole="button" onPress={() => { setSidebarOpen(false); void logout(); }} style={styles.sidebarItem}>
+              <Text style={styles.sidebarLogout}>Keluar dari perangkat ini</Text>
+            </Pressable>
+          </View>
+          <Pressable accessibilityRole="button" accessibilityLabel="Tutup menu" style={styles.drawerScrim} onPress={() => setSidebarOpen(false)} />
+        </View>
+      </Modal>
+      <View style={styles.topBar}>
+        <Brand compact />
+        <Pressable accessibilityRole="button" accessibilityLabel="Buka menu" onPress={() => setSidebarOpen(true)} style={styles.menuButton}>
+          <Text style={styles.menuButtonText}>Menu</Text>
+        </Pressable>
+      </View>
+      <ScrollView contentContainerStyle={styles.pageContent}>
         <View style={styles.header}>
-          <Text style={styles.kicker}>ABSENSI HARI INI</Text>
-          <Text style={styles.title}>{user?.fullName ? `Selamat datang, ${user.fullName}.` : "Presensi Anda hari ini."}</Text>
-          <Text style={styles.copy}>{context ? `${context.unitName} · ${context.date} (WIB)` : "Memuat konteks kerja…"}</Text>
+          <Text style={styles.kicker}>{currentPage.title.toUpperCase()}</Text>
+          <Text style={styles.title}>{activePage === "attendance" && user?.fullName ? `Selamat datang, ${user.fullName}.` : currentPage.title}</Text>
+          {activePage === "attendance" ? <Text style={styles.copy}>{context ? `${context.unitName} · ${context.date} (WIB)` : "Memuat konteks kerja…"}</Text> : null}
         </View>
         {notice ? <Notice notice={notice} /> : null}
-        <View style={styles.card}>
+        {activePage === "attendance" && <View style={styles.card}>
           {busy ? <ActivityIndicator color={colors.tertiary} accessibilityLabel="Memuat absensi" /> : context ? <>
             <Text style={styles.cardLabel}>STATUS KERJA</Text>
             <Text style={styles.cardTitle}>{context.workday.required ? "Hari kerja aktif" : "Tidak wajib presensi"}</Text>
@@ -242,9 +369,9 @@ export default function App() {
             <Text style={styles.copy}>Konteks absensi belum tersedia.</Text>
             <Pressable accessibilityRole="button" onPress={() => void loadContext(token)} style={styles.secondaryButton}><Text style={styles.secondaryText}>Coba lagi</Text></Pressable>
           </>}
-        </View>
-        <HijriCalendarCard now={prayerNow} timeZone={timezone} />
-        <View style={styles.prayerSection}>
+        </View>}
+        {activePage === "calendar" && <HijriCalendarCard now={prayerNow} timeZone={timezone} />}
+        {activePage === "prayer" && <View style={styles.prayerSection}>
           {prayerSlots && activePrayerLocation && timezone ? <PrayerTimesCard slots={prayerSlots} timezone={timezone} accuracyMeters={activePrayerLocation.accuracyMeters} /> : null}
           {!prayerSlots && !prayerError && !prayerCalculationError ? <Text style={styles.copy}>Jadwal salat dihitung dari lokasi perangkat. Ketuk tombol untuk mengambil lokasi.</Text> : null}
           {prayerError || prayerCalculationError ? <Notice notice={{ kind: "error", text: prayerError ?? prayerCalculationError ?? "" }} /> : null}
@@ -252,17 +379,17 @@ export default function App() {
           <Pressable accessibilityRole="button" style={[styles.button, prayerBusy && styles.disabled]} disabled={prayerBusy} onPress={() => void loadPrayerLocation()}>
             <Text style={styles.buttonText}>{prayerBusy ? "Mengambil lokasi…" : activePrayerLocation ? "Perbarui lokasi salat" : "Tampilkan jadwal salat"}</Text>
           </Pressable>
-        </View>
-        <AlmatsuratCard />
-        <Text style={styles.footnote}>Lokasi diambil baru setiap presensi. Deteksi lokasi mock bukan jaminan keaslian GPS.</Text>
-        <Pressable accessibilityRole="button" style={styles.secondaryButton} onPress={() => void logout()} disabled={busy}><Text style={styles.secondaryText}>Keluar dari perangkat ini</Text></Pressable>
+        </View>}
+        {activePage === "almatsurat" && <AlmatsuratCard />}
+        {activePage === "profile" && <ProfilePage error={profileError} loading={profileBusy} onRetry={() => void loadProfile(token)} profile={profile} />}
+        {activePage === "attendance" ? <Text style={styles.footnote}>Lokasi diambil baru setiap presensi. Deteksi lokasi mock bukan jaminan keaslian GPS.</Text> : null}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-function Brand() {
-  return <View style={styles.brandRow}><View style={styles.mark}><Text style={styles.markText}>A</Text></View><View><Text style={styles.eyebrow}>YAYASAN ALFIDA</Text><Text style={styles.brand}>SIMPEG</Text></View></View>;
+function Brand({ compact = false }: { compact?: boolean }) {
+  return <View style={[styles.brandRow, compact && styles.compactBrandRow]}><View style={styles.mark}><Text style={styles.markText}>A</Text></View>{!compact ? <View><Text style={styles.eyebrow}>YAYASAN ALFIDA</Text><Text style={styles.brand}>SIMPEG</Text></View> : <Text style={styles.brand}>SIMPEG</Text>}</View>;
 }
 function Detail({ label, value }: { label: string; value: string }) {
   return <View style={styles.detailRow}><Text style={styles.detailLabel}>{label}</Text><Text style={styles.detailValue}>{value}</Text></View>;
@@ -274,13 +401,39 @@ function Notice({ notice }: { notice: NoticeState }) {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.neutral },
   loading: { flex: 1 },
+  loginKeyboard: { flex: 1 },
+  loginScrollContent: { flexGrow: 1, justifyContent: "center", padding: space.lg },
+  loginCard: { alignSelf: "center", backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius.md, borderWidth: 1, gap: space.md, maxWidth: 440, padding: space.lg, width: "100%" },
+  loginTitle: { color: colors.primary, fontFamily: "Lora", fontSize: 28, fontWeight: "700", textAlign: "center" },
   container: { flexGrow: 1, paddingHorizontal: space.lg, paddingVertical: space.lg, justifyContent: "center", gap: space.md },
+  pageContent: { flexGrow: 1, padding: space.lg, gap: space.md },
+  topBar: { alignItems: "center", backgroundColor: colors.surface, borderBottomColor: colors.border, borderBottomWidth: 1, flexDirection: "row", justifyContent: "space-between", paddingHorizontal: space.lg, paddingVertical: space.md },
+  menuButton: { borderColor: colors.border, borderRadius: radius.sm, borderWidth: 1, paddingHorizontal: space.md, paddingVertical: space.sm },
+  menuButtonText: { color: colors.tertiary, fontFamily: "Inter", fontSize: 13, fontWeight: "700" },
+  drawerOverlay: { flex: 1, flexDirection: "row", backgroundColor: "rgba(0,0,0,0.24)" },
+  sidebar: { backgroundColor: colors.neutral, borderRightColor: colors.border, borderRightWidth: 1, gap: space.sm, minWidth: "78%", paddingHorizontal: space.lg, paddingTop: 56 },
+  drawerScrim: { flex: 1 },
+  sidebarUser: { color: colors.primary, fontFamily: "Inter", fontSize: 13, marginBottom: space.md },
+  sidebarItem: { borderRadius: radius.sm, paddingHorizontal: space.md, paddingVertical: 14 },
+  sidebarItemActive: { backgroundColor: colors.tertiary },
+  sidebarItemText: { color: colors.primary, fontFamily: "Inter", fontSize: 15, fontWeight: "700" },
+  sidebarItemTextActive: { color: colors.onTertiary },
+  sidebarDivider: { backgroundColor: colors.border, height: 1, marginVertical: space.sm },
+  sidebarLogout: { color: colors.tertiary, fontFamily: "Inter", fontSize: 14, fontWeight: "700" },
   brandRow: { flexDirection: "row", alignItems: "center", gap: space.sm, marginBottom: space.lg },
+  compactBrandRow: { marginBottom: 0 },
   mark: { width: 40, height: 40, alignItems: "center", justifyContent: "center", backgroundColor: colors.tertiary, borderRadius: radius.sm },
   markText: { fontFamily: "Inter", color: colors.onTertiary, fontWeight: "700", fontSize: 20 },
   eyebrow: { fontFamily: "Inter", fontSize: 10, color: colors.tertiary, fontWeight: "700", letterSpacing: 1.4 },
   brand: { fontFamily: "Inter", fontSize: 17, color: colors.primary, fontWeight: "700" },
   hero: { gap: space.md, marginVertical: space.lg },
+  loginForm: { gap: space.sm },
+  inputLabel: { fontFamily: "Inter", color: colors.primary, fontSize: 13, fontWeight: "700" },
+  input: { borderColor: colors.border, borderRadius: radius.sm, borderWidth: 1, backgroundColor: colors.surface, color: colors.primary, fontFamily: "Inter", fontSize: 15, paddingHorizontal: space.md, paddingVertical: 12 },
+  passwordField: { alignItems: "center", borderColor: colors.border, borderRadius: radius.sm, borderWidth: 1, flexDirection: "row" },
+  passwordInput: { color: colors.primary, flex: 1, fontFamily: "Inter", fontSize: 15, paddingHorizontal: space.md, paddingVertical: 12 },
+  passwordToggle: { paddingHorizontal: space.md, paddingVertical: 12 },
+  passwordToggleText: { color: colors.tertiary, fontFamily: "Inter", fontSize: 12, fontWeight: "700" },
   header: { gap: space.sm, marginBottom: space.sm },
   kicker: { fontFamily: "Inter", color: colors.tertiary, fontSize: 11, letterSpacing: 1.5, fontWeight: "700" },
   title: { fontFamily: "Lora", color: colors.primary, fontSize: 30, lineHeight: 39, fontWeight: "700" },
