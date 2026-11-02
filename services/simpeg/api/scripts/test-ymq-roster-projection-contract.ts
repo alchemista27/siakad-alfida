@@ -53,6 +53,31 @@ async function main() {
   assert.deepEqual(assignments.map((assignment) => assignment.isPrimary), [true, false]);
   assert.ok(assignments.every((assignment) => assignment.role === "karyawan"));
 
+  const leader = parseYmqRosterProjection({
+    rosterVersion: "ymq-2026-2027",
+    accounts: [{
+      id: "00000000-0000-0000-0000-000000000009",
+      fullName: "Pimpinan YMQ",
+      email: "pimpinan.ymq@alfida.or.id",
+      isActive: true,
+      sourceUpdatedAt,
+      unitIds: [],
+    }],
+  });
+  const leaderWrites: Array<{ model: string; data: Record<string, unknown> }> = [];
+  const leaderPrisma = {
+    unit: { findMany: async () => [] },
+    $transaction: async (callback: (tx: any) => Promise<unknown>) => callback({
+      user: { upsert: async ({ create }: { create: Record<string, unknown> }) => leaderWrites.push({ model: "user", data: create }) },
+      employeeUnitAssignment: {
+        findFirst: async () => null,
+        upsert: async ({ create }: { create: Record<string, unknown> }) => leaderWrites.push({ model: "assignment", data: create }),
+      },
+    }),
+  };
+  assert.deepEqual(await new YmqRosterProjectionService(leaderPrisma as any).upsert(leader), { users: 1, assignments: 0 });
+  assert.deepEqual(leaderWrites.map((write) => write.model), ["user"], "a SIMPEG leader without a unit remains visible in SIMPEG without an employee-unit assignment");
+
   console.log("SIMPEG YMQ roster projection contract passed");
 }
 

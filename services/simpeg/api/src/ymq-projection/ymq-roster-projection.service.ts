@@ -106,7 +106,7 @@ function parseAccount(input: unknown): YmqRosterProjectionAccount {
   const id = readUuid(value.id);
   const fullName = readString(value.fullName, 200);
   const email = readString(value.email, 255).toLowerCase();
-  if (!EMAIL.test(email) || typeof value.isActive !== "boolean" || typeof value.sourceUpdatedAt !== "string" || !ISO_TIMESTAMP.test(value.sourceUpdatedAt) || Number.isNaN(Date.parse(value.sourceUpdatedAt)) || !Array.isArray(value.unitIds) || value.unitIds.length === 0) invalid();
+  if (!EMAIL.test(email) || typeof value.isActive !== "boolean" || typeof value.sourceUpdatedAt !== "string" || !ISO_TIMESTAMP.test(value.sourceUpdatedAt) || Number.isNaN(Date.parse(value.sourceUpdatedAt)) || !Array.isArray(value.unitIds)) invalid();
   const unitIds = [...new Set(value.unitIds.map(readUuid))].sort();
   return { id, fullName, email, isActive: value.isActive, sourceUpdatedAt: value.sourceUpdatedAt, unitIds };
 }
