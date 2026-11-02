@@ -594,6 +594,7 @@ export class RegistrationsService {
         studentData: true,
         parent: { select: { fullName: true, email: true, phone: true } },
         payment: true,
+        documents: { select: { id: true, type: true, fileName: true } },
         observationResult: true,
       },
       orderBy: { createdAt: "desc" },

@@ -12,6 +12,7 @@ export interface ReviewableRegistration {
   guardianPhone: string;
   studentData?: { fullName: string; gender: string } | null;
   payment?: { status: string; amount: number; proofUrl: string | null; proofFileName?: string | null } | null;
+  documents?: Array<{ id: string; type: string; fileName?: string | null }>;
 }
 
 export function RegistrationReviewPanel({
@@ -28,6 +29,7 @@ export function RegistrationReviewPanel({
   const canVerifyPayment = (reg: ReviewableRegistration) => (
     reg.status === "payment_uploaded" && reg.payment?.status === "uploaded"
   );
+  const canVerifyDocuments = (reg: ReviewableRegistration) => reg.status === "verification";
 
   const verifyPayment = async (regId: string, isApproved: boolean) => {
     setBusyId(regId);
@@ -59,7 +61,7 @@ export function RegistrationReviewPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           isApproved,
-          revisionNote: isApproved ? undefined : (revisionNoteById[regId] || "Mohon perbaiki berkas yang kurang jelas."),
+          rejectionNote: isApproved ? undefined : (revisionNoteById[regId] || "Mohon perbaiki berkas yang kurang jelas."),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -86,6 +88,18 @@ export function RegistrationReviewPanel({
       if (!proofWindow) throw new Error("Browser memblokir tab bukti pembayaran. Izinkan pop-up lalu coba lagi.");
     } catch (error) {
       onNotify("error", error instanceof Error ? error.message : "Gagal membuka bukti pembayaran.");
+    }
+  };
+
+  const viewDocument = async (documentId: string) => {
+    try {
+      const res = await fetch(`/api/documents/${encodeURIComponent(documentId)}/download-url`, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || typeof data.downloadUrl !== "string") throw new Error(data.message || "Berkas pendaftar tidak dapat dibuka.");
+      const documentWindow = window.open(data.downloadUrl, "_blank", "noopener,noreferrer");
+      if (!documentWindow) throw new Error("Browser memblokir tab berkas. Izinkan pop-up lalu coba lagi.");
+    } catch (error) {
+      onNotify("error", error instanceof Error ? error.message : "Gagal membuka berkas pendaftar.");
     }
   };
 
@@ -143,22 +157,37 @@ export function RegistrationReviewPanel({
                   </button>
                 </>
               )}
-              <button
-                type="button"
-                disabled={busyId === reg.id}
-                onClick={() => verifyDocuments(reg.id, true)}
-                className="px-2.5 py-1 bg-[#e6f4f1] text-[#0f7f6d] rounded font-semibold"
-              >
-                Setujui Berkas
-              </button>
-              <button
-                type="button"
-                disabled={busyId === reg.id}
-                onClick={() => verifyDocuments(reg.id, false)}
-                className="px-2.5 py-1 border border-amber-300 text-amber-800 rounded font-semibold"
-              >
-                Revisi Berkas
-              </button>
+              {reg.documents?.map((document) => (
+                <button
+                  key={document.id}
+                  type="button"
+                  disabled={busyId === reg.id}
+                  onClick={() => void viewDocument(document.id)}
+                  className="px-2.5 py-1 border border-[#0f7f6d] text-[#0f7f6d] rounded font-semibold"
+                >
+                  Lihat {document.type.replace(/_/g, " ")}
+                </button>
+              ))}
+              {canVerifyDocuments(reg) && (
+                <>
+                  <button
+                    type="button"
+                    disabled={busyId === reg.id}
+                    onClick={() => verifyDocuments(reg.id, true)}
+                    className="px-2.5 py-1 bg-[#e6f4f1] text-[#0f7f6d] rounded font-semibold"
+                  >
+                    Setujui Berkas
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busyId === reg.id}
+                    onClick={() => verifyDocuments(reg.id, false)}
+                    className="px-2.5 py-1 border border-amber-300 text-amber-800 rounded font-semibold"
+                  >
+                    Revisi Berkas
+                  </button>
+                </>
+              )}
             </div>
           </div>
         ))}

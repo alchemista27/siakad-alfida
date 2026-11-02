@@ -43,6 +43,7 @@ interface Registration {
     proofUrl: string | null;
     proofFileName?: string | null;
   } | null;
+  documents?: Array<{ id: string; type: string; fileName?: string | null }>;
   observationResult: {
     score: number;
     rank: number | null;
