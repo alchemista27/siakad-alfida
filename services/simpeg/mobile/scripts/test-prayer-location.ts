@@ -14,7 +14,10 @@ for (const coords of [
   { ...fix.coords, latitude: NaN }, { ...fix.coords, longitude: Infinity },
   { ...fix.coords, latitude: 91 }, { ...fix.coords, longitude: -181 },
 ]) assert.throws(() => validatePrayerLocation({ ...fix, coords }, now), /koordinat/i);
-for (const accuracy of [null, -1, Infinity, NaN]) {
+assert.deepEqual(validatePrayerLocation({ ...fix, coords: { ...fix.coords, accuracy: null } }, now), {
+  latitude: -6.2, longitude: 106.8, accuracyMeters: null, capturedAt: now - 300_000,
+});
+for (const accuracy of [-1, Infinity, NaN]) {
   assert.throws(() => validatePrayerLocation({ ...fix, coords: { ...fix.coords, accuracy } }, now), /akurasi/i);
 }
 for (const timestamp of [NaN, Infinity, now + 5_001]) {

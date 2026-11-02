@@ -46,6 +46,8 @@ assert.match(text(jakarta[0]), new RegExp(PRAYER_METHOD.replace(/[.*+?^${}()|[\]
 assert.match(text(jakarta[0]), /zona waktu perangkat \(Asia\/Jakarta\)/i);
 assert.match(text(jakarta[0]), /zona waktu otomatis/i);
 assert.match(text(jakarta[0]), /±35 m/);
+const unknownAccuracy = elements(PrayerTimesCard({ slots, timezone: "Asia/Jakarta", accuracyMeters: null }));
+assert.match(text(unknownAccuracy[0]), /Akurasi lokasi tidak tersedia/i);
 assert.deepEqual(jakarta[0].props.style, {
   backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1,
   borderRadius: radius.md, padding: space.lg, gap: space.sm,

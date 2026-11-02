@@ -2,7 +2,7 @@ import { useFonts } from "expo-font";
 import * as Location from "expo-location";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, AppState, KeyboardAvoidingView, Modal, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, AppState, Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, SafeAreaView, ScrollView, StatusBar as NativeStatusBar, StyleSheet, Text, TextInput, View } from "react-native";
 import { AttendanceApiError, getTodayAttendance, nextAttendanceAction, overtimeStatus, submitAttendance, type AttendanceContext } from "./src/lib/attendance-api";
 import { AlmatsuratCard } from "./src/components/almatsurat-card";
 import { FoundationLogo } from "./src/components/foundation-logo";
@@ -50,6 +50,7 @@ export default function App() {
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const passwordInputRef = useRef<any>(null);
   const [user, setUser] = useState<MobileUser | null>(null);
   const [context, setContext] = useState<AttendanceContext | null>(null);
@@ -59,14 +60,23 @@ export default function App() {
   const [profileBusy, setProfileBusy] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [prayerLocation, setPrayerLocation] = useState<PrayerLocation | null>(null);
-  const [prayerError, setPrayerError] = useState<string | null>(null);
+  const [prayerNotice, setPrayerNotice] = useState<NoticeState | null>(null);
   const [prayerBusy, setPrayerBusy] = useState(false);
   const [prayerNow, setPrayerNow] = useState(() => new Date());
   const prayerRequestVersion = useRef(0);
+  const androidStatusBarInset = Platform.OS === "android" ? (NativeStatusBar.currentHeight ?? 0) : 0;
 
   useEffect(() => {
     const timer = setInterval(() => setPrayerNow(new Date()), 60_000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const show = Keyboard.addListener(showEvent, () => setKeyboardVisible(true));
+    const hide = Keyboard.addListener(hideEvent, () => setKeyboardVisible(false));
+    return () => { show.remove(); hide.remove(); };
   }, []);
 
   useEffect(() => {
@@ -84,7 +94,7 @@ export default function App() {
       prayerRequestVersion.current += 1;
       setPrayerBusy(false);
       setPrayerLocation(null);
-      setPrayerError(null);
+      setPrayerNotice(null);
       setNotice({ text: "Sesi berakhir. Masuk kembali melalui Auth Alfida.", kind: "error" });
       return;
     }
@@ -147,6 +157,7 @@ export default function App() {
       prayerRequestVersion.current += 1;
       setPrayerBusy(false);
       setPrayerLocation(null);
+      setPrayerNotice(null);
       if (token && !busy) void loadContext(token);
     });
     return () => subscription.remove();
@@ -196,19 +207,49 @@ export default function App() {
     if (prayerBusy) return;
     const requestVersion = ++prayerRequestVersion.current;
     setPrayerBusy(true);
-    setPrayerError(null);
-    setPrayerLocation(null);
+    setPrayerNotice(null);
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
       if (requestVersion !== prayerRequestVersion.current) return;
       if (permission.status !== "granted") throw new Error("Izin lokasi diperlukan untuk melihat jadwal salat.");
-      const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      if (requestVersion !== prayerRequestVersion.current) return;
-      setPrayerLocation(validatePrayerLocation(position, Date.now()));
-      setPrayerNow(new Date());
+
+      let hasFallback = false;
+      try {
+        const lastKnown = await Location.getLastKnownPositionAsync({
+          maxAge: 15 * 60 * 1000,
+          requiredAccuracy: 5_000,
+        });
+        if (requestVersion !== prayerRequestVersion.current) return;
+        if (lastKnown) {
+          setPrayerLocation(validatePrayerLocation(lastKnown, Date.now(), 15 * 60 * 1000));
+          setPrayerNow(new Date());
+          setPrayerNotice({ kind: "info", text: "Menggunakan lokasi terakhir sambil memperbarui lokasi perangkat." });
+          hasFallback = true;
+        }
+      } catch {
+        // Cached location is optional; continue with a fresh location request.
+      }
+
+      try {
+        const position = await Promise.race([
+          Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+            mayShowUserSettingsDialog: true,
+          }),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Waktu mengambil lokasi habis. Coba lagi.")), 15_000)),
+        ]);
+        if (requestVersion !== prayerRequestVersion.current) return;
+        setPrayerLocation(validatePrayerLocation(position, Date.now()));
+        setPrayerNow(new Date());
+        setPrayerNotice(null);
+      } catch (error) {
+        if (requestVersion === prayerRequestVersion.current && !hasFallback) {
+          setPrayerNotice({ kind: "error", text: error instanceof Error ? error.message : "Lokasi belum dapat diperoleh. Coba lagi." });
+        }
+      }
     } catch (error) {
       if (requestVersion === prayerRequestVersion.current) {
-        setPrayerError(error instanceof Error ? error.message : "Jadwal salat gagal dimuat. Coba lagi.");
+        setPrayerNotice({ kind: "error", text: error instanceof Error ? error.message : "Jadwal salat gagal dimuat. Coba lagi." });
       }
     } finally {
       if (requestVersion === prayerRequestVersion.current) setPrayerBusy(false);
@@ -224,7 +265,7 @@ export default function App() {
     setContext(null);
     setNotice(null);
     setPrayerLocation(null);
-    setPrayerError(null);
+    setPrayerNotice(null);
   };
 
   if (!fontsLoaded && !fontError) {
@@ -235,10 +276,19 @@ export default function App() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
       {/* app.json applies softwareKeyboardLayoutMode: "resize" on Android. */}
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.loginKeyboard}>
-        <ScrollView contentContainerStyle={styles.loginScrollContent} keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={androidStatusBarInset}
+        style={styles.loginKeyboard}
+      >
+        <ScrollView
+          automaticallyAdjustKeyboardInsets
+          contentContainerStyle={[styles.loginScrollContent, keyboardVisible && styles.loginScrollKeyboardOpen]}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.loginCard}>
-            <FoundationLogo branding={branding} />
+            <FoundationLogo branding={branding} size={keyboardVisible ? 72 : 112} />
             <Text style={styles.loginTitle}>Masuk ke SIMPEG</Text>
             {notice?.kind === "error" ? <Notice notice={notice} /> : null}
             <View style={styles.loginForm}>
@@ -335,7 +385,7 @@ export default function App() {
           <Pressable accessibilityRole="button" accessibilityLabel="Tutup menu" style={styles.drawerScrim} onPress={() => setSidebarOpen(false)} />
         </View>
       </Modal>
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, { paddingTop: space.md + androidStatusBarInset }]}>
         <Brand compact />
         <Pressable accessibilityRole="button" accessibilityLabel="Buka menu" onPress={() => setSidebarOpen(true)} style={styles.menuButton}>
           <Text style={styles.menuButtonText}>Menu</Text>
@@ -348,33 +398,48 @@ export default function App() {
           {activePage === "attendance" ? <Text style={styles.copy}>{context ? `${context.unitName} · ${context.date} (WIB)` : "Memuat konteks kerja…"}</Text> : null}
         </View>
         {notice ? <Notice notice={notice} /> : null}
-        {activePage === "attendance" && <View style={styles.card}>
-          {busy ? <ActivityIndicator color={colors.tertiary} accessibilityLabel="Memuat absensi" /> : context ? <>
-            <Text style={styles.cardLabel}>STATUS KERJA</Text>
-            <Text style={styles.cardTitle}>{context.workday.required ? "Hari kerja aktif" : "Tidak wajib presensi"}</Text>
-            <Text style={styles.copy}>{context.workday.reason}</Text>
-            <View style={styles.divider} />
-            <Detail label="Masuk" value={clock(context.attendance?.checkInTime)} />
-            <Detail label="Keluar" value={clock(context.attendance?.checkOutTime)} />
-            <View style={styles.divider} />
-            <Text style={styles.cardLabel}>JADWAL UNIT</Text>
-            <Detail label="Jam kerja" value={schedule ? `${schedule.startTime ?? "—"}–${schedule.endTime ?? "—"} WIB` : "Belum dikonfigurasi"} />
-            <Detail label="Toleransi masuk" value={schedule?.lateGraceMinutes == null ? "—" : `${schedule.lateGraceMinutes} menit`} />
-            <Detail label="Mulai lembur" value={schedule?.overtimeStartTime ? `${schedule.overtimeStartTime} WIB` : "Belum diatur"} />
-            <Text style={styles.overtime}>{overtimeStatus(context)}</Text>
-            {action ? <Pressable accessibilityRole="button" style={[styles.button, busy && styles.disabled]} onPress={() => void handleAttendance()} disabled={busy}>
-              <Text style={styles.buttonText}>{action === "check-in" ? "Check-in dengan lokasi" : "Check-out dengan lokasi"}</Text>
-            </Pressable> : null}
-          </> : <>
+        {activePage === "attendance" && <View style={styles.attendanceDashboard}>
+          {busy ? <View style={styles.card}><ActivityIndicator color={colors.tertiary} accessibilityLabel="Memuat absensi" /></View> : context ? <>
+            <View style={styles.attendanceHero}>
+              <Text style={styles.cardLabel}>PRESENSI HARI INI</Text>
+              <Text style={styles.attendanceHeroTitle}>{context.workday.required ? "Siap menjalani hari kerja." : "Tidak ada presensi wajib."}</Text>
+              <Text style={styles.attendanceHeroCopy}>{context.workday.reason}</Text>
+              <View style={styles.statusRing}>
+                <Text style={styles.statusRingLabel}>{action ? "STATUS" : "SELESAI"}</Text>
+                <Text style={styles.statusRingValue}>{action === "check-in" ? "Belum masuk" : action === "check-out" ? "Sedang bekerja" : "Tuntas"}</Text>
+              </View>
+              {action ? <Pressable accessibilityRole="button" style={styles.quickAction} onPress={() => void handleAttendance()}>
+                <Text style={styles.quickActionText}>{action === "check-in" ? "Check-in sekarang" : "Check-out sekarang"}</Text>
+              </Pressable> : null}
+            </View>
+            <View style={styles.attendanceMetrics}>
+              <Metric label="CHECK-IN" value={clock(context.attendance?.checkInTime)} />
+              <Metric label="CHECK-OUT" value={clock(context.attendance?.checkOutTime)} />
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.cardLabel}>Jadwal kerja</Text>
+              <Text style={styles.cardTitle}>{context.unitName}</Text>
+              <Detail label="Jam kerja" value={schedule ? `${schedule.startTime ?? "—"}–${schedule.endTime ?? "—"} WIB` : "Belum dikonfigurasi"} />
+              <Detail label="Toleransi masuk" value={schedule?.lateGraceMinutes == null ? "—" : `${schedule.lateGraceMinutes} menit`} />
+              <Detail label="Mulai lembur" value={schedule?.overtimeStartTime ? `${schedule.overtimeStartTime} WIB` : "Belum diatur"} />
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.cardLabel}>Riwayat hari ini</Text>
+              <Detail label="Masuk" value={clock(context.attendance?.checkInTime)} />
+              <Detail label="Keluar" value={clock(context.attendance?.checkOutTime)} />
+              <Text style={styles.overtime}>{overtimeStatus(context)}</Text>
+            </View>
+          </> : <View style={styles.card}>
             <Text style={styles.copy}>Konteks absensi belum tersedia.</Text>
             <Pressable accessibilityRole="button" onPress={() => void loadContext(token)} style={styles.secondaryButton}><Text style={styles.secondaryText}>Coba lagi</Text></Pressable>
-          </>}
+          </View>}
         </View>}
         {activePage === "calendar" && <HijriCalendarCard now={prayerNow} timeZone={timezone} />}
         {activePage === "prayer" && <View style={styles.prayerSection}>
           {prayerSlots && activePrayerLocation && timezone ? <PrayerTimesCard slots={prayerSlots} timezone={timezone} accuracyMeters={activePrayerLocation.accuracyMeters} /> : null}
-          {!prayerSlots && !prayerError && !prayerCalculationError ? <Text style={styles.copy}>Jadwal salat dihitung dari lokasi perangkat. Ketuk tombol untuk mengambil lokasi.</Text> : null}
-          {prayerError || prayerCalculationError ? <Notice notice={{ kind: "error", text: prayerError ?? prayerCalculationError ?? "" }} /> : null}
+          {!prayerSlots && !prayerNotice && !prayerCalculationError ? <Text style={styles.copy}>Jadwal salat dihitung dari lokasi perangkat. Ketuk tombol untuk mengambil lokasi.</Text> : null}
+          {prayerCalculationError ? <Notice notice={{ kind: "error", text: prayerCalculationError }} /> : null}
+          {prayerNotice ? <Notice notice={prayerNotice} /> : null}
           {!timezone ? <Text style={styles.copy}>Zona waktu perangkat tidak tersedia. Aktifkan zona waktu otomatis untuk melihat jam setempat.</Text> : null}
           <Pressable accessibilityRole="button" style={[styles.button, prayerBusy && styles.disabled]} disabled={prayerBusy} onPress={() => void loadPrayerLocation()}>
             <Text style={styles.buttonText}>{prayerBusy ? "Mengambil lokasi…" : activePrayerLocation ? "Perbarui lokasi salat" : "Tampilkan jadwal salat"}</Text>
@@ -394,6 +459,9 @@ function Brand({ compact = false }: { compact?: boolean }) {
 function Detail({ label, value }: { label: string; value: string }) {
   return <View style={styles.detailRow}><Text style={styles.detailLabel}>{label}</Text><Text style={styles.detailValue}>{value}</Text></View>;
 }
+function Metric({ label, value }: { label: string; value: string }) {
+  return <View style={styles.metricCard}><Text style={styles.metricLabel}>{label}</Text><Text style={styles.metricValue}>{value}</Text></View>;
+}
 function Notice({ notice }: { notice: NoticeState }) {
   return <View accessibilityRole="alert" style={[styles.notice, notice.kind === "success" && styles.successNotice]}><Text style={styles.noticeText}>{notice.text}</Text></View>;
 }
@@ -403,12 +471,26 @@ const styles = StyleSheet.create({
   loading: { flex: 1 },
   loginKeyboard: { flex: 1 },
   loginScrollContent: { flexGrow: 1, justifyContent: "center", padding: space.lg },
+  loginScrollKeyboardOpen: { justifyContent: "flex-start", paddingBottom: space.lg, paddingTop: space.md },
   loginCard: { alignSelf: "center", backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius.md, borderWidth: 1, gap: space.md, maxWidth: 440, padding: space.lg, width: "100%" },
   loginTitle: { color: colors.primary, fontFamily: "Lora", fontSize: 28, fontWeight: "700", textAlign: "center" },
   container: { flexGrow: 1, paddingHorizontal: space.lg, paddingVertical: space.lg, justifyContent: "center", gap: space.md },
   pageContent: { flexGrow: 1, padding: space.lg, gap: space.md },
+  attendanceDashboard: { gap: space.md },
+  attendanceHero: { alignItems: "center", backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius.md, borderWidth: 1, gap: space.sm, padding: space.lg },
+  attendanceHeroTitle: { color: colors.primary, fontFamily: "Lora", fontSize: 24, fontWeight: "700", textAlign: "center" },
+  attendanceHeroCopy: { color: colors.primary, fontFamily: "Inter", fontSize: 14, lineHeight: 21, textAlign: "center" },
+  statusRing: { alignItems: "center", backgroundColor: colors.neutral, borderColor: colors.tertiary, borderRadius: 90, borderWidth: 1, height: 152, justifyContent: "center", marginVertical: space.sm, padding: space.md, width: 152 },
+  statusRingLabel: { color: colors.tertiary, fontFamily: "Inter", fontSize: 11, fontWeight: "700", letterSpacing: 1.2 },
+  statusRingValue: { color: colors.primary, fontFamily: "Lora", fontSize: 19, fontWeight: "700", textAlign: "center" },
+  quickAction: { alignItems: "center", backgroundColor: colors.tertiary, borderRadius: radius.sm, paddingHorizontal: 20, paddingVertical: 12, width: "100%" },
+  quickActionText: { color: colors.onTertiary, fontFamily: "Inter", fontSize: 15, fontWeight: "700" },
+  attendanceMetrics: { flexDirection: "row", gap: space.sm },
+  metricCard: { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius.md, borderWidth: 1, flex: 1, gap: 4, padding: space.md },
+  metricLabel: { color: colors.tertiary, fontFamily: "Inter", fontSize: 10, fontWeight: "700", letterSpacing: 1 },
+  metricValue: { color: colors.primary, fontFamily: "Lora", fontSize: 17, fontWeight: "700" },
   topBar: { alignItems: "center", backgroundColor: colors.surface, borderBottomColor: colors.border, borderBottomWidth: 1, flexDirection: "row", justifyContent: "space-between", paddingHorizontal: space.lg, paddingVertical: space.md },
-  menuButton: { borderColor: colors.border, borderRadius: radius.sm, borderWidth: 1, paddingHorizontal: space.md, paddingVertical: space.sm },
+  menuButton: { alignItems: "center", borderColor: colors.border, borderRadius: radius.sm, borderWidth: 1, justifyContent: "center", minHeight: 44, minWidth: 44, paddingHorizontal: space.md, paddingVertical: space.sm },
   menuButtonText: { color: colors.tertiary, fontFamily: "Inter", fontSize: 13, fontWeight: "700" },
   drawerOverlay: { flex: 1, flexDirection: "row", backgroundColor: "rgba(0,0,0,0.24)" },
   sidebar: { backgroundColor: colors.neutral, borderRightColor: colors.border, borderRightWidth: 1, gap: space.sm, minWidth: "78%", paddingHorizontal: space.lg, paddingTop: 56 },
