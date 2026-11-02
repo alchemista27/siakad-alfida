@@ -42,6 +42,11 @@ function createAssignmentPrisma() {
         if (where.userId && record.userId !== where.userId) return false;
         if (where.isPrimary !== undefined && record.isPrimary !== where.isPrimary) return false;
         if (where.id && record.id !== where.id) return false;
+        const day = where.startDate?.lte;
+        if (day instanceof Date && record.startDate > day) return false;
+        if (Array.isArray(where.OR) && !where.OR.some((clause: any) => (
+          clause.endDate === null ? record.endDate === null : record.endDate !== null && record.endDate >= clause.endDate.gte
+        ))) return false;
         return true;
       }) ?? null;
     },
@@ -130,7 +135,14 @@ async function main() {
       return candidateId !== parentUserId;
     },
   };
-  const service = new AssignmentsService(lifecycle.prisma as never, authStaffCandidates as never);
+  const roleSyncCalls: Array<{ userId: string; unitId: string }> = [];
+  const authOrganizationRoles = {
+    async syncEmployeePrimaryUnit(candidateId: string, unitId: string) {
+      roleSyncCalls.push({ userId: candidateId, unitId });
+      return { userId: candidateId, unitId, changed: true };
+    },
+  };
+  const service = new AssignmentsService(lifecycle.prisma as never, authStaffCandidates as never, authOrganizationRoles as never);
   const result = await (service as any).mutate(sourceAssignmentId, {
     unitId: unitB,
     role: "guru_mapel",
@@ -145,6 +157,7 @@ async function main() {
   assert.equal(result.newAssignment.unitName, "Unit Tujuan");
   assert.equal(result.newAssignment.isPrimary, true);
   assert.equal(result.newAssignment.sourceKey, null);
+  assert.deepEqual(roleSyncCalls, [{ userId, unitId: unitB }], "a current primary-unit mutation must synchronize the Auth pegawai scope");
   assert.deepEqual(lifecycle.audit.slice(0, 2), [
     `update:${sourceAssignmentId}:${unitA}:true:2026-01-31`,
     `create:${unitB}:true:null`,

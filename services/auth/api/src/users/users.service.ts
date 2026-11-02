@@ -140,6 +140,31 @@ export class UsersService {
     return candidate;
   }
 
+  async syncEmployeePrimaryUnitRole(input: { userId: string; unitId: string }) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: input.userId },
+      select: { id: true, isActive: true },
+    });
+    if (!user?.isActive) throw new NotFoundException("Pegawai aktif tidak ditemukan.");
+
+    const roles = await this.prisma.roleAssignment.findMany({
+      where: { userId: input.userId, app: "simpeg", role: "pegawai" },
+      select: { id: true, unitId: true, departmentId: true },
+    });
+    if (roles.length !== 1 || roles[0].departmentId !== null) {
+      throw new BadRequestException("Peran pegawai SIMPEG harus ada tepat satu tanpa scope department.");
+    }
+    if (roles[0].unitId === input.unitId) {
+      return { userId: user.id, unitId: input.unitId, changed: false };
+    }
+
+    await this.prisma.$transaction(async (tx: any) => {
+      await tx.roleAssignment.update({ where: { id: roles[0].id }, data: { unitId: input.unitId } });
+      await tx.session.deleteMany({ where: { userId: user.id } });
+    });
+    return { userId: user.id, unitId: input.unitId, changed: true };
+  }
+
   async createUser(data: {
     email: string;
     fullName: string;

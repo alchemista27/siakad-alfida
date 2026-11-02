@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Post, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Param, Post, UseGuards } from "@nestjs/common";
 import { RequireRole, ServiceJwtAuthGuard, ServiceRolesGuard } from "@alfida/auth-sdk";
 import { validateOrganizationRoleInput, validatePublicOrganizationRoleInput } from "./organization-roles.dto";
 import { UsersService } from "./users.service";
@@ -37,6 +37,20 @@ export class InternalOrganizationRolesController {
   @Post()
   upsert(@Body() body: unknown) {
     return this.usersService.upsertOrganizationRole(validateOrganizationRoleInput(body));
+  }
+
+  @Post("employee-primary-unit")
+  syncEmployeePrimaryUnit(@Body() body: unknown) {
+    if (!body || typeof body !== "object") throw new BadRequestException("Payload sinkronisasi unit pegawai tidak valid.");
+    const input = body as Record<string, unknown>;
+    if (
+      Object.keys(input).length !== 2
+      || typeof input.userId !== "string"
+      || typeof input.unitId !== "string"
+      || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(input.userId)
+      || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(input.unitId)
+    ) throw new BadRequestException("Payload sinkronisasi unit pegawai tidak valid.");
+    return this.usersService.syncEmployeePrimaryUnitRole({ userId: input.userId, unitId: input.unitId });
   }
 
   @Delete()

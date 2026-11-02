@@ -29,6 +29,12 @@ async function main() {
         headers: Object.fromEntries(headers.entries()),
         body: init?.body ? JSON.parse(String(init.body)) : undefined,
       });
+      if (String(input).endsWith("/employee-primary-unit")) {
+        return new Response(JSON.stringify({ userId, unitId, changed: true }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+      }
       if (init?.method === "POST") {
         return new Response(JSON.stringify({ id: "auth-role-id" }), {
           status: 200,
@@ -57,6 +63,8 @@ async function main() {
       app: "simakin",
       role: "admin_bidang",
     });
+    const synced = await client.syncEmployeePrimaryUnit(userId, unitId);
+    assert.deepEqual(synced, { userId, unitId, changed: true });
 
     assert.deepEqual(requests, [
       {
@@ -77,6 +85,15 @@ async function main() {
         },
         body: { scope: "department", userId, departmentId, app: "simakin", role: "admin_bidang" },
       },
+      {
+        url: "https://auth.example.test/api/users/internal-organization-roles/employee-primary-unit",
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-internal-service-token": "test-internal-token",
+        },
+        body: { userId, unitId },
+      },
     ]);
     assert.equal("authorization" in requests[0].headers, false, "browser authorization must never be forwarded");
 
@@ -85,7 +102,7 @@ async function main() {
       () => client.grant({ scope: "unit", userId, unitId, app: "simpeg", role: "admin_unit" }),
       /not configured/,
     );
-    assert.equal(requests.length, 2, "missing configuration must fail before fetch");
+    assert.equal(requests.length, 3, "missing configuration must fail before fetch");
 
     process.env.AUTH_API_URL = "https://auth.example.test";
     globalThis.fetch = (async () => new Response("nope", { status: 401 })) as typeof fetch;

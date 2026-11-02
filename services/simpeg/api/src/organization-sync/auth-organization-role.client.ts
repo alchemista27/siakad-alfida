@@ -17,6 +17,7 @@ type AuthOrganizationRoleInput =
     };
 
 type AuthOrganizationRoleGrant = { id: string };
+type EmployeePrimaryUnitSync = { userId: string; unitId: string; changed: boolean };
 
 @Injectable()
 export class AuthOrganizationRoleClient {
@@ -32,7 +33,30 @@ export class AuthOrganizationRoleClient {
     await this.request("DELETE", input, "revoke");
   }
 
-  private async request(method: "POST" | "DELETE", input: AuthOrganizationRoleInput, operation: "grant" | "revoke"): Promise<unknown> {
+  async syncEmployeePrimaryUnit(userId: string, unitId: string): Promise<EmployeePrimaryUnitSync> {
+    const payload = await this.request(
+      "POST",
+      { userId, unitId },
+      "employee primary-unit sync",
+      "/api/users/internal-organization-roles/employee-primary-unit",
+    );
+    if (
+      !payload || typeof payload !== "object"
+      || (payload as { userId?: unknown }).userId !== userId
+      || (payload as { unitId?: unknown }).unitId !== unitId
+      || typeof (payload as { changed?: unknown }).changed !== "boolean"
+    ) {
+      throw new Error("Auth employee primary-unit sync returned invalid payload.");
+    }
+    return payload as EmployeePrimaryUnitSync;
+  }
+
+  private async request(
+    method: "POST" | "DELETE",
+    input: AuthOrganizationRoleInput | { userId: string; unitId: string },
+    operation: "grant" | "revoke" | "employee primary-unit sync",
+    path = "/api/users/internal-organization-roles",
+  ): Promise<unknown> {
     const baseUrl = process.env.AUTH_API_URL;
     const token = process.env.AUTH_INTERNAL_SERVICE_TOKEN;
     if (!baseUrl || !token) {
@@ -41,7 +65,7 @@ export class AuthOrganizationRoleClient {
 
     let response: Response;
     try {
-      response = await fetch(`${baseUrl.replace(/\/$/, "")}/api/users/internal-organization-roles`, {
+      response = await fetch(`${baseUrl.replace(/\/$/, "")}${path}`, {
         method,
         headers: {
           "content-type": "application/json",

@@ -7,6 +7,7 @@ import {
 import { canManageUnit } from "../common/organization-access.policy";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuthStaffCandidateClient } from "../employees/auth-staff-candidate.client";
+import { AuthOrganizationRoleClient } from "../organization-sync/auth-organization-role.client";
 import {
   CreateAssignmentDto,
   MutateAssignmentDto,
@@ -21,6 +22,7 @@ export class AssignmentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly authStaffCandidates: AuthStaffCandidateClient,
+    private readonly authOrganizationRoles: AuthOrganizationRoleClient,
   ) {}
 
   private hasGlobalAccess(principal?: Principal): boolean {
@@ -78,6 +80,15 @@ export class AssignmentsService {
       startDate: { lte: day },
       OR: [{ endDate: null }, { endDate: { gte: day } }],
     };
+  }
+
+  private async syncCurrentPrimaryUnitRole(userId: string) {
+    const primary = await this.prisma.employeeUnitAssignment.findFirst({
+      where: { userId, isPrimary: true, ...this.activeOn(new Date()) },
+      orderBy: { startDate: "desc" },
+      select: { unitId: true },
+    });
+    if (primary) await this.authOrganizationRoles.syncEmployeePrimaryUnit(userId, primary.unitId);
   }
 
   private async requireActiveUnit(unitId: string) {
@@ -181,7 +192,7 @@ export class AssignmentsService {
       }
     }
 
-    return this.prisma.employeeUnitAssignment.create({
+    const created = await this.prisma.employeeUnitAssignment.create({
       data: {
         userId: dto.userId,
         unitId: unit.id,
@@ -197,6 +208,8 @@ export class AssignmentsService {
         user: { select: { id: true, fullName: true, email: true } },
       },
     });
+    await this.syncCurrentPrimaryUnitRole(dto.userId);
+    return created;
   }
 
   async update(id: string, dto: UpdateAssignmentDto, principal?: Principal) {
@@ -227,7 +240,7 @@ export class AssignmentsService {
       }
     }
 
-    return this.prisma.employeeUnitAssignment.update({
+    const updated = await this.prisma.employeeUnitAssignment.update({
       where: { id },
       data: {
         ...(unit ? { unitId: unit.id, unitName: unit.name } : {}),
@@ -242,6 +255,8 @@ export class AssignmentsService {
         user: { select: { id: true, fullName: true, email: true } },
       },
     });
+    await this.syncCurrentPrimaryUnitRole(existing.userId);
+    return updated;
   }
 
   async mutate(id: string, dto: MutateAssignmentDto, principal?: Principal) {
@@ -278,7 +293,7 @@ export class AssignmentsService {
       };
     }
 
-    return this.prisma.$transaction(async (tx: any) => {
+    const result = await this.prisma.$transaction(async (tx: any) => {
       const endedAssignment = await tx.employeeUnitAssignment.update({
         where: { id: existing.id },
         data: { endDate: this.previousDay(effectiveDate) },
@@ -303,6 +318,8 @@ export class AssignmentsService {
         newAssignment,
       };
     });
+    await this.syncCurrentPrimaryUnitRole(existing.userId);
+    return result;
   }
 
   async remove(id: string, principal?: Principal) {
