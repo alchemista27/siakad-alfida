@@ -311,6 +311,122 @@ export class AttendanceService {
     return active.find((assignment) => assignment.isPrimary) || active[0];
   }
 
+  private attendanceReportUnitIds(principal: Principal, requestedUnitId?: string): string[] | undefined {
+    const unitId = requestedUnitId?.trim() || undefined;
+    if (this.isGlobalHolidayManager(principal)) return unitId ? [unitId] : undefined;
+
+    const managedUnitIds = [...new Set(this.managedUnitIds(principal))];
+    if (!managedUnitIds.length) {
+      throw new ForbiddenException("Anda tidak berwenang melihat laporan presensi.");
+    }
+    if (unitId && !managedUnitIds.includes(unitId)) {
+      throw new ForbiddenException("Anda tidak berwenang melihat laporan unit ini.");
+    }
+    return unitId ? [unitId] : managedUnitIds;
+  }
+
+  async getAttendanceDashboardReport(month: string | undefined, requestedUnitId: string | undefined, principal: Principal, now = new Date()) {
+    const normalizedMonth = month?.trim() || jakartaDateKey(now).slice(0, 7);
+    const monthMatch = /^(\d{4})-(\d{2})$/.exec(normalizedMonth);
+    if (!monthMatch || Number(monthMatch[2]) < 1 || Number(monthMatch[2]) > 12) {
+      throw new BadRequestException("Bulan laporan harus berformat YYYY-MM.");
+    }
+
+    const year = Number(monthMatch[1]);
+    const monthIndex = Number(monthMatch[2]) - 1;
+    const start = utcDate(`${normalizedMonth}-01`);
+    const end = new Date(Date.UTC(year, monthIndex + 1, 0));
+    const todayKey = jakartaDateKey(now);
+    const today = utcDate(todayKey);
+    const visibleUnitIds = this.attendanceReportUnitIds(principal, requestedUnitId);
+    const userWhere: any = {
+      isActive: true,
+      ...(visibleUnitIds ? { unitAssignments: { some: { unitId: { in: visibleUnitIds } } } } : {}),
+    };
+    const users = await this.prisma.user.findMany({
+      where: userWhere,
+      select: { id: true, fullName: true },
+      orderBy: { fullName: "asc" },
+    });
+    const userIds = users.map((user) => user.id);
+    const [attendances, approvedLeaves] = await Promise.all([
+      this.prisma.gpsAttendance.findMany({
+        where: {
+          date: { gte: start, lte: end },
+          ...(visibleUnitIds ? { unitId: { in: visibleUnitIds } } : {}),
+          ...(userIds.length ? { userId: { in: userIds } } : { userId: { in: [] } }),
+        },
+        select: { userId: true, date: true, status: true },
+      }),
+      this.prisma.leaveRequest.findMany({
+        where: {
+          status: "approved",
+          ...(userIds.length ? { userId: { in: userIds } } : { userId: { in: [] } }),
+          startDate: { lte: end },
+          endDate: { gte: start },
+        },
+        select: { userId: true, type: true, startDate: true, endDate: true },
+      }),
+    ]);
+
+    const monthly = { present: 0, late: 0, izin: 0, cuti: 0, sakit: 0 };
+    const todayCounts = { date: todayKey, present: 0, late: 0, izin: 0, cuti: 0 };
+    const punctualityByUser = new Map<string, { present: number; late: number }>();
+    for (const attendance of attendances) {
+      const dateKey = toUtcDateKey(attendance.date);
+      if (attendance.status === GpsAttendanceStatus.present) {
+        monthly.present += 1;
+        const totals = punctualityByUser.get(attendance.userId) || { present: 0, late: 0 };
+        totals.present += 1;
+        punctualityByUser.set(attendance.userId, totals);
+        if (dateKey === todayKey) todayCounts.present += 1;
+      }
+      if (attendance.status === GpsAttendanceStatus.late) {
+        monthly.late += 1;
+        const totals = punctualityByUser.get(attendance.userId) || { present: 0, late: 0 };
+        totals.late += 1;
+        punctualityByUser.set(attendance.userId, totals);
+        if (dateKey === todayKey) todayCounts.late += 1;
+      }
+    }
+
+    const leaveDays = { izin: new Set<string>(), cuti: new Set<string>(), sakit: new Set<string>() };
+    const todayLeaves = { izin: new Set<string>(), cuti: new Set<string>() };
+    for (const leave of approvedLeaves) {
+      const type = leave.type === "izin" || leave.type === "cuti" || leave.type === "sakit" ? leave.type : null;
+      if (!type) continue;
+      const leaveStart = leave.startDate > start ? leave.startDate : start;
+      const leaveEnd = leave.endDate < end ? leave.endDate : end;
+      for (let day = new Date(leaveStart); day <= leaveEnd; day.setUTCDate(day.getUTCDate() + 1)) {
+        const dateKey = toUtcDateKey(day);
+        leaveDays[type].add(`${leave.userId}:${dateKey}`);
+      }
+      if (leave.startDate <= today && leave.endDate >= today && (type === "izin" || type === "cuti")) {
+        todayLeaves[type].add(leave.userId);
+      }
+    }
+    monthly.izin = leaveDays.izin.size;
+    monthly.cuti = leaveDays.cuti.size;
+    monthly.sakit = leaveDays.sakit.size;
+    todayCounts.izin = todayLeaves.izin.size;
+    todayCounts.cuti = todayLeaves.cuti.size;
+
+    const usersById = new Map(users.map((user) => [user.id, user.fullName]));
+    const topOnTime = [...punctualityByUser.entries()]
+      .filter(([, totals]) => totals.present > 0)
+      .map(([userId, totals]) => ({ userId, fullName: usersById.get(userId) || "Pegawai", ...totals }))
+      .sort((left, right) => right.present - left.present || left.late - right.late || left.fullName.localeCompare(right.fullName, "id"))
+      .slice(0, 10);
+
+    return {
+      month: normalizedMonth,
+      scope: visibleUnitIds ? { kind: "unit" as const, unitIds: visibleUnitIds } : { kind: "foundation" as const },
+      today: todayCounts,
+      monthly,
+      topOnTime,
+    };
+  }
+
   async getAttendanceRecap(startDate: string, endDate: string, unitId?: string) {
     const start = utcDate(startDate);
     const end = utcDate(endDate);

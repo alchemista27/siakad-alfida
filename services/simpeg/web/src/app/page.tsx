@@ -11,11 +11,13 @@ import { EmployeeSuggestion, EmployeeSuggestionPicker } from "../components/orga
 import { OrganizationDepartment, OrganizationEmployee, OrganizationUnit } from "../components/organization/types";
 import { WorkdayManagementPanel } from "../components/attendance/workday-management-panel";
 import type { Holiday, SaturdayDuty } from "../components/attendance/workday-management-panel";
+import { AttendanceReportDashboard, type AttendanceDashboardReport } from "../components/attendance/attendance-report-dashboard";
 import { YmqAdminManager } from "../components/ymq/ymq-admin-manager";
 import {
   hasSimpegAssignmentWriteAccess,
   hasSimpegManagementAccess,
   isPegawaiRole,
+  canViewSimpegAttendanceReports,
   simpegLandingTab,
   type SimpegRole,
 } from "../lib/simpeg-access";
@@ -57,7 +59,7 @@ interface LeaveRequest {
   };
 }
 
-type SimpegTab = "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings" | "workday" | "ymq";
+type SimpegTab = "reports" | "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings" | "workday" | "ymq";
 
 async function readManagementJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
@@ -89,7 +91,7 @@ function isAssignmentActiveToday(assignment: Assignment, today = new Date()): bo
 }
 
 export default function SimpegDashboard() {
-  const [activeTab, setActiveTab] = useState<SimpegTab>("assignments");
+  const [activeTab, setActiveTab] = useState<SimpegTab>("reports");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -99,6 +101,11 @@ export default function SimpegDashboard() {
   const [employees, setEmployees] = useState<OrganizationEmployee[]>([]);
   const [attendanceContext, setAttendanceContext] = useState<any>(null);
   const [attendanceLogs, setAttendanceLogs] = useState<any[]>([]);
+  const [attendanceReport, setAttendanceReport] = useState<AttendanceDashboardReport | null>(null);
+  const [reportMonth, setReportMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [reportUnitId, setReportUnitId] = useState("");
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
   const [units, setUnits] = useState<OrganizationUnit[]>([]);
   const [departments, setDepartments] = useState<OrganizationDepartment[]>([]);
   const [gpsConfigs, setGpsConfigs] = useState<any[]>([]);
@@ -109,6 +116,7 @@ export default function SimpegDashboard() {
   const [manageableUnitIds, setManageableUnitIds] = useState<string[] | null>(null);
   const [canManageAllUnits, setCanManageAllUnits] = useState(false);
   const [canManageYmqAdmins, setCanManageYmqAdmins] = useState(false);
+  const [canViewAttendanceReports, setCanViewAttendanceReports] = useState(false);
 
   // Form states
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -204,6 +212,21 @@ export default function SimpegDashboard() {
     }
   };
 
+  const fetchAttendanceReport = async (month = reportMonth, unitId = reportUnitId) => {
+    setReportLoading(true);
+    setReportError(null);
+    try {
+      const query = new URLSearchParams({ month });
+      if (unitId) query.set("unitId", unitId);
+      const report = await readManagementJson<AttendanceDashboardReport>(`/api/attendance/dashboard?${query.toString()}`);
+      setAttendanceReport(report);
+    } catch (caught) {
+      setReportError(caught instanceof Error ? caught.message : "Laporan kehadiran gagal dimuat.");
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   const fetchData = async () => {
     setLoading(true);
     setError(null);
@@ -277,13 +300,15 @@ export default function SimpegDashboard() {
         const roles = Array.isArray(data.user.roles) ? data.user.roles as SimpegRole[] : [];
         const manager = hasSimpegManagementAccess(roles);
         const pegawai = isPegawaiRole(roles);
+        const reportViewer = canViewSimpegAttendanceReports(roles);
         const primaryRole = typeof roles[0] === "object" && roles[0]?.role
           ? roles[0].role.replace(/_/g, " ").toUpperCase()
           : pegawai ? "PEGAWAI" : "PENGGUNA";
 
         const globalSuperAdmin = roles.some((entry: any) => entry?.role === "super_admin" && ["*", "auth", "core", "simpeg"].includes(entry?.app || ""));
-        setCanManageAllUnits(globalSuperAdmin || roles.some((entry: any) => entry?.role === "admin_kepegawaian" && entry?.app === "simpeg"));
+        setCanManageAllUnits(globalSuperAdmin || roles.some((entry: any) => entry?.role === "admin_kepegawaian" && ["*", "simpeg"].includes(entry?.app || "")));
         setCanManageYmqAdmins(globalSuperAdmin);
+        setCanViewAttendanceReports(reportViewer);
         setManageableUnitIds(roles.filter((entry: any) => entry?.app === "simpeg" && (entry?.role === "admin_unit" || entry?.role === "admin_unit_nondik") && entry?.unitId).map((entry: any) => entry.unitId));
         setCurrentUser({
           fullName: data.user.fullName || data.user.email || "Pengguna SIMPEG",
@@ -296,7 +321,7 @@ export default function SimpegDashboard() {
         setActiveTab(simpegLandingTab(roles));
 
         if (manager) {
-          await fetchData();
+          await Promise.all(reportViewer ? [fetchData(), fetchAttendanceReport()] : [fetchData()]);
         } else if (pegawai) {
           await fetchEmployeeAttendanceData();
         } else {
@@ -625,6 +650,18 @@ export default function SimpegDashboard() {
   };
 
   const sidebarGroups = [
+    ...(canViewAttendanceReports ? [{
+      title: "Laporan",
+      items: [
+        {
+          label: "Laporan Kehadiran",
+          href: "#reports",
+          icon: "monitoring",
+          active: activeTab === "reports",
+          onClick: () => setActiveTab("reports"),
+        },
+      ],
+    }] : []),
     {
       title: "Kepegawaian",
       items: [
@@ -770,7 +807,7 @@ export default function SimpegDashboard() {
             <Button
               variant="secondary"
               size="sm"
-              onClick={isManager ? fetchData : fetchEmployeeAttendanceData}
+              onClick={isManager ? () => { void fetchData(); void fetchAttendanceReport(); } : fetchEmployeeAttendanceData}
               disabled={loading}
             >
               Segarkan Data
@@ -812,6 +849,16 @@ export default function SimpegDashboard() {
           <div className="flex border-b border-slate-200 pb-3 text-sm font-semibold text-emerald-700">Presensi GPS</div>
         ) : (
           <div className="flex border-b border-slate-200 gap-6 text-sm font-medium">
+          {canViewAttendanceReports && <button
+            onClick={() => setActiveTab("reports")}
+            className={`pb-3 border-b-2 transition-colors ${
+              activeTab === "reports"
+                ? "border-emerald-600 text-emerald-700 font-semibold"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Laporan Kehadiran
+          </button>}
           <button
             onClick={() => setActiveTab("assignments")}
             className={`pb-3 border-b-2 transition-colors ${
@@ -862,6 +909,30 @@ export default function SimpegDashboard() {
           <ErrorState message={error} onRetry={isManager ? fetchData : fetchEmployeeAttendanceData} />
         ) : (
           <div>
+            {canViewAttendanceReports && activeTab === "reports" && (
+              reportError ? (
+                <ErrorState message={reportError} onRetry={() => void fetchAttendanceReport()} />
+              ) : (
+                <AttendanceReportDashboard
+                  report={attendanceReport}
+                  units={units}
+                  selectedMonth={reportMonth}
+                  selectedUnitId={reportUnitId}
+                  canManageAllUnits={canManageAllUnits}
+                  loading={reportLoading}
+                  onMonthChange={(month) => {
+                    setReportMonth(month);
+                    void fetchAttendanceReport(month, reportUnitId);
+                  }}
+                  onUnitChange={(unitId) => {
+                    setReportUnitId(unitId);
+                    void fetchAttendanceReport(reportMonth, unitId);
+                  }}
+                  onRefresh={() => void fetchAttendanceReport()}
+                />
+              )
+            )}
+
             {/* TAB 1: PENUGASAN UNIT PEGAWAI */}
             {activeTab === "assignments" && (
               <div className="space-y-5">

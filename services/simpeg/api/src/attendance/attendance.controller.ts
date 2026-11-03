@@ -23,6 +23,7 @@ import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 import { SimpegRoles, SimpegRolesGuard } from "../common/guards/simpeg-roles.guard";
 
 const HR_ADMIN_ROLES = ["super_admin", "admin_kepegawaian", "admin_bidang", "admin_unit", "admin_unit_nondik"];
+const REPORT_MANAGER_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik"];
 const HOLIDAY_AND_DUTY_MANAGER_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik"];
 const strictValidation = new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true });
 
@@ -55,6 +56,17 @@ export class AttendanceController {
     const m = month ? parseInt(month, 10) : new Date().getMonth() + 1;
     const y = year ? parseInt(year, 10) : new Date().getFullYear();
     return this.attendanceService.getMyAttendanceHistory(req.user.id, m, y);
+  }
+
+  @Get("dashboard")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles(...REPORT_MANAGER_ROLES)
+  async getAttendanceDashboard(
+    @Query("month") month: string | undefined,
+    @Query("unitId") unitId: string | undefined,
+    @Req() req: any,
+  ) {
+    return this.attendanceService.getAttendanceDashboardReport(month, unitId, req.user);
   }
 
   @Get("recap")

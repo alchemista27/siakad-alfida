@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import {
   hasSimpegManagementAccess,
   isPegawaiRole,
+  canViewSimpegAttendanceReports,
   simpegLandingTab,
 } from "../src/lib/simpeg-access";
 
@@ -11,8 +12,10 @@ assert.equal(hasSimpegManagementAccess([{ app: "simpeg", role: "pegawai" }]), fa
 assert.equal(isPegawaiRole([{ app: "simpeg", role: "pegawai" }]), true);
 assert.equal(simpegLandingTab([{ app: "simpeg", role: "pegawai" }]), "attendance");
 assert.equal(hasSimpegManagementAccess([{ app: "simpeg", role: "admin_unit", unitId: "unit-a" }]), true);
-assert.equal(simpegLandingTab([{ app: "simpeg", role: "admin_unit", unitId: "unit-a" }]), "assignments");
-assert.equal(simpegLandingTab([{ app: "simpeg", role: "pegawai" }, { app: "simpeg", role: "admin_kepegawaian" }]), "assignments");
+assert.equal(simpegLandingTab([{ app: "simpeg", role: "admin_unit", unitId: "unit-a" }]), "reports");
+assert.equal(simpegLandingTab([{ app: "simpeg", role: "pegawai" }, { app: "simpeg", role: "admin_kepegawaian" }]), "reports");
+assert.equal(canViewSimpegAttendanceReports([{ app: "simpeg", role: "admin_bidang" }]), false);
+assert.equal(simpegLandingTab([{ app: "simpeg", role: "admin_bidang" }]), "assignments");
 assert.equal(hasSimpegManagementAccess([]), false);
 
 const page = readFileSync(resolve(import.meta.dirname, "../src/app/page.tsx"), "utf8");

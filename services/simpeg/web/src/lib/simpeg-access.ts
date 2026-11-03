@@ -39,6 +39,17 @@ export function isPegawaiRole(roles: SimpegRole[] | undefined): boolean {
   });
 }
 
-export function simpegLandingTab(roles: SimpegRole[] | undefined): "assignments" | "attendance" {
+export function canViewSimpegAttendanceReports(roles: SimpegRole[] | undefined): boolean {
+  return (roles ?? []).some((entry) => {
+    const role = roleName(entry);
+    const app = appName(entry);
+    if (role === "super_admin" && ["*", "auth", "core", "simpeg"].includes(app)) return true;
+    if (role === "admin_kepegawaian") return app === "*" || app === "simpeg";
+    return app === "simpeg" && (role === "admin_unit" || role === "admin_unit_nondik");
+  });
+}
+
+export function simpegLandingTab(roles: SimpegRole[] | undefined): "reports" | "assignments" | "attendance" {
+  if (canViewSimpegAttendanceReports(roles)) return "reports";
   return hasSimpegManagementAccess(roles) ? "assignments" : "attendance";
 }
