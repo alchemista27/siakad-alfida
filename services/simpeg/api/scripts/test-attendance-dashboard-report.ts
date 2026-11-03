@@ -57,12 +57,13 @@ async function main() {
     },
   };
 
-  const service = new AttendanceService(prisma);
+  const auth = { eligibleUserIds: async (userIds: string[]) => userIds.filter((userId) => userId !== "user-b") } as any;
+  const service = new AttendanceService(prisma, auth);
   const report = await service.getAttendanceDashboardReport("2026-10", undefined, unitAdmin, new Date("2026-10-30T03:00:00.000Z"));
 
   assert.deepEqual(report.scope, { kind: "unit", unitIds: [unitA] }, "unit admin report must be constrained to its assigned unit");
-  assert.deepEqual(report.today, { date: "2026-10-30", present: 1, late: 1, izin: 1, cuti: 1 }, "today cards must count scoped people and approved leave types");
-  assert.deepEqual(report.monthly, { present: 2, late: 1, izin: 1, cuti: 1, sakit: 0 }, "monthly chart totals must include scoped attendance and approved leave days");
+  assert.deepEqual(report.today, { date: "2026-10-30", present: 1, late: 0, izin: 1, cuti: 1 }, "dashboard must exclude fingerprint recap for users not eligible in Auth");
+  assert.deepEqual(report.monthly, { present: 2, late: 0, izin: 1, cuti: 1, sakit: 0 }, "monthly chart must align to Auth-active staff");
   assert.deepEqual(report.topOnTime, [{ userId: "user-a", fullName: "Aisyah Tepat Waktu", present: 2, late: 0 }], "top on-time employees must exclude foreign units and rank present logs");
   assert.deepEqual(queries.find((query) => query.resource === "attendances")?.where.unitId, { in: [unitA] }, "attendance query must enforce unit scope in the datastore");
 

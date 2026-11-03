@@ -15,6 +15,12 @@ enum GpsAttendanceStatus {
   leave
 }
 
+enum AttendanceSource {
+  gps
+  fingerprint
+  backfill
+}
+
 enum LeaveType {
   cuti
   sakit
@@ -89,6 +95,7 @@ model User {
   profile             EmployeeProfile?
   unitAssignments     EmployeeUnitAssignment[]
   gpsAttendances      GpsAttendance[]
+  fingerprintEvents   FingerprintAttendanceEvent[]
   leaveRequests       LeaveRequest[]           @relation("UserLeaveRequests")
   approvedLeaves      LeaveRequest[]           @relation("ApprovedLeaves")
   liqoGroupsAsMurobbi LiqoGroup[]
@@ -105,6 +112,7 @@ model EmployeeProfile {
   id           String    @id @default(uuid()) @db.Uuid
   userId       String    @unique @map("user_id") @db.Uuid
   nip          String?   @unique @db.VarChar(50)
+  fingerprintEnrollmentId String? @unique @map("fingerprint_enrollment_id") @db.VarChar(50)
   position     String?   @db.VarChar(100)
   employeeType String    @default("tetap") @map("employee_type") @db.VarChar(50) // "tetap", "kontrak", "honorer"
   joinDate     DateTime? @map("join_date") @db.Date
@@ -337,6 +345,7 @@ model GpsAttendance {
   latitude     Float?
   longitude    Float?
   status       GpsAttendanceStatus
+  source       AttendanceSource  @default(gps)
   notes        String?
   createdAt    DateTime            @default(now()) @map("created_at") @db.Timestamptz
 
@@ -346,6 +355,47 @@ model GpsAttendance {
   @@index([date])
   @@index([status])
   @@map("gps_attendances")
+}
+
+model FingerprintAttendanceEvent {
+  id           String   @id @default(uuid()) @db.Uuid
+  sourceKey    String   @unique @map("source_key") @db.VarChar(128)
+  deviceId     String   @map("device_id") @db.VarChar(100)
+  deviceSerial String?  @map("device_serial") @db.VarChar(100)
+  enrollmentId String   @map("enrollment_id") @db.VarChar(50)
+  occurredAt   DateTime @map("occurred_at") @db.Timestamptz
+  localDate    DateTime @map("local_date") @db.Date
+  punch        Int?     @map("punch")
+  status       Int?     @map("status")
+  userId       String?  @map("user_id") @db.Uuid
+  importedAt   DateTime @default(now()) @map("imported_at") @db.Timestamptz
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([deviceId, occurredAt])
+  @@index([enrollmentId, occurredAt])
+  @@index([userId, localDate])
+  @@map("fingerprint_attendance_events")
+}
+
+model FingerprintSyncRun {
+  id                String   @id @default(uuid()) @db.Uuid
+  deviceId          String   @map("device_id") @db.VarChar(100)
+  startedAt         DateTime @map("started_at") @db.Timestamptz
+  completedAt       DateTime? @map("completed_at") @db.Timestamptz
+  status            String   @db.VarChar(20)
+  fetchedCount      Int      @default(0) @map("fetched_count")
+  insertedCount     Int      @default(0) @map("inserted_count")
+  matchedCount      Int      @default(0) @map("matched_count")
+  unmatchedCount    Int      @default(0) @map("unmatched_count")
+  attendanceChanged Int      @default(0) @map("attendance_changed")
+  skippedConflict   Int      @default(0) @map("skipped_conflict")
+  errorMessage      String?  @map("error_message") @db.Text
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([deviceId, startedAt])
+  @@map("fingerprint_sync_runs")
 }
 
 model Holiday {

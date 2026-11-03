@@ -27,7 +27,9 @@ RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 appuser
 
 COPY --from=builder --chown=appuser:nodejs /app ./
-RUN chmod +x services/simpeg/start.sh
+RUN apk add --no-cache python3 py3-pip \
+  && python3 -m pip install --no-cache-dir --break-system-packages -r services/simpeg/fingerprint/requirements.txt \
+  && chmod +x services/simpeg/start.sh
 
 USER appuser
 EXPOSE 3000

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
 import { InternalOrganizationRolesGuard } from "./internal-organization-roles.guard";
 import { UsersService } from "./users.service";
 
@@ -10,6 +10,11 @@ export class InternalStaffCandidatesController {
   @Get()
   findMany(@Query("search") search?: string) {
     return this.usersService.findInternalStaffCandidates(search);
+  }
+
+  @Post("eligible")
+  findEligible(@Body("userIds") userIds: unknown) {
+    return this.usersService.findEligibleInternalStaffUserIds(userIds);
   }
 
   @Get(":userId")

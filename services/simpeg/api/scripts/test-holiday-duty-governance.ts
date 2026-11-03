@@ -67,7 +67,7 @@ async function main() {
       async delete({ where }: any) { audit.push(`duty:delete:${where.id}`); return { id: where.id }; },
     },
   };
-  const service = new AttendanceService(prisma);
+  const service = new AttendanceService(prisma, { eligibleUserIds: async (userIds: string[]) => userIds } as any);
 
   const visibleToUnitAdmin = await service.getHolidays(undefined, unitAdmin);
   assert.deepEqual(visibleToUnitAdmin.map((item: any) => item.id), ["global", "own"], "unit admins may read global holidays and only their own unit holidays");
@@ -137,7 +137,7 @@ async function main() {
     saturdayDutyAssignment: { async findMany() { return [{ id: "duty", unitId, userId, date: date("2026-01-10"), notes: null }]; } },
     unitWorkSchedule: {async findMany() {return []; }},
   };
-  const recap = await new AttendanceService(recapPrisma).getAttendanceRecap("2026-01-04", "2026-01-10");
+  const recap = await new AttendanceService(recapPrisma, { eligibleUserIds: async (userIds: string[]) => userIds } as any).getAttendanceRecap("2026-01-04", "2026-01-10");
   assert.deepEqual(
     recap[0],
     {

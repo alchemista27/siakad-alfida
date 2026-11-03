@@ -131,6 +131,18 @@ export class UsersService {
     });
   }
 
+  async findEligibleInternalStaffUserIds(userIds: unknown): Promise<string[]> {
+    const ids = Array.isArray(userIds)
+      ? [...new Set(userIds.filter((value): value is string => typeof value === "string").map((value) => value.trim()).filter(Boolean))].slice(0, 500)
+      : [];
+    if (!ids.length) return [];
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: ids }, isActive: true, roles: this.staffRoleWhere() },
+      select: { id: true },
+    });
+    return users.map((user) => user.id);
+  }
+
   async requireInternalStaffCandidate(userId: string): Promise<InternalStaffCandidate> {
     const candidate = await this.prisma.user.findFirst({
       where: { id: userId, isActive: true, roles: this.staffRoleWhere() },

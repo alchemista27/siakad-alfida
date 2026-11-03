@@ -13,6 +13,7 @@ import { calculateDistance } from "./attendance.utils";
 import { GpsAttendanceStatus } from "../generated/prisma";
 import { resolveWorkdayPolicy, toUtcDateKey, utcDate } from "./workday-policy";
 import { jakartaDateKey, jakartaMinutes, hhmmMinutes, overtimeMinutesFor } from "./jakarta-worktime";
+import { AuthStaffCandidateClient } from "../employees/auth-staff-candidate.client";
 
 type Principal = { roles?: unknown };
 type DatedAssignment = {
@@ -26,7 +27,10 @@ type DatedAssignment = {
 
 @Injectable()
 export class AttendanceService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly authStaffCandidates: AuthStaffCandidateClient,
+  ) {}
 
   private get schedules() { return this.prisma.unitWorkSchedule; }
 
@@ -343,11 +347,13 @@ export class AttendanceService {
       isActive: true,
       ...(visibleUnitIds ? { unitAssignments: { some: { unitId: { in: visibleUnitIds } } } } : {}),
     };
-    const users = await this.prisma.user.findMany({
+    const localUsers = await this.prisma.user.findMany({
       where: userWhere,
       select: { id: true, fullName: true },
       orderBy: { fullName: "asc" },
     });
+    const eligibleUserIds = new Set(await this.authStaffCandidates.eligibleUserIds(localUsers.map((user) => user.id)));
+    const users = localUsers.filter((user) => eligibleUserIds.has(user.id));
     const userIds = users.map((user) => user.id);
     const [attendances, approvedLeaves] = await Promise.all([
       this.prisma.gpsAttendance.findMany({
@@ -435,7 +441,7 @@ export class AttendanceService {
     const whereUser: any = { isActive: true };
     if (unitId) whereUser.unitAssignments = { some: { unitId } };
 
-    const users = await this.prisma.user.findMany({
+    const localUsers = await this.prisma.user.findMany({
       where: whereUser,
       select: {
         id: true,
@@ -446,6 +452,8 @@ export class AttendanceService {
       },
       orderBy: { fullName: "asc" },
     });
+    const eligibleUserIds = new Set(await this.authStaffCandidates.eligibleUserIds(localUsers.map((user) => user.id)));
+    const users = localUsers.filter((user) => eligibleUserIds.has(user.id));
     const userIds = users.map((user) => user.id);
     const [attendances, leaves, holidays, duties, schedules] = await Promise.all([
       this.prisma.gpsAttendance.findMany({

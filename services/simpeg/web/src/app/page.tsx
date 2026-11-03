@@ -12,6 +12,7 @@ import { OrganizationDepartment, OrganizationEmployee, OrganizationUnit } from "
 import { WorkdayManagementPanel } from "../components/attendance/workday-management-panel";
 import type { Holiday, SaturdayDuty } from "../components/attendance/workday-management-panel";
 import { AttendanceReportDashboard, type AttendanceDashboardReport } from "../components/attendance/attendance-report-dashboard";
+import { FingerprintSyncPanel } from "../components/attendance/fingerprint-sync-panel";
 import { YmqAdminManager } from "../components/ymq/ymq-admin-manager";
 import {
   hasSimpegAssignmentWriteAccess,
@@ -59,7 +60,7 @@ interface LeaveRequest {
   };
 }
 
-type SimpegTab = "reports" | "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings" | "workday" | "ymq";
+type SimpegTab = "reports" | "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings" | "workday" | "fingerprint" | "ymq";
 
 async function readManagementJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
@@ -711,6 +712,13 @@ export default function SimpegDashboard() {
           active: activeTab === "workday",
           onClick: () => setActiveTab("workday"),
         }] : []),
+        ...(canViewAttendanceReports ? [{
+          label: "Sinkronisasi Fingerprint",
+          href: "#fingerprint",
+          icon: "fingerprint",
+          active: activeTab === "fingerprint",
+          onClick: () => setActiveTab("fingerprint"),
+        }] : []),
         ...(canManageYmqAdmins ? [{
           label: "Admin YMQ",
           href: "#ymq",
@@ -1313,6 +1321,10 @@ export default function SimpegDashboard() {
                 employees={employees}
                 onChanged={fetchWorkdayData}
               />
+            )}
+
+            {activeTab === "fingerprint" && canViewAttendanceReports && (
+              <FingerprintSyncPanel employees={employees} canManageAllUnits={canManageAllUnits} />
             )}
 
             {activeTab === "ymq" && canManageYmqAdmins && <YmqAdminManager />}

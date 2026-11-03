@@ -39,7 +39,7 @@ async function main() {
       async findMany() { return [config, { ...config, id: "config-other", unitId: otherUnitId }]; },
     },
   };
-  const service = new AttendanceService(prisma);
+  const service = new AttendanceService(prisma, { eligibleUserIds: async (userIds: string[]) => userIds } as any);
   const scoped = { roles: [{ app: "simpeg", role: "admin_unit", unitId }] };
   const hr = { roles: [{ app: "simpeg", role: "admin_kepegawaian" }] };
 

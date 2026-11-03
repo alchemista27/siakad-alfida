@@ -19,7 +19,7 @@ async function main() {
     workSchedule: { startTime: "07:00", lateGraceMinutes: 0, overtimeStartTime: "17:00" },
     config: { latitude: -6, longitude: 106, radiusMeters: 30 }, attendance: null };
   let mutations = 0;
-  const service = new AttendanceService({ gpsAttendance: { create: async () => { mutations++; }, updateMany: async () => { mutations++; return { count: 1 }; } } } as any);
+  const service = new AttendanceService({ gpsAttendance: { create: async () => { mutations++; }, updateMany: async () => { mutations++; return { count: 1 }; } } } as any, { eligibleUserIds: async (userIds: string[]) => userIds } as any);
   (service as any).getTodayAttendanceContext = async () => context;
   await assert.rejects(() => service.checkIn("user", { ...valid, mocked: true }, now), BadRequestException);
   await assert.rejects(() => service.checkIn("user", { ...valid, accuracyMeters: 40 }, now), BadRequestException);

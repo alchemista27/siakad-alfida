@@ -33,7 +33,7 @@ async function main() {
       findFirst: async () => saved,
     },
   };
-  const service = new AttendanceService(prisma);
+  const service = new AttendanceService(prisma, { eligibleUserIds: async (userIds: string[]) => userIds } as any);
   const coords = {latitude: 0, longitude: 0};
   const result = await service.checkIn('user', coords, checkIn);
   assert.equal(result.status, 'late');

@@ -29,6 +29,7 @@ async function main() {
   assert.match(controller, /@Controller\("users\/internal-staff-candidates"\)/);
   assert.match(controller, /@UseGuards\(InternalOrganizationRolesGuard\)/);
   assert.match(controller, /@Get\(":userId"\)/);
+  assert.match(controller, /@Post\("eligible"\)/, "Auth must expose bulk staff eligibility for dashboard alignment");
 
   const service = new UsersService(prisma as never);
   const candidates = await (service as any).findInternalStaffCandidates("  Guru  ");
@@ -65,6 +66,13 @@ async function main() {
     (error: unknown) => error instanceof NotFoundException && error.message === "Pegawai aktif tidak ditemukan.",
     "parent-only users must not qualify as staff candidates",
   );
+
+  assert.deepEqual(await (service as any).findEligibleInternalStaffUserIds([staffId, parentId, staffId]), [staffId]);
+  const eligibilityQuery = calls.at(-1)?.args as any;
+  assert.deepEqual(eligibilityQuery.where.id, { in: [staffId, parentId] });
+  assert.equal(eligibilityQuery.where.isActive, true);
+  assert.deepEqual(eligibilityQuery.where.roles, searchQuery.where.roles);
+  assert.deepEqual(eligibilityQuery.select, { id: true });
 
   console.log("Auth internal staff candidates contract passed");
 }

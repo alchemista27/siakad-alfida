@@ -31,7 +31,7 @@ async function main() {
       },
       findUnique: async () => saved,
     },
-  } as any);
+  } as any, { eligibleUserIds: async (userIds: string[]) => userIds } as any);
   (service as any).getTodayAttendanceContext = async () => context;
 
   const checkInResult = await service.checkIn("pegawai-a", validLocation, now);

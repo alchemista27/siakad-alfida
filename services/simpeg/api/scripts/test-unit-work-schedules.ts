@@ -21,7 +21,7 @@ async function main() {
       },
     },
   };
-  const service = new AttendanceService(prisma);
+  const service = new AttendanceService(prisma, { eligibleUserIds: async (userIds: string[]) => userIds } as any);
   assert.equal((await validate(Object.assign(new UpsertUnitWorkScheduleDto(), active))).length, 0);
   for (const invalid of [
     { ...active, startTime: '8:00' }, { ...active, endTime: '07:00' },

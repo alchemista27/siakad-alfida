@@ -18,19 +18,26 @@ import {
   UpsertHolidayDto,
   UpsertSaturdayDutyAssignmentDto,
   UpsertUnitWorkScheduleDto,
+  SyncFingerprintDto,
+  UpdateFingerprintEnrollmentDto,
 } from "./attendance.dto";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 import { SimpegRoles, SimpegRolesGuard } from "../common/guards/simpeg-roles.guard";
+import { FingerprintAttendanceService } from "./fingerprint-attendance.service";
 
 const HR_ADMIN_ROLES = ["super_admin", "admin_kepegawaian", "admin_bidang", "admin_unit", "admin_unit_nondik"];
 const REPORT_MANAGER_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik"];
 const HOLIDAY_AND_DUTY_MANAGER_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik"];
+const FINGERPRINT_MANAGER_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik"];
 const strictValidation = new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true });
 
 @Controller("attendance")
 @UseGuards(ServiceJwtAuthGuard)
 export class AttendanceController {
-  constructor(private readonly attendanceService: AttendanceService) {}
+  constructor(
+    private readonly attendanceService: AttendanceService,
+    private readonly fingerprintAttendance: FingerprintAttendanceService,
+  ) {}
 
   @Get("context")
   async getTodayContext(@Req() req: any) {
@@ -56,6 +63,38 @@ export class AttendanceController {
     const m = month ? parseInt(month, 10) : new Date().getMonth() + 1;
     const y = year ? parseInt(year, 10) : new Date().getFullYear();
     return this.attendanceService.getMyAttendanceHistory(req.user.id, m, y);
+  }
+
+  @Get("fingerprint/status")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles(...FINGERPRINT_MANAGER_ROLES)
+  async getFingerprintStatus() {
+    return this.fingerprintAttendance.getStatus();
+  }
+
+  @Post("fingerprint/sync")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles(...FINGERPRINT_MANAGER_ROLES)
+  async syncFingerprint(@Body(strictValidation) dto: SyncFingerprintDto) {
+    return this.fingerprintAttendance.sync(dto);
+  }
+
+  @Get("fingerprint/unmatched")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles("super_admin", "admin_kepegawaian")
+  async getUnmatchedFingerprintEvents() {
+    return this.fingerprintAttendance.unmatched();
+  }
+
+  @Put("fingerprint/mappings/:userId")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles(...FINGERPRINT_MANAGER_ROLES)
+  async updateFingerprintMapping(
+    @Param("userId") userId: string,
+    @Body(strictValidation) dto: UpdateFingerprintEnrollmentDto,
+    @Req() req: any,
+  ) {
+    return this.fingerprintAttendance.updateEnrollment(userId, dto.fingerprintEnrollmentId, req.user);
   }
 
   @Get("dashboard")

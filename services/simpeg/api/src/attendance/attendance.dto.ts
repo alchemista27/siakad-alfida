@@ -162,3 +162,20 @@ export class UpsertSaturdayDutyAssignmentDto {
   @IsOptional() @Matches(HHMM) endTime?: string;
   @IsOptional() @Matches(HHMM) overtimeStartTime?: string;
 }
+
+export class SyncFingerprintDto {
+  @IsOptional()
+  @Matches(DATE_ONLY, { message: "startDate harus menggunakan format YYYY-MM-DD." })
+  startDate?: string;
+
+  @IsOptional()
+  @Matches(DATE_ONLY, { message: "endDate harus menggunakan format YYYY-MM-DD." })
+  endDate?: string;
+}
+
+export class UpdateFingerprintEnrollmentDto {
+  @IsOptional()
+  @IsString()
+  @Length(1, 50)
+  fingerprintEnrollmentId!: string | null;
+}

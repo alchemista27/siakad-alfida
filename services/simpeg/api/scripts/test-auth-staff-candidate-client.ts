@@ -22,7 +22,7 @@ async function main() {
   const candidate = { id: "employee-1", fullName: "Guru Aktif", email: "guru@example.test", avatarUrl: null };
   const client = new AuthStaffCandidateClient(async (input, init) => {
     requests.push({ input, init });
-    return Response.json([candidate]);
+    return init?.method === "POST" ? Response.json(["employee-1"]) : Response.json([candidate]);
   });
 
   delete process.env.AUTH_API_URL;
@@ -38,6 +38,10 @@ async function main() {
   assert.equal((requests[0]?.init?.headers as Record<string, string>)["x-internal-service-token"], "test-secret");
   assert.equal((requests[0]?.init?.headers as Record<string, string>).Accept, "application/json");
   assert.equal((requests[0]?.init?.method), "GET");
+  assert.deepEqual(await client.eligibleUserIds(["employee-1", "employee-2", "employee-1"]), ["employee-1"]);
+  assert.equal(String(requests[1]?.input), "https://auth.example.test/api/users/internal-staff-candidates/eligible");
+  assert.equal(requests[1]?.init?.method, "POST");
+  assert.equal(requests[1]?.init?.body, JSON.stringify({ userIds: ["employee-1", "employee-2"] }));
 
   const ineligible = new AuthStaffCandidateClient(async () => new Response(null, { status: 404 }));
   assert.equal(await ineligible.isEligible("parent-only"), false, "Auth 404 must mean ineligible candidate");
