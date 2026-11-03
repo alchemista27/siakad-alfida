@@ -3,6 +3,12 @@ import type { YmqProgressLevel } from "./plan";
 
 const ROSTER_VERSION = "ymq-2026-2027";
 const SUTRISNO_NORMALIZED_NAME = "sutrisno";
+const PQA_UNIT_ID = "18d0d36c-aea5-4ba6-a89b-320f9a4f240d";
+const PQA_PEMBINA_EMAILS = new Set([
+  "syahrul.lc@alfida.or.id",
+  "m.mhi@alfida.or.id",
+  "badriah@alfida.or.id",
+]);
 
 export type PlannedRosterAssignment =
   | { app: "simpeg"; role: "pegawai"; unitId: string }
@@ -82,7 +88,7 @@ export function buildYmqAccountPlan(rows: AccountPlanRosterRow[]): YmqAccountPla
 
   for (const row of rows) {
     const pembina = addRosterAccount(accountsByName, invalidRowsByName, row.pembinaName, row.rowNumber, [
-      { app: "simpeg", role: "pegawai", unitId: row.unit.id },
+      { app: "simpeg", role: "pegawai", unitId: canonicalPembinaUnitId(row.pembinaName, row.unit.id) },
       { app: "siyaum", role: "peserta", unitId: null },
       { app: "siyaum", role: "pembina_ymq", unitId: null },
     ]);
@@ -136,6 +142,10 @@ export function buildYmqAccountPlan(rows: AccountPlanRosterRow[]): YmqAccountPla
       ...duplicateMembershipIssues(participantPlacementsByName),
     ].sort(compareIssues),
   };
+}
+
+function canonicalPembinaUnitId(fullName: string, rosterUnitId: string) {
+  return PQA_PEMBINA_EMAILS.has(createAlfidaEmail(fullName) || "") ? PQA_UNIT_ID : rosterUnitId;
 }
 
 function addRosterAccount(

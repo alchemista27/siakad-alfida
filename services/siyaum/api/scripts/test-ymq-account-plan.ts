@@ -51,6 +51,18 @@ async function main() {
   assert.equal(pembinaPlan.groupAssignments.length, 2);
   assert.deepEqual(pembinaPlan.blockingIssues, []);
 
+  const pqaPembinaPlan = buildYmqAccountPlan([
+    row(5, "Badriah, S.Pd.", "Peserta Satu", unitA),
+    row(6, "Badriah, S.Pd.", "Peserta Dua", unitB),
+  ]);
+  const badriah = pqaPembinaPlan.accounts.find((account) => account.email === "badriah@alfida.or.id");
+  assert.ok(badriah);
+  assert.deepEqual(badriah.assignments, [
+    { app: "simpeg", role: "pegawai", unitId: "18d0d36c-aea5-4ba6-a89b-320f9a4f240d" },
+    { app: "siyaum", role: "pembina_ymq", unitId: null },
+    { app: "siyaum", role: "peserta", unitId: null },
+  ], "PQA pembina must have one canonical SIMPEG placement at Pesantren Quran Alfida");
+
   const collisionPlan = buildYmqAccountPlan([
     row(5, "Pembina Satu", "Abdul Rahmat"),
     row(6, "Pembina Dua", "Abdul A Rahmat"),
