@@ -223,6 +223,16 @@ export class FingerprintAttendanceService {
     ))] : [];
   }
 
+  private async replayMappedEnrollment(userId: string, enrollmentId: string): Promise<void> {
+    const days = await (this.prisma as any).fingerprintAttendanceEvent.findMany({
+      where: { enrollmentId, userId },
+      select: { localDate: true },
+      distinct: ["localDate"],
+      orderBy: { localDate: "asc" },
+    }) as Array<{ localDate: Date }>;
+    for (const { localDate } of days) await this.reconcileDay(userId, localDate);
+  }
+
   async updateEnrollment(userId: string, fingerprintEnrollmentId: string | null, principal: { roles?: unknown }) {
     const enrollment = fingerprintEnrollmentId?.trim() || null;
     if (fingerprintEnrollmentId !== null && (!enrollment || enrollment.length > 50)) {
@@ -244,6 +254,7 @@ export class FingerprintAttendanceService {
     });
     if (enrollment) {
       await (this.prisma as any).fingerprintAttendanceEvent.updateMany({ where: { enrollmentId: enrollment, userId: null }, data: { userId } });
+      await this.replayMappedEnrollment(userId, enrollment);
     }
     return { userId: profile.userId, fingerprintEnrollmentId: profile.fingerprintEnrollmentId };
   }
