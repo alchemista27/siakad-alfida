@@ -200,7 +200,8 @@ export class FingerprintAttendanceService {
   }
 
   async getStatus() {
-    return (this.prisma as any).fingerprintSyncRun.findFirst({ orderBy: { startedAt: "desc" } });
+    const lastRun = await (this.prisma as any).fingerprintSyncRun.findFirst({ orderBy: { startedAt: "desc" } });
+    return { lastRun, readiness: this.device.getReadiness() };
   }
 
   async unmatched() {

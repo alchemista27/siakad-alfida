@@ -13,6 +13,21 @@ export type FingerprintDeviceRead = {
   events: FingerprintDeviceEvent[];
 };
 
+export type FingerprintReadiness = {
+  enabled: boolean;
+  missingConfigurationKeys: string[];
+};
+
+export const FINGERPRINT_CONFIGURATION_KEYS = [
+  "SIMPEG_FINGERPRINT_ENABLED",
+  "SIMPEG_FINGERPRINT_DEVICE_ID",
+  "SIMPEG_FINGERPRINT_HOST",
+  "SIMPEG_FINGERPRINT_PORT",
+  "SIMPEG_FINGERPRINT_COMM_KEY",
+  "SIMPEG_FINGERPRINT_TIMEZONE",
+  "SIMPEG_FINGERPRINT_SYNC_INTERVAL_MS",
+] as const;
+
 type RunnerOptions = { env: Record<string, string>; timeout: number; maxBuffer: number };
 export type FingerprintProcessRunner = (command: string, args: string[], options: RunnerOptions) => Promise<{ stdout: string; stderr: string }>;
 export const FINGERPRINT_PROCESS_RUNNER = Symbol("FINGERPRINT_PROCESS_RUNNER");
@@ -84,6 +99,13 @@ export class FingerprintDeviceClient {
 
   isEnabled(): boolean {
     return process.env.SIMPEG_FINGERPRINT_ENABLED === "true";
+  }
+
+  getReadiness(): FingerprintReadiness {
+    return {
+      enabled: this.isEnabled(),
+      missingConfigurationKeys: FINGERPRINT_CONFIGURATION_KEYS.filter((key) => !process.env[key]?.trim()),
+    };
   }
 
   async readAttendance(): Promise<FingerprintDeviceRead> {

@@ -926,6 +926,7 @@ export default function SimpegDashboard() {
                     employees={employees}
                     canOperateFingerprint={canManageAllUnits}
                     canMapFingerprint={canManageAllUnits || (manageableUnitIds?.length || 0) > 0}
+                    onFingerprintSynced={() => fetchAttendanceReport()}
                   />
                 </div>
               )
