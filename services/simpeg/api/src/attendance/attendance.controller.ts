@@ -28,7 +28,8 @@ import { FingerprintAttendanceService } from "./fingerprint-attendance.service";
 const HR_ADMIN_ROLES = ["super_admin", "admin_kepegawaian", "admin_bidang", "admin_unit", "admin_unit_nondik"];
 const REPORT_MANAGER_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik"];
 const HOLIDAY_AND_DUTY_MANAGER_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik"];
-const FINGERPRINT_MANAGER_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik"];
+const FINGERPRINT_OPERATOR_ROLES = ["super_admin", "admin_kepegawaian"];
+const FINGERPRINT_MAPPING_ROLES = [...FINGERPRINT_OPERATOR_ROLES, "admin_unit", "admin_unit_nondik"];
 const strictValidation = new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true });
 
 @Controller("attendance")
@@ -67,28 +68,28 @@ export class AttendanceController {
 
   @Get("fingerprint/status")
   @UseGuards(SimpegRolesGuard)
-  @SimpegRoles(...FINGERPRINT_MANAGER_ROLES)
+  @SimpegRoles(...FINGERPRINT_OPERATOR_ROLES)
   async getFingerprintStatus() {
     return this.fingerprintAttendance.getStatus();
   }
 
   @Post("fingerprint/sync")
   @UseGuards(SimpegRolesGuard)
-  @SimpegRoles(...FINGERPRINT_MANAGER_ROLES)
+  @SimpegRoles(...FINGERPRINT_OPERATOR_ROLES)
   async syncFingerprint(@Body(strictValidation) dto: SyncFingerprintDto) {
     return this.fingerprintAttendance.sync(dto);
   }
 
   @Get("fingerprint/unmatched")
   @UseGuards(SimpegRolesGuard)
-  @SimpegRoles("super_admin", "admin_kepegawaian")
+  @SimpegRoles(...FINGERPRINT_OPERATOR_ROLES)
   async getUnmatchedFingerprintEvents() {
     return this.fingerprintAttendance.unmatched();
   }
 
   @Put("fingerprint/mappings/:userId")
   @UseGuards(SimpegRolesGuard)
-  @SimpegRoles(...FINGERPRINT_MANAGER_ROLES)
+  @SimpegRoles(...FINGERPRINT_MAPPING_ROLES)
   async updateFingerprintMapping(
     @Param("userId") userId: string,
     @Body(strictValidation) dto: UpdateFingerprintEnrollmentDto,
@@ -103,9 +104,10 @@ export class AttendanceController {
   async getAttendanceDashboard(
     @Query("month") month: string | undefined,
     @Query("unitId") unitId: string | undefined,
+    @Query("source") source: string | undefined,
     @Req() req: any,
   ) {
-    return this.attendanceService.getAttendanceDashboardReport(month, unitId, req.user);
+    return this.attendanceService.getAttendanceDashboardReport(month, unitId, req.user, undefined, source);
   }
 
   @Get("recap")
@@ -114,11 +116,13 @@ export class AttendanceController {
   async getRecap(
     @Query("start") start: string,
     @Query("end") end: string,
-    @Query("unitId") unitId?: string,
+    @Query("unitId") unitId: string | undefined,
+    @Query("source") source: string | undefined,
+    @Req() req: any,
   ) {
     const startDate = start || new Date().toISOString().slice(0, 10);
     const endDate = end || new Date().toISOString().slice(0, 10);
-    return this.attendanceService.getAttendanceRecap(startDate, endDate, unitId);
+    return this.attendanceService.getAttendanceRecap(startDate, endDate, unitId, req.user, source);
   }
 
   @Get("configs")

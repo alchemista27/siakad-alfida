@@ -11,8 +11,8 @@ import { EmployeeSuggestion, EmployeeSuggestionPicker } from "../components/orga
 import { OrganizationDepartment, OrganizationEmployee, OrganizationUnit } from "../components/organization/types";
 import { WorkdayManagementPanel } from "../components/attendance/workday-management-panel";
 import type { Holiday, SaturdayDuty } from "../components/attendance/workday-management-panel";
-import { AttendanceReportDashboard, type AttendanceDashboardReport } from "../components/attendance/attendance-report-dashboard";
-import { FingerprintSyncPanel } from "../components/attendance/fingerprint-sync-panel";
+import { AttendanceReportDashboard, type AttendanceDashboardReport, type AttendanceSourceFilter } from "../components/attendance/attendance-report-dashboard";
+import { AttendanceDataSourcePanel } from "../components/attendance/attendance-data-source-panel";
 import { YmqAdminManager } from "../components/ymq/ymq-admin-manager";
 import {
   hasSimpegAssignmentWriteAccess,
@@ -60,7 +60,7 @@ interface LeaveRequest {
   };
 }
 
-type SimpegTab = "reports" | "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings" | "workday" | "fingerprint" | "ymq";
+type SimpegTab = "reports" | "assignments" | "attendance" | "leaves" | "liqo" | "units" | "departments" | "gps-settings" | "workday" | "ymq";
 
 async function readManagementJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
@@ -105,6 +105,7 @@ export default function SimpegDashboard() {
   const [attendanceReport, setAttendanceReport] = useState<AttendanceDashboardReport | null>(null);
   const [reportMonth, setReportMonth] = useState(new Date().toISOString().slice(0, 7));
   const [reportUnitId, setReportUnitId] = useState("");
+  const [reportSource, setReportSource] = useState<AttendanceSourceFilter>("all");
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
   const [units, setUnits] = useState<OrganizationUnit[]>([]);
@@ -213,11 +214,11 @@ export default function SimpegDashboard() {
     }
   };
 
-  const fetchAttendanceReport = async (month = reportMonth, unitId = reportUnitId) => {
+  const fetchAttendanceReport = async (month = reportMonth, unitId = reportUnitId, source = reportSource) => {
     setReportLoading(true);
     setReportError(null);
     try {
-      const query = new URLSearchParams({ month });
+      const query = new URLSearchParams({ month, source });
       if (unitId) query.set("unitId", unitId);
       const report = await readManagementJson<AttendanceDashboardReport>(`/api/attendance/dashboard?${query.toString()}`);
       setAttendanceReport(report);
@@ -283,6 +284,13 @@ export default function SimpegDashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (window.location.hash === "#fingerprint") {
+      window.history.replaceState(null, "", "#reports");
+      setActiveTab("reports");
+    }
+  }, []);
 
   useEffect(() => {
     async function bootstrap() {
@@ -673,13 +681,6 @@ export default function SimpegDashboard() {
           active: activeTab === "assignments",
           onClick: () => setActiveTab("assignments"),
         },
-        {
-          label: "Presensi GPS",
-          href: "#attendance",
-          icon: "location_on",
-          active: activeTab === "attendance",
-          onClick: () => setActiveTab("attendance"),
-        },
       ],
     },
     {
@@ -700,24 +701,11 @@ export default function SimpegDashboard() {
           onClick: () => setActiveTab("departments"),
         },
         ...(canManageAllUnits || (manageableUnitIds?.length || 0) > 0 ? [{
-          label: "Konfigurasi GPS",
-          href: "#gps-settings",
-          icon: "my_location",
-          active: activeTab === "gps-settings",
-          onClick: () => setActiveTab("gps-settings"),
-        }, {
           label: "Hari Libur & Piket Sabtu",
           href: "#workday",
           icon: "calendar_month",
           active: activeTab === "workday",
           onClick: () => setActiveTab("workday"),
-        }] : []),
-        ...(canViewAttendanceReports ? [{
-          label: "Sinkronisasi Fingerprint",
-          href: "#fingerprint",
-          icon: "fingerprint",
-          active: activeTab === "fingerprint",
-          onClick: () => setActiveTab("fingerprint"),
         }] : []),
         ...(canManageYmqAdmins ? [{
           label: "Admin YMQ",
@@ -766,9 +754,9 @@ export default function SimpegDashboard() {
   const activeAdditionalCount = activeAssignments.filter((assignment) => !assignment.isPrimary).length;
   const visibleSidebarGroups = isEmployeeOnly ? [
     {
-      title: "Presensi Mandiri",
+      title: "Kehadiran",
       items: [{
-        label: "Presensi GPS",
+        label: "Status Kehadiran",
         href: "#attendance",
         icon: "location_on",
         active: activeTab === "attendance",
@@ -807,7 +795,7 @@ export default function SimpegDashboard() {
               Sistem Manajemen Kepegawaian (SIMPEG)
             </h1>
             <p className="text-sm text-slate-500 mt-1">
-              Pengelolaan penugasan unit kerja, presensi GPS, permohonan cuti, dan pembinaan pegawai Yayasan Alfida.
+              Pengelolaan penugasan unit kerja, laporan kehadiran, permohonan cuti, dan pembinaan pegawai Yayasan Alfida.
             </p>
           </div>
 
@@ -854,7 +842,7 @@ export default function SimpegDashboard() {
 
         {/* Tab Navigation */}
         {isEmployeeOnly ? (
-          <div className="flex border-b border-slate-200 pb-3 text-sm font-semibold text-emerald-700">Presensi GPS</div>
+          <div className="flex border-b border-slate-200 pb-3 text-sm font-semibold text-emerald-700">Status Kehadiran</div>
         ) : (
           <div className="flex border-b border-slate-200 gap-6 text-sm font-medium">
           {canViewAttendanceReports && <button
@@ -876,16 +864,6 @@ export default function SimpegDashboard() {
             }`}
           >
             Penugasan Unit ({assignments.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("attendance")}
-            className={`pb-3 border-b-2 transition-colors ${
-              activeTab === "attendance"
-                ? "border-emerald-600 text-emerald-700 font-semibold"
-                : "border-transparent text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            Presensi GPS
           </button>
           <button
             onClick={() => setActiveTab("leaves")}
@@ -921,23 +899,35 @@ export default function SimpegDashboard() {
               reportError ? (
                 <ErrorState message={reportError} onRetry={() => void fetchAttendanceReport()} />
               ) : (
-                <AttendanceReportDashboard
-                  report={attendanceReport}
-                  units={units}
-                  selectedMonth={reportMonth}
-                  selectedUnitId={reportUnitId}
-                  canManageAllUnits={canManageAllUnits}
-                  loading={reportLoading}
-                  onMonthChange={(month) => {
-                    setReportMonth(month);
-                    void fetchAttendanceReport(month, reportUnitId);
-                  }}
-                  onUnitChange={(unitId) => {
-                    setReportUnitId(unitId);
-                    void fetchAttendanceReport(reportMonth, unitId);
-                  }}
-                  onRefresh={() => void fetchAttendanceReport()}
-                />
+                <div className="space-y-6">
+                  <AttendanceReportDashboard
+                    report={attendanceReport}
+                    units={units}
+                    selectedMonth={reportMonth}
+                    selectedUnitId={reportUnitId}
+                    selectedSource={reportSource}
+                    canManageAllUnits={canManageAllUnits}
+                    loading={reportLoading}
+                    onMonthChange={(month) => {
+                      setReportMonth(month);
+                      void fetchAttendanceReport(month, reportUnitId, reportSource);
+                    }}
+                    onUnitChange={(unitId) => {
+                      setReportUnitId(unitId);
+                      void fetchAttendanceReport(reportMonth, unitId, reportSource);
+                    }}
+                    onSourceChange={(source) => {
+                      setReportSource(source);
+                      void fetchAttendanceReport(reportMonth, reportUnitId, source);
+                    }}
+                    onRefresh={() => void fetchAttendanceReport()}
+                  />
+                  <AttendanceDataSourcePanel
+                    employees={employees}
+                    canOperateFingerprint={canManageAllUnits}
+                    canMapFingerprint={canManageAllUnits || (manageableUnitIds?.length || 0) > 0}
+                  />
+                </div>
               )
             )}
 
@@ -1066,8 +1056,16 @@ export default function SimpegDashboard() {
               </div>
             )}
 
-            {/* TAB 2: PRESENSI GPS */}
+            {/* Status kehadiran pegawai; GPS belum menjadi sumber presensi aktif. */}
             {activeTab === "attendance" && (
+              <Card className="border-border bg-surface p-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tertiary">Kehadiran pegawai</p>
+                <h3 className="mt-1 font-heading text-xl font-bold text-primary">Status Sumber Kehadiran</h3>
+                <p className="mt-2 text-sm text-slate-600">Fingerprint adalah sumber aktif. GPS belum tersedia dan tidak menerima presensi baru. Riwayat kehadiran akan tampil setelah event fingerprint tersinkron.</p>
+              </Card>
+            )}
+
+            {false && activeTab === "attendance" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className="p-6 bg-white border border-slate-200 space-y-4">
                   <h3 className="text-lg font-semibold text-slate-900">
@@ -1321,10 +1319,6 @@ export default function SimpegDashboard() {
                 employees={employees}
                 onChanged={fetchWorkdayData}
               />
-            )}
-
-            {activeTab === "fingerprint" && canViewAttendanceReports && (
-              <FingerprintSyncPanel employees={employees} canManageAllUnits={canManageAllUnits} />
             )}
 
             {activeTab === "ymq" && canManageYmqAdmins && <YmqAdminManager />}

@@ -25,6 +25,14 @@ type DatedAssignment = {
   endDate: Date | null;
 };
 
+export type AttendanceReportSource = "all" | "fingerprint" | "gps" | "backfill";
+
+const ATTENDANCE_REPORT_SOURCES = new Set<AttendanceReportSource>(["all", "fingerprint", "gps", "backfill"]);
+
+export function gpsAttendanceEnabled(): boolean {
+  return process.env.SIMPEG_GPS_ATTENDANCE_ENABLED === "true";
+}
+
 @Injectable()
 export class AttendanceService {
   constructor(
@@ -210,6 +218,7 @@ export class AttendanceService {
   }
 
   async checkIn(userId: string, dto: GpsCheckInOutDto, now = new Date()) {
+    if (!gpsAttendanceEnabled()) throw new BadRequestException("Presensi GPS belum diaktifkan.");
     const context = await this.getTodayAttendanceContext(userId, now);
     this.assertAttendanceRequired(context);
 
@@ -246,6 +255,7 @@ export class AttendanceService {
   }
 
   async checkOut(userId: string, dto: GpsCheckInOutDto, now = new Date()) {
+    if (!gpsAttendanceEnabled()) throw new BadRequestException("Presensi GPS belum diaktifkan.");
     const context = await this.getTodayAttendanceContext(userId, now);
     if (!context.config) throw new BadRequestException(`Konfigurasi GPS untuk unit ${context.unitName} belum diatur.`);
 
@@ -329,11 +339,21 @@ export class AttendanceService {
     return unitId ? [unitId] : managedUnitIds;
   }
 
-  async getAttendanceDashboardReport(month: string | undefined, requestedUnitId: string | undefined, principal: Principal, now = new Date()) {
+  async getAttendanceDashboardReport(
+    month: string | undefined,
+    requestedUnitId: string | undefined,
+    principal: Principal,
+    now = new Date(),
+    requestedSource: AttendanceReportSource | string | undefined = "all",
+  ) {
     const normalizedMonth = month?.trim() || jakartaDateKey(now).slice(0, 7);
     const monthMatch = /^(\d{4})-(\d{2})$/.exec(normalizedMonth);
     if (!monthMatch || Number(monthMatch[2]) < 1 || Number(monthMatch[2]) > 12) {
       throw new BadRequestException("Bulan laporan harus berformat YYYY-MM.");
+    }
+    const sourceFilter = requestedSource?.trim() || "all";
+    if (!ATTENDANCE_REPORT_SOURCES.has(sourceFilter as AttendanceReportSource)) {
+      throw new BadRequestException("Sumber laporan tidak valid.");
     }
 
     const year = Number(monthMatch[1]);
@@ -362,7 +382,7 @@ export class AttendanceService {
           ...(visibleUnitIds ? { unitId: { in: visibleUnitIds } } : {}),
           ...(userIds.length ? { userId: { in: userIds } } : { userId: { in: [] } }),
         },
-        select: { userId: true, date: true, status: true },
+        select: { userId: true, date: true, status: true, source: true },
       }),
       this.prisma.leaveRequest.findMany({
         where: {
@@ -375,10 +395,23 @@ export class AttendanceService {
       }),
     ]);
 
+    const sourceCounts = {
+      fingerprint: 0,
+      gps: 0,
+      backfill: 0,
+    };
+    for (const attendance of attendances) {
+      if (attendance.source === "fingerprint" || attendance.source === "gps" || attendance.source === "backfill") {
+        sourceCounts[attendance.source] += 1;
+      }
+    }
+    const filteredAttendances = sourceFilter === "all"
+      ? attendances
+      : attendances.filter((attendance) => attendance.source === sourceFilter);
     const monthly = { present: 0, late: 0, izin: 0, cuti: 0, sakit: 0 };
     const todayCounts = { date: todayKey, present: 0, late: 0, izin: 0, cuti: 0 };
     const punctualityByUser = new Map<string, { present: number; late: number }>();
-    for (const attendance of attendances) {
+    for (const attendance of filteredAttendances) {
       const dateKey = toUtcDateKey(attendance.date);
       if (attendance.status === GpsAttendanceStatus.present) {
         monthly.present += 1;
@@ -427,19 +460,36 @@ export class AttendanceService {
     return {
       month: normalizedMonth,
       scope: visibleUnitIds ? { kind: "unit" as const, unitIds: visibleUnitIds } : { kind: "foundation" as const },
+      sourceFilter,
+      sources: {
+        fingerprint: { status: "active" as const, attendanceRecords: sourceCounts.fingerprint },
+        gps: { status: "unavailable" as const, attendanceRecords: sourceCounts.gps },
+        backfill: { status: "administrative" as const, attendanceRecords: sourceCounts.backfill },
+      },
       today: todayCounts,
       monthly,
       topOnTime,
     };
   }
 
-  async getAttendanceRecap(startDate: string, endDate: string, unitId?: string) {
+  async getAttendanceRecap(
+    startDate: string,
+    endDate: string,
+    unitId?: string,
+    principal?: Principal,
+    requestedSource: AttendanceReportSource | string | undefined = "all",
+  ) {
     const start = utcDate(startDate);
     const end = utcDate(endDate);
     if (start > end) throw new BadRequestException("Tanggal mulai tidak boleh setelah tanggal selesai.");
+    const sourceFilter = requestedSource?.trim() || "all";
+    if (!ATTENDANCE_REPORT_SOURCES.has(sourceFilter as AttendanceReportSource)) {
+      throw new BadRequestException("Sumber laporan tidak valid.");
+    }
+    const visibleUnitIds = principal ? this.attendanceReportUnitIds(principal, unitId) : unitId ? [unitId] : undefined;
 
     const whereUser: any = { isActive: true };
-    if (unitId) whereUser.unitAssignments = { some: { unitId } };
+    if (visibleUnitIds) whereUser.unitAssignments = { some: { unitId: { in: visibleUnitIds } } };
 
     const localUsers = await this.prisma.user.findMany({
       where: whereUser,
@@ -457,7 +507,12 @@ export class AttendanceService {
     const userIds = users.map((user) => user.id);
     const [attendances, leaves, holidays, duties, schedules] = await Promise.all([
       this.prisma.gpsAttendance.findMany({
-        where: { date: { gte: start, lte: end }, ...(unitId ? { unitId } : {}) },
+        where: {
+          date: { gte: start, lte: end },
+          ...(visibleUnitIds ? { unitId: { in: visibleUnitIds } } : {}),
+          ...(userIds.length ? { userId: { in: userIds } } : { userId: { in: [] } }),
+          ...(sourceFilter === "all" ? {} : { source: sourceFilter as any }),
+        },
       }),
       this.prisma.leaveRequest.findMany({
         where: { status: "approved", startDate: { lte: end }, endDate: { gte: start } },
@@ -466,7 +521,9 @@ export class AttendanceService {
       this.prisma.saturdayDutyAssignment.findMany({
         where: { date: { gte: start, lte: end }, ...(userIds.length ? { userId: { in: userIds } } : {}) },
       }),
-      this.schedules.findMany({ where: unitId ? {unitId} : {unitId: {in: [...new Set(users.flatMap(user => user.unitAssignments.map(item => item.unitId)))]}} }),
+      this.schedules.findMany({
+        where: { unitId: { in: visibleUnitIds ?? [...new Set(users.flatMap(user => user.unitAssignments.map(item => item.unitId)))] } },
+      }),
     ]);
     const days = this.datesInRange(start, end);
 
@@ -534,6 +591,7 @@ export class AttendanceService {
   }
 
   async upsertGpsConfig(dto: UpsertGpsConfigDto, principal: Principal) {
+    if (!gpsAttendanceEnabled()) throw new BadRequestException("Presensi GPS belum diaktifkan.");
     if (!canManageUnit(principal?.roles, dto.unitId)) {
       throw new ForbiddenException("Anda tidak berwenang mengatur lokasi GPS unit ini.");
     }
