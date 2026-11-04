@@ -6,6 +6,9 @@ import { EmployeesModule } from "../employees/employees.module";
 import { FingerprintDeviceClient } from "./fingerprint-device.client";
 import { FingerprintAttendanceService } from "./fingerprint-attendance.service";
 import { FingerprintSyncProcessor } from "./fingerprint-sync.processor";
+import { FoundationBrandingClient, FOUNDATION_BRANDING_FETCH } from "./foundation-branding.client";
+import { AttendanceReportPdfService } from "./attendance-report-pdf.service";
+import { AttendanceReportPdfExportService } from "./attendance-report-pdf-export.service";
 
 @Module({
   imports: [EmployeesModule],
@@ -16,6 +19,10 @@ import { FingerprintSyncProcessor } from "./fingerprint-sync.processor";
     { provide: FingerprintDeviceClient, useFactory: () => new FingerprintDeviceClient() },
     FingerprintAttendanceService,
     FingerprintSyncProcessor,
+    { provide: FOUNDATION_BRANDING_FETCH, useValue: fetch },
+    FoundationBrandingClient,
+    AttendanceReportPdfService,
+    AttendanceReportPdfExportService,
   ],
   exports: [AttendanceService, FingerprintAttendanceService],
 })

@@ -27,7 +27,7 @@ RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 appuser
 
 COPY --from=builder --chown=appuser:nodejs /app ./
-RUN apk add --no-cache python3 py3-pip tzdata \
+RUN apk add --no-cache python3 py3-pip tzdata font-liberation \
   && python3 -m pip install --no-cache-dir --break-system-packages -r services/simpeg/fingerprint/requirements.txt \
   && chmod +x services/simpeg/start.sh
 

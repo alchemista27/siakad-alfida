@@ -65,6 +65,8 @@ export function AttendanceReportDashboard({
   onUnitChange,
   onSourceChange,
   onRefresh,
+  downloading,
+  onDownload,
 }: {
   report: AttendanceDashboardReport | null;
   units: ReportUnit[];
@@ -77,6 +79,8 @@ export function AttendanceReportDashboard({
   onUnitChange: (unitId: string) => void;
   onSourceChange: (source: AttendanceSourceFilter) => void;
   onRefresh: () => void;
+  downloading: boolean;
+  onDownload: () => void;
 }) {
   const segments: ReportSegment[] = report ? [
     { key: "present", label: "Hadir tepat waktu", value: report.monthly.present, color: "#0f7f6d" },
@@ -114,11 +118,12 @@ export function AttendanceReportDashboard({
             <select value={selectedSource} onChange={(event) => onSourceChange(event.target.value as AttendanceSourceFilter)} className="mt-1 block w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm font-normal text-primary sm:w-52" aria-label="Sumber data">
               <option value="all">Semua sumber</option>
               <option value="fingerprint">Fingerprint — aktif</option>
-              <option value="gps">GPS — riwayat, belum tersedia</option>
+              <option value="gps">GPS</option>
               <option value="backfill">Backfill administratif</option>
             </select>
           </label>
-          <Button type="button" variant="secondary" size="sm" onClick={onRefresh} disabled={loading}>Segarkan</Button>
+          <Button type="button" variant="secondary" size="sm" onClick={onRefresh} disabled={loading || downloading}>Segarkan</Button>
+          <Button type="button" variant="primary" size="sm" onClick={onDownload} disabled={!report || loading || downloading}>{downloading ? "Menyiapkan PDF…" : "Download PDF"}</Button>
         </div>
       </div>
 
@@ -130,12 +135,12 @@ export function AttendanceReportDashboard({
         <>
           <Card className="border-border bg-surface p-5">
             <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
-              <div><h3 className="font-heading text-lg font-bold text-primary">Sumber Data Kehadiran</h3><p className="mt-1 text-sm text-slate-600">Fingerprint adalah sumber aktif. Filter sumber hanya memengaruhi data hadir/terlambat; izin, cuti, dan sakit berasal dari pengajuan yang disetujui.</p></div>
+              <div><h3 className="font-heading text-lg font-bold text-primary">Sumber Data Kehadiran</h3><p className="mt-1 text-sm text-slate-600">Fingerprint dan GPS adalah sumber presensi. Filter sumber hanya memengaruhi data hadir/terlambat; izin, cuti, dan sakit berasal dari pengajuan yang disetujui.</p></div>
               <span className="rounded-sm border border-border bg-neutral px-2.5 py-1 text-xs font-semibold text-slate-600">{selectedSource === "all" ? "Semua sumber" : selectedSource}</span>
             </div>
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               <div className="rounded-sm border border-border bg-neutral p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Fingerprint</p><p className="mt-1 font-semibold text-tertiary">Aktif</p><p className="mt-2 text-2xl font-bold text-primary">{report.sources.fingerprint.attendanceRecords}</p><p className="text-xs text-slate-500">record pada periode ini</p></div>
-              <div className="rounded-sm border border-border bg-neutral p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">GPS</p><p className="mt-1 font-semibold text-amber-800">GPS — belum tersedia</p><p className="mt-2 text-2xl font-bold text-primary">{report.sources.gps.attendanceRecords}</p><p className="text-xs text-slate-500">riwayat GPS, tidak menerima presensi baru</p></div>
+              <div className="rounded-sm border border-border bg-neutral p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">GPS</p><p className={`mt-1 font-semibold ${report.sources.gps.status === "active" ? "text-tertiary" : "text-amber-800"}`}>{report.sources.gps.status === "active" ? "GPS — aktif" : "GPS — belum diaktifkan"}</p><p className="mt-2 text-2xl font-bold text-primary">{report.sources.gps.attendanceRecords}</p><p className="text-xs text-slate-500">{report.sources.gps.status === "active" ? "presensi lokasi perangkat per unit" : "riwayat GPS tetap dapat dilihat"}</p></div>
               <div className="rounded-sm border border-border bg-neutral p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Backfill</p><p className="mt-1 font-semibold text-primary">Backfill administratif</p><p className="mt-2 text-2xl font-bold text-primary">{report.sources.backfill.attendanceRecords}</p><p className="text-xs text-slate-500">koreksi/riwayat transparan</p></div>
             </div>
           </Card>

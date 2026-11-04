@@ -30,11 +30,13 @@ export function AttendanceDataSourcePanel({
   employees,
   canOperateFingerprint,
   canMapFingerprint,
+  gpsActive,
   onFingerprintSynced,
 }: {
   employees: OrganizationEmployee[];
   canOperateFingerprint: boolean;
   canMapFingerprint: boolean;
+  gpsActive: boolean;
   onFingerprintSynced?: () => Promise<void> | void;
 }) {
   const [status, setStatus] = useState<SyncStatus | null>(null);
@@ -120,12 +122,12 @@ export function AttendanceDataSourcePanel({
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tertiary">Provenance & operasional</p>
         <h3 className="mt-1 font-heading text-xl font-bold text-primary">Status Sumber Data</h3>
-        <p className="mt-1 text-sm text-slate-600">Fingerprint adalah sumber aktif laporan kehadiran. GPS belum menerima presensi baru.</p>
+        <p className="mt-1 text-sm text-slate-600">Fingerprint dan GPS adalah sumber laporan kehadiran. GPS aktif setelah lokasi dan radius unit dikonfigurasi.</p>
       </div>
 
       <div className="grid gap-3 md:grid-cols-3">
         <Card className="border-border bg-surface p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Fingerprint</p><p className={`mt-1 font-semibold ${fingerprintReady ? "text-tertiary" : "text-amber-800"}`}>{loading ? "Memeriksa readiness" : fingerprintReady ? "Siap disinkronkan" : "Belum siap di server"}</p><p className="mt-1 text-xs text-slate-600">Sinkronisasi hanya membaca log alat dan tidak menimpa GPS/backfill.</p></Card>
-        <Card className="border-border bg-surface p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">GPS</p><p className="mt-1 font-semibold text-amber-800">GPS — belum tersedia</p><p className="mt-1 text-xs text-slate-600">Sistem tidak menerima presensi GPS baru pada tahap ini.</p></Card>
+        <Card className="border-border bg-surface p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">GPS</p><p className={`mt-1 font-semibold ${gpsActive ? "text-tertiary" : "text-amber-800"}`}>{gpsActive ? "GPS — aktif" : "GPS — belum diaktifkan"}</p><p className="mt-1 text-xs text-slate-600">{gpsActive ? "Presensi lokasi perangkat divalidasi terhadap radius unit." : "Aktivasi runtime belum menerima presensi GPS baru."}</p></Card>
         <Card className="border-border bg-surface p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Backfill</p><p className="mt-1 font-semibold text-primary">Administratif</p><p className="mt-1 text-xs text-slate-600">Riwayat koreksi/dummy selalu diberi provenance backfill.</p></Card>
       </div>
 

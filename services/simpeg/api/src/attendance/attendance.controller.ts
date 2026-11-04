@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Req,
+  Res,
   ValidationPipe,
 } from "@nestjs/common";
 import { AttendanceService } from "./attendance.service";
@@ -24,6 +25,8 @@ import {
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 import { SimpegRoles, SimpegRolesGuard } from "../common/guards/simpeg-roles.guard";
 import { FingerprintAttendanceService } from "./fingerprint-attendance.service";
+import { AttendanceReportPdfExportService } from "./attendance-report-pdf-export.service";
+import type { Response } from "express";
 
 const HR_ADMIN_ROLES = ["super_admin", "admin_kepegawaian", "admin_bidang", "admin_unit", "admin_unit_nondik"];
 const REPORT_MANAGER_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik"];
@@ -38,6 +41,7 @@ export class AttendanceController {
   constructor(
     private readonly attendanceService: AttendanceService,
     private readonly fingerprintAttendance: FingerprintAttendanceService,
+    private readonly attendanceReportPdfExport: AttendanceReportPdfExportService,
   ) {}
 
   @Get("context")
@@ -108,6 +112,26 @@ export class AttendanceController {
     @Req() req: any,
   ) {
     return this.attendanceService.getAttendanceDashboardReport(month, unitId, req.user, undefined, source);
+  }
+
+  @Get("report.pdf")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles(...REPORT_MANAGER_ROLES)
+  async downloadAttendanceReportPdf(
+    @Query("month") month: string | undefined,
+    @Query("unitId") unitId: string | undefined,
+    @Query("source") source: string | undefined,
+    @Req() req: any,
+    @Res() res: Response,
+  ) {
+    const { buffer, filename } = await this.attendanceReportPdfExport.generate(month, unitId, source, req.user);
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${filename}"`,
+      "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff",
+    });
+    res.send(buffer);
   }
 
   @Get("recap")

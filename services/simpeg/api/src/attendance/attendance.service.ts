@@ -27,6 +27,26 @@ type DatedAssignment = {
 
 export type AttendanceReportSource = "all" | "fingerprint" | "gps" | "backfill";
 
+export type AttendanceReportExportRow = {
+  userId: string;
+  fullName: string;
+  present: number;
+  late: number;
+  izin: number;
+  cuti: number;
+  overtimeMinutes: number;
+  expectedWorkdays: number;
+  attendancePercentage: number;
+};
+
+export type AttendanceReportExport = {
+  month: string;
+  scope: { kind: "foundation" | "unit"; unitIds?: string[]; label: string };
+  sourceFilter: AttendanceReportSource;
+  dashboard: Awaited<ReturnType<AttendanceService["getAttendanceDashboardReport"]>>;
+  rows: AttendanceReportExportRow[];
+};
+
 const ATTENDANCE_REPORT_SOURCES = new Set<AttendanceReportSource>(["all", "fingerprint", "gps", "backfill"]);
 
 export function gpsAttendanceEnabled(): boolean {
@@ -180,6 +200,7 @@ export class AttendanceService {
 
     return {
       date: toUtcDateKey(day),
+      gpsEnabled: gpsAttendanceEnabled(),
       unitId: assignment.unitId,
       unitName: assignment.unitName,
       config,
@@ -339,6 +360,20 @@ export class AttendanceService {
     return unitId ? [unitId] : managedUnitIds;
   }
 
+  private async attendanceReportScope(visibleUnitIds: string[] | undefined): Promise<AttendanceReportExport["scope"]> {
+    if (!visibleUnitIds) return { kind: "foundation", label: "Keseluruhan Yayasan" };
+    const units = await this.prisma.unit.findMany({
+      where: { id: { in: visibleUnitIds } },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    });
+    const names = units.map((unit) => unit.name);
+    const label = names.length === 1
+      ? `Unit: ${names[0]}`
+      : `Unit yang dikelola: ${names.join(", ")}`;
+    return { kind: "unit", unitIds: visibleUnitIds, label };
+  }
+
   async getAttendanceDashboardReport(
     month: string | undefined,
     requestedUnitId: string | undefined,
@@ -463,7 +498,7 @@ export class AttendanceService {
       sourceFilter,
       sources: {
         fingerprint: { status: "active" as const, attendanceRecords: sourceCounts.fingerprint },
-        gps: { status: "unavailable" as const, attendanceRecords: sourceCounts.gps },
+        gps: { status: gpsAttendanceEnabled() ? "active" as const : "unavailable" as const, attendanceRecords: sourceCounts.gps },
         backfill: { status: "administrative" as const, attendanceRecords: sourceCounts.backfill },
       },
       today: todayCounts,
@@ -538,13 +573,15 @@ export class AttendanceService {
       let exemptWorkdays = 0;
       let unrecordedRequiredDays = 0;
       let leaveDays = 0;
+      let izinDays = 0;
+      let cutiDays = 0;
       for (const day of days) {
         const assignment = this.activeAssignmentForDay(assignments, day);
         const holiday = holidays.some((item) => toUtcDateKey(item.date) === toUtcDateKey(day) && (item.unitId === null || item.unitId === assignment?.unitId));
-        const leave = userLeaves.some((item) => item.startDate <= day && item.endDate >= day);
+        const leave = userLeaves.find((item) => item.startDate <= day && item.endDate >= day);
         const duty = duties.some((item) => item.userId === user.id && item.unitId === assignment?.unitId && toUtcDateKey(item.date) === toUtcDateKey(day));
         const schedule = schedules.find((item: any) => item.unitId === assignment?.unitId && item.weekday === day.getUTCDay());
-        const policy = resolveWorkdayPolicy({ date: day, hasHoliday: holiday, hasApprovedLeave: leave,
+        const policy = resolveWorkdayPolicy({ date: day, hasHoliday: holiday, hasApprovedLeave: Boolean(leave),
           hasSaturdayDuty: duty, configuredIsWorkday: schedule?.isWorkday });
 
         if (policy.required) {
@@ -554,11 +591,18 @@ export class AttendanceService {
           }
         } else {
           exemptWorkdays += 1;
-          if (policy.reason === "approved_leave") leaveDays += 1;
+          if (policy.reason === "approved_leave") {
+            leaveDays += 1;
+            if (leave?.type === "izin") izinDays += 1;
+            if (leave?.type === "cuti") cutiDays += 1;
+          }
         }
       }
 
       const primaryUnit = assignments.find((assignment) => assignment.isPrimary) || assignments[0];
+      const attendancePercentage = expectedWorkdays > 0
+        ? Number((((presentCount + lateCount) / expectedWorkdays) * 100).toFixed(2))
+        : 0;
       return {
         userId: user.id,
         fullName: user.fullName,
@@ -567,13 +611,63 @@ export class AttendanceService {
         present: presentCount,
         late: lateCount,
         leave: leaveDays,
+        izin: izinDays,
+        cuti: cutiDays,
         totalLogs: userAttendances.length,
         overtimeMinutes: userAttendances.reduce((total, attendance) => total + this.validRecordedOvertime(attendance), 0),
         expectedWorkdays,
+        attendancePercentage,
         exemptWorkdays,
         unrecordedRequiredDays,
       };
     });
+  }
+
+  async getAttendanceReportExport(
+    month: string | undefined,
+    requestedUnitId: string | undefined,
+    principal: Principal,
+    requestedSource: AttendanceReportSource | string | undefined = "all",
+    now = new Date(),
+  ): Promise<AttendanceReportExport> {
+    const normalizedMonth = month?.trim() || jakartaDateKey(now).slice(0, 7);
+    const monthMatch = /^(\d{4})-(\d{2})$/.exec(normalizedMonth);
+    if (!monthMatch || Number(monthMatch[2]) < 1 || Number(monthMatch[2]) > 12) {
+      throw new BadRequestException("Bulan laporan harus berformat YYYY-MM.");
+    }
+    const sourceFilter = requestedSource?.trim() || "all";
+    if (!ATTENDANCE_REPORT_SOURCES.has(sourceFilter as AttendanceReportSource)) {
+      throw new BadRequestException("Sumber laporan tidak valid.");
+    }
+
+    const visibleUnitIds = this.attendanceReportUnitIds(principal, requestedUnitId);
+    const year = Number(monthMatch[1]);
+    const monthIndex = Number(monthMatch[2]) - 1;
+    const start = utcDate(`${normalizedMonth}-01`);
+    const end = new Date(Date.UTC(year, monthIndex + 1, 0));
+    const [scope, dashboard, recap] = await Promise.all([
+      this.attendanceReportScope(visibleUnitIds),
+      this.getAttendanceDashboardReport(normalizedMonth, requestedUnitId, principal, now, sourceFilter),
+      this.getAttendanceRecap(toUtcDateKey(start), toUtcDateKey(end), requestedUnitId, principal, sourceFilter),
+    ]);
+
+    return {
+      month: normalizedMonth,
+      scope,
+      sourceFilter: sourceFilter as AttendanceReportSource,
+      dashboard,
+      rows: recap.map((row) => ({
+        userId: row.userId,
+        fullName: row.fullName,
+        present: row.present,
+        late: row.late,
+        izin: row.izin,
+        cuti: row.cuti,
+        overtimeMinutes: row.overtimeMinutes,
+        expectedWorkdays: row.expectedWorkdays,
+        attendancePercentage: row.attendancePercentage,
+      })).sort((left, right) => left.fullName.localeCompare(right.fullName, "id")),
+    };
   }
 
   async getGpsConfigs(principal?: Principal) {

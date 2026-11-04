@@ -1024,6 +1024,9 @@ importers:
       exceljs:
         specifier: ^4.4.0
         version: 4.4.0
+      pdfkit:
+        specifier: ^0.20.2
+        version: 0.20.2
       reflect-metadata:
         specifier: ^0.2.0
         version: 0.2.2
@@ -1049,6 +1052,9 @@ importers:
       '@types/node':
         specifier: ^22.10.7
         version: 22.20.1
+      '@types/pdfkit':
+        specifier: ^0.17.7
+        version: 0.17.7
       prisma:
         specifier: ^6.2.1
         version: 6.19.3(typescript@5.9.3)

@@ -107,6 +107,7 @@ export default function SimpegDashboard() {
   const [reportUnitId, setReportUnitId] = useState("");
   const [reportSource, setReportSource] = useState<AttendanceSourceFilter>("all");
   const [reportLoading, setReportLoading] = useState(false);
+  const [reportDownloading, setReportDownloading] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
   const [units, setUnits] = useState<OrganizationUnit[]>([]);
   const [departments, setDepartments] = useState<OrganizationDepartment[]>([]);
@@ -226,6 +227,32 @@ export default function SimpegDashboard() {
       setReportError(caught instanceof Error ? caught.message : "Laporan kehadiran gagal dimuat.");
     } finally {
       setReportLoading(false);
+    }
+  };
+
+  const downloadAttendanceReportPdf = async () => {
+    setReportDownloading(true);
+    setReportError(null);
+    try {
+      const query = new URLSearchParams({ month: reportMonth, source: reportSource });
+      if (reportUnitId) query.set("unitId", reportUnitId);
+      const response = await fetch(`/api/attendance/report.pdf?${query.toString()}`, { credentials: "include" });
+      if (!response.ok || !response.headers.get("content-type")?.includes("application/pdf")) {
+        throw new Error(await responseMessage(response, "Laporan PDF tidak dapat dibuat. Coba lagi atau hubungi administrator."));
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `laporan-rekap-kehadiran-${reportMonth}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    } catch (caught) {
+      setReportError(caught instanceof Error ? caught.message : "Laporan PDF tidak dapat dibuat.");
+    } finally {
+      setReportDownloading(false);
     }
   };
 
@@ -658,6 +685,8 @@ export default function SimpegDashboard() {
     }
   };
 
+  const gpsEnabled = attendanceContext?.gpsEnabled === true;
+
   const sidebarGroups = [
     ...(canViewAttendanceReports ? [{
       title: "Laporan",
@@ -908,6 +937,8 @@ export default function SimpegDashboard() {
                     selectedSource={reportSource}
                     canManageAllUnits={canManageAllUnits}
                     loading={reportLoading}
+                    downloading={reportDownloading}
+                    onDownload={() => void downloadAttendanceReportPdf()}
                     onMonthChange={(month) => {
                       setReportMonth(month);
                       void fetchAttendanceReport(month, reportUnitId, reportSource);
@@ -926,6 +957,7 @@ export default function SimpegDashboard() {
                     employees={employees}
                     canOperateFingerprint={canManageAllUnits}
                     canMapFingerprint={canManageAllUnits || (manageableUnitIds?.length || 0) > 0}
+                    gpsActive={attendanceReport?.sources.gps.status === "active"}
                     onFingerprintSynced={() => fetchAttendanceReport()}
                   />
                 </div>
@@ -1057,16 +1089,16 @@ export default function SimpegDashboard() {
               </div>
             )}
 
-            {/* Status kehadiran pegawai; GPS belum menjadi sumber presensi aktif. */}
+            {/* Status dan kontrol presensi GPS hanya tersedia saat runtime mengaktifkannya. */}
             {activeTab === "attendance" && (
               <Card className="border-border bg-surface p-6">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tertiary">Kehadiran pegawai</p>
                 <h3 className="mt-1 font-heading text-xl font-bold text-primary">Status Sumber Kehadiran</h3>
-                <p className="mt-2 text-sm text-slate-600">Fingerprint adalah sumber aktif. GPS belum tersedia dan tidak menerima presensi baru. Riwayat kehadiran akan tampil setelah event fingerprint tersinkron.</p>
+                <p className="mt-2 text-sm text-slate-600">{gpsEnabled ? "Fingerprint dan GPS aktif sebagai sumber presensi. GPS memvalidasi lokasi perangkat terhadap radius unit." : "Fingerprint adalah sumber presensi aktif. GPS belum diaktifkan oleh administrator runtime."}</p>
               </Card>
             )}
 
-            {false && activeTab === "attendance" && (
+            {gpsEnabled && activeTab === "attendance" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className="p-6 bg-white border border-slate-200 space-y-4">
                   <h3 className="text-lg font-semibold text-slate-900">

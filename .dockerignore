@@ -33,6 +33,10 @@ assets
 !services/spmb/web/assets/fonts/
 !services/spmb/web/assets/fonts/LiberationSerif-Regular.ttf
 !services/spmb/web/assets/fonts/LiberationSerif-Bold.ttf
+!services/simpeg/api/assets/
+!services/simpeg/api/assets/fonts/
+!services/simpeg/api/assets/fonts/LiberationSerif-Regular.ttf
+!services/simpeg/api/assets/fonts/LiberationSerif-Bold.ttf
 apps/web/tests
 approve.exp
 *.md
