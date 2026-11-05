@@ -20,7 +20,46 @@ const prisma = {
   ymqGroupAdminAssignment: { count: async () => 0 },
   $transaction: async () => { throw new Error("local write failed"); },
 };
+
 async function main() {
+  const createdAssignments: Array<{ groupId: string; userId: string; assignedById: string }> = [];
+  const successfulRoleAssignments: string[] = [];
+  const successfulService = new GroupStaffService({
+    ymqGroup: {
+      findUnique: async () => ({ id: ids.group }),
+    },
+    user: {
+      findUnique: async () => ({ id: ids.employee, isActive: true, sourceUpdatedAt: new Date("2026-10-22T00:00:00.000Z") }),
+    },
+    ymqGroupAdminAssignment: {
+      findFirst: async () => null,
+      findFirstOrThrow: async () => ({ groupId: ids.group, userId: ids.employee, revokedAt: null, user: { id: ids.employee } }),
+      count: async () => 0,
+    },
+    $transaction: async (callback: (tx: any) => Promise<void>) => callback({
+      ymqGroupAdminAssignment: {
+        findFirst: async () => null,
+        create: async ({ data }: { data: { groupId: string; userId: string; assignedById: string } }) => {
+          createdAssignments.push(data);
+        },
+      },
+    }),
+  } as any, {
+    assign: async (_actorId: string, _targetUserId: string, role: string) => {
+      successfulRoleAssignments.push(role);
+      return { changed: true };
+    },
+    revoke: async () => undefined,
+  } as any);
+
+  await successfulService.assignGroupAdmin(ids.group, ids.employee, principal);
+  assert.deepEqual(createdAssignments, [{
+    groupId: ids.group,
+    userId: ids.employee,
+    assignedById: ids.admin,
+  }]);
+  assert.deepEqual(successfulRoleAssignments, ["admin_kelompok"]);
+
   const service = new GroupStaffService(prisma as any, broker as any);
   await assert.rejects(() => service.assignPembina(ids.group, ids.employee, principal));
   assert.deepEqual(brokerCalls, [

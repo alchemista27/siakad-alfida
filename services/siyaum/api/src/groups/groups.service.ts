@@ -40,7 +40,22 @@ export class GroupsService {
       where: { id },
       include: {
         pembina: { select: { id: true, fullName: true, email: true, phone: true } },
-        groupAdmins: { where: { revokedAt: null }, select: { userId: true, revokedAt: true } },
+        groupAdmins: {
+          where: { revokedAt: null },
+          select: {
+            userId: true,
+            revokedAt: true,
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                unitId: true,
+                unitName: true,
+              },
+            },
+          },
+        },
         members: {
           where: { leftAt: null },
           select: {

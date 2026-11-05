@@ -30,7 +30,11 @@ interface Group {
   unitName?: string | null;
   pembina?: Employee | null;
   pembinaUserId?: string | null;
-  groupAdmins?: Array<{ user: Employee; revokedAt?: string | null }>;
+  groupAdmins?: Array<{
+    userId: string;
+    user?: Employee | null;
+    revokedAt?: string | null;
+  }>;
   members?: Member[];
   _count?: { members: number };
 }
@@ -126,6 +130,15 @@ export function GroupStaffManager() {
   }, [groups]);
   const selectedCandidate = employees.find((employee) => employee.id === candidateId);
   const isSelectedParticipant = participants.some((participant) => participant.id === candidateId);
+  const activeGroupAdmins = useMemo(
+    () => (group?.groupAdmins || []).filter((assignment) => !assignment.revokedAt),
+    [group],
+  );
+  const assignmentEligibilityMessage = !candidateId
+    ? "Pilih pegawai aktif terlebih dahulu."
+    : !isSelectedParticipant
+      ? "Tambahkan sebagai Peserta YMQ terlebih dahulu sebelum menetapkan Pembina, Admin Kelompok, atau roster."
+      : null;
 
   const mutate = async (action: "pembina" | "admin" | "member" | "remove-member", method: "PUT" | "POST" | "DELETE", userId?: string) => {
     if (!groupId || !userId) return;
@@ -244,7 +257,10 @@ export function GroupStaffManager() {
                   <div><dt className="text-primary/60">Pembina YMQ</dt><dd className="font-medium">{group.pembina?.fullName || "Belum ditugaskan"}</dd></div>
                   <div><dt className="text-primary/60">Peserta aktif</dt><dd className="font-medium">{group.members?.length || group._count?.members || 0}</dd></div>
                 </dl>
-                <div className="mt-6 border-t border-border pt-4"><h3 className="font-semibold">Admin Kelompok aktif</h3>{(group.groupAdmins || []).filter((assignment) => !assignment.revokedAt).length ? <ul className="mt-2 space-y-2">{group.groupAdmins?.filter((assignment) => !assignment.revokedAt).map((assignment) => <li key={assignment.user.id} className="flex items-center justify-between rounded-sm border border-border px-3 py-2 text-sm"><span>{assignment.user.fullName}<small className="ml-2 text-primary/60">{assignment.user.unitName}</small></span><Button type="button" size="sm" variant="danger" disabled={saving} onClick={() => void mutate("admin", "DELETE", assignment.user.id)}>Cabut</Button></li>)}</ul> : <p className="mt-2 text-sm text-primary/65">Belum ada admin kelompok aktif.</p>}</div>
+                <div className="mt-6 border-t border-border pt-4">
+                  <h3 className="font-semibold">Admin Kelompok aktif</h3>
+                  {activeGroupAdmins.length ? <ul className="mt-2 space-y-2">{activeGroupAdmins.map((assignment) => <li key={assignment.user?.id ?? assignment.userId} className="flex items-center justify-between rounded-sm border border-border px-3 py-2 text-sm"><span>{assignment.user?.fullName ?? "Pegawai tidak tersedia"}<small className="ml-2 text-primary/60">{assignment.user?.unitName || "Unit tidak tersedia"}</small></span><Button type="button" size="sm" variant="danger" disabled={saving} onClick={() => void mutate("admin", "DELETE", assignment.userId)}>Cabut</Button></li>)}</ul> : <p className="mt-2 text-sm text-primary/65">Belum ada admin kelompok aktif.</p>}
+                </div>
                 <div className="mt-6 border-t border-border pt-4"><h3 className="font-semibold">Roster aktif</h3>{group.members?.length ? <ul className="mt-2 space-y-2">{group.members.map((member) => <li key={member.id} className="flex items-center justify-between rounded-sm border border-border px-3 py-2 text-sm"><span>{member.user?.fullName || member.userId}<small className="ml-2 text-primary/60">{member.user?.unitName}</small><small className="ml-2 text-primary/60">Progress: {member.progressLevel?.replaceAll("_", " ") || "Belum ditetapkan"}</small></span><Button type="button" size="sm" variant="outline" disabled={saving} onClick={() => void mutate("remove-member", "DELETE", member.userId)}>Pindahkan</Button></li>)}</ul> : <p className="mt-2 text-sm text-primary/65">Belum ada roster aktif.</p>}</div>
               </Card>
               <Card className="shadow-none">
@@ -254,6 +270,7 @@ export function GroupStaffManager() {
                 <select value={candidateId} onChange={(event) => setCandidateId(event.target.value)} className="mt-2 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm"><option value="">Pilih pegawai</option>{candidates.map((employee) => <option key={employee.id} value={employee.id}>{employee.fullName} — {employee.unitName || "Tanpa unit"}</option>)}</select>
                 {selectedCandidate && <p className="mt-2 text-xs text-primary/65">{selectedCandidate.email} · Unit: {selectedCandidate.unitName || "Tanpa unit"} · Status: aktif</p>}
                 <div className="mt-5 space-y-3 border-t border-border pt-4"><h3 className="font-semibold">Peserta YMQ</h3><p className="text-xs text-primary/65">Pembina, admin kelompok, dan roster hanya dapat ditetapkan setelah peran peserta aktif.</p><Button type="button" variant="secondary" disabled={saving || !candidateId || isSelectedParticipant} onClick={() => void enrollParticipant()}>{isSelectedParticipant ? "Sudah menjadi Peserta YMQ" : "Tambah Peserta YMQ"}</Button></div>
+                {assignmentEligibilityMessage ? <p className="mt-3 text-xs leading-5 text-primary/65" aria-live="polite">{assignmentEligibilityMessage}</p> : null}
                 <form onSubmit={assignPembina} className="mt-5 space-y-3 border-t border-border pt-4"><h3 className="font-semibold">Pembina YMQ</h3><Button type="submit" disabled={saving || !candidateId || !isSelectedParticipant}>Tetapkan / ganti Pembina</Button></form>
                 <div className="mt-5 space-y-3 border-t border-border pt-4"><h3 className="font-semibold">Admin Kelompok</h3><Button type="button" variant="secondary" disabled={saving || !candidateId || !isSelectedParticipant} onClick={() => void mutate("admin", "POST", candidateId)}>Tambahkan Admin Kelompok</Button></div>
                 <div className="mt-5 space-y-3 border-t border-border pt-4"><h3 className="font-semibold">Roster kelompok</h3><Button type="button" variant="outline" disabled={saving || !candidateId || !isSelectedParticipant} onClick={() => void mutate("member", "POST", candidateId)}>Tambahkan ke roster</Button></div>
