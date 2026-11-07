@@ -17,6 +17,10 @@ function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
+function assertDeepEqual(actual: unknown, expected: unknown, message: string) {
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) throw new Error(message);
+}
+
 async function expectException<T extends Error>(
   label: string,
   Exception: new (...args: any[]) => T,
@@ -97,13 +101,55 @@ async function run() {
     registration: {
       findMany: async ({ where }: any) => {
         worklistWhere = where;
-        return [];
+        return [{
+          id: "registration-a",
+          registrationNumber: "SPMB-A-001",
+          status: "observation_scheduled",
+          guardianName: "Wali A",
+          guardianPhone: "0800000000",
+          studentData: {
+            fullName: "Murid A",
+            gender: "male",
+            birthDate: new Date("2019-01-01"),
+            nisn: null,
+          },
+          observationBooking: {
+            schedule: {
+              date: new Date("2026-11-10"),
+              startTime: "08:00",
+              endTime: "09:00",
+            },
+          },
+          observationResult: null,
+        }];
       },
     },
   } as any);
-  await worklist.getMyWorklist(observerA, "period-a");
+  const worklistRows = await worklist.getMyWorklist(observerA, "period-a");
   assert(worklistWhere.observationBooking?.isNot === null, "observer worklist must require a persisted booking");
   assert(worklistWhere.periodId === "period-a", "observer worklist must be period-scoped");
+  assert(worklistWhere.status === "observation_scheduled", "observer worklist must require a scheduled observation");
+  assertDeepEqual(worklistRows, [{
+    id: "registration-a",
+    registrationNumber: "SPMB-A-001",
+    status: "observation_scheduled",
+    guardianName: "Wali A",
+    guardianPhone: "0800000000",
+    studentData: {
+      fullName: "Murid A",
+      gender: "male",
+      birthDate: "2019-01-01",
+      nisn: null,
+    },
+    observationBooking: {
+      observationSchedule: {
+        date: "2026-11-10",
+        startTime: "08:00",
+        endTime: "09:00",
+      },
+    },
+    observationResult: null,
+  }], "observer worklist must expose a stable scheduled-session DTO rather than Prisma relation names");
 
   let submittedObserverId: string | null = null;
   const results = new ObserversService({

@@ -97,7 +97,7 @@ export class ObserversService {
   async getMyWorklist(principal: SpmbPrincipal, periodId: string) {
     const period = await this.findScopedPeriod(periodId, principal);
     await this.assertActiveMembership(this.prisma, principal, period.unitId);
-    return this.prisma.registration.findMany({
+    const registrations = await this.prisma.registration.findMany({
       where: {
         periodId: period.id,
         status: "observation_scheduled",
@@ -110,6 +110,38 @@ export class ObserversService {
       },
       orderBy: { registrationNumber: "asc" },
     });
+
+    return registrations.map((registration) => ({
+      id: registration.id,
+      registrationNumber: registration.registrationNumber,
+      status: registration.status,
+      guardianName: registration.guardianName || "",
+      guardianPhone: registration.guardianPhone || "",
+      studentData: registration.studentData
+        ? {
+          fullName: registration.studentData.fullName,
+          gender: registration.studentData.gender,
+          birthDate: registration.studentData.birthDate.toISOString().slice(0, 10),
+          nisn: registration.studentData.nisn,
+        }
+        : null,
+      observationBooking: registration.observationBooking
+        ? {
+          observationSchedule: {
+            date: registration.observationBooking.schedule.date.toISOString().slice(0, 10),
+            startTime: registration.observationBooking.schedule.startTime,
+            endTime: registration.observationBooking.schedule.endTime,
+          },
+        }
+        : null,
+      observationResult: registration.observationResult
+        ? {
+          score: Number(registration.observationResult.score),
+          rank: registration.observationResult.rank,
+          notes: registration.observationResult.notes || null,
+        }
+        : null,
+    }));
   }
 
   async getMyRankings(principal: SpmbPrincipal, periodId: string) {
