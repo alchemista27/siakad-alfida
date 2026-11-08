@@ -8,6 +8,7 @@ export function ObserverScoreModal({
   score,
   notes,
   submitting,
+  errorMessage,
   onScoreChange,
   onNotesChange,
   onClose,
@@ -17,6 +18,7 @@ export function ObserverScoreModal({
   score: number;
   notes: string;
   submitting: boolean;
+  errorMessage: string | null;
   onScoreChange: (value: number) => void;
   onNotesChange: (value: string) => void;
   onClose: () => void;
@@ -33,6 +35,11 @@ export function ObserverScoreModal({
             ✕
           </button>
         </div>
+        {errorMessage && (
+          <div role="alert" className="border border-red-200 bg-red-50 text-red-800 rounded p-3 text-xs leading-relaxed">
+            {errorMessage}
+          </div>
+        )}
         <form onSubmit={onSubmit} className="space-y-4 text-xs">
           <div className="p-3 bg-[#F7F8F8] rounded border border-[#E3E8E7]">
             <p className="font-semibold text-[#454545]">{candidate.studentData?.fullName || "Calon Murid"}</p>

@@ -19,6 +19,14 @@ export class ObserversService {
     private readonly observerRoles: SpmbObserverRoleBrokerClient,
   ) {}
 
+  private async projectObserverUser(client: any, profile: { id: string; fullName: string; email: string }) {
+    return client.user.upsert({
+      where: { id: profile.id },
+      create: { id: profile.id, fullName: profile.fullName, email: profile.email },
+      update: { fullName: profile.fullName, email: profile.email },
+    });
+  }
+
   private assertExistingPeriodAccess(period: { unitId: string }, principal: SpmbPrincipal) {
     if (isSuperAdmin(principal) || allowedUnitIds(principal, observerRoles).has(period.unitId)) return;
     throw new NotFoundException("Data observer tidak ditemukan");
@@ -55,6 +63,8 @@ export class ObserversService {
   async assign(principal: SpmbPrincipal, dto: AssignObserverDto) {
     assertUnitAccess(principal, dto.unitId, ["admin_unit"]);
     await this.simpegObserverCandidates.assertCurrentUnitEmployee(dto.unitId, dto.userId);
+    const profile = await this.observerRoles.getActiveStaffProfile(dto.userId);
+    await this.projectObserverUser(this.prisma, profile);
     const previous = await this.prisma.spmbObserver.findUnique({
       where: { unitId_userId: { unitId: dto.unitId, userId: dto.userId } },
     });
@@ -182,6 +192,9 @@ export class ObserversService {
       if (dto.score < 0 || dto.score > 100) {
         throw new BadRequestException("Nilai observasi harus berada di rentang 0 sampai 100");
       }
+
+      const profile = await this.observerRoles.getActiveStaffProfile(principal.id);
+      await this.projectObserverUser(tx, profile);
 
       const result = await tx.observationResult.upsert({
         where: { registrationId: registration.id },

@@ -72,7 +72,14 @@ async function run() {
 
   let checkedAssignment: { unitId: string; userId: string } | null = null;
   let grantedObserver: { unitId: string; userId: string } | null = null;
+  let projectedObserver: { id: string; fullName: string; email: string } | null = null;
   const verifiedAssignment = new ObserversService({
+    user: {
+      upsert: async ({ create }: any) => {
+        projectedObserver = create;
+        return create;
+      },
+    },
     spmbObserver: { findUnique: async () => null, upsert: async () => ({ id: "observer-a" }) },
   } as any, {
     findCandidates: async () => [],
@@ -80,6 +87,7 @@ async function run() {
       checkedAssignment = { unitId, userId };
     },
   } as any, {
+    getActiveStaffProfile: async (userId: string) => ({ id: userId, fullName: "Guru Unit", email: "guru@example.test" }),
     grant: async (unitId: string, userId: string) => {
       grantedObserver = { unitId, userId };
     },
@@ -87,6 +95,7 @@ async function run() {
   await verifiedAssignment.assign(adminA, { userId: "teacher-a", unitId: unitA });
   assert(checkedAssignment?.unitId === unitA && checkedAssignment.userId === "teacher-a", "assignment must verify the selected employee still has an active SIMPEG unit assignment");
   assert(grantedObserver?.unitId === unitA && grantedObserver.userId === "teacher-a", "assignment must grant the observer role through the Auth role broker");
+  assert(projectedObserver?.id === "teacher-a" && projectedObserver.fullName === "Guru Unit" && projectedObserver.email === "guru@example.test", "assignment must project the observer into the local SPMB user directory before scoring");
 
   const inactive = new ObserversService({
     admissionPeriod: { findUnique: async () => period() },
@@ -152,8 +161,15 @@ async function run() {
   }], "observer worklist must expose a stable scheduled-session DTO rather than Prisma relation names");
 
   let submittedObserverId: string | null = null;
+  let resultProjection: any = null;
   const results = new ObserversService({
     $transaction: async (callback: any) => callback({
+      user: {
+        upsert: async ({ create }: any) => {
+          resultProjection = create;
+          return create;
+        },
+      },
       registration: {
         findUnique: async () => registration(),
         update: async () => ({}),
@@ -167,9 +183,12 @@ async function run() {
       },
       registrationEvent: { create: async () => ({}) },
     }),
+  } as any, {} as any, {
+    getActiveStaffProfile: async (userId: string) => ({ id: userId, fullName: "Observer A", email: "observer@example.test" }),
   } as any);
   await results.submitMyResult(observerA, { registrationId: "registration-a", score: 88, notes: "ok" });
   assert(submittedObserverId === observerA.id, "result identity must come from the authenticated actor");
+  assert(resultProjection?.id === observerA.id && resultProjection.email === "observer@example.test", "legacy active observers must be projected before an observation result is written");
 
   const foreignResult = new ObserversService({
     $transaction: async (callback: any) => callback({

@@ -48,6 +48,7 @@ export default function ObserverPage() {
   const [activeCandidate, setActiveCandidate] = useState<ObserverCandidateItem | null>(null);
   const [scoreInput, setScoreInput] = useState<number>(85);
   const [notesInput, setNotesInput] = useState<string>("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const sidebarGroups = [
     {
@@ -176,12 +177,14 @@ export default function ObserverPage() {
     setActiveCandidate(candidate);
     setScoreInput(candidate.observationResult?.score ?? 80);
     setNotesInput(candidate.observationResult?.notes ?? "");
+    setSubmitError(null);
   };
 
   const handleSubmitScore = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeCandidate) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
       const res = await fetch("/api/observers/me/results", {
         method: "POST",
@@ -201,9 +204,11 @@ export default function ObserverPage() {
       setActiveCandidate(null);
       await fetchData();
     } catch (err) {
+      const message = err instanceof Error ? err.message : "Gagal menyimpan penilaian.";
+      setSubmitError(message);
       setNotice({
         type: "error",
-        message: err instanceof Error ? err.message : "Gagal menyimpan penilaian.",
+        message,
       });
     } finally {
       setSubmitting(false);
@@ -369,9 +374,13 @@ export default function ObserverPage() {
         score={scoreInput}
         notes={notesInput}
         submitting={submitting}
+        errorMessage={submitError}
         onScoreChange={setScoreInput}
         onNotesChange={setNotesInput}
-        onClose={() => setActiveCandidate(null)}
+        onClose={() => {
+          setSubmitError(null);
+          setActiveCandidate(null);
+        }}
         onSubmit={handleSubmitScore}
       />
     </AppShell>

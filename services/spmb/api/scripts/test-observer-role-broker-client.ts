@@ -12,12 +12,17 @@ async function main() {
   const calls: Array<{ url: string; init: RequestInit }> = [];
   const client = new SpmbObserverRoleBrokerClient(async (url, init) => {
     calls.push({ url: String(url), init: init || {} });
+    if (String(url).includes("/internal-staff-candidates/")) {
+      return new Response(JSON.stringify({ id: "user-a", fullName: "Observer A", email: "observer@example.test" }), { status: 200, headers: { "content-type": "application/json" } });
+    }
     return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
   });
 
   try {
     await client.grant("unit-a", "user-a");
     await client.revoke("unit-a", "user-a");
+    const profile = await client.getActiveStaffProfile("user-a");
+    assert.deepEqual(profile, { id: "user-a", fullName: "Observer A", email: "observer@example.test" });
     delete process.env.AUTH_API_URL;
     delete process.env.AUTH_INTERNAL_SERVICE_TOKEN;
     process.env.NEXT_PUBLIC_AUTH_URL = "https://auth-public.test";
@@ -39,8 +44,11 @@ async function main() {
   assert.equal((calls[0]?.init.headers as Record<string, string>)["x-internal-service-token"], "test-token");
   assert.deepEqual(JSON.parse(String(calls[0]?.init.body)), { userId: "user-a", scope: "unit", unitId: "unit-a", app: "spmb", role: "observer" });
   assert.equal(calls[1]?.init.method, "DELETE");
-  assert.equal(calls[2]?.url, "https://auth-public.test/api/users/internal-organization-roles");
-  assert.equal((calls[2]?.init.headers as Record<string, string>)["x-internal-service-token"], "shared-test-token");
+  assert.equal(calls[2]?.url, "https://auth.internal.test/api/users/internal-staff-candidates/user-a");
+  assert.equal(calls[2]?.init.method, undefined);
+  assert.equal((calls[2]?.init.headers as Record<string, string>)["x-internal-service-token"], "test-token");
+  assert.equal(calls[3]?.url, "https://auth-public.test/api/users/internal-organization-roles");
+  assert.equal((calls[3]?.init.headers as Record<string, string>)["x-internal-service-token"], "shared-test-token");
 
   console.log("SPMB observer role broker client contract passed");
 }

@@ -22,9 +22,13 @@ for (const file of required) {
 }
 
 const observerPage = readFileSync(resolve(root, "src/app/observer/page.tsx"), "utf8");
+const scoreModal = readFileSync(resolve(root, "src/components/observer/observer-score-modal.tsx"), "utf8");
 assert(observerPage.includes("/api/observers/me/worklist"), "observer page must load /api/observers/me/worklist");
 assert(observerPage.includes("/api/observers/me/rankings"), "observer page must load /api/observers/me/rankings");
 assert(observerPage.includes("/api/observers/me/results"), "observer page must submit to /api/observers/me/results");
+assert(observerPage.includes("submitError"), "observer page must retain submission errors while the score modal stays open");
+assert(scoreModal.includes("errorMessage"), "score modal must receive and render the submission error");
+assert(scoreModal.includes('role="alert"'), "score modal must expose submission errors as an alert");
 
 const adminPage = readFileSync(resolve(root, "src/app/admin/page.tsx"), "utf8");
 assert(/href:\s*["']\/admin\?tab=observations["']/.test(adminPage), "admin observer navigation must target assignment settings");
