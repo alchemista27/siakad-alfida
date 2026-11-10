@@ -22,6 +22,7 @@ for (const file of required) {
 }
 
 const observerPage = readFileSync(resolve(root, "src/app/observer/page.tsx"), "utf8");
+const observerWorklist = readFileSync(resolve(root, "src/components/observer/observer-worklist.tsx"), "utf8");
 const scoreModal = readFileSync(resolve(root, "src/components/observer/observer-score-modal.tsx"), "utf8");
 assert(observerPage.includes("/api/observers/me/worklist"), "observer page must load /api/observers/me/worklist");
 assert(observerPage.includes("/api/observers/me/rankings"), "observer page must load /api/observers/me/rankings");
@@ -29,6 +30,8 @@ assert(observerPage.includes("/api/observers/me/results"), "observer page must s
 assert(observerPage.includes("submitError"), "observer page must retain submission errors while the score modal stays open");
 assert(scoreModal.includes("errorMessage"), "score modal must receive and render the submission error");
 assert(scoreModal.includes('role="alert"'), "score modal must expose submission errors as an alert");
+assert(observerWorklist.includes("hidden md:block"), "desktop observer table must be hidden below the mobile breakpoint");
+assert(observerWorklist.includes("md:hidden"), "mobile observer worklist must expose score controls without horizontal clipping");
 
 const adminPage = readFileSync(resolve(root, "src/app/admin/page.tsx"), "utf8");
 assert(/href:\s*["']\/admin\?tab=observations["']/.test(adminPage), "admin observer navigation must target assignment settings");
