@@ -686,6 +686,7 @@ export default function SimpegDashboard() {
   };
 
   const gpsEnabled = attendanceContext?.gpsEnabled === true;
+  const gpsConfigUnits = units.filter((unit) => unit.isActive && (canManageAllUnits || manageableUnitIds?.includes(unit.id)));
 
   const sidebarGroups = [
     ...(canViewAttendanceReports ? [{
@@ -730,6 +731,12 @@ export default function SimpegDashboard() {
           onClick: () => setActiveTab("departments"),
         },
         ...(canManageAllUnits || (manageableUnitIds?.length || 0) > 0 ? [{
+          label: "Konfigurasi Lokasi GPS",
+          href: "#gps-settings",
+          icon: "my_location",
+          active: activeTab === "gps-settings",
+          onClick: () => setActiveTab("gps-settings"),
+        }, {
           label: "Hari Libur & Piket Sabtu",
           href: "#workday",
           icon: "calendar_month",
@@ -1381,7 +1388,7 @@ export default function SimpegDashboard() {
             <div className="w-full max-w-md rounded-md border border-border bg-surface p-5">
               <div className="flex items-start justify-between border-b border-border pb-3"><div><h3 id="gps-config-title" className="font-heading font-bold text-primary">Konfigurasi Lokasi GPS</h3><p className="mt-1 text-xs text-slate-500">Gunakan koordinat titik pusat unit kerja.</p></div><button type="button" onClick={() => setShowGpsConfigModal(false)} className="text-slate-500" aria-label="Tutup konfigurasi GPS"><span className="material-symbols-rounded" aria-hidden="true">close</span></button></div>
               {gpsError && <p className="mt-4 rounded-sm border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800" role="alert">Pesan kesalahan dari server akan ditampilkan di sini: {gpsError}</p>}
-              <form onSubmit={handleSaveGpsConfig} className="mt-4 space-y-4"><label className="block text-xs font-semibold text-primary">Unit Kerja<select required value={gpsConfigForm.unitId} onChange={(event) => setGpsConfigForm({ ...gpsConfigForm, unitId: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm"><option value="">Pilih unit</option>{units.filter((unit) => unit.isActive).map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select></label><div className="grid grid-cols-2 gap-3"><label className="block text-xs font-semibold text-primary">Latitude<input required type="number" min="-90" max="90" step="any" value={gpsConfigForm.latitude} onChange={(event) => setGpsConfigForm({ ...gpsConfigForm, latitude: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" placeholder="-6.200000" /></label><label className="block text-xs font-semibold text-primary">Longitude<input required type="number" min="-180" max="180" step="any" value={gpsConfigForm.longitude} onChange={(event) => setGpsConfigForm({ ...gpsConfigForm, longitude: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" placeholder="106.816666" /></label></div><label className="block text-xs font-semibold text-primary">Radius (meter)<input required type="number" min="10" max="1000" value={gpsConfigForm.radiusMeters} onChange={(event) => setGpsConfigForm({ ...gpsConfigForm, radiusMeters: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" /></label><div className="flex justify-end gap-2 border-t border-border pt-3"><Button type="button" variant="secondary" size="sm" onClick={() => setShowGpsConfigModal(false)}>Batal</Button><Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>{isSubmitting ? "Menyimpan..." : "Simpan Lokasi"}</Button></div></form>
+              <form onSubmit={handleSaveGpsConfig} className="mt-4 space-y-4"><label className="block text-xs font-semibold text-primary">Unit Kerja<select required value={gpsConfigForm.unitId} onChange={(event) => setGpsConfigForm({ ...gpsConfigForm, unitId: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm"><option value="">Pilih unit</option>{gpsConfigUnits.map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select></label><div className="grid grid-cols-2 gap-3"><label className="block text-xs font-semibold text-primary">Latitude<input required type="number" min="-90" max="90" step="any" value={gpsConfigForm.latitude} onChange={(event) => setGpsConfigForm({ ...gpsConfigForm, latitude: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" placeholder="-6.200000" /></label><label className="block text-xs font-semibold text-primary">Longitude<input required type="number" min="-180" max="180" step="any" value={gpsConfigForm.longitude} onChange={(event) => setGpsConfigForm({ ...gpsConfigForm, longitude: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" placeholder="106.816666" /></label></div><label className="block text-xs font-semibold text-primary">Radius (meter)<input required type="number" min="10" max="1000" value={gpsConfigForm.radiusMeters} onChange={(event) => setGpsConfigForm({ ...gpsConfigForm, radiusMeters: event.target.value })} className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm" /></label><div className="flex justify-end gap-2 border-t border-border pt-3"><Button type="button" variant="secondary" size="sm" onClick={() => setShowGpsConfigModal(false)}>Batal</Button><Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>{isSubmitting ? "Menyimpan..." : "Simpan Lokasi"}</Button></div></form>
             </div>
           </div>
         )}
