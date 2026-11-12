@@ -245,7 +245,7 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException("Pengguna tidak ditemukan");
 
-    return this.prisma.roleAssignment.create({
+    const assignment = await this.prisma.roleAssignment.create({
       data: {
         id: randomUUID(),
         userId,
@@ -255,12 +255,16 @@ export class UsersService {
         departmentId: data.departmentId || null,
       },
     });
+    await this.prisma.session.deleteMany({ where: { userId } });
+    return assignment;
   }
 
   async revokeRole(roleAssignmentId: string) {
-    return this.prisma.roleAssignment.delete({
+    const assignment = await this.prisma.roleAssignment.delete({
       where: { id: roleAssignmentId },
     });
+    await this.prisma.session.deleteMany({ where: { userId: assignment.userId } });
+    return assignment;
   }
 
   async toggleActive(userId: string, isActive: boolean) {
