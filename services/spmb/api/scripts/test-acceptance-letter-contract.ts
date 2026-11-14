@@ -1,7 +1,9 @@
-import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, NotFoundException } from "@nestjs/common";
 import type { SpmbPrincipal } from "../src/common/spmb-scope-policy";
 import { LettersController } from "../src/letters/letters.controller";
+import type { FoundationBrandingClient } from "../src/letters/foundation-branding.client";
 import { LettersService } from "../src/letters/letters.service";
+import type { UnitLetterheadClient } from "../src/letters/unit-letterhead.client";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -51,8 +53,40 @@ const prisma: any = {
   },
 };
 
+const unitLetterheadClient = {
+  getLetterhead: async (unitId: string) => ({
+    unitId,
+    unitName: "SDIT Alfida",
+    address: "Jl. Pendidikan No. 1, Bekasi",
+    phone: "021-123456",
+    email: "sdit@example.test",
+    logoUrl: "https://res.cloudinary.com/example/image/upload/spmb/unit/unit-1/logo.png",
+  }),
+} as unknown as UnitLetterheadClient;
+
+const foundationBrandingClient = {
+  getBranding: async () => ({
+    foundationName: "Yayasan Alfida",
+    address: "Jl. Yayasan No. 1, Bekasi",
+    phone: "021-999999",
+    email: "info@alfida.example",
+    logoUrl: "https://res.cloudinary.com/example/image/upload/foundation/logo/alfida.png",
+  }),
+} as unknown as FoundationBrandingClient;
+
+const wrongUnitClient = {
+  getLetterhead: async () => ({
+    unitId: "other-unit",
+    unitName: "Sekolah Lain",
+    address: null,
+    phone: null,
+    email: null,
+    logoUrl: null,
+  }),
+} as unknown as UnitLetterheadClient;
+
 async function main() {
-  const service = new LettersService(prisma);
+  const service = new LettersService(prisma, unitLetterheadClient, foundationBrandingClient);
   const controller = new LettersController(service);
 
   // 1. Foreign parent gets 404
@@ -70,6 +104,20 @@ async function main() {
   assert(letter.registrationNumber === "SPMB-2026-SDIT-0001", "letter must include registrationNumber");
   assert(letter.studentName === "Ahmad Fauzan", "letter must include studentName");
   assert(letter.unitName === "SDIT Alfida", "letter must include unitName");
+  assert(letter.unitAddress === "Jl. Pendidikan No. 1, Bekasi", "letter must include SIMPEG unit address");
+  assert(letter.unitPhone === "021-123456", "letter must include SIMPEG unit phone");
+  assert(letter.unitEmail === "sdit@example.test", "letter must include SIMPEG unit email");
+  assert(letter.unitLogoUrl?.includes("/unit/unit-1/"), "letter must include the SIMPEG unit logo");
+  assert(letter.letterheadKind === "unit", "complete unit profile must render a unit letterhead");
+  assert(letter.foundationName === "Yayasan Alfida", "letter must include the Admin foundation name");
+  assert(letter.foundationAddress === "Jl. Yayasan No. 1, Bekasi", "letter must include the Admin foundation address");
+  assert(letter.foundationPhone === "021-999999", "letter must include the Admin foundation phone");
+  assert(letter.foundationEmail === "info@alfida.example", "letter must include the Admin foundation email");
+  assert(letter.foundationLogoUrl?.includes("/foundation/logo/"), "letter must include the Admin foundation logo");
+
+  await expectRejects("mismatched SIMPEG unit cannot issue acceptance letter", ConflictException, () =>
+    new LettersService(prisma, wrongUnitClient, foundationBrandingClient).getAcceptanceLetter("reg-accepted", ownerParent),
+  );
 
   console.log("SPMB acceptance letter contract passed");
 }

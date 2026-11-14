@@ -1,11 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAcceptancePdf, type AcceptanceLetterPdfInput } from "@/lib/letters/acceptance-pdf";
 
+export const runtime = "nodejs";
+
 function parseLetter(payload: unknown): AcceptanceLetterPdfInput | null {
   if (!payload || typeof payload !== "object") return null;
   const value = payload as Record<string, unknown>;
-  const required = ["registrationNumber", "unitName", "academicYearLabel", "studentName"] as const;
+  const required = ["registrationNumber", "unitName", "academicYearLabel", "studentName", "issuedAt", "foundationName"] as const;
   if (!required.every((key) => typeof value[key] === "string" && value[key].trim())) return null;
+  if (value.letterheadKind !== "unit" && value.letterheadKind !== "foundation") return null;
+  const nullableStrings = [
+    "unitAddress",
+    "unitPhone",
+    "unitEmail",
+    "unitLogoUrl",
+    "foundationAddress",
+    "foundationPhone",
+    "foundationEmail",
+    "foundationLogoUrl",
+  ] as const;
+  if (!nullableStrings.every((key) => value[key] === null || (typeof value[key] === "string" && value[key].trim()))) return null;
+  if (value.decisionNote !== null && value.decisionNote !== undefined && typeof value.decisionNote !== "string") return null;
 
   return {
     registrationNumber: value.registrationNumber as string,
@@ -13,6 +28,17 @@ function parseLetter(payload: unknown): AcceptanceLetterPdfInput | null {
     academicYearLabel: value.academicYearLabel as string,
     studentName: value.studentName as string,
     decisionNote: typeof value.decisionNote === "string" ? value.decisionNote : null,
+    issuedAt: value.issuedAt as string,
+    unitAddress: value.unitAddress as string | null,
+    unitPhone: value.unitPhone as string | null,
+    unitEmail: value.unitEmail as string | null,
+    unitLogoUrl: value.unitLogoUrl as string | null,
+    letterheadKind: value.letterheadKind,
+    foundationName: value.foundationName as string,
+    foundationAddress: value.foundationAddress as string | null,
+    foundationPhone: value.foundationPhone as string | null,
+    foundationEmail: value.foundationEmail as string | null,
+    foundationLogoUrl: value.foundationLogoUrl as string | null,
   };
 }
 
@@ -51,7 +77,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: "Data surat keterangan tidak valid." }, { status: 502 });
   }
 
-  const pdf = createAcceptancePdf(letter);
+  const pdf = await createAcceptancePdf(letter);
   const pdfBody = new Uint8Array(pdf).buffer as ArrayBuffer;
   return new NextResponse(pdfBody, {
     status: 200,

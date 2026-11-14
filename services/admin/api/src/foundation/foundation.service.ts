@@ -17,6 +17,9 @@ export class FoundationService {
         foundationName: true,
         logoUrl: true,
         faviconUrl: true,
+        address: true,
+        phone: true,
+        email: true,
       },
     });
 
@@ -24,6 +27,9 @@ export class FoundationService {
       foundationName: "Yayasan Alfida",
       logoUrl: null,
       faviconUrl: null,
+      address: null,
+      phone: null,
+      email: null,
     };
   }
 

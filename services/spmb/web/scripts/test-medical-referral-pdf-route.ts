@@ -30,7 +30,11 @@ const letter = {
   unitPhone: null,
   unitEmail: null,
   unitLogoUrl: null,
+  letterheadKind: "foundation",
   foundationName: "Yayasan Alfida",
+  foundationAddress: "Jl. Yayasan No. 1",
+  foundationPhone: "021-999999",
+  foundationEmail: "info@alfida.example",
   foundationLogoUrl: "https://s3.alfida.or.id/sim-alfida/foundation/logo.png",
 };
 
@@ -71,9 +75,13 @@ async function main() {
       "generated PDF must contain both the foundation-logo image and QR image XObjects",
     );
     const pdfSource = readFileSync(resolve(process.cwd(), "src/lib/letters/medical-referral-pdf.ts"), "utf8");
+    const letterheadSource = readFileSync(resolve(process.cwd(), "src/lib/letters/letterhead.ts"), "utf8");
     const routeSource = readFileSync(resolve(process.cwd(), "src/app/api/pdf/medical-referral/route.ts"), "utf8");
+    assert.match(pdfSource, /drawInstitutionalLetterhead/, "medical referral must delegate its header to the shared renderer");
+    assert.match(letterheadSource, /letterheadKind/, "shared renderer must support foundation fallback mode");
+    assert.match(letterheadSource, /foundationAddress/, "foundation fallback must render foundation identity");
     assert.match(pdfSource, /QRCode\.toBuffer/, "PDF must render an authenticity QR code");
-    assert.match(pdfSource, /optionalImageBytes/, "each remote letterhead image must be optional");
+    assert.match(letterheadSource, /optionalImageBytes/, "each remote letterhead image must be optional");
     assert.match(pdfSource, /verificationUrl/, "PDF must consume the verification URL");
     assert.match(pdfSource, /Klinik IMC/, "recipient must explicitly name Klinik IMC");
     assert.doesNotMatch(pdfSource, /Petugas Pemeriksaan Kesehatan/, "generic clinic recipient copy must be removed");
@@ -88,6 +96,9 @@ async function main() {
     assert.match(routeSource, /nullableStrings\s*=\s*\[[^\]]*"foundationLogoUrl"/, "route must accept a missing foundation logo");
     assert.doesNotMatch(routeSource, /Aset kop surat tidak dapat dimuat/, "route must not expose asset loading as a hard failure");
     assert.doesNotMatch(pdfSource, /signatorySignatureUrl|signatoryTitle/, "PDF must not render a signature block");
+    globalThis.fetch = (async () => Response.json({ ...letter, letterheadKind: "invalid" })) as typeof fetch;
+    const invalidMode = await GET(new NextRequest("https://spmb.test/api/pdf/medical-referral?registrationId=abc"));
+    assert.equal(invalidMode.status, 502, "unknown letterhead mode must be rejected before PDF rendering");
     console.log("SPMB medical referral PDF route contract passed");
   } finally {
     globalThis.fetch = originalFetch;

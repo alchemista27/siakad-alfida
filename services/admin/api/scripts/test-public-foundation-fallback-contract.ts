@@ -5,6 +5,9 @@ const stored = {
   foundationName: "Yayasan Alfida",
   logoUrl: "https://res.cloudinary.com/example/image/upload/foundation/logo/logo.png",
   faviconUrl: null,
+  address: "Jl. Pendidikan No. 1, Bekasi",
+  phone: "021-123456",
+  email: "info@alfida.example",
 };
 
 const prisma: any = {
@@ -19,8 +22,12 @@ async function main() {
   const settings = await new FoundationService(prisma).getPublicSettings();
   assert.equal(settings.foundationName, "Yayasan Alfida");
   assert.equal(settings.logoUrl, stored.logoUrl);
+  assert.equal(settings.address, "Jl. Pendidikan No. 1, Bekasi");
+  assert.equal(settings.phone, "021-123456");
+  assert.equal(settings.email, "info@alfida.example");
   assert.equal("chairmanName" in settings, false, "public branding must not expose internal signatory identity");
   assert.equal("chairmanSignatureUrl" in settings, false, "public branding must not expose a signature asset");
+  assert.equal("bankAccountNumber" in settings, false, "public branding must not expose foundation banking data");
   console.log("Admin public foundation branding contract passed");
 }
 

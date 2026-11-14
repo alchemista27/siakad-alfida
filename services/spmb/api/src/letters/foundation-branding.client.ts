@@ -2,6 +2,9 @@ import { BadGatewayException, Inject, Injectable, ServiceUnavailableException } 
 
 export type FoundationBranding = {
   foundationName: string;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
   logoUrl: string | null;
 };
 export const SPMB_FOUNDATION_BRANDING_FETCH = Symbol("SPMB_FOUNDATION_BRANDING_FETCH");
@@ -34,7 +37,10 @@ export class FoundationBrandingClient {
       throw new BadGatewayException("Data identitas yayasan tidak valid.");
     };
     return {
-      foundationName: (payload as { foundationName: string }).foundationName,
+      foundationName: (payload as { foundationName: string }).foundationName.trim() || "Yayasan Alfida",
+      address: nullableString("address"),
+      phone: nullableString("phone"),
+      email: nullableString("email"),
       logoUrl: nullableString("logoUrl"),
     };
   }

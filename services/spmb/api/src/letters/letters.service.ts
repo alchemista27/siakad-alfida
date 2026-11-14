@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, Optional } from "@nestjs/common";
 import { randomBytes, randomUUID } from "node:crypto";
-import { FoundationBrandingClient } from "./foundation-branding.client";
+import { FoundationBrandingClient, type FoundationBranding } from "./foundation-branding.client";
+import { resolveLetterheadKind } from "./letterhead-policy";
 import { UnitLetterheadClient, type UnitLetterhead } from "./unit-letterhead.client";
 import { PrismaService } from "../prisma/prisma.service";
 import { allowedUnitIds, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
@@ -32,13 +33,32 @@ export class LettersService {
       throw new BadRequestException("Surat keterangan diterima hanya tersedia bagi pendaftar yang dinyatakan lulus.");
     }
 
+    const [letterhead, foundation] = await Promise.all([
+      this.getUnitLetterhead(reg.period.unitId, reg.period.unitName),
+      this.getFoundationBranding(),
+    ]);
+    if (letterhead.unitId !== reg.period.unitId || !letterhead.unitName.trim()) {
+      throw new ConflictException("Profil kop surat unit tidak sesuai.");
+    }
+    const letterheadKind = resolveLetterheadKind(letterhead);
+
     const decisionEvent = [...(reg.events || [])].reverse().find((event) => event.toStatus === "accepted");
     return {
       registrationId: reg.id,
       registrationNumber: reg.registrationNumber,
       status: reg.status,
       unitId: reg.period.unitId,
-      unitName: reg.period.unitName,
+      unitName: letterhead.unitName,
+      unitAddress: letterhead.address,
+      unitPhone: letterhead.phone,
+      unitEmail: letterhead.email,
+      unitLogoUrl: letterhead.logoUrl,
+      letterheadKind,
+      foundationName: foundation.foundationName,
+      foundationAddress: foundation.address,
+      foundationPhone: foundation.phone,
+      foundationEmail: foundation.email,
+      foundationLogoUrl: foundation.logoUrl,
       academicYearLabel: reg.period.label,
       studentName: reg.studentData?.fullName || "Calon Murid",
       gender: reg.studentData?.gender || null,
@@ -73,6 +93,7 @@ export class LettersService {
     if (letterhead.unitId !== registration.period.unitId || !letterhead.unitName.trim()) {
       throw new ConflictException("Profil kop surat unit tidak sesuai.");
     }
+    const letterheadKind = resolveLetterheadKind(letterhead);
 
     const verificationToken = randomBytes(32).toString("hex");
     let referral = registration.medicalReferral ?? await this.prisma.medicalReferral.upsert({
@@ -106,7 +127,11 @@ export class LettersService {
       unitPhone: letterhead.phone,
       unitEmail: letterhead.email,
       unitLogoUrl: letterhead.logoUrl,
+      letterheadKind,
       foundationName: foundation.foundationName,
+      foundationAddress: foundation.address,
+      foundationPhone: foundation.phone,
+      foundationEmail: foundation.email,
       foundationLogoUrl: foundation.logoUrl,
     };
   }
@@ -147,8 +172,14 @@ export class LettersService {
     }
   }
 
-  private async getFoundationBranding() {
-    const fallback = { foundationName: "Yayasan Alfida", logoUrl: null as string | null };
+  private async getFoundationBranding(): Promise<FoundationBranding> {
+    const fallback: FoundationBranding = {
+      foundationName: "Yayasan Alfida",
+      address: null,
+      phone: null,
+      email: null,
+      logoUrl: null,
+    };
     if (!this.foundationBrandingClient) return fallback;
     try {
       return await this.foundationBrandingClient.getBranding();

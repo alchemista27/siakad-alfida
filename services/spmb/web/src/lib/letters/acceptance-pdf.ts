@@ -1,88 +1,139 @@
-export type AcceptanceLetterPdfInput = {
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import PDFDocument from "pdfkit";
+import {
+  drawInstitutionalLetterhead,
+  getLetterheadIssuerName,
+  prepareLetterheadAssets,
+  type InstitutionalLetterheadInput,
+} from "./letterhead";
+
+export type AcceptanceLetterPdfInput = InstitutionalLetterheadInput & {
   registrationNumber: string;
-  unitName: string;
   academicYearLabel: string;
   studentName: string;
-  decisionNote?: string | null;
+  decisionNote: string | null;
+  issuedAt: string;
 };
 
-function plainText(value: string): string {
-  return value
+const PDF_FONT_REGULAR = "LiberationSerifRegular";
+const PDF_FONT_BOLD = "LiberationSerifBold";
+const FONT_DIRECTORY = existsSync(join(process.cwd(), "assets/fonts"))
+  ? join(process.cwd(), "assets/fonts")
+  : join(process.cwd(), "services/spmb/web/assets/fonts");
+const FONT_REGULAR_PATH = join(FONT_DIRECTORY, "LiberationSerif-Regular.ttf");
+const FONT_BOLD_PATH = join(FONT_DIRECTORY, "LiberationSerif-Bold.ttf");
+const PAGE_LEFT = 56;
+const PAGE_RIGHT = 539;
+const CONTENT_WIDTH = PAGE_RIGHT - PAGE_LEFT;
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("id-ID", { dateStyle: "long", timeZone: "Asia/Jakarta" }).format(new Date(value));
+}
+
+function safeText(value: string | null | undefined) {
+  return (value || "")
     .replace(/<[^>]*>/g, "")
-    .replace(/[\r\n\t]+/g, " ")
-    .replace(/[^\x20-\x7E]/g, "?")
+    .replace(/[\u0000-\u001f\u007f]+/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
-function escapePdfText(value: string): string {
-  return plainText(value).replace(/([\\()])/g, "\\$1");
+function drawIdentityRow(document: PDFKit.PDFDocument, label: string, value: string) {
+  const rowY = document.y;
+  const labelX = 84;
+  const valueX = 226;
+  const valueWidth = PAGE_RIGHT - valueX;
+  const valueText = `: ${value}`;
+  const valueHeight = document.font(PDF_FONT_REGULAR).fontSize(12).heightOfString(valueText, { width: valueWidth, lineGap: 2 });
+  document.font(PDF_FONT_BOLD).fontSize(12).text(label, labelX, rowY, { width: 132, lineGap: 2 });
+  document.font(PDF_FONT_REGULAR).fontSize(12).text(valueText, valueX, rowY, { width: valueWidth, lineGap: 2 });
+  document.y = rowY + Math.max(valueHeight, 16) + 6;
 }
 
-function wrap(value: string, maxLength = 76): string[] {
-  const words = value.split(/\s+/).filter(Boolean);
-  const lines: string[] = [];
-  let line = "";
-
-  for (const word of words) {
-    const next = line ? `${line} ${word}` : word;
-    if (next.length > maxLength && line) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = next;
-    }
-  }
-
-  if (line) lines.push(line);
-  return lines.length ? lines : ["-"];
-}
-
-function toPdfBytes(document: string): Uint8Array {
-  return new TextEncoder().encode(document);
-}
-
-export function createAcceptancePdf(input: AcceptanceLetterPdfInput): Uint8Array {
-  const rows = [
-    "SURAT KETERANGAN KELULUSAN SELEKSI SPMB",
-    "",
-    `Unit Pendidikan: ${input.unitName}`,
-    `Tahun Ajaran: ${input.academicYearLabel}`,
-    `Nomor Registrasi: ${input.registrationNumber}`,
-    `Nama Calon Murid: ${input.studentName}`,
-    "Status Seleksi: DITERIMA",
-    "Catatan Panitia:",
-    ...(input.decisionNote ? wrap(input.decisionNote) : ["-"]),
-  ];
-
-  const streamLines = ["BT", "/F1 14 Tf", "72 760 Td"];
-  rows.forEach((row, index) => {
-    if (index > 0) streamLines.push("0 -22 Td");
-    streamLines.push(`(${escapePdfText(row)}) Tj`);
+export async function createAcceptancePdf(input: AcceptanceLetterPdfInput): Promise<Uint8Array> {
+  const assets = await prepareLetterheadAssets(input);
+  const document = new PDFDocument({
+    size: "A4",
+    margin: PAGE_LEFT,
+    compress: false,
+    info: { Title: "Surat Keterangan Diterima" },
   });
-  streamLines.push("ET");
-  const stream = `${streamLines.join("\n")}\n`;
+  document.registerFont(PDF_FONT_REGULAR, readFileSync(FONT_REGULAR_PATH));
+  document.registerFont(PDF_FONT_BOLD, readFileSync(FONT_BOLD_PATH));
 
-  const objects = [
-    "<< /Type /Catalog /Pages 2 0 R >>",
-    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
-    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
-    `<< /Length ${toPdfBytes(stream).length} >>\nstream\n${stream}endstream`,
-  ];
-
-  let pdf = "%PDF-1.4\n%PDF-SIM-ALFIDA\n";
-  const offsets = [0];
-  objects.forEach((object, index) => {
-    offsets.push(toPdfBytes(pdf).length);
-    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  const chunks: Buffer[] = [];
+  const completed = new Promise<Uint8Array>((resolve, reject) => {
+    document.on("data", (chunk: Buffer) => chunks.push(Buffer.from(chunk)));
+    document.on("end", () => resolve(new Uint8Array(Buffer.concat(chunks))));
+    document.on("error", reject);
   });
 
-  const xrefOffset = toPdfBytes(pdf).length;
-  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-  for (const offset of offsets.slice(1)) {
-    pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
-  }
-  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+  const { dividerY } = drawInstitutionalLetterhead(document, input, assets, {
+    left: PAGE_LEFT,
+    right: PAGE_RIGHT,
+    top: 42,
+  });
 
-  return toPdfBytes(pdf);
+  document.fillColor("#111827");
+  document.y = dividerY + 22;
+  document.font(PDF_FONT_REGULAR).fontSize(10).text(formatDate(input.issuedAt), PAGE_LEFT, document.y, {
+    width: CONTENT_WIDTH,
+    align: "right",
+  });
+  document.moveDown(1.2);
+  document.font(PDF_FONT_BOLD).fontSize(14).text("SURAT KETERANGAN DITERIMA", {
+    width: CONTENT_WIDTH,
+    align: "center",
+    underline: true,
+  });
+  document.moveDown(0.35);
+  document.font(PDF_FONT_REGULAR).fontSize(10).text(`Nomor Registrasi: ${safeText(input.registrationNumber)}`, {
+    width: CONTENT_WIDTH,
+    align: "center",
+  });
+  document.moveDown(0.2);
+  document.font(PDF_FONT_REGULAR).fontSize(10).text("Perihal: Pemberitahuan Hasil Seleksi SPMB", {
+    width: CONTENT_WIDTH,
+    align: "center",
+  });
+  document.moveDown(1.6);
+
+  document.font(PDF_FONT_REGULAR).fontSize(12).text("Dengan hormat,");
+  document.moveDown(0.75);
+  document.font(PDF_FONT_REGULAR).fontSize(12).text(
+    "Berdasarkan hasil seluruh tahapan Seleksi Penerimaan Murid Baru (SPMB), dengan ini kami memberitahukan bahwa calon murid berikut telah dinyatakan diterima.",
+    { width: CONTENT_WIDTH, align: "justify", indent: 28, lineGap: 4.2 },
+  );
+  document.moveDown(0.7);
+  document.font(PDF_FONT_REGULAR).fontSize(12).text(
+    "Adapun data calon murid yang dinyatakan diterima adalah sebagai berikut:",
+    { width: CONTENT_WIDTH, align: "justify", indent: 28, lineGap: 4.2 },
+  );
+  document.moveDown(0.85);
+
+  drawIdentityRow(document, "Nama Calon Murid", safeText(input.studentName) || "-");
+  drawIdentityRow(document, "Nomor Pendaftaran", safeText(input.registrationNumber) || "-");
+  drawIdentityRow(document, "Tahun Ajaran", safeText(input.academicYearLabel) || "-");
+
+  document.moveDown(0.35);
+  document.font(PDF_FONT_BOLD).fontSize(12).text("Keterangan:");
+  document.moveDown(0.3);
+  document.font(PDF_FONT_REGULAR).fontSize(12).text(
+    safeText(input.decisionNote) || "Dinyatakan diterima pada Seleksi Penerimaan Murid Baru.",
+    { width: CONTENT_WIDTH, align: "justify", lineGap: 4.2 },
+  );
+  document.moveDown(1);
+  document.font(PDF_FONT_REGULAR).fontSize(12).text(
+    "Demikian surat keterangan ini dibuat untuk dipergunakan sebagaimana mestinya.",
+    { width: CONTENT_WIDTH, align: "justify", indent: 28, lineGap: 4.2 },
+  );
+  document.moveDown(2);
+  document.font(PDF_FONT_REGULAR).fontSize(12).text(`${getLetterheadIssuerName(input)}, ${formatDate(input.issuedAt)}`, {
+    width: CONTENT_WIDTH,
+    align: "right",
+  });
+
+  document.end();
+  return completed;
 }

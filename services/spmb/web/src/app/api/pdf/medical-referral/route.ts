@@ -10,7 +10,17 @@ function parseLetter(payload: unknown): LetterPayload | null {
   const value = payload as Record<string, unknown>;
   const strings = ["referralNumber", "verificationToken", "issuedAt", "registrationNumber", "unitName", "academicYearLabel", "studentName", "birthPlace", "birthDate", "foundationName"] as const;
   if (!strings.every((key) => typeof value[key] === "string" && value[key].trim())) return null;
-  const nullableStrings = ["unitAddress", "unitPhone", "unitEmail", "unitLogoUrl", "foundationLogoUrl"] as const;
+  if (value.letterheadKind !== "unit" && value.letterheadKind !== "foundation") return null;
+  const nullableStrings = [
+    "unitAddress",
+    "unitPhone",
+    "unitEmail",
+    "unitLogoUrl",
+    "foundationAddress",
+    "foundationPhone",
+    "foundationEmail",
+    "foundationLogoUrl",
+  ] as const;
   if (!nullableStrings.every((key) => value[key] === null || (typeof value[key] === "string" && value[key].trim()))) return null;
   if (!/^[a-f0-9]{64}$/i.test(value.verificationToken as string)) return null;
   return value as LetterPayload;

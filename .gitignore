@@ -41,3 +41,7 @@ scratch/
 
 # Hermes Agent
 .hermes/
+
+# Playwright artifacts
+test-results/
+playwright-report/
