@@ -7,7 +7,8 @@ const registrationId = "11111111-1111-4111-8111-111111111111";
 const parentId = "22222222-2222-4222-8222-222222222222";
 const unitId = "33333333-3333-4333-8333-333333333333";
 const staff: SpmbPrincipal = { id: "staff-1", roles: [{ app: "spmb", role: "tim_spmb", unitId }] };
-const requiredTypes = ["photo", "birth_certificate", "family_card", "father_id", "mother_id", "medical_result"];
+const basicDocumentTypes = ["photo", "birth_certificate", "family_card", "father_id", "mother_id"];
+const allDocumentTypes = [...basicDocumentTypes, "medical_result"];
 
 async function expectRejects(label: string, fn: () => Promise<unknown>, Expected: new (...args: any[]) => Error, message?: string) {
   try {
@@ -28,8 +29,8 @@ function dossier(overrides: Record<string, unknown> = {}) {
     periodId: "period-1",
     status: "verification",
     dossierReviewStatus: "pending",
-    documents: requiredTypes.map((type) => ({ type })),
-    period: { unitId },
+    documents: basicDocumentTypes.map((type) => ({ type })),
+    period: { unitId, educationLevel: "sd" },
     observationBooking: null,
     ...overrides,
   };
@@ -61,19 +62,19 @@ async function run() {
   );
 
   await expectRejects(
-    "approval requires all typed documents and medical evidence",
-    () => reviewService(dossier({ documents: requiredTypes.slice(0, -1).map((type) => ({ type })) }), []).verifyDocuments(registrationId, staff, true),
+    "initial approval requires every basic document",
+    () => reviewService(dossier({ documents: basicDocumentTypes.slice(0, -1).map((type) => ({ type })) }), []).verifyDocuments(registrationId, staff, true),
     BadRequestException,
     "Dokumen wajib belum lengkap",
   );
 
   const approvedUpdates: Record<string, unknown>[] = [];
   const approved = await reviewService(dossier(), approvedUpdates).verifyDocuments(registrationId, staff, true);
-  if (approvedUpdates.length !== 1 || approvedUpdates[0].status !== "verification" || approvedUpdates[0].dossierReviewStatus !== "approved") {
-    throw new Error("approval must preserve verification stage and persist dossierReviewStatus=approved");
+  if (approvedUpdates.length !== 1 || approvedUpdates[0].status !== "medical_pending" || approvedUpdates[0].dossierReviewStatus !== "approved") {
+    throw new Error("basic dossier approval must advance the parent to the medical stage");
   }
-  if ((approved as any).dossierReviewStatus !== "approved") {
-    throw new Error("approval response must expose the persisted dossier review state");
+  if ((approved as any).nextStage !== "medical_pending" || (approved as any).dossierReviewStatus !== "approved") {
+    throw new Error("basic approval response must expose medical_pending as the next stage");
   }
 
   await expectRejects(
@@ -90,6 +91,24 @@ async function run() {
   }
   if ((rejected as any).nextStage !== "documents_uploaded") {
     throw new Error("rejection response must tell the parent to resume at documents_uploaded");
+  }
+
+  const medicalApprovalUpdates: Record<string, unknown>[] = [];
+  const medicalApproval = await reviewService(dossier({ documents: allDocumentTypes.map((type) => ({ type })) }), medicalApprovalUpdates).verifyDocuments(registrationId, staff, true);
+  if (medicalApprovalUpdates.length !== 1 || medicalApprovalUpdates[0].status !== "verification" || medicalApprovalUpdates[0].dossierReviewStatus !== "approved") {
+    throw new Error("medical evidence approval must unlock observation from verification");
+  }
+  if ((medicalApproval as any).nextStage !== "verification") {
+    throw new Error("medical evidence approval response must preserve verification for observation booking");
+  }
+
+  const medicalRejectionUpdates: Record<string, unknown>[] = [];
+  const medicalRejection = await reviewService(dossier({ documents: allDocumentTypes.map((type) => ({ type })) }), medicalRejectionUpdates).verifyDocuments(registrationId, staff, false, "Mohon unggah ulang hasil IMC yang terbaca.");
+  if (medicalRejectionUpdates.length !== 1 || medicalRejectionUpdates[0].status !== "medical_pending" || medicalRejectionUpdates[0].dossierReviewStatus !== "revision_required") {
+    throw new Error("medical evidence revision must return only to the medical stage");
+  }
+  if ((medicalRejection as any).nextStage !== "medical_pending") {
+    throw new Error("medical evidence revision response must direct the parent to medical_pending");
   }
 
   const booking = new ObservationsService({

@@ -546,21 +546,27 @@ export class RegistrationsService {
         throw new BadRequestException("isApproved harus bernilai boolean.");
       }
       if (registration.status !== RegistrationStatus.verification) {
-        throw new BadRequestException("Berkas hanya dapat diverifikasi setelah pemeriksaan kesehatan selesai.");
+        throw new BadRequestException("Berkas hanya dapat diverifikasi saat berada dalam antrean verifikasi panitia.");
       }
+
+      const uploadedTypes = new Set(registration.documents.map((document) => document.type));
+      const hasMedicalResult = uploadedTypes.has(DocumentType.medical_result);
 
       if (!isApproved) {
         const note = rejectionNote?.trim();
         if (!note || note.length < 3) {
           throw new BadRequestException("Catatan revisi minimal 3 karakter.");
         }
-        if (!canTransition(registration.status, "documents_uploaded")) {
+        const nextStatus = hasMedicalResult
+          ? RegistrationStatus.medical_pending
+          : RegistrationStatus.documents_uploaded;
+        if (!canTransition(registration.status, nextStatus)) {
           throw new BadRequestException("Tahap pendaftaran saat ini tidak dapat dikembalikan untuk perbaikan berkas.");
         }
         const updated = await tx.registration.update({
           where: { id: registrationId },
           data: {
-            status: RegistrationStatus.documents_uploaded,
+            status: nextStatus,
             dossierReviewStatus: DossierReviewStatus.revision_required,
             rejectionReason: note,
           },
@@ -570,32 +576,39 @@ export class RegistrationsService {
             registrationId,
             actorId: principal.id,
             fromStatus: registration.status,
-            toStatus: RegistrationStatus.documents_uploaded,
+            toStatus: nextStatus,
             kind: "verification_rejected",
-            note,
+            note: hasMedicalResult ? `Hasil kesehatan perlu diperbaiki: ${note}` : note,
           },
         });
         return {
           success: true,
           verified: false,
           dossierReviewStatus: updated.dossierReviewStatus,
-          nextStage: RegistrationStatus.documents_uploaded,
+          nextStage: nextStatus,
         };
       }
 
       if (!registration.period.educationLevel) {
         throw new BadRequestException("Jenjang periode belum dikonfigurasi. Hubungi panitia SPMB.");
       }
-      const uploadedTypes = new Set(registration.documents.map((document) => document.type));
-      const missingTypes = [...requiredDocumentTypesForLevel(registration.period.educationLevel) as readonly DocumentType[], DocumentType.medical_result].filter((type) => !uploadedTypes.has(type));
+      const requiredTypes = requiredDocumentTypesForLevel(registration.period.educationLevel) as readonly DocumentType[];
+      const missingTypes = [...requiredTypes, ...(hasMedicalResult ? [DocumentType.medical_result] : [])].filter((type) => !uploadedTypes.has(type));
       if (missingTypes.length > 0) {
         throw new BadRequestException(`Dokumen wajib belum lengkap: ${missingTypes.join(", ")}.`);
+      }
+
+      const nextStatus = hasMedicalResult
+        ? RegistrationStatus.verification
+        : RegistrationStatus.medical_pending;
+      if (nextStatus !== registration.status && !canTransition(registration.status, nextStatus)) {
+        throw new BadRequestException("Tahap pendaftaran saat ini tidak dapat dilanjutkan setelah verifikasi berkas.");
       }
 
       const updated = await tx.registration.update({
         where: { id: registrationId },
         data: {
-          status: RegistrationStatus.verification,
+          status: nextStatus,
           dossierReviewStatus: DossierReviewStatus.approved,
           rejectionReason: null,
         },
@@ -605,15 +618,18 @@ export class RegistrationsService {
           registrationId,
           actorId: principal.id,
           fromStatus: registration.status,
-          toStatus: registration.status,
+          toStatus: nextStatus,
           kind: "verification_approved",
-          note: "Berkas dan hasil kesehatan telah diverifikasi panitia. Orang tua dapat memilih jadwal observasi.",
+          note: hasMedicalResult
+            ? "Hasil kesehatan telah diverifikasi panitia. Orang tua dapat memilih jadwal observasi."
+            : "Berkas persyaratan telah diverifikasi panitia. Orang tua dapat melanjutkan pemeriksaan kesehatan.",
         },
       });
       return {
         success: true,
         verified: true,
         dossierReviewStatus: updated.dossierReviewStatus,
+        nextStage: nextStatus,
       };
     });
   }

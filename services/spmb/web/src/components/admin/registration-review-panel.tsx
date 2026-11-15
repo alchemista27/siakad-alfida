@@ -30,6 +30,7 @@ export function RegistrationReviewPanel({
     reg.status === "payment_uploaded" && reg.payment?.status === "uploaded"
   );
   const canVerifyDocuments = (reg: ReviewableRegistration) => reg.status === "verification";
+  const isMedicalResultReview = (reg: ReviewableRegistration) => reg.documents?.some((document) => document.type === "medical_result") === true;
 
   const verifyPayment = async (regId: string, isApproved: boolean) => {
     setBusyId(regId);
@@ -53,21 +54,31 @@ export function RegistrationReviewPanel({
     }
   };
 
-  const verifyDocuments = async (regId: string, isApproved: boolean) => {
-    setBusyId(regId);
+  const verifyDocuments = async (reg: ReviewableRegistration, isApproved: boolean) => {
+    const reviewingMedicalResult = isMedicalResultReview(reg);
+    setBusyId(reg.id);
     try {
-      const res = await fetch(`/api/registrations/${encodeURIComponent(regId)}/verify-documents`, {
+      const res = await fetch(`/api/registrations/${encodeURIComponent(reg.id)}/verify-documents`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           isApproved,
-          rejectionNote: isApproved ? undefined : (revisionNoteById[regId] || "Mohon perbaiki berkas yang kurang jelas."),
+          rejectionNote: isApproved ? undefined : (revisionNoteById[reg.id] || "Mohon perbaiki berkas yang kurang jelas."),
         }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || "Gagal memproses verifikasi berkas.");
       await onChanged();
-      onNotify("success", isApproved ? "Berkas disetujui dan siap pilih jadwal observasi." : "Permintaan revisi berkas dikirim.");
+      onNotify(
+        "success",
+        isApproved
+          ? reviewingMedicalResult
+            ? "Hasil kesehatan disetujui dan siap pilih jadwal observasi."
+            : "Berkas disetujui. Orang tua dapat lanjut pemeriksaan kesehatan."
+          : reviewingMedicalResult
+            ? "Permintaan revisi hasil kesehatan dikirim."
+            : "Permintaan revisi berkas dikirim.",
+      );
     } catch (error) {
       onNotify("error", error instanceof Error ? error.message : "Gagal memproses berkas.");
     } finally {
@@ -173,18 +184,18 @@ export function RegistrationReviewPanel({
                   <button
                     type="button"
                     disabled={busyId === reg.id}
-                    onClick={() => verifyDocuments(reg.id, true)}
+                    onClick={() => verifyDocuments(reg, true)}
                     className="px-2.5 py-1 bg-[#e6f4f1] text-[#0f7f6d] rounded font-semibold"
                   >
-                    Setujui Berkas
+                    {isMedicalResultReview(reg) ? "Setujui Hasil Kesehatan" : "Setujui Berkas"}
                   </button>
                   <button
                     type="button"
                     disabled={busyId === reg.id}
-                    onClick={() => verifyDocuments(reg.id, false)}
+                    onClick={() => verifyDocuments(reg, false)}
                     className="px-2.5 py-1 border border-amber-300 text-amber-800 rounded font-semibold"
                   >
-                    Revisi Berkas
+                    {isMedicalResultReview(reg) ? "Revisi Hasil Kesehatan" : "Revisi Berkas"}
                   </button>
                 </>
               )}

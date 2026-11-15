@@ -126,10 +126,16 @@ export default function ParentDocumentsPage() {
             </div>
           ) : (
             <div className="mt-5 border border-border bg-neutral rounded-md p-4 text-sm">
-              <p>Berkas persyaratan telah difinalisasi.</p>
-              <Link href={getStageRouteForRegistration(registration)} className="mt-3 inline-block text-xs font-semibold text-tertiary hover:underline">
-                Buka Tahap Aktif Saat Ini
-              </Link>
+              {registration.status === "verification" ? (
+                <p>Berkas sedang diperiksa panitia. Anda akan dapat melanjutkan ke pemeriksaan kesehatan setelah berkas disetujui.</p>
+              ) : (
+                <>
+                  <p>Berkas persyaratan telah difinalisasi.</p>
+                  <Link href={getStageRouteForRegistration(registration)} className="mt-3 inline-block text-xs font-semibold text-tertiary hover:underline">
+                    Buka Tahap Aktif Saat Ini
+                  </Link>
+                </>
+              )}
             </div>
           )}
         </section>

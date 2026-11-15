@@ -116,7 +116,7 @@ export class DocumentsService {
     if (!registration) throw new NotFoundException("Pendaftaran tidak ditemukan.");
     if (registration.parentId !== userId) throw new ForbiddenException("Akses ditolak.");
     if (!registration.period.educationLevel) throw new BadRequestException("Jenjang periode belum dikonfigurasi. Hubungi panitia SPMB.");
-    if (registration.status !== RegistrationStatus.documents_uploaded || !canTransition(registration.status, "medical_pending")) {
+    if (registration.status !== RegistrationStatus.documents_uploaded || !canTransition(registration.status, "verification")) {
       throw new BadRequestException("Berkas hanya dapat difinalisasi setelah formulir orang tua lengkap.");
     }
 
@@ -131,16 +131,20 @@ export class DocumentsService {
     await this.prisma.$transaction([
       this.prisma.registration.update({
         where: { id: registrationId },
-        data: { status: RegistrationStatus.medical_pending },
+        data: {
+          status: RegistrationStatus.verification,
+          dossierReviewStatus: "pending",
+          rejectionReason: null,
+        },
       }),
       this.prisma.registrationEvent.create({
         data: {
           registrationId,
           actorId: userId,
           fromStatus: registration.status,
-          toStatus: RegistrationStatus.medical_pending,
+          toStatus: RegistrationStatus.verification,
           kind: "transition",
-          note: "Seluruh berkas persyaratan Cloudinary berhasil diunggah lengkap",
+          note: "Seluruh berkas persyaratan diunggah lengkap dan masuk antrean verifikasi berkas panitia",
         },
       }),
     ]);
@@ -174,7 +178,11 @@ export class DocumentsService {
     const mutations: any[] = [
       this.prisma.registration.update({
         where: { id: registrationId },
-        data: { status: RegistrationStatus.verification },
+        data: {
+          status: RegistrationStatus.verification,
+          dossierReviewStatus: "pending",
+          rejectionReason: null,
+        },
       }),
       this.prisma.registrationEvent.create({
         data: {
@@ -183,7 +191,7 @@ export class DocumentsService {
           fromStatus: registration.status,
           toStatus: RegistrationStatus.verification,
           kind: "transition",
-          note: "Tahap pemeriksaan kesehatan selesai, berkas masuk antrean verifikasi",
+          note: "Tahap pemeriksaan kesehatan selesai, hasil kesehatan masuk antrean verifikasi panitia",
         },
       }),
     ];

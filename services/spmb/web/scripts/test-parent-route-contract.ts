@@ -68,6 +68,7 @@ assert(/error instanceof SpmbApiError && error\.status === 404/.test(registratio
 assert(/return loadActiveParentRegistration\(\)/.test(registrationLib), "missing or malformed payment URLs must recover the parent's active registration");
 assert(/uploadPaymentProofToCloudinary/.test(registrationLib), "client library must upload payment proofs through Cloudinary before recording them");
 assert(/uploadDocumentToCloudinary/.test(registrationLib), "client library must upload every parent dossier file through Cloudinary");
+assert(/case "verification":\s*return reg\.dossierReviewStatus === "approved"\s*\? `\/parent\/observation\$\{q\}`\s*:\s*`\/parent\/documents\$\{q\}`/.test(registrationLib), "pending dossier verification must return parents to the dossier waiting screen, not prematurely to medical");
 assert(!/payment-proof\/presign/.test(registrationLib), "client library must not request an S3 payment-proof presign URL");
 assert(!/\/api\/documents\/presign/.test(registrationLib), "client library must not request an S3 document presign URL");
 
@@ -87,9 +88,11 @@ for (const stagePage of [
 
 const studentForm = readFileSync(resolve(root, "src/components/parent/student-registration-form.tsx"), "utf8");
 const parentFormPage = readFileSync(resolve(root, "src/app/parent/form-parents/page.tsx"), "utf8");
+const documentsPage = readFileSync(resolve(root, "src/app/parent/documents/page.tsx"), "utf8");
 assert(studentForm.includes('result.nextStep !== "parent_form"'), "student submit must only navigate after the API confirms the parent-form step");
 assert(studentForm.includes("studentDataComplete"), "student submit must require server-confirmed completed murid data");
 assert(parentFormPage.includes("registration.studentDataComplete"), "parent form gate must use the server completeness flag");
 assert(!parentFormPage.includes("isStudentRegistrationComplete"), "parent form must not re-decide murid completeness in the browser");
+assert(documentsPage.includes("Berkas sedang diperiksa panitia"), "finalized documents must visibly show that admin verification is pending");
 
 console.log("SPMB parent route contract passed");

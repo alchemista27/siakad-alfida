@@ -211,7 +211,7 @@ export function getStageRouteForRegistration(reg: {
     case "verification":
       return reg.dossierReviewStatus === "approved"
         ? `/parent/observation${q}`
-        : `/parent/medical${q}`;
+        : `/parent/documents${q}`;
     case "observation_scheduled":
     case "observation_done":
       return `/parent/observation${q}`;
