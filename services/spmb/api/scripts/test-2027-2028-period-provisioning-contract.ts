@@ -44,6 +44,7 @@ function main() {
   const smaUnit = "10000000-0000-4000-8000-000000000004";
   const existingVariantUnit = "10000000-0000-4000-8000-000000000005";
   const missingLevelUnit = "10000000-0000-4000-8000-000000000006";
+  const legacyMappedSmaUnit = "28225003-d1d3-4276-901c-f9a42a7cac69";
   const tkParentChoiceUnit = "10000000-0000-4000-8000-000000000007";
   const excludedUnit = "18d0d36c-aea5-4ba6-a89b-320f9a4f240d";
 
@@ -55,6 +56,7 @@ function main() {
     period({ id: "20000000-0000-4000-8000-000000000005", unitId: existingVariantUnit, unitName: "TK Existing", educationLevel: "tk", tkGroup: "b" }),
     period({ id: "20000000-0000-4000-8000-000000000006", unitId: existingVariantUnit, unitName: "TK Existing", label: "SPMB 2027/2028", educationLevel: "tk", tkGroup: "b", quota: 100, createdAt: new Date("2026-10-26T00:00:00.000Z") }),
     period({ id: "20000000-0000-4000-8000-000000000007", unitId: missingLevelUnit, unitName: "Unknown", educationLevel: null }),
+    period({ id: "20000000-0000-4000-8000-000000000010", unitId: legacyMappedSmaUnit, unitName: "SMA Islam Terpadu Iqra", educationLevel: null }),
     period({ id: "20000000-0000-4000-8000-000000000008", unitId: tkParentChoiceUnit, unitName: "TK Parent Choice", educationLevel: "tk", tkGroup: null }),
     period({ id: "20000000-0000-4000-8000-000000000009", unitId: excludedUnit, unitName: "Pesantren Quran Alfida", educationLevel: null }),
   ]);
@@ -81,11 +83,18 @@ function main() {
     assert.equal(build2027_2028PeriodCreateData(parentChoiceAction.source, parentChoiceAction.quota).tkGroup, null);
   }
 
+  const legacyMappedAction = actionFor(actions, legacyMappedSmaUnit);
+  assert.equal(legacyMappedAction.kind, "create", "audited legacy units must receive their explicit education-level override");
+  if (legacyMappedAction.kind === "create") {
+    assert.equal(legacyMappedAction.source.educationLevel, "sma");
+    assert.equal(legacyMappedAction.quota, 450);
+  }
+
   assert.equal(actionFor(actions, missingLevelUnit).kind, "blocked_missing_education_level");
   assert.equal(actionFor(actions, excludedUnit).kind, "excluded_missing_quota_policy");
 
   const plannedQuota = actions.reduce((total, action) => total + (action.kind === "create" ? action.quota : 0), 0);
-  assert.equal(plannedQuota, 1275, "five missing eligible test units must total 100 + 175 + 450 + 450 + 100");
+  assert.equal(plannedQuota, 1725, "six missing eligible test units must total 100 + 175 + 450 + 450 + 100 + 450");
 
   console.log("SPMB 2027/2028 period provisioning contract passed");
 }

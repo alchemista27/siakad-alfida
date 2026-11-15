@@ -13,6 +13,18 @@ export const EXCLUDED_UNIT_IDS = new Set([
   "18d0d36c-aea5-4ba6-a89b-320f9a4f240d", // Pesantren Quran Alfida: no quota policy supplied.
 ]);
 
+// These unit IDs were audited against the current production catalog on 2026-11-15.
+// They are an explicit migration bridge for legacy source periods that predate
+// AdmissionPeriod.educationLevel; no legacy period is mutated.
+export const EDUCATION_LEVEL_OVERRIDE_BY_UNIT_ID: Readonly<Record<string, ProvisionableEducationLevel>> = {
+  "28225003-d1d3-4276-901c-f9a42a7cac69": "sma", // SMA Islam Terpadu Iqra
+  "5edd8be0-86ac-406b-b23c-418b3e387528": "sd", // SD Islam Terpadu Iqra 3
+  "9fe99902-40e0-48dd-9275-d73531584365": "tk", // TK Islam Terpadu Auladuna 2
+  "a09edaf4-c656-4632-abf1-4c0a25150c98": "smp", // SMP Islam Terpadu Iqra
+  "c09fb430-b5d3-4ae2-a6cc-2220430da453": "sd", // SD Islam Terpadu Iqra 2
+  "dcaa14b2-b20c-416a-ba90-9367016ce295": "sd", // SD Islam Terpadu Iqra 1
+};
+
 export type PeriodSnapshot = {
   id: string;
   unitId: string;
@@ -73,14 +85,18 @@ export function plan2027_2028Periods(periods: readonly PeriodSnapshot[]): Provis
       if (EXCLUDED_UNIT_IDS.has(source.unitId)) {
         return { kind: "excluded_missing_quota_policy", unitId: source.unitId, source } as const;
       }
-      if (!source.educationLevel) {
+      const educationLevel = source.educationLevel || EDUCATION_LEVEL_OVERRIDE_BY_UNIT_ID[source.unitId];
+      if (!educationLevel) {
         return { kind: "blocked_missing_education_level", unitId: source.unitId, source } as const;
       }
+      const resolvedSource = source.educationLevel === educationLevel
+        ? source
+        : { ...source, educationLevel };
       return {
         kind: "create",
         unitId: source.unitId,
-        source,
-        quota: QUOTA_BY_EDUCATION_LEVEL[source.educationLevel],
+        source: resolvedSource,
+        quota: QUOTA_BY_EDUCATION_LEVEL[educationLevel],
       } as const;
     })
     .sort((left, right) => left.unitId.localeCompare(right.unitId));
