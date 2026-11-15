@@ -10,6 +10,8 @@ export interface AdminPeriodItem {
   unitName: string;
   unitSlug?: string;
   label: string;
+  educationLevel?: "tk" | "sd" | "smp" | "sma" | null;
+  tkGroup?: "a" | "b" | null;
   isOpen: boolean;
   quota: number;
   fee?: number;
@@ -21,6 +23,13 @@ export interface AdminPeriodItem {
 }
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const EDUCATION_LEVEL_LABELS = {
+  tk: "TK",
+  sd: "SD",
+  smp: "SMP",
+  sma: "SMA",
+} as const;
 
 function getApiError(data: unknown, fallback: string) {
   if (data && typeof data === "object" && typeof (data as { message?: unknown }).message === "string") {
@@ -41,6 +50,8 @@ export function PeriodManagementPanel({
   const [unitName, setUnitName] = useState("");
   const [unitSlug, setUnitSlug] = useState("");
   const [label, setLabel] = useState("2026/2027");
+  const [educationLevel, setEducationLevel] = useState<"" | "tk" | "sd" | "smp" | "sma">("");
+  const [tkGroup, setTkGroup] = useState<"" | "a" | "b">("");
   const [sourceAcademicYearId, setSourceAcademicYearId] = useState("");
   const [quota, setQuota] = useState("60");
   const [fee, setFee] = useState("250000");
@@ -57,6 +68,10 @@ export function PeriodManagementPanel({
       onNotify("error", "ID Tahun Ajaran SIAKAD harus berupa UUID yang valid atau dikosongkan.");
       return;
     }
+    if (!educationLevel) {
+      onNotify("error", "Jenjang pendidikan wajib dipilih.");
+      return;
+    }
 
     setBusy(true);
     try {
@@ -67,6 +82,8 @@ export function PeriodManagementPanel({
           unitName: unitName.trim(),
           unitSlug: unitSlug.trim(),
           label: label.trim(),
+          educationLevel,
+          tkGroup: educationLevel === "tk" ? tkGroup : undefined,
           sourceAcademicYearId: linkedAcademicYearId || undefined,
           quota: Number(quota || 60),
           fee: Number(fee || 250000),
@@ -78,6 +95,8 @@ export function PeriodManagementPanel({
       if (!res.ok) throw new Error(getApiError(data, "Gagal membuat periode pendaftaran."));
       setUnitName("");
       setUnitSlug("");
+      setEducationLevel("");
+      setTkGroup("");
       await onChanged();
       onNotify("success", "Periode pendaftaran berhasil dibuat.");
     } catch (error) {
@@ -142,7 +161,7 @@ export function PeriodManagementPanel({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-heading text-base font-bold text-[#454545]">{period.unitName}</p>
-                <p className="mt-1 text-xs font-semibold text-[#454545]">Gelombang {period.label}</p>
+                <p className="mt-1 text-xs font-semibold text-[#454545]">{period.educationLevel ? `${EDUCATION_LEVEL_LABELS[period.educationLevel]}${period.educationLevel === "tk" && period.tkGroup ? ` Kelompok ${period.tkGroup.toUpperCase()}` : ""} · ` : ""}Gelombang {period.label}</p>
               </div>
               <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${period.isOpen ? "bg-[#e6f4f1] text-[#0f7f6d]" : "bg-[#e9eded] text-[#454545]"}`}>
                 {period.isOpen ? "Dibuka" : "Ditutup"}
@@ -253,6 +272,26 @@ export function PeriodManagementPanel({
             className="px-3 py-2 border border-[#E3E8E7] rounded text-xs"
           />
         </label>
+        <label className="grid gap-1 text-xs text-[#454545]">
+          <span className="font-medium">Jenjang Pendidikan</span>
+          <select required value={educationLevel} onChange={(event) => { setEducationLevel(event.target.value as "" | "tk" | "sd" | "smp" | "sma"); if (event.target.value !== "tk") setTkGroup(""); }} className="px-3 py-2 border border-[#E3E8E7] rounded text-xs">
+            <option value="">Pilih jenjang</option>
+            <option value="tk">TK</option>
+            <option value="sd">SD</option>
+            <option value="smp">SMP</option>
+            <option value="sma">SMA</option>
+          </select>
+        </label>
+        {educationLevel === "tk" && (
+          <label className="grid gap-1 text-xs text-[#454545]">
+            <span className="font-medium">Kelompok TK (opsional)</span>
+            <select value={tkGroup} onChange={(event) => setTkGroup(event.target.value as "" | "a" | "b")} className="px-3 py-2 border border-[#E3E8E7] rounded text-xs">
+              <option value="">Dipilih orang tua saat mengisi formulir</option>
+              <option value="a">Kelompok A</option>
+              <option value="b">Kelompok B</option>
+            </select>
+          </label>
+        )}
         <label className="grid gap-1 text-xs text-[#454545]">
           <span className="font-medium">ID Tahun Ajaran SIAKAD (opsional)</span>
           <input

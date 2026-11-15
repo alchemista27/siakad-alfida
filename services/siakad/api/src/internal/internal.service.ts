@@ -1,4 +1,5 @@
 import { Injectable, ConflictException, BadRequestException, Logger } from "@nestjs/common";
+import { createHash } from "node:crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import type { SpmbHandoffPayload, SpmbHandoffReceipt, UnitProjectionPayload, UserProjectionPayload } from "@alfida/contracts";
 
@@ -8,42 +9,53 @@ export class InternalService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  private payloadHash(payload: SpmbHandoffPayload) {
+    return createHash("sha256").update(JSON.stringify(payload)).digest("hex");
+  }
+
+  private async receiptForExisting(existingReceipt: any, payload: SpmbHandoffPayload): Promise<SpmbHandoffReceipt> {
+    if (existingReceipt.payloadHash && existingReceipt.payloadHash !== this.payloadHash(payload)) {
+      throw new ConflictException("Kunci idempotensi handoff sudah digunakan untuk payload berbeda.");
+    }
+
+    let destinationEnrollmentId = existingReceipt.enrollmentId;
+    if (!destinationEnrollmentId) {
+      const student = await this.prisma.student.findUnique({
+        where: { admissionReceiptId: existingReceipt.id },
+        select: { id: true },
+      });
+      if (student) {
+        const enrollment = await this.prisma.enrollment.findFirst({
+          where: { studentId: student.id, academicYearId: existingReceipt.academicYearId },
+          select: { id: true },
+        });
+        destinationEnrollmentId = enrollment?.id;
+      }
+    }
+    if (!destinationEnrollmentId) {
+      throw new ConflictException("Tanda terima handoff tidak memiliki enrollment tujuan yang dapat diverifikasi.");
+    }
+
+    return {
+      receiptId: existingReceipt.id,
+      sourceRegistrationId: payload.spmbRegistrationId,
+      destinationEnrollmentId,
+      status: "accepted",
+    };
+  }
+
   async receiveSpmbHandoff(payload: SpmbHandoffPayload): Promise<SpmbHandoffReceipt> {
     this.logger.log(`Menerima SPMB handoff untuk pendaftaran ${payload.registrationNumber} (${payload.spmbRegistrationId})`);
+    const payloadHash = this.payloadHash(payload);
 
-    // 1. Cek idempotensi berdasarkan idempotencyKey
     const existingReceiptByIdempotency = await this.prisma.admissionReceipt.findUnique({
       where: { idempotencyKey: payload.idempotencyKey },
     });
-
     if (existingReceiptByIdempotency) {
       this.logger.log(`Handoff sudah diproses sebelumnya dengan kunci idempotensi ${payload.idempotencyKey}`);
-      let destinationEnrollmentId: string = existingReceiptByIdempotency.id;
-
-      if (this.prisma.student?.findFirst) {
-        const student = await this.prisma.student.findFirst({
-          where: { admissionReceiptId: existingReceiptByIdempotency.id },
-        });
-
-        if (student && this.prisma.enrollment?.findFirst) {
-          const enrollment = await this.prisma.enrollment.findFirst({
-            where: { studentId: student.id },
-          });
-          if (enrollment) {
-            destinationEnrollmentId = enrollment.id;
-          }
-        }
-      }
-
-      return {
-        receiptId: existingReceiptByIdempotency.id,
-        sourceRegistrationId: payload.spmbRegistrationId,
-        destinationEnrollmentId,
-        status: "accepted",
-      };
+      return this.receiptForExisting(existingReceiptByIdempotency, payload);
     }
 
-    // 2. Cek apakah registration ID sudah pernah diterima dengan kunci berbeda
     const existingByRegistration = await this.prisma.admissionReceipt.findUnique({
       where: { spmbRegistrationId: payload.spmbRegistrationId },
     });
@@ -54,8 +66,6 @@ export class InternalService {
       );
     }
 
-    // 3. Fail closed on the destination unit and exact academic-year projection.
-    // A handoff must never silently enroll a student into another active/latest year.
     const unit = await this.prisma.unitProjection.findUnique({
       where: { id: payload.unitId },
       select: { id: true, status: true, category: true },
@@ -76,53 +86,94 @@ export class InternalService {
     }
     const targetAcademicYearId = targetAcademicYear.id;
 
-    // 4. Eksekusi penyimpanan dalam transaksi atomik
-    return this.prisma.$transaction(async (tx) => {
-      const receipt = await tx.admissionReceipt.create({
-        data: {
-          spmbRegistrationId: payload.spmbRegistrationId,
-          registrationNumber: payload.registrationNumber,
-          unitId: payload.unitId,
-          academicYearId: targetAcademicYearId,
-          idempotencyKey: payload.idempotencyKey,
-          status: "processed",
-          payload: payload as any,
-          processedAt: new Date(),
-        },
-      });
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const receipt = await tx.admissionReceipt.create({
+          data: {
+            spmbRegistrationId: payload.spmbRegistrationId,
+            registrationNumber: payload.registrationNumber,
+            unitId: payload.unitId,
+            academicYearId: targetAcademicYearId,
+            idempotencyKey: payload.idempotencyKey,
+            status: "processed",
+            payload: payload as any,
+            payloadHash,
+            processedAt: new Date(),
+          },
+        });
 
-      const student = await tx.student.create({
-        data: {
-          admissionReceiptId: receipt.id,
-          unitId: payload.unitId,
-          nisn: payload.student.nisn || null,
-          fullName: payload.student.fullName,
-          gender: payload.student.gender,
-          birthPlace: payload.student.birthPlace,
-          birthDate: payload.student.birthDate ? new Date(payload.student.birthDate) : null,
-          parentUserId: payload.parent.id,
-          parentName: payload.parent.fullName,
-          parentPhone: payload.parent.phone || null,
-          status: "active",
-        },
-      });
+        const dapodik = payload.student.dapodik;
+        const student = await tx.student.create({
+          data: {
+            admissionReceiptId: receipt.id,
+            unitId: payload.unitId,
+            nisn: payload.student.nisn || null,
+            fullName: payload.student.fullName,
+            gender: payload.student.gender,
+            birthPlace: payload.student.birthPlace,
+            birthDate: new Date(payload.student.birthDate),
+            parentUserId: payload.portalParent.id,
+            parentName: payload.portalParent.fullName,
+            parentPhone: payload.portalParent.phone || null,
+            nickname: payload.student.nickname,
+            religion: payload.student.religion,
+            address: payload.student.address,
+            siblingsCount: payload.student.siblingsCount,
+            transportation: payload.student.transportation,
+            hobby: payload.student.hobby,
+            ambition: payload.student.ambition,
+            ...dapodik,
+            status: "active",
+          },
+        });
 
-      const enrollment = await tx.enrollment.create({
-        data: {
-          studentId: student.id,
-          academicYearId: targetAcademicYearId,
-          classId: null,
-          status: "pending_placement",
-        },
-      });
+        if (payload.guardians.length > 0) {
+          await tx.studentGuardian.createMany({
+            data: payload.guardians.map((guardian) => ({
+              studentId: student.id,
+              type: guardian.type,
+              fullName: guardian.fullName,
+              nik: guardian.nik,
+              birthPlace: guardian.birthPlace,
+              birthDate: guardian.birthDate ? new Date(guardian.birthDate) : null,
+              education: guardian.education,
+              occupation: guardian.occupation,
+              phone: guardian.phone,
+              incomeRange: guardian.incomeRange,
+              address: guardian.address,
+            })),
+          });
+        }
 
-      return {
-        receiptId: receipt.id,
-        sourceRegistrationId: payload.spmbRegistrationId,
-        destinationEnrollmentId: enrollment.id,
-        status: "accepted" as const,
-      };
-    });
+        const enrollment = await tx.enrollment.create({
+          data: {
+            studentId: student.id,
+            academicYearId: targetAcademicYearId,
+            classId: null,
+            status: "pending_placement",
+          },
+        });
+        await tx.admissionReceipt.update({
+          where: { id: receipt.id },
+          data: { enrollmentId: enrollment.id },
+        });
+
+        return {
+          receiptId: receipt.id,
+          sourceRegistrationId: payload.spmbRegistrationId,
+          destinationEnrollmentId: enrollment.id,
+          status: "accepted" as const,
+        };
+      });
+    } catch (error: any) {
+      if (error?.code === "P2002") {
+        const concurrentReceipt = await this.prisma.admissionReceipt.findUnique({
+          where: { idempotencyKey: payload.idempotencyKey },
+        });
+        if (concurrentReceipt) return this.receiptForExisting(concurrentReceipt, payload);
+      }
+      throw error;
+    }
   }
 
   async receiveUnitProjection(payload: UnitProjectionPayload) {

@@ -4,10 +4,10 @@ import { SpmbTopbar } from "@/components/SpmbTopbar";
 
 import { ChangeEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { REQUIRED_DOCUMENT_TYPES_BY_LEVEL } from "@alfida/contracts";
 import { ParentRegistrationStepper } from "@/components/parent/parent-registration-stepper";
 import {
   apiRequest,
-  BASE_DOCUMENT_TYPES,
   DOCUMENT_LABELS,
   getStageRouteForRegistration,
   loadParentRegistration,
@@ -45,8 +45,11 @@ export default function ParentDocumentsPage() {
     setBusy(true);
     setNotice(null);
     try {
+      const level = registration.period.educationLevel;
+      if (!level) throw new Error("Jenjang periode belum dikonfigurasi. Hubungi panitia SPMB.");
+      const requiredDocumentTypes = REQUIRED_DOCUMENT_TYPES_BY_LEVEL[level] as readonly DocumentType[];
       const uploaded = new Set(registration.documents.map((doc) => doc.type));
-      for (const docType of BASE_DOCUMENT_TYPES) {
+      for (const docType of requiredDocumentTypes) {
         if (files[docType]) {
           await uploadDocumentToCloudinary(registration.id, docType, files[docType] as File);
         } else if (!uploaded.has(docType)) {
@@ -79,6 +82,9 @@ export default function ParentDocumentsPage() {
   }
 
   const canEdit = registration.status === "documents_uploaded";
+  const requiredDocumentTypes = registration.period.educationLevel
+    ? REQUIRED_DOCUMENT_TYPES_BY_LEVEL[registration.period.educationLevel] as readonly DocumentType[]
+    : [];
 
   return (
     <div className="min-h-screen bg-neutral text-primary font-body">
@@ -101,7 +107,7 @@ export default function ParentDocumentsPage() {
           {canEdit ? (
             <div className="mt-5 space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
-                {BASE_DOCUMENT_TYPES.map((type) => {
+                {requiredDocumentTypes.map((type) => {
                   const existing = registration.documents.find((d) => d.type === type);
                   return (
                     <label key={type} className="block border border-border rounded-md p-4 bg-white text-xs">

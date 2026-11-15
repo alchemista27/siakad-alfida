@@ -17,6 +17,7 @@ import {
 export default function ParentMedicalPage() {
   const [registration, setRegistration] = useState<ParentRegistration | null>(null);
   const [medicalFile, setMedicalFile] = useState<File | null>(null);
+  const [tkHealth, setTkHealth] = useState({ heightCm: "", weightKg: "", headCircumferenceCm: "", immunizationStatus: "unknown" });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ type: "error" | "success"; message: string } | null>(null);
@@ -50,6 +51,19 @@ export default function ParentMedicalPage() {
     }
   };
 
+  const medicalCompletionBody = () => {
+    if (registration?.period.educationLevel !== "tk") return {};
+    if (!tkHealth.heightCm || !tkHealth.weightKg || !tkHealth.headCircumferenceCm) {
+      throw new Error("Lengkapi tinggi badan, berat badan, dan lingkar kepala untuk pendaftar TK.");
+    }
+    return {
+      heightCm: Number(tkHealth.heightCm),
+      weightKg: Number(tkHealth.weightKg),
+      headCircumferenceCm: Number(tkHealth.headCircumferenceCm),
+      immunizationStatus: tkHealth.immunizationStatus,
+    };
+  };
+
   const handleUploadMedical = async () => {
     if (!registration) return;
     if (!medicalFile) {
@@ -60,7 +74,7 @@ export default function ParentMedicalPage() {
     setNotice(null);
     try {
       await uploadDocumentToCloudinary(registration.id, "medical_result", medicalFile);
-      await apiRequest(`/api/documents/medical-done/${encodeURIComponent(registration.id)}`, { method: "POST" });
+      await apiRequest(`/api/documents/medical-done/${encodeURIComponent(registration.id)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(medicalCompletionBody()) });
       await refresh();
       setNotice({ type: "success", message: "Hasil kesehatan berhasil dikirim dan menunggu verifikasi panitia." });
     } catch (error) {
@@ -75,7 +89,7 @@ export default function ParentMedicalPage() {
     setBusy(true);
     setNotice(null);
     try {
-      await apiRequest(`/api/documents/medical-done/${encodeURIComponent(registration.id)}`, { method: "POST" });
+      await apiRequest(`/api/documents/medical-done/${encodeURIComponent(registration.id)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(medicalCompletionBody()) });
       await refresh();
       setNotice({ type: "success", message: "Pemeriksaan kesehatan selesai dan masuk antrean verifikasi panitia." });
     } catch (error) {
@@ -99,6 +113,8 @@ export default function ParentMedicalPage() {
       </div>
     );
   }
+
+  const canSubmitTkHealth = registration.period.educationLevel === "tk" && ["medical_pending", "medical_uploaded"].includes(registration.status);
 
   return (
     <div className="min-h-screen bg-neutral text-primary font-body">
@@ -136,6 +152,16 @@ export default function ParentMedicalPage() {
               <button type="button" onClick={handleUploadMedical} disabled={busy} className="px-4 py-2 bg-tertiary hover:bg-[#0b6355] disabled:opacity-50 text-white rounded-sm text-xs font-semibold">
                 {busy ? "Mengunggah..." : "Unggah & Ajukan Verifikasi"}
               </button>
+            </div>
+          )}
+
+          {canSubmitTkHealth && (
+            <div className="mt-5 grid max-w-xl sm:grid-cols-2 gap-4 border border-border rounded-md bg-white p-4">
+              <p className="sm:col-span-2 text-xs font-semibold text-primary">Data Kesehatan TK</p>
+              <label className="block text-xs"><span className="font-semibold block mb-1">Tinggi Badan (cm) *</span><input required type="number" min="0.01" step="0.1" value={tkHealth.heightCm} onChange={(event) => setTkHealth((current) => ({ ...current, heightCm: event.target.value }))} className="w-full spmb-input" /></label>
+              <label className="block text-xs"><span className="font-semibold block mb-1">Berat Badan (kg) *</span><input required type="number" min="0.01" step="0.1" value={tkHealth.weightKg} onChange={(event) => setTkHealth((current) => ({ ...current, weightKg: event.target.value }))} className="w-full spmb-input" /></label>
+              <label className="block text-xs"><span className="font-semibold block mb-1">Lingkar Kepala (cm) *</span><input required type="number" min="0.01" step="0.1" value={tkHealth.headCircumferenceCm} onChange={(event) => setTkHealth((current) => ({ ...current, headCircumferenceCm: event.target.value }))} className="w-full spmb-input" /></label>
+              <label className="block text-xs"><span className="font-semibold block mb-1">Status Imunisasi *</span><select value={tkHealth.immunizationStatus} onChange={(event) => setTkHealth((current) => ({ ...current, immunizationStatus: event.target.value }))} className="w-full spmb-input"><option value="complete">Lengkap</option><option value="incomplete">Belum lengkap</option><option value="unknown">Belum diketahui</option></select></label>
             </div>
           )}
 

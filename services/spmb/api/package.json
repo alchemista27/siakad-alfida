@@ -13,7 +13,8 @@
     "typecheck": "pnpm run db:generate && tsc --noEmit",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "seed:periods": "tsx scripts/seed-periods.ts"
+    "seed:periods": "tsx scripts/seed-periods.ts",
+    "ensure:periods:2027-2028": "tsx scripts/ensure-2027-2028-periods.ts"
   },
   "dependencies": {
     "@alfida/auth-sdk": "workspace:*",

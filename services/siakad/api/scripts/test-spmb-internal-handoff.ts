@@ -13,6 +13,7 @@ function makeMockPrisma(state: {
   receipts: any[];
   students: any[];
   enrollments: any[];
+  guardians: any[];
   academicYears: any[];
   unitProjections: any[];
 }) {
@@ -30,6 +31,11 @@ function makeMockPrisma(state: {
       create: async (args: any) => {
         const item = { id: `a1111111-0000-0000-0000-${String(state.receipts.length + 1).padStart(12, "0")}`, ...args.data };
         state.receipts.push(item);
+        return item;
+      },
+      update: async ({ where, data }: any) => {
+        const item = state.receipts.find((receipt) => receipt.id === where.id);
+        Object.assign(item, data);
         return item;
       },
     },
@@ -50,6 +56,12 @@ function makeMockPrisma(state: {
         const item = { id: `b2222222-0000-0000-0000-${String(state.students.length + 1).padStart(12, "0")}`, ...args.data };
         state.students.push(item);
         return item;
+      },
+    },
+    studentGuardian: {
+      createMany: async ({ data }: any) => {
+        state.guardians.push(...data);
+        return { count: data.length };
       },
     },
     enrollment: {
@@ -97,6 +109,7 @@ async function main() {
     receipts: [] as any[],
     students: [] as any[],
     enrollments: [] as any[],
+    guardians: [] as any[],
     academicYears: [
       {
         id: "d4444444-0000-0000-0000-000000000001",
@@ -121,24 +134,69 @@ async function main() {
   const controller = new InternalController(service);
 
   const validPayload: SpmbHandoffPayload = {
+    contractVersion: 2,
     idempotencyKey: "11111111-1111-1111-1111-111111111111",
     spmbRegistrationId: "22222222-2222-2222-2222-222222222222",
     registrationNumber: "SPMB-2026-SMP-001",
     sourceAcademicYearId: "d4444444-0000-0000-0000-000000000001",
     unitId: "e5555555-0000-0000-0000-000000000001",
-    parent: {
+    portalParent: {
       id: "33333333-3333-3333-3333-333333333333",
       fullName: "Fulan bin Fulan Senior",
       email: "fulan.senior@example.com",
       phone: "081234567890",
     },
+    guardians: [{
+      type: "guardian",
+      fullName: "Wali Fulan",
+      nik: "3273010101010003",
+      birthPlace: "Jakarta",
+      birthDate: "1980-08-17T00:00:00.000Z",
+      education: "SMA",
+      occupation: "Wiraswasta",
+      phone: "081234567891",
+      incomeRange: "Rp 3.000.000 - Rp 5.000.000",
+      address: "Jl. Pendidikan No. 12, Jakarta",
+    }],
     student: {
       fullName: "Fulan Junior",
+      nickname: "Fulan",
       gender: "male",
+      religion: "Islam",
       birthPlace: "Jakarta",
       birthDate: "2013-08-17T00:00:00.000Z",
       nisn: "0012345678",
       address: "Jl. Pendidikan No. 12, Jakarta",
+      siblingsCount: 1,
+      transportation: "Diantar",
+      hobby: null,
+      ambition: null,
+      dapodik: {
+        nik: "3273010101010001",
+        birthCertificateNumber: "AKTA-2013-001",
+        familyCardNumber: "3273010101010002",
+        streetAddress: "Jl. Pendidikan No. 12",
+        rt: "001",
+        rw: "002",
+        hamlet: null,
+        village: "Cipedes",
+        subdistrict: "Sukajadi",
+        city: "Bandung",
+        province: "Jawa Barat",
+        postalCode: "40162",
+        residenceStatus: "with_guardian",
+        specialNeeds: null,
+        pipEligible: false,
+        kipNumber: null,
+        previousSchoolName: "SD Alfida",
+        previousSchoolNpsn: "20212345",
+        graduationDocumentNumber: "SKL-2026-001",
+        graduationYear: 2026,
+        heightCm: null,
+        weightKg: null,
+        headCircumferenceCm: null,
+        immunizationStatus: null,
+      },
     },
   };
 
@@ -166,7 +224,7 @@ async function main() {
     () =>
       controller.handleSpmbHandoff(secretKey, undefined, {
         ...validPayload,
-        parent: { ...validPayload.parent, email: "invalid-email" },
+        portalParent: { ...validPayload.portalParent, email: "invalid-email" },
       }),
     BadRequestException,
     "Invalid parent email must throw BadRequestException",
@@ -184,6 +242,8 @@ async function main() {
   assert.equal(state.receipts.length, 1);
   assert.equal(state.students.length, 1);
   assert.equal(state.enrollments.length, 1);
+  assert.equal(state.guardians.length, 1, "structured guardian must be persisted with the student");
+  assert.equal(state.students[0].nik, validPayload.student.dapodik?.nik, "Dapodik profile must be persisted with the student");
   assert.equal(state.enrollments[0].status, "pending_placement");
 
   // 4. Idempotency: Repeating the exact same handoff returns the identical receipt

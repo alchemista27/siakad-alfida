@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsEnum, IsInt, IsString, IsUrl, IsUUID, MaxLength, Min } from "class-validator";
+import { IsEnum, IsIn, IsInt, IsNumber, IsOptional, IsString, IsUrl, IsUUID, Max, MaxLength, Min } from "class-validator";
 import { DocumentType } from "../generated/prisma";
 
 export class PresignUploadDto {
@@ -27,4 +27,31 @@ export class UpsertDocumentDto extends PresignUploadDto {
   @IsUrl({ protocols: ["https"], require_protocol: true })
   @MaxLength(2048)
   fileUrl!: string;
+}
+
+export class SubmitTkHealthDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0.01)
+  @Max(250)
+  heightCm?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0.01)
+  @Max(300)
+  weightKg?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0.01)
+  @Max(100)
+  headCircumferenceCm?: number;
+
+  @IsOptional()
+  @IsIn(["complete", "incomplete", "unknown"])
+  immunizationStatus?: "complete" | "incomplete" | "unknown";
 }

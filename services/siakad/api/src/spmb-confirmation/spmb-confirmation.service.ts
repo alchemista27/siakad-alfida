@@ -73,8 +73,11 @@ export class SpmbConfirmationService implements OnModuleInit, OnModuleDestroy {
           "Idempotency-Key": candidate.idempotencyKey,
         },
         body: JSON.stringify({
+          confirmationId: candidate.idempotencyKey,
+          receiptId: candidate.receiptId,
           sourceRegistrationId: candidate.sourceRegistrationId,
           destinationEnrollmentId: candidate.enrollmentId,
+          status: "enrolled",
         }),
         signal: controller.signal,
       });

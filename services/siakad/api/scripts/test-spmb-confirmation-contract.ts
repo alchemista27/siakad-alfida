@@ -61,7 +61,7 @@ async function main() {
   const placed = await placement.placeStudent(admin, { enrollmentId: "enrollment-1", classId: "class-1" });
   assert.equal(placed.status, "active");
   assert.equal(state.outbox.length, 1, "initial placement must write exactly one outbox record in the transaction");
-  assert.deepEqual({ enrollmentId: state.outbox[0].enrollmentId, sourceRegistrationId: state.outbox[0].sourceRegistrationId, status: state.outbox[0].status }, { enrollmentId: "enrollment-1", sourceRegistrationId: "registration-1", status: "pending" });
+  assert.deepEqual({ enrollmentId: state.outbox[0].enrollmentId, sourceRegistrationId: state.outbox[0].sourceRegistrationId, receiptId: state.outbox[0].receiptId, status: state.outbox[0].status }, { enrollmentId: "enrollment-1", sourceRegistrationId: "registration-1", receiptId: "receipt-1", status: "pending" });
   await assert.rejects(() => placement.placeStudent(admin, { enrollmentId: "enrollment-1", classId: "class-1" }), /menunggu penempatan/);
 
   const oldUrl = process.env.SPMB_CONFIRMATION_URL;
@@ -84,8 +84,11 @@ async function main() {
   assert.equal((request?.init.headers as Record<string, string>)["Idempotency-Key"], state.outbox[0].idempotencyKey);
   assert.equal((request?.init.headers as Record<string, string>)["x-internal-service-key"], "shared-secret");
   assert.deepEqual(JSON.parse(String(request?.init.body)), {
+    confirmationId: state.outbox[0].idempotencyKey,
+    receiptId: "receipt-1",
     sourceRegistrationId: "registration-1",
     destinationEnrollmentId: "enrollment-1",
+    status: "enrolled",
   });
 
   state.outbox.push({ id: "outbox-retry", enrollmentId: "enrollment-retry", sourceRegistrationId: "registration-retry", academicYearId: "year-1", classId: "class-1", idempotencyKey: "confirm:enrollment-retry", attempts: 0, status: "pending", availableAt: new Date(0), leasedUntil: null, leaseToken: null, deliveredAt: null, lastError: null });

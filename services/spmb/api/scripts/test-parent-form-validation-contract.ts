@@ -19,8 +19,27 @@ const student = {
   birthDate: "2019-05-10",
   nisn: "",
   siblingsCount: 2,
-  address: "Jl. Melati Nomor 10, Bandung",
   transportation: "Diantar orang tua",
+  nik: "3273010101010001",
+  birthCertificateNumber: "AKTA-2019-001",
+  familyCardNumber: "3273010101010002",
+  streetAddress: "Jl. Melati Nomor 10",
+  rt: "1",
+  rw: "2",
+  hamlet: "",
+  village: "Cipedes",
+  subdistrict: "Sukajadi",
+  city: "Bandung",
+  province: "Jawa Barat",
+  postalCode: "40162",
+  residenceStatus: "with_parents",
+  specialNeeds: "",
+  pipEligible: false,
+  kipNumber: "",
+  previousSchoolName: "",
+  previousSchoolNpsn: "",
+  graduationDocumentNumber: "",
+  address: "Jl. Melati Nomor 10, Bandung",
 };
 
 const parent = {
@@ -48,6 +67,8 @@ async function rejects(fn: () => Promise<unknown>, message: string) {
 async function run() {
   assert(!CreateSpmbDraftSchema.safeParse({}).success, "draft must require periodId");
   assert(!StudentRegistrationFormSchema.safeParse({ ...student, religion: "" }).success, "student religion must be required");
+  assert(!StudentRegistrationFormSchema.safeParse({ ...student, nik: "123" }).success, "student NIK must contain exactly sixteen digits");
+  assert(!StudentRegistrationFormSchema.safeParse({ ...student, streetAddress: "" }).success, "student must require structured Dapodik address and civil fields");
   assert(!StudentRegistrationFormSchema.safeParse({ ...student, nickname: "" }).success, "student nickname must be required");
   assert(!StudentRegistrationFormSchema.safeParse({ ...student, transportation: "" }).success, "student transportation must be required");
   assert(!StudentRegistrationFormSchema.safeParse({ ...student, siblingsCount: -1 }).success, "siblings count must be non-negative");
@@ -57,6 +78,7 @@ async function run() {
     id: "reg-1",
     parentId: "parent-1",
     periodId: "11111111-1111-4111-8111-111111111111",
+    period: { educationLevel: "sd", tkGroup: null },
     status: "payment_verified",
   };
   const studentUpsertCalls: unknown[] = [];
@@ -78,7 +100,7 @@ async function run() {
         return {};
       },
     },
-    parentData: { deleteMany: async () => ({}), create: async () => ({}) },
+    parentData: { upsert: async (input: unknown) => input },
     registrationEvent: {
       create: async (input: { data?: { toStatus?: string } }) => {
         eventCalls.push(input.data || {});
@@ -126,6 +148,28 @@ async function run() {
     () => (service as any).submitParentData(registration.id, registration.parentId, { father: parent, mother: parent }),
     "service must reject parent submission until every required student field is complete",
   );
+
+  registration.status = "form_filling";
+  (registration as any).studentData = {
+    ...student,
+    birthDate: new Date(student.birthDate),
+    residenceStatus: "with_guardian",
+  };
+  await rejects(
+    () => (service as any).submitParentData(registration.id, registration.parentId, { father: parent, mother: parent }),
+    "service must require guardian data when the student resides with a guardian",
+  );
+
+  const guardian = { ...parent, fullName: "Siti Aminah", nik: "3273010101010003" };
+  const parentUpsertCalls: any[] = [];
+  transactionClient.parentData.upsert = async (input: unknown) => {
+    parentUpsertCalls.push(input);
+    return input;
+  };
+  registration.status = "form_filling";
+  await (service as any).submitParentData(registration.id, registration.parentId, { father: parent, mother: parent, guardian });
+  assert(parentUpsertCalls.length === 3, "father, mother, and guardian must be persisted independently");
+  assert(parentUpsertCalls.some((input) => (input as any).where.registrationId_type.type === "guardian"), "guardian must use the guardian parent type");
 
   console.log("SPMB parent-form validation contract passed");
 }

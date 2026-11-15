@@ -25,7 +25,7 @@ const registrationId = "33333333-3333-4333-8333-333333333333";
 const parentId = "44444444-4444-4444-8444-444444444444";
 const studentId = "55555555-5555-4555-8555-555555555555";
 const destinationEnrollmentId = "66666666-6666-4666-8666-666666666666";
-const receiptId = "receipt-uuid-7777-8888";
+const receiptId = "77777777-7777-4777-8777-777777777777";
 
 const principal = {
   id: "admin-unit-1",
@@ -59,6 +59,35 @@ function createMockHarness() {
     birthDate: new Date("2018-05-10T00:00:00.000Z"),
     nisn: "0012345678",
     address: "Jl. Alfida No. 10",
+    religion: "Islam",
+    siblingsCount: 1,
+    transportation: "Diantar orang tua",
+    hobby: null,
+    ambition: null,
+    nik: "3273010101010001",
+    birthCertificateNumber: "AKTA-2018-001",
+    familyCardNumber: "3273010101010002",
+    streetAddress: "Jl. Alfida No. 10",
+    rt: "001",
+    rw: "002",
+    hamlet: null,
+    village: "Cipedes",
+    subdistrict: "Sukajadi",
+    city: "Bandung",
+    province: "Jawa Barat",
+    postalCode: "40162",
+    residenceStatus: "with_guardian",
+    specialNeeds: null,
+    pipEligible: false,
+    kipNumber: null,
+    previousSchoolName: null,
+    previousSchoolNpsn: null,
+    graduationDocumentNumber: null,
+    graduationYear: null,
+    heightCm: null,
+    weightKg: null,
+    headCircumferenceCm: null,
+    immunizationStatus: null,
   };
 
   let registration: any = {
@@ -72,7 +101,7 @@ function createMockHarness() {
     period,
     parent,
     studentData,
-    parentData: [],
+    parentData: [{ type: "guardian", fullName: "Siti Aminah", nik: "3273010101010003", birthPlace: "Bandung", birthDate: new Date("1980-01-01T00:00:00.000Z"), education: "SMA", occupation: "Wiraswasta", phone: "08123456780", incomeRange: "Rp 3.000.000 - Rp 5.000.000", address: "Jl. Alfida No. 10" }],
   };
 
   let outboxItem: any = null;
@@ -83,7 +112,7 @@ function createMockHarness() {
       findUnique: async () => ({ ...period }),
     },
     registration: {
-      findUnique: async () => ({ ...registration, period, parent, studentData }),
+      findUnique: async () => ({ ...registration, period, parent, studentData, parentData: registration.parentData, handoffOutbox: outboxItem }),
       update: async ({ where, data }: any) => {
         registration = { ...registration, ...data };
         return { ...registration };
@@ -165,6 +194,8 @@ async function run() {
     assert(outboxAfterDecision.attempts === 0, "initial outbox item attempts must be 0");
     assert(typeof outboxAfterDecision.idempotencyKey === "string", "outbox must have idempotencyKey");
     assert(typeof outboxAfterDecision.payloadHash === "string", "outbox must have payloadHash");
+    assert(outboxAfterDecision.payload?.contractVersion === 2, "outbox must persist a v2 handoff snapshot");
+    assert(outboxAfterDecision.payload?.guardians?.[0]?.type === "guardian", "outbox snapshot must include structured guardian data");
 
     const originalIdempotencyKey = outboxAfterDecision.idempotencyKey;
     const originalPayloadHash = outboxAfterDecision.payloadHash;
@@ -262,7 +293,13 @@ async function run() {
 
     // 5b. Authenticated enrollment confirmation transitions status to enrolled
     const confirmResult = await handoffService.confirmEnrollment(
-      validReceipt,
+      {
+        confirmationId: "spmb-confirmation:enrollment-1",
+        receiptId,
+        sourceRegistrationId: registrationId,
+        destinationEnrollmentId,
+        status: "enrolled",
+      },
       process.env.INTERNAL_SERVICE_SECRET,
     );
     assert(confirmResult.success === true, "authenticated confirmEnrollment must succeed");

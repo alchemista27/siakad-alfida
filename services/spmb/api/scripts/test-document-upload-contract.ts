@@ -35,7 +35,7 @@ async function expectRejects(label: string, fn: () => Promise<unknown>, Expected
 }
 
 function registration(status = "documents_uploaded") {
-  return { id: registrationId, parentId, status };
+  return { id: registrationId, parentId, status, period: { educationLevel: "sd" } };
 }
 
 async function run() {

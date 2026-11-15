@@ -43,8 +43,10 @@ async function main() {
   assert.equal(updated.quota, 75);
   assert.equal(updated.fee, 300000);
   assert.equal(updated.bankName, "BSI");
+  await expectRejects(BadRequestException, () => service.remove("period-open-empty", principal));
+  await service.update("period-open-empty", { isOpen: false }, principal);
   await service.remove("period-open-empty", principal);
-  assert.equal(periods.has("period-open-empty"), false, "an empty open period must be deletable");
+  assert.equal(periods.has("period-open-empty"), false, "a closed empty period must be deletable");
   await expectRejects(BadRequestException, () => service.remove("period-with-registration", principal));
   await expectRejects(BadRequestException, () => service.update("period-with-registration", { quota: 1 }, principal));
   console.log("SPMB period mutation contract passed");

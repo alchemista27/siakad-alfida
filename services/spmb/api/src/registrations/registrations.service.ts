@@ -21,15 +21,19 @@ import {
   Gender,
   ParentType,
   DossierReviewStatus,
+  DocumentType,
 } from "../generated/prisma";
 
 import {
   CreateSpmbDraftSchema,
+  assertGuardianRequiredForResidence,
+  assertLevelSpecificStudentFields,
   isStudentRegistrationComplete,
   ParentRegistrationFormSchema,
   StudentRegistrationFormSchema,
+  requiredDocumentTypesForLevel,
 } from "@alfida/contracts";
-import { canTransition, requiredDocumentTypes } from "../common/spmb-workflow";
+import { canTransition } from "../common/spmb-workflow";
 import { ACTIVE_REGISTRATION_POLICY } from "../common/registration-policy";
 import { allowedUnitIds, assertUnitAccess, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
 
@@ -50,6 +54,29 @@ export class RegistrationsService {
       throw new BadRequestException(parsed.error.issues[0]?.message || "Payload tidak valid.");
     }
     return parsed.data;
+  }
+
+  private formatStructuredAddress(payload: {
+    streetAddress: string;
+    rt: string;
+    rw: string;
+    hamlet?: string;
+    village: string;
+    subdistrict: string;
+    city: string;
+    province: string;
+    postalCode: string;
+  }) {
+    return [
+      payload.streetAddress,
+      `RT ${payload.rt.padStart(3, "0")}/RW ${payload.rw.padStart(3, "0")}`,
+      payload.hamlet || null,
+      payload.village,
+      payload.subdistrict,
+      payload.city,
+      payload.province,
+      payload.postalCode,
+    ].filter(Boolean).join(", ");
   }
 
   private sanitizeForParent(registration: any) {
@@ -230,13 +257,21 @@ export class RegistrationsService {
     const payload = this.parseOrThrow(StudentRegistrationFormSchema, dto);
 
     return this.prisma.$transaction(async (tx) => {
-      const reg = await tx.registration.findUnique({ where: { id: registrationId } });
+      const reg = await tx.registration.findUnique({ where: { id: registrationId }, include: { period: true } });
       if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan.");
       if (reg.parentId !== userId) {
         throw new ForbiddenException("Anda tidak berhak mengisi data pendaftaran ini.");
       }
       if (!([RegistrationStatus.payment_verified, RegistrationStatus.form_filling] as RegistrationStatus[]).includes(reg.status)) {
         throw new BadRequestException("Tahap pendaftaran saat ini tidak dapat mengisi biodata murid.");
+      }
+      if (!reg.period.educationLevel) {
+        throw new BadRequestException("Jenjang periode belum dikonfigurasi. Hubungi panitia SPMB.");
+      }
+      try {
+        assertLevelSpecificStudentFields(reg.period.educationLevel, payload);
+      } catch (error) {
+        throw new BadRequestException(error instanceof Error ? error.message : "Data Dapodik murid tidak lengkap.");
       }
 
       if (ACTIVE_REGISTRATION_POLICY === "multiple_child_applications") {
@@ -257,32 +292,46 @@ export class RegistrationsService {
         }
       }
 
+      const studentData = {
+        fullName: payload.fullName,
+        nickname: payload.nickname,
+        gender: payload.gender as Gender,
+        religion: payload.religion,
+        birthPlace: payload.birthPlace,
+        birthDate: new Date(payload.birthDate),
+        nisn: payload.nisn || null,
+        nik: payload.nik,
+        birthCertificateNumber: payload.birthCertificateNumber,
+        familyCardNumber: payload.familyCardNumber,
+        streetAddress: payload.streetAddress,
+        rt: payload.rt,
+        rw: payload.rw,
+        hamlet: payload.hamlet || null,
+        village: payload.village,
+        subdistrict: payload.subdistrict,
+        city: payload.city,
+        province: payload.province,
+        postalCode: payload.postalCode,
+        residenceStatus: payload.residenceStatus,
+        specialNeeds: payload.specialNeeds || null,
+        pipEligible: payload.pipEligible,
+        kipNumber: payload.kipNumber || null,
+        previousSchoolName: payload.previousSchoolName || null,
+        previousSchoolNpsn: payload.previousSchoolNpsn || null,
+        graduationDocumentNumber: payload.graduationDocumentNumber || null,
+        graduationYear: payload.graduationYear ?? null,
+        tkGroup: reg.period.educationLevel === "tk" ? payload.tkGroup : null,
+        siblingsCount: payload.siblingsCount,
+        address: this.formatStructuredAddress(payload),
+        transportation: payload.transportation,
+      };
+
       await tx.studentData.upsert({
         where: { registrationId },
-        update: {
-          fullName: payload.fullName,
-          nickname: payload.nickname,
-          gender: payload.gender as Gender,
-          religion: payload.religion,
-          birthPlace: payload.birthPlace,
-          birthDate: new Date(payload.birthDate),
-          nisn: payload.nisn || null,
-          siblingsCount: payload.siblingsCount,
-          address: payload.address,
-          transportation: payload.transportation,
-        },
+        update: studentData,
         create: {
           registrationId,
-          fullName: payload.fullName,
-          nickname: payload.nickname,
-          gender: payload.gender as Gender,
-          religion: payload.religion,
-          birthPlace: payload.birthPlace,
-          birthDate: new Date(payload.birthDate),
-          nisn: payload.nisn || null,
-          siblingsCount: payload.siblingsCount,
-          address: payload.address,
-          transportation: payload.transportation,
+          ...studentData,
         },
       });
 
@@ -328,56 +377,53 @@ export class RegistrationsService {
     if (!isStudentRegistrationComplete(reg.studentData)) {
       throw new BadRequestException("Lengkapi seluruh formulir data murid sebelum mengisi data orang tua.");
     }
+    try {
+      assertGuardianRequiredForResidence(reg.studentData.residenceStatus, payload);
+    } catch (error) {
+      throw new BadRequestException(error instanceof Error ? error.message : "Data wali tidak lengkap.");
+    }
 
     const parentsToUpsert = [
-      {
-        registrationId,
-        type: ParentType.father,
-        fullName: payload.father.fullName,
-        nik: payload.father.nik,
-        birthPlace: payload.father.birthPlace,
-        birthDate: new Date(payload.father.birthDate),
-        education: payload.father.education,
-        occupation: payload.father.occupation,
-        phone: payload.father.phone,
-        incomeRange: payload.father.incomeRange,
-        address: payload.father.address,
-      },
-      {
-        registrationId,
-        type: ParentType.mother,
-        fullName: payload.mother.fullName,
-        nik: payload.mother.nik,
-        birthPlace: payload.mother.birthPlace,
-        birthDate: new Date(payload.mother.birthDate),
-        education: payload.mother.education,
-        occupation: payload.mother.occupation,
-        phone: payload.mother.phone,
-        incomeRange: payload.mother.incomeRange,
-        address: payload.mother.address,
-      },
-    ];
+      [ParentType.father, payload.father],
+      [ParentType.mother, payload.mother],
+      ...(payload.guardian ? [[ParentType.guardian, payload.guardian] as const] : []),
+    ].map(([type, parentData]) => ({
+      registrationId,
+      type,
+      fullName: parentData.fullName,
+      nik: parentData.nik,
+      birthPlace: parentData.birthPlace,
+      birthDate: new Date(parentData.birthDate),
+      education: parentData.education,
+      occupation: parentData.occupation,
+      phone: parentData.phone,
+      incomeRange: parentData.incomeRange,
+      address: parentData.address,
+    }));
 
     await this.prisma.$transaction(async (tx) => {
-      await tx.parentData.deleteMany({ where: { registrationId } });
       for (const parentData of parentsToUpsert) {
-        await tx.parentData.create({ data: parentData });
+        const { registrationId: parentRegistrationId, type, ...data } = parentData;
+        await tx.parentData.upsert({
+          where: { registrationId_type: { registrationId: parentRegistrationId, type } },
+          create: parentData,
+          update: data,
+        });
       }
-    });
-
-    await this.prisma.registration.update({
-      where: { id: registrationId },
-      data: { status: RegistrationStatus.documents_uploaded },
-    });
-    await this.prisma.registrationEvent.create({
-      data: {
-        registrationId,
-        actorId: userId,
-        fromStatus: reg.status,
-        toStatus: RegistrationStatus.documents_uploaded,
-        kind: "transition",
-        note: "Formulir orang tua tersimpan, menuju unggah berkas",
-      },
+      await tx.registration.update({
+        where: { id: registrationId },
+        data: { status: RegistrationStatus.documents_uploaded },
+      });
+      await tx.registrationEvent.create({
+        data: {
+          registrationId,
+          actorId: userId,
+          fromStatus: reg.status,
+          toStatus: RegistrationStatus.documents_uploaded,
+          kind: "transition",
+          note: "Formulir orang tua tersimpan, menuju unggah berkas",
+        },
+      });
     });
 
     return { success: true };
@@ -531,8 +577,11 @@ export class RegistrationsService {
         };
       }
 
+      if (!registration.period.educationLevel) {
+        throw new BadRequestException("Jenjang periode belum dikonfigurasi. Hubungi panitia SPMB.");
+      }
       const uploadedTypes = new Set(registration.documents.map((document) => document.type));
-      const missingTypes = requiredDocumentTypes.filter((type) => !uploadedTypes.has(type));
+      const missingTypes = [...requiredDocumentTypesForLevel(registration.period.educationLevel) as readonly DocumentType[], DocumentType.medical_result].filter((type) => !uploadedTypes.has(type));
       if (missingTypes.length > 0) {
         throw new BadRequestException(`Dokumen wajib belum lengkap: ${missingTypes.join(", ")}.`);
       }

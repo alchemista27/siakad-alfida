@@ -39,7 +39,7 @@ export default function ParentParentsFormPage() {
         <section className="mt-6 bg-surface border border-border rounded-lg p-6">
           <p className="text-xs font-semibold tracking-wider text-tertiary uppercase">Tahap 4</p>
           <h1 className="font-heading font-bold text-2xl mt-1">Formulir Data Orang Tua</h1>
-          <p className="text-sm text-gray-600 mt-2">Lengkapi data ayah dan ibu sesuai dokumen resmi.</p>
+          <p className="text-sm text-gray-600 mt-2">Lengkapi data ayah dan ibu sesuai dokumen resmi. Data wali wajib diisi bila calon murid tinggal bersama wali.</p>
           {canEdit ? <ParentRegistrationForm registration={registration} /> : !studentComplete ? <div className="mt-5 border border-amber-300 bg-amber-50 text-amber-900 rounded-md p-4 text-sm"><p>Lengkapi formulir data murid terlebih dahulu.</p><Link href={studentHref} className="mt-3 inline-block text-xs font-semibold text-tertiary hover:underline">Kembali ke formulir murid</Link></div> : <div className="mt-5 border border-border bg-neutral rounded-md p-4 text-sm"><p>Formulir orang tua belum dapat diubah pada tahap ini.</p><Link href={getStageRouteForRegistration(registration)} className="mt-3 inline-block text-xs font-semibold text-tertiary hover:underline">Buka tahap aktif</Link></div>}
         </section>
       </main>

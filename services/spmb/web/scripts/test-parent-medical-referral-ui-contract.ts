@@ -10,5 +10,11 @@ assert.match(page, /rel="noopener noreferrer"/, "referral PDF link must prevent 
 assert.match(page, /validateSpmbUploadFile/, "medical workflow must validate selected files before upload");
 assert.match(page, /onChange=\{handleMedicalFileChange\}/, "medical workflow must route file selection through its validation handler");
 assert.match(page, /accept="image\/jpeg,image\/png,application\/pdf"/, "medical workflow must advertise exactly the server-supported MIME types");
+assert.match(
+  page,
+  /const canSubmitTkHealth = registration\.period\.educationLevel === "tk" && \["medical_pending", "medical_uploaded"\]\.includes\(registration\.status\);/,
+  "TK health inputs must remain available when a medical upload succeeded but final verification has not yet been submitted",
+);
+assert.match(page, /\{canSubmitTkHealth && \(/, "TK health inputs must use the shared in-progress medical-state guard");
 assert.doesNotMatch(page, /\b(alert|confirm)\(/, "medical workflow must not use native dialogs");
 console.log("SPMB parent medical referral UI contract passed");

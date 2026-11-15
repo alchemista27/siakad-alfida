@@ -115,7 +115,9 @@ model AdmissionReceipt {
   academicYearId     String    @map("academic_year_id") @db.Uuid
   status             String    @default("received") // received | processed | rejected
   payload            Json
+  payloadHash        String?   @map("payload_hash") @db.VarChar(128)
   idempotencyKey     String    @unique @map("idempotency_key")
+  enrollmentId       String?   @unique @map("enrollment_id") @db.Uuid
   receivedAt         DateTime  @default(now()) @map("received_at") @db.Timestamptz
   processedAt        DateTime? @map("processed_at") @db.Timestamptz
 
@@ -139,16 +141,71 @@ model Student {
   parentUserId       String?   @map("parent_user_id") @db.Uuid
   parentName         String?   @map("parent_name") @db.VarChar(120)
   parentPhone        String?   @map("parent_phone") @db.VarChar(50)
+  nickname           String?   @db.VarChar(100)
+  religion           String?   @db.VarChar(50)
+  address            String?   @db.Text
+  siblingsCount      Int?      @map("siblings_count")
+  transportation     String?   @db.VarChar(100)
+  hobby              String?   @db.VarChar(100)
+  ambition           String?   @db.VarChar(100)
+  nik                       String?   @db.VarChar(16)
+  birthCertificateNumber    String?   @map("birth_certificate_number") @db.VarChar(100)
+  familyCardNumber          String?   @map("family_card_number") @db.VarChar(16)
+  streetAddress             String?   @map("street_address") @db.Text
+  rt                        String?   @db.VarChar(3)
+  rw                        String?   @db.VarChar(3)
+  hamlet                    String?   @db.VarChar(100)
+  village                   String?   @db.VarChar(100)
+  subdistrict               String?   @map("subdistrict") @db.VarChar(100)
+  city                      String?   @db.VarChar(100)
+  province                  String?   @db.VarChar(100)
+  postalCode                String?   @map("postal_code") @db.VarChar(5)
+  residenceStatus           String?   @map("residence_status") @db.VarChar(30)
+  specialNeeds              String?   @map("special_needs") @db.VarChar(200)
+  pipEligible               Boolean?  @map("pip_eligible")
+  kipNumber                 String?   @map("kip_number") @db.VarChar(100)
+  previousSchoolName        String?   @map("previous_school_name") @db.VarChar(200)
+  previousSchoolNpsn        String?   @map("previous_school_npsn") @db.VarChar(8)
+  graduationDocumentNumber  String?   @map("graduation_document_number") @db.VarChar(100)
+  graduationYear            Int?      @map("graduation_year")
+  heightCm                  Decimal?  @map("height_cm") @db.Decimal(5, 2)
+  weightKg                  Decimal?  @map("weight_kg") @db.Decimal(5, 2)
+  headCircumferenceCm       Decimal?  @map("head_circumference_cm") @db.Decimal(5, 2)
+  immunizationStatus        String?   @map("immunization_status") @db.VarChar(20)
   status             String    @default("active") // active | graduated | transferred | dropped_out
   createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
   admissionReceipt AdmissionReceipt?           @relation(fields: [admissionReceiptId], references: [id], onDelete: SetNull)
   enrollments      Enrollment[]
+  guardians        StudentGuardian[]
   extraMemberships ExtracurricularMembership[]
 
   @@index([unitId, status])
   @@map("students")
+  @@schema("siakad")
+}
+
+model StudentGuardian {
+  id          String    @id @default(uuid()) @db.Uuid
+  studentId   String    @map("student_id") @db.Uuid
+  type        String    @db.VarChar(20)
+  fullName    String    @map("full_name") @db.VarChar(200)
+  nik         String?   @db.VarChar(20)
+  birthPlace  String?   @map("birth_place") @db.VarChar(100)
+  birthDate   DateTime? @map("birth_date") @db.Date
+  education   String?   @db.VarChar(50)
+  occupation  String?   @db.VarChar(100)
+  phone       String?   @db.VarChar(30)
+  incomeRange String?   @map("income_range") @db.VarChar(50)
+  address     String?   @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, type])
+  @@map("student_guardians")
   @@schema("siakad")
 }
 
@@ -509,6 +566,7 @@ model SpmbConfirmationOutbox {
   id                   String    @id @default(uuid()) @db.Uuid
   enrollmentId         String    @unique @map("enrollment_id") @db.Uuid
   sourceRegistrationId String    @map("source_registration_id") @db.Uuid
+  receiptId            String?   @map("receipt_id") @db.Uuid
   academicYearId       String    @map("academic_year_id") @db.Uuid
   classId              String    @map("class_id") @db.Uuid
   idempotencyKey       String    @unique @map("idempotency_key") @db.VarChar(180)

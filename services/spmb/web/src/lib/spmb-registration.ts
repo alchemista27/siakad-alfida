@@ -55,6 +55,8 @@ export interface PeriodSummary {
   bankName: string | null;
   bankNumber: string | null;
   bankHolder: string | null;
+  educationLevel: "tk" | "sd" | "smp" | "sma" | null;
+  tkGroup: "a" | "b" | null;
 }
 
 export interface ParentRecord {
@@ -95,6 +97,31 @@ export interface ParentRegistration {
     birthPlace: string;
     birthDate: string;
     nisn: string | null;
+    nik: string | null;
+    birthCertificateNumber: string | null;
+    familyCardNumber: string | null;
+    streetAddress: string | null;
+    rt: string | null;
+    rw: string | null;
+    hamlet: string | null;
+    village: string | null;
+    subdistrict: string | null;
+    city: string | null;
+    province: string | null;
+    postalCode: string | null;
+    residenceStatus: "with_parents" | "with_guardian" | "boarding" | "rented" | "other" | null;
+    specialNeeds: string | null;
+    pipEligible: boolean | null;
+    kipNumber: string | null;
+    previousSchoolName: string | null;
+    previousSchoolNpsn: string | null;
+    graduationDocumentNumber: string | null;
+    graduationYear: number | null;
+    heightCm: string | null;
+    weightKg: string | null;
+    headCircumferenceCm: string | null;
+    immunizationStatus: "complete" | "incomplete" | "unknown" | null;
+    tkGroup: "a" | "b" | null;
     siblingsCount: number;
     address: string;
     transportation: string | null;

@@ -13,9 +13,11 @@ import { allowedUnitIds, isSuperAdmin, type SpmbPrincipal } from "../common/spmb
 import {
   SpmbHandoffPayloadSchema,
   SpmbHandoffReceiptSchema,
+  SpmbEnrollmentConfirmationSchema,
   type SpmbHandoffReceipt,
 } from "@alfida/contracts";
-import { createHash, randomUUID } from "crypto";
+import { randomUUID } from "crypto";
+import { buildSpmbHandoffPayload, hashSpmbHandoffPayload } from "./spmb-handoff-payload";
 
 @Injectable()
 export class HandoffService {
@@ -50,29 +52,6 @@ export class HandoffService {
     return reg;
   }
 
-  async enqueueOutboxItem(tx: any, registrationId: string, registrationNumber: string) {
-    if (!tx.handoffOutbox?.upsert) return null;
-    const payloadHash = createHash("sha256")
-      .update(`${registrationId}:${registrationNumber}`)
-      .digest("hex");
-
-    return tx.handoffOutbox.upsert({
-      where: { registrationId },
-      create: {
-        registrationId,
-        idempotencyKey: randomUUID(),
-        payloadHash,
-        status: "pending",
-        attempts: 0,
-      },
-      update: {
-        status: "pending",
-        availableAt: new Date(),
-        leasedAt: null,
-        leaseOwner: null,
-      },
-    });
-  }
 
   async deliverOutbox(registrationId: string, options?: { principal?: SpmbPrincipal }) {
     const reg = await this.prisma.registration.findUnique({
@@ -102,21 +81,23 @@ export class HandoffService {
       throw new BadRequestException("Konfigurasi handoff SIAKAD belum lengkap.");
     }
 
-    // Ensure outbox item exists and reuse idempotencyKey and payloadHash
+    // New accepted decisions snapshot the payload atomically. This fallback only
+    // upgrades pre-v2 rows that were created before the snapshot migration.
     let outbox: any = null;
     if (this.prisma.handoffOutbox?.findUnique) {
       outbox = await this.prisma.handoffOutbox.findUnique({
         where: { registrationId: reg.id },
       });
       if (!outbox && this.prisma.handoffOutbox.create) {
-        const payloadHash = createHash("sha256")
-          .update(`${reg.id}:${reg.registrationNumber}`)
-          .digest("hex");
+        const idempotencyKey = randomUUID();
+        const payload = buildSpmbHandoffPayload(reg, idempotencyKey);
         outbox = await this.prisma.handoffOutbox.create({
           data: {
             registrationId: reg.id,
-            idempotencyKey: randomUUID(),
-            payloadHash,
+            idempotencyKey,
+            contractVersion: payload.contractVersion,
+            payload,
+            payloadHash: hashSpmbHandoffPayload(payload),
             status: "pending",
             attempts: 0,
           },
@@ -124,31 +105,34 @@ export class HandoffService {
       }
     }
 
-    const idempotencyKey = outbox?.idempotencyKey || randomUUID();
-    const payload = {
-      idempotencyKey,
-      spmbRegistrationId: reg.id,
-      registrationNumber: reg.registrationNumber,
-      sourceAcademicYearId: reg.period.sourceAcademicYearId || reg.period.id,
-      unitId: reg.period.unitId,
-      parent: {
-        id: reg.parent.id,
-        fullName: reg.parent.fullName,
-        email: reg.parent.email,
-        phone: reg.parent.phone ?? null,
-      },
-      student: {
-        fullName: reg.studentData.fullName,
-        gender: reg.studentData.gender,
-        birthPlace: reg.studentData.birthPlace,
-        birthDate:
-          reg.studentData.birthDate instanceof Date
-            ? reg.studentData.birthDate.toISOString()
-            : new Date(reg.studentData.birthDate).toISOString(),
-        nisn: reg.studentData.nisn ?? null,
-        address: reg.studentData.address,
-      },
-    };
+    if (outbox?.status === "delivered") {
+      return {
+        success: true,
+        registrationId: reg.id,
+        registrationNumber: reg.registrationNumber,
+        message: "Data pendaftar sudah tersinkronisasi ke SIAKAD",
+      };
+    }
+
+    let payload = SpmbHandoffPayloadSchema.safeParse(outbox?.payload);
+    if (!payload.success) {
+      const idempotencyKey = outbox?.idempotencyKey || randomUUID();
+      const rebuiltPayload = buildSpmbHandoffPayload(reg, idempotencyKey);
+      if (outbox && this.prisma.handoffOutbox?.update) {
+        outbox = await this.prisma.handoffOutbox.update({
+          where: { id: outbox.id },
+          data: {
+            contractVersion: rebuiltPayload.contractVersion,
+            payload: rebuiltPayload,
+            payloadHash: hashSpmbHandoffPayload(rebuiltPayload),
+          },
+        });
+      }
+      payload = SpmbHandoffPayloadSchema.safeParse(rebuiltPayload);
+    }
+    if (!payload.success) {
+      throw new BadRequestException("Snapshot handoff SPMB tidak valid.");
+    }
 
     const targetUrl = `${siakadApiUrl.replace(/\/$/, "")}/api/internal/spmb-handoff`;
 
@@ -159,7 +143,7 @@ export class HandoffService {
           "Content-Type": "application/json",
           "x-internal-service-key": secretKey,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload.data),
       });
 
       if (!response.ok) {
@@ -190,35 +174,10 @@ export class HandoffService {
 
       const responseJson = await response.json().catch(() => null);
 
-      // Validate receipt: if outbox exists, require SpmbHandoffReceiptSchema validation
-      let validatedReceipt: SpmbHandoffReceipt | null = null;
-      if (outbox) {
-        const candidateReceipt = {
-          receiptId: responseJson?.receiptId || responseJson?.destinationRegistrationId || randomUUID(),
-          sourceRegistrationId: responseJson?.sourceRegistrationId || reg.id,
-          destinationEnrollmentId:
-            responseJson?.destinationEnrollmentId || responseJson?.destinationRegistrationId,
-          status: responseJson?.status || "accepted",
-        };
-        const parsed = SpmbHandoffReceiptSchema.safeParse(candidateReceipt);
-        if (parsed.success) {
-          validatedReceipt = parsed.data;
-        }
-      } else {
-        // Compatibility mode for basic tests without outbox table mocked
-        if (
-          responseJson?.success &&
-          typeof responseJson.destinationRegistrationId === "string" &&
-          responseJson.destinationRegistrationId
-        ) {
-          validatedReceipt = {
-            receiptId: responseJson.destinationRegistrationId,
-            sourceRegistrationId: reg.id,
-            destinationEnrollmentId: responseJson.destinationRegistrationId,
-            status: "accepted",
-          };
-        }
-      }
+      const parsedReceipt = SpmbHandoffReceiptSchema.safeParse(responseJson);
+      const validatedReceipt: SpmbHandoffReceipt | null = parsedReceipt.success && parsedReceipt.data.sourceRegistrationId === reg.id
+        ? parsedReceipt.data
+        : null;
 
       if (!validatedReceipt) {
         const errorMessage = "SIAKAD tidak mengonfirmasi penerimaan pendaftaran dengan tanda terima valid.";
@@ -243,6 +202,7 @@ export class HandoffService {
           data: {
             status: "delivered",
             deliveredAt: new Date(),
+            destinationReceiptId: validatedReceipt.receiptId,
             destinationEnrollmentId: validatedReceipt.destinationEnrollmentId,
             lastError: null,
             leasedAt: null,
@@ -348,11 +308,12 @@ export class HandoffService {
       throw new UnauthorizedException("Kunci layanan internal tidak valid.");
     }
 
-    const receipt = SpmbHandoffReceiptSchema.parse(receiptDto);
+    const confirmation = SpmbEnrollmentConfirmationSchema.parse(receiptDto);
 
     return this.prisma.$transaction(async (tx) => {
       const reg = await tx.registration.findUnique({
-        where: { id: receipt.sourceRegistrationId },
+        where: { id: confirmation.sourceRegistrationId },
+        include: { handoffOutbox: true },
       });
       if (!reg) {
         throw new NotFoundException("Pendaftaran tidak ditemukan.");
@@ -360,6 +321,14 @@ export class HandoffService {
 
       if (reg.status !== "accepted") {
         throw new BadRequestException("Hanya pendaftaran berstatus 'accepted' yang dapat dikonfirmasi enrolled.");
+      }
+      if (
+        !reg.handoffOutbox
+        || reg.handoffOutbox.status !== "delivered"
+        || reg.handoffOutbox.destinationReceiptId !== confirmation.receiptId
+        || reg.handoffOutbox.destinationEnrollmentId !== confirmation.destinationEnrollmentId
+      ) {
+        throw new BadRequestException("Konfirmasi enrolled tidak cocok dengan tanda terima handoff SIAKAD.");
       }
 
       const updated = await tx.registration.update({
@@ -376,7 +345,7 @@ export class HandoffService {
           fromStatus: "accepted",
           toStatus: "enrolled",
           kind: "enrollment",
-          note: `Konfirmasi pendaftaran resmi menjadi murid (enrolled) di SIAKAD. ID Enrollment: ${receipt.destinationEnrollmentId}`,
+          note: `Konfirmasi pendaftaran resmi menjadi murid (enrolled) di SIAKAD. ID Enrollment: ${confirmation.destinationEnrollmentId}`,
         },
       });
 

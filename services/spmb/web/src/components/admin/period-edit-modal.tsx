@@ -27,6 +27,8 @@ function errorMessage(payload: unknown, fallback: string) {
 
 export function PeriodEditModal({ period, onClose, onSaved, onNotify }: Props) {
   const [label, setLabel] = useState(period.label);
+  const [educationLevel, setEducationLevel] = useState<"" | "tk" | "sd" | "smp" | "sma">(period.educationLevel || "");
+  const [tkGroup, setTkGroup] = useState<"" | "a" | "b">(period.tkGroup || "");
   const [sourceAcademicYearId, setSourceAcademicYearId] = useState(period.sourceAcademicYearId || "");
   const [quota, setQuota] = useState(String(period.quota));
   const [fee, setFee] = useState(String(period.fee ?? 0));
@@ -55,7 +57,10 @@ export function PeriodEditModal({ period, onClose, onSaved, onNotify }: Props) {
       setError("Biaya formulir harus berupa bilangan bulat minimal 0.");
       return;
     }
-
+    if (!educationLevel) {
+      setError("Jenjang pendidikan wajib dipilih.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
@@ -64,6 +69,8 @@ export function PeriodEditModal({ period, onClose, onSaved, onNotify }: Props) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           label: label.trim(),
+          educationLevel,
+          tkGroup: educationLevel === "tk" ? tkGroup : null,
           sourceAcademicYearId: academicYearId || null,
           quota: parsedQuota,
           fee: parsedFee,
@@ -99,6 +106,8 @@ export function PeriodEditModal({ period, onClose, onSaved, onNotify }: Props) {
         {error && <p role="alert" className="mt-4 rounded-sm border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <label className="text-xs font-semibold text-primary">Tahun Ajaran SPMB<input required value={label} onChange={(event) => setLabel(event.target.value)} className="mt-1.5 w-full rounded-sm border border-border px-3 py-2 text-sm" /></label>
+          <label className="text-xs font-semibold text-primary">Jenjang Pendidikan<select required value={educationLevel} onChange={(event) => { setEducationLevel(event.target.value as "" | "tk" | "sd" | "smp" | "sma"); if (event.target.value !== "tk") setTkGroup(""); }} className="mt-1.5 w-full rounded-sm border border-border px-3 py-2 text-sm"><option value="">Pilih jenjang</option><option value="tk">TK</option><option value="sd">SD</option><option value="smp">SMP</option><option value="sma">SMA</option></select></label>
+          {educationLevel === "tk" && <label className="text-xs font-semibold text-primary">Kelompok TK (opsional)<select value={tkGroup} onChange={(event) => setTkGroup(event.target.value as "" | "a" | "b")} className="mt-1.5 w-full rounded-sm border border-border px-3 py-2 text-sm"><option value="">Dipilih orang tua saat mengisi formulir</option><option value="a">Kelompok A</option><option value="b">Kelompok B</option></select></label>}
           <label className="text-xs font-semibold text-primary">ID Tahun Ajaran SIAKAD (opsional)<input value={sourceAcademicYearId} onChange={(event) => setSourceAcademicYearId(event.target.value)} className="mt-1.5 w-full rounded-sm border border-border px-3 py-2 text-sm" /></label>
           <label className="text-xs font-semibold text-primary">Kuota<input required type="number" min="1" step="1" value={quota} onChange={(event) => setQuota(event.target.value)} className="mt-1.5 w-full rounded-sm border border-border px-3 py-2 text-sm" /></label>
           <label className="text-xs font-semibold text-primary">Biaya Formulir<input required type="number" min="0" step="1" value={fee} onChange={(event) => setFee(event.target.value)} className="mt-1.5 w-full rounded-sm border border-border px-3 py-2 text-sm" /></label>

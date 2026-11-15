@@ -1,10 +1,11 @@
-import { randomUUID, createHash } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { SingleDecisionDto, BatchDecisionDto } from "./decisions.dto";
 import { RegistrationStatus, Prisma } from "../generated/prisma";
 import { canTransition } from "../common/spmb-workflow";
 import { allowedUnitIds, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
+import { buildSpmbHandoffPayload, hashSpmbHandoffPayload } from "../handoff/spmb-handoff-payload";
 
 @Injectable()
 export class DecisionsService {
@@ -39,23 +40,22 @@ export class DecisionsService {
     return raw || null;
   }
 
-  private async enqueueOutboxIfAccepted(tx: any, registrationId: string, registrationNumber: string) {
+  private async enqueueOutboxIfAccepted(tx: any, registration: any) {
     if (!tx.handoffOutbox?.upsert) return;
-    const payloadHash = createHash("sha256")
-      .update(`${registrationId}:${registrationNumber}`)
-      .digest("hex");
+    const idempotencyKey = randomUUID();
+    const payload = buildSpmbHandoffPayload(registration, idempotencyKey);
     await tx.handoffOutbox.upsert({
-      where: { registrationId },
+      where: { registrationId: registration.id },
       create: {
-        registrationId,
-        idempotencyKey: randomUUID(),
-        payloadHash,
+        registrationId: registration.id,
+        idempotencyKey,
+        contractVersion: payload.contractVersion,
+        payload,
+        payloadHash: hashSpmbHandoffPayload(payload),
         status: "pending",
         attempts: 0,
       },
-      update: {
-        status: "pending",
-      },
+      update: {},
     });
   }
 
@@ -63,7 +63,7 @@ export class DecisionsService {
     return this.prisma.$transaction(async (tx) => {
       const reg = await tx.registration.findUnique({
         where: { id: dto.registrationId },
-        include: { period: true },
+        include: { period: true, parent: true, studentData: true, parentData: true },
       });
       if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan");
       this.assertDecisionAuthority(reg.period, principal);
@@ -80,7 +80,7 @@ export class DecisionsService {
         data: {
           status: targetStatus,
           rejectionReason: targetStatus === "rejected" ? decisionNote : null,
-          handoffStatus: targetStatus === "accepted" ? "pending" : reg.handoffStatus,
+          handoffStatus: targetStatus === "accepted" && prevStatus !== "accepted" ? "pending" : reg.handoffStatus,
         },
       });
 
@@ -95,8 +95,8 @@ export class DecisionsService {
         },
       });
 
-      if (targetStatus === "accepted") {
-        await this.enqueueOutboxIfAccepted(tx, reg.id, reg.registrationNumber);
+      if (targetStatus === "accepted" && prevStatus !== "accepted") {
+        await this.enqueueOutboxIfAccepted(tx, reg);
       }
 
       return updated;
@@ -111,7 +111,7 @@ export class DecisionsService {
     return this.prisma.$transaction(async (tx) => {
       const registrations = await tx.registration.findMany({
         where: { id: { in: dto.registrationIds } },
-        include: { period: true },
+        include: { period: true, parent: true, studentData: true, parentData: true },
       });
       const registrationsById = new Map(registrations.map((registration) => [registration.id, registration]));
       const orderedRegistrations = dto.registrationIds.map((id) => registrationsById.get(id));
@@ -137,7 +137,7 @@ export class DecisionsService {
           data: {
             status: targetStatus,
             rejectionReason: targetStatus === "rejected" ? decisionNote : null,
-            handoffStatus: targetStatus === "accepted" ? "pending" : registration.handoffStatus,
+            handoffStatus: targetStatus === "accepted" && prevStatus !== "accepted" ? "pending" : registration.handoffStatus,
           },
         });
 
@@ -152,8 +152,8 @@ export class DecisionsService {
           },
         });
 
-        if (targetStatus === "accepted") {
-          await this.enqueueOutboxIfAccepted(tx, registration.id, registration.registrationNumber);
+        if (targetStatus === "accepted" && prevStatus !== "accepted") {
+          await this.enqueueOutboxIfAccepted(tx, registration);
         }
       }
 

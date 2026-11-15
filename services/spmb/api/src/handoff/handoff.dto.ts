@@ -7,8 +7,9 @@ export interface BatchSyncHandoffDto {
 }
 
 export interface ConfirmEnrollmentDto {
+  confirmationId: string;
   receiptId: string;
   sourceRegistrationId: string;
   destinationEnrollmentId: string;
-  status: "accepted" | "enrolled";
+  status: "enrolled";
 }

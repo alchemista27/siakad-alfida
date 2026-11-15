@@ -60,6 +60,18 @@ export class PeriodsService {
     }
   }
 
+  private validateEducationLevel(
+    educationLevel: "tk" | "sd" | "smp" | "sma" | null | undefined,
+    tkGroup: "a" | "b" | null | undefined,
+  ) {
+    if (!educationLevel) {
+      throw new BadRequestException("Jenjang pendidikan wajib dipilih.");
+    }
+    if (educationLevel !== "tk" && tkGroup) {
+      throw new BadRequestException("Kelompok TK hanya boleh diisi untuk periode TK.");
+    }
+  }
+
   private async assertNoOpenConflict(unitId: string, exceptId?: string) {
     const conflicting = await this.prisma.admissionPeriod.findFirst({
       where: {
@@ -112,6 +124,8 @@ export class PeriodsService {
         unitName: true,
         unitSlug: true,
         label: true,
+        educationLevel: true,
+        tkGroup: true,
         quota: true,
         fee: true,
         bankName: true,
@@ -156,6 +170,7 @@ export class PeriodsService {
     const unitId = this.resolveTargetUnitId(dto.unitId, principal);
     const sourceAcademicYearId = this.normalizeSourceAcademicYearId(dto.sourceAcademicYearId);
     this.validateDateRange(dto.opensAt, dto.closesAt);
+    this.validateEducationLevel(dto.educationLevel, dto.tkGroup);
     const isOpen = dto.isOpen ?? true;
 
     await this.assertNoLabelConflict(unitId, dto.label);
@@ -168,6 +183,8 @@ export class PeriodsService {
         unitName: dto.unitName,
         unitSlug: dto.unitSlug,
         label: dto.label,
+        educationLevel: dto.educationLevel,
+        tkGroup: dto.tkGroup ?? null,
         isOpen,
         quota: dto.quota ?? 60,
         fee: dto.fee ?? 250000,
@@ -188,6 +205,15 @@ export class PeriodsService {
       ? undefined
       : this.normalizeSourceAcademicYearId(dto.sourceAcademicYearId);
     this.validateDateRange(dto.opensAt ?? existing.opensAt, dto.closesAt ?? existing.closesAt);
+    const effectiveEducationLevel = dto.educationLevel === undefined ? existing.educationLevel : dto.educationLevel;
+    const effectiveTkGroup = dto.tkGroup === undefined ? existing.tkGroup : dto.tkGroup;
+    const changesEducationMetadata = effectiveEducationLevel !== existing.educationLevel || effectiveTkGroup !== existing.tkGroup;
+    if (changesEducationMetadata && (existing._count?.registrations ?? 0) > 0) {
+      throw new BadRequestException("Jenjang periode tidak dapat diubah setelah memiliki pendaftar.");
+    }
+    if (dto.educationLevel !== undefined || dto.tkGroup !== undefined) {
+      this.validateEducationLevel(effectiveEducationLevel, effectiveTkGroup);
+    }
     if (dto.quota !== undefined && dto.quota < (existing._count?.registrations ?? 0)) {
       throw new BadRequestException("Kuota tidak boleh lebih kecil dari jumlah pendaftar yang sudah tercatat.");
     }
@@ -203,6 +229,8 @@ export class PeriodsService {
       data: {
         sourceAcademicYearId,
         label: dto.label?.trim(),
+        educationLevel: dto.educationLevel,
+        tkGroup: dto.tkGroup,
         isOpen: dto.isOpen,
         quota: dto.quota,
         fee: dto.fee,
@@ -246,9 +274,11 @@ export class PeriodsService {
 
     const registrations = existing._count?.registrations ?? 0;
     const schedules = existing._count?.schedules ?? 0;
-    if (registrations > 0 || schedules > 0) {
+    if (existing.isOpen || registrations > 0 || schedules > 0) {
       throw new BadRequestException(
-        "Periode tidak dapat dihapus karena sudah memiliki pendaftar atau jadwal observasi.",
+        existing.isOpen
+          ? "Periode aktif tidak dapat dihapus. Tutup periode terlebih dahulu."
+          : "Periode tidak dapat dihapus karena sudah memiliki pendaftar atau jadwal observasi.",
       );
     }
 

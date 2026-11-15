@@ -72,14 +72,18 @@ function ParentFields({
 export function ParentRegistrationForm({ registration }: { registration: ParentRegistration }) {
   const fatherRecord = registration.parentData.find((record) => record.type === "father");
   const motherRecord = registration.parentData.find((record) => record.type === "mother");
+  const guardianRecord = registration.parentData.find((record) => record.type === "guardian");
+  const requiresGuardian = registration.studentData?.residenceStatus === "with_guardian";
   const [father, setFather] = useState<ParentIdentityForm>(fatherRecord ? formFromRecord(fatherRecord) : emptyParent());
   const [mother, setMother] = useState<ParentIdentityForm>(motherRecord ? formFromRecord(motherRecord) : emptyParent());
+  const [guardian, setGuardian] = useState<ParentIdentityForm>(guardianRecord ? formFromRecord(guardianRecord) : emptyParent());
+  const [showGuardian, setShowGuardian] = useState(requiresGuardian || Boolean(guardianRecord));
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    const parsed = ParentRegistrationFormSchema.safeParse({ father, mother });
+    const parsed = ParentRegistrationFormSchema.safeParse({ father, mother, guardian: showGuardian ? guardian : undefined });
     if (!parsed.success) {
       setNotice(parsed.error.issues[0]?.message || "Data orang tua tidak valid.");
       return;
@@ -106,6 +110,15 @@ export function ParentRegistrationForm({ registration }: { registration: ParentR
       {notice && <div className="spmb-notice-error">{notice}</div>}
       <ParentFields title="Ayah" value={father} onChange={setFather} />
       <ParentFields title="Ibu" value={mother} onChange={setMother} />
+      {requiresGuardian ? (
+        <p className="border border-[#b9ded7] bg-[#e6f4f1] rounded-md p-3 text-xs text-[#0b6355]">Data wali wajib diisi karena tempat tinggal murid tercatat bersama wali.</p>
+      ) : (
+        <label className="flex items-center gap-2 text-sm text-primary">
+          <input type="checkbox" checked={showGuardian} onChange={(event) => setShowGuardian(event.target.checked)} />
+          Tambahkan data wali bila diperlukan.
+        </label>
+      )}
+      {showGuardian && <ParentFields title="Wali" value={guardian} onChange={setGuardian} />}
       <button type="submit" disabled={busy} className="spmb-button-primary">{busy ? "Menyimpan..." : "Simpan Data Orang Tua"}</button>
     </form>
   );

@@ -80,7 +80,7 @@ export class PlacementService {
           select: {
             id: true,
             unitId: true,
-            admissionReceipt: { select: { spmbRegistrationId: true } },
+            admissionReceipt: { select: { id: true, spmbRegistrationId: true } },
           },
         },
       },
@@ -120,12 +120,14 @@ export class PlacementService {
     });
 
     const sourceRegistrationId = enrollment.student.admissionReceipt?.spmbRegistrationId;
-    if (sourceRegistrationId && (prisma as any).spmbConfirmationOutbox?.upsert) {
+    const receiptId = enrollment.student.admissionReceipt?.id;
+    if (sourceRegistrationId && receiptId && (prisma as any).spmbConfirmationOutbox?.upsert) {
       await (prisma as any).spmbConfirmationOutbox.upsert({
         where: { enrollmentId: placed.id },
         create: {
           enrollmentId: placed.id,
           sourceRegistrationId,
+          receiptId,
           academicYearId: placed.academicYearId,
           classId: placed.classId,
           idempotencyKey: `spmb-confirmation:${placed.id}`,

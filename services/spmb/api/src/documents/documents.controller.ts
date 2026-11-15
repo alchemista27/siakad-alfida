@@ -11,7 +11,7 @@ import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 import { SpmbRoles, SpmbRolesGuard } from "../common/guards";
 import { type SpmbPrincipal } from "../common/spmb-scope-policy";
 import { DocumentsService } from "./documents.service";
-import { UpsertDocumentDto } from "./documents.dto";
+import { SubmitTkHealthDto, UpsertDocumentDto } from "./documents.dto";
 
 @Controller("documents")
 @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
@@ -42,7 +42,11 @@ export class DocumentsController {
 
   @Post("medical-done/:regId")
   @SpmbRoles("orang_tua")
-  async markMedicalDone(@Param("regId") regId: string, @Req() req: { user: SpmbPrincipal }) {
-    return this.documentsService.markMedicalDone(regId, req.user.id);
+  async markMedicalDone(
+    @Param("regId") regId: string,
+    @Req() req: { user: SpmbPrincipal },
+    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })) dto: SubmitTkHealthDto,
+  ) {
+    return this.documentsService.markMedicalDone(regId, req.user.id, dto);
   }
 }

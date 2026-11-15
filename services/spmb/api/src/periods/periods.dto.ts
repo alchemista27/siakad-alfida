@@ -1,4 +1,4 @@
-import { IsBoolean, IsDateString, IsInt, IsOptional, IsString, IsUUID, MaxLength, Min } from "class-validator";
+import { IsBoolean, IsDateString, IsIn, IsInt, IsOptional, IsString, IsUUID, MaxLength, Min, ValidateIf } from "class-validator";
 
 export class CreatePeriodDto {
   @IsOptional()
@@ -20,6 +20,14 @@ export class CreatePeriodDto {
   @IsString()
   @MaxLength(50)
   label: string;
+
+  @IsOptional()
+  @IsIn(["tk", "sd", "smp", "sma"])
+  educationLevel?: "tk" | "sd" | "smp" | "sma";
+
+  @IsOptional()
+  @IsIn(["a", "b"])
+  tkGroup?: "a" | "b";
 
   @IsOptional()
   @IsBoolean()
@@ -68,6 +76,14 @@ export class UpdatePeriodDto {
   @IsString()
   @MaxLength(50)
   label?: string;
+
+  @IsOptional()
+  @IsIn(["tk", "sd", "smp", "sma"])
+  educationLevel?: "tk" | "sd" | "smp" | "sma" | null;
+
+  @ValidateIf((_object, value) => value !== null && value !== undefined)
+  @IsIn(["a", "b"])
+  tkGroup?: "a" | "b" | null;
 
   @IsOptional()
   @IsBoolean()

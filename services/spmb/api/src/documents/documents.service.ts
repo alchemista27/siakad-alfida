@@ -5,8 +5,9 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { RegistrationStatus } from "../generated/prisma";
-import { baseRequiredDocumentTypes, canTransition } from "../common/spmb-workflow";
+import { DocumentType, RegistrationStatus } from "../generated/prisma";
+import { canTransition } from "../common/spmb-workflow";
+import { requiredDocumentTypesForLevel, TkHealthFieldsSchema, type EducationLevel } from "@alfida/contracts";
 import { assertUnitAccess, type SpmbPrincipal } from "../common/spmb-scope-policy";
 import { assertUploadMetadata } from "./document-upload.policy";
 import { assertCloudinaryUploadUrl } from "./cloudinary-upload.policy";
@@ -16,8 +17,8 @@ import { UpsertDocumentDto } from "./documents.dto";
 export class DocumentsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private assertUploadStage(status: RegistrationStatus, documentType: string) {
-    const isBasicDocument = (baseRequiredDocumentTypes as readonly string[]).includes(documentType);
+  private assertUploadStage(status: RegistrationStatus, documentType: string, educationLevel: EducationLevel | null | undefined) {
+    const isBasicDocument = Boolean(educationLevel) && requiredDocumentTypesForLevel(educationLevel).includes(documentType);
     const isMedicalResult = documentType === "medical_result";
     const accepted =
       (status === RegistrationStatus.documents_uploaded && isBasicDocument) ||
@@ -41,10 +42,11 @@ export class DocumentsService {
 
   async upsertDocument(userId: string, dto: UpsertDocumentDto) {
     assertUploadMetadata(dto);
-    const registration = await this.prisma.registration.findUnique({ where: { id: dto.registrationId } });
+    const registration = await this.prisma.registration.findUnique({ where: { id: dto.registrationId }, include: { period: true } });
     if (!registration) throw new NotFoundException("Pendaftaran tidak ditemukan.");
     if (registration.parentId !== userId) throw new ForbiddenException("Akses ditolak.");
-    this.assertUploadStage(registration.status, dto.documentType);
+    if (!registration.period.educationLevel) throw new BadRequestException("Jenjang periode belum dikonfigurasi. Hubungi panitia SPMB.");
+    this.assertUploadStage(registration.status, dto.documentType, registration.period.educationLevel);
     assertCloudinaryUploadUrl(dto.fileUrl, `spmb/${registration.id}/${dto.documentType}`);
 
     const existing = await this.prisma.document.findFirst({
@@ -110,16 +112,18 @@ export class DocumentsService {
   }
 
   async finalizeDocuments(registrationId: string, userId: string) {
-    const registration = await this.prisma.registration.findUnique({ where: { id: registrationId } });
+    const registration = await this.prisma.registration.findUnique({ where: { id: registrationId }, include: { period: true } });
     if (!registration) throw new NotFoundException("Pendaftaran tidak ditemukan.");
     if (registration.parentId !== userId) throw new ForbiddenException("Akses ditolak.");
+    if (!registration.period.educationLevel) throw new BadRequestException("Jenjang periode belum dikonfigurasi. Hubungi panitia SPMB.");
     if (registration.status !== RegistrationStatus.documents_uploaded || !canTransition(registration.status, "medical_pending")) {
       throw new BadRequestException("Berkas hanya dapat difinalisasi setelah formulir orang tua lengkap.");
     }
 
     const documents = await this.prisma.document.findMany({ where: { registrationId } });
     const uploadedTypes = new Set(documents.map((document) => document.type));
-    const missingTypes = baseRequiredDocumentTypes.filter((type) => !uploadedTypes.has(type));
+    const requiredTypes = requiredDocumentTypesForLevel(registration.period.educationLevel) as readonly DocumentType[];
+    const missingTypes = requiredTypes.filter((type) => !uploadedTypes.has(type));
     if (missingTypes.length > 0) {
       throw new BadRequestException(`Dokumen wajib belum lengkap: ${missingTypes.join(", ")}.`);
     }
@@ -144,10 +148,10 @@ export class DocumentsService {
     return { success: true };
   }
 
-  async markMedicalDone(registrationId: string, userId: string) {
+  async markMedicalDone(registrationId: string, userId: string, healthInput?: unknown) {
     const registration = await this.prisma.registration.findUnique({
       where: { id: registrationId },
-      include: { documents: true },
+      include: { documents: true, period: true },
     });
     if (!registration) throw new NotFoundException("Pendaftaran tidak ditemukan.");
     if (registration.parentId !== userId) throw new ForbiddenException("Akses ditolak.");
@@ -158,7 +162,16 @@ export class DocumentsService {
       throw new BadRequestException("Dokumen medical_result wajib diunggah sebelum tahap verifikasi.");
     }
 
-    await this.prisma.$transaction([
+    const isTk = registration.period.educationLevel === "tk";
+    const health = TkHealthFieldsSchema.safeParse(healthInput || {});
+    if (isTk && !health.success) {
+      throw new BadRequestException(health.error.issues[0]?.message || "Data kesehatan TK belum lengkap.");
+    }
+    if (!isTk && health.success && Object.keys(healthInput as object || {}).length > 0) {
+      throw new BadRequestException("Data kesehatan terstruktur hanya diisi untuk pendaftar TK.");
+    }
+
+    const mutations: any[] = [
       this.prisma.registration.update({
         where: { id: registrationId },
         data: { status: RegistrationStatus.verification },
@@ -173,8 +186,14 @@ export class DocumentsService {
           note: "Tahap pemeriksaan kesehatan selesai, berkas masuk antrean verifikasi",
         },
       }),
-    ]);
-
+    ];
+    if (isTk && health.success) {
+      mutations.unshift(this.prisma.studentData.update({
+        where: { registrationId },
+        data: health.data,
+      }));
+    }
+    await this.prisma.$transaction(mutations);
     return { success: true };
   }
 }

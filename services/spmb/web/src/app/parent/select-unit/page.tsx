@@ -61,8 +61,13 @@ export default function ParentSelectUnitPage() {
           <div className="mt-6 grid md:grid-cols-2 gap-4">
             {periods.map((period) => {
               const selected = selectedPeriodId === period.id;
-              return <button key={period.id} type="button" disabled={period.isFull} onClick={() => setSelectedPeriodId(period.id)} className={`spmb-card text-left p-5 transition-colors disabled:cursor-not-allowed ${period.isFull ? "bg-neutral opacity-60" : selected ? "border-tertiary bg-[#e6f4f1]" : "hover:border-[#b9ded7]"}`}>
-                <div className="flex items-start justify-between gap-3"><div><h2 className="font-heading font-bold text-xl">{period.unitName}</h2><p className="text-sm text-tertiary font-semibold mt-1">{period.label}</p></div>{period.isFull && <span className="text-xs font-semibold bg-red-100 text-red-800 px-2 py-1 rounded-sm">Penuh</span>}</div>
+              const configured = Boolean(period.educationLevel);
+              const disabled = period.isFull || !configured;
+              const levelLabel = period.educationLevel
+                ? `${period.educationLevel.toUpperCase()}${period.educationLevel === "tk" && period.tkGroup ? ` · Kelompok ${period.tkGroup.toUpperCase()}` : ""}`
+                : "Jenjang belum dikonfigurasi";
+              return <button key={period.id} type="button" disabled={disabled} onClick={() => setSelectedPeriodId(period.id)} className={`spmb-card text-left p-5 transition-colors disabled:cursor-not-allowed ${disabled ? "bg-neutral opacity-60" : selected ? "border-tertiary bg-[#e6f4f1]" : "hover:border-[#b9ded7]"}`}>
+                <div className="flex items-start justify-between gap-3"><div><h2 className="font-heading font-bold text-xl">{period.unitName}</h2><p className="text-sm text-tertiary font-semibold mt-1">{levelLabel} · {period.label}</p></div>{period.isFull ? <span className="text-xs font-semibold bg-red-100 text-red-800 px-2 py-1 rounded-sm">Penuh</span> : !configured ? <span className="text-xs font-semibold bg-amber-100 text-amber-800 px-2 py-1 rounded-sm">Belum siap</span> : null}</div>
                 <dl className="mt-4 grid grid-cols-2 gap-3 text-xs"><div><dt className="text-gray-500">Biaya formulir</dt><dd className="mt-1 font-semibold">Rp {Number(period.fee).toLocaleString("id-ID")}</dd></div><div><dt className="text-gray-500">Kapasitas tersedia</dt><dd className="mt-1 font-semibold">{period.availableSlots} dari {period.quota} kursi</dd></div></dl>
               </button>;
             })}
