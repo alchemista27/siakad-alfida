@@ -25,9 +25,11 @@ assert(reviewPanel.includes("verify-documents"), "review panel must support doss
 assert(/const canVerifyDocuments\s*=\s*\(reg: ReviewableRegistration\)/.test(reviewPanel), "review panel must classify a registration before rendering dossier actions");
 assert(/reg\.status\s*===\s*"verification"/.test(reviewPanel), "only verification registrations may be approved or returned for dossier revision");
 assert(/canVerifyDocuments\(reg\)\s*&&/.test(reviewPanel), "dossier review controls must be hidden before the verification stage");
+assert(/dossierReviewStatus\s*!==\s*"approved"/.test(reviewPanel), "approved dossier reviews must no longer render repeat approval actions");
 assert(reviewPanel.includes("isMedicalResultReview"), "review panel must distinguish basic-document review from medical-result review");
 assert(reviewPanel.includes("Setujui Hasil Kesehatan"), "review panel must label the second review as medical-result approval");
 assert(reviewPanel.includes("lanjut pemeriksaan kesehatan"), "basic-document approval feedback must direct the parent to medical examination");
+assert(reviewPanel.includes("Hasil kesehatan disetujui · siap observasi"), "approved medical results must visibly show that the parent can schedule observation");
 assert(/rejectionNote:\s*isApproved/.test(reviewPanel), "dossier revision must send the ReviewDossierDto rejectionNote field");
 assert(!/revisionNote:\s*isApproved/.test(reviewPanel), "dossier revision must not send the obsolete revisionNote field");
 assert(reviewPanel.includes("/api/documents/${encodeURIComponent(documentId)}/download-url"), "review panel must request authorized document download URLs");

@@ -29,8 +29,16 @@ export function RegistrationReviewPanel({
   const canVerifyPayment = (reg: ReviewableRegistration) => (
     reg.status === "payment_uploaded" && reg.payment?.status === "uploaded"
   );
-  const canVerifyDocuments = (reg: ReviewableRegistration) => reg.status === "verification";
+  const canVerifyDocuments = (reg: ReviewableRegistration) => reg.status === "verification" && reg.dossierReviewStatus !== "approved";
   const isMedicalResultReview = (reg: ReviewableRegistration) => reg.documents?.some((document) => document.type === "medical_result") === true;
+  const reviewStatusText = (reg: ReviewableRegistration) => {
+    if (reg.dossierReviewStatus === "approved") {
+      return isMedicalResultReview(reg)
+        ? "Hasil kesehatan disetujui · siap observasi"
+        : "Berkas disetujui · menunggu pemeriksaan kesehatan";
+    }
+    return `Status: ${reg.status}`;
+  };
 
   const verifyPayment = async (regId: string, isApproved: boolean) => {
     setBusyId(regId);
@@ -129,15 +137,17 @@ export function RegistrationReviewPanel({
               <p className="font-semibold text-[#454545]">
                 {reg.registrationNumber} · {reg.studentData?.fullName || "Calon Murid"}
               </p>
-              <p className="text-gray-500">Status: {reg.status} · Wali: {reg.guardianName}</p>
+              <p className="text-gray-500">{reviewStatusText(reg)} · Wali: {reg.guardianName}</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <input
-                placeholder="Catatan tolak / revisi"
-                value={revisionNoteById[reg.id] || ""}
-                onChange={(e) => setRevisionNoteById((prev) => ({ ...prev, [reg.id]: e.target.value }))}
-                className="px-2.5 py-1 border border-[#E3E8E7] rounded text-xs"
-              />
+              {(canVerifyPayment(reg) || canVerifyDocuments(reg)) && (
+                <input
+                  placeholder="Catatan tolak / revisi"
+                  value={revisionNoteById[reg.id] || ""}
+                  onChange={(e) => setRevisionNoteById((prev) => ({ ...prev, [reg.id]: e.target.value }))}
+                  className="px-2.5 py-1 border border-[#E3E8E7] rounded text-xs"
+                />
+              )}
               {reg.payment?.proofFileName && (
                 <button
                   type="button"

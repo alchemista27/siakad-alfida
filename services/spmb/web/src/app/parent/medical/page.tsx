@@ -176,10 +176,7 @@ export default function ParentMedicalPage() {
 
           {registration.status === "verification" && (
             <div className="mt-5 border border-border bg-neutral rounded-md p-4 text-sm">
-              <p>
-                Status Verifikasi Berkas:{" "}
-                <strong>{registration.dossierReviewStatus === "approved" ? "Disetujui" : "Sedang Diperiksa Panitia"}</strong>
-              </p>
+              <p>{registration.dossierReviewStatus === "approved" ? "Hasil kesehatan telah disetujui panitia. Anda dapat memilih jadwal observasi." : "Hasil kesehatan sedang diperiksa panitia."}</p>
               {registration.dossierReviewStatus === "approved" && (
                 <Link
                   href={`/parent/observation?registrationId=${encodeURIComponent(registration.id)}`}

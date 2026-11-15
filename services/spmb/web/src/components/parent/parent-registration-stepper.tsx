@@ -3,7 +3,7 @@
 import Link from "next/link";
 import {
   getStepIndexForRegistration,
-  STATUS_LABELS,
+  getRegistrationStatusLabel,
   type ParentRegistration,
 } from "@/lib/spmb-registration";
 
@@ -39,7 +39,7 @@ export function ParentRegistrationStepper({
               {registration.registrationNumber}
             </span>
           </div>
-          <p className="text-xs text-gray-500 mt-1">{STATUS_LABELS[registration.status]}</p>
+          <p className="text-xs text-gray-500 mt-1">{getRegistrationStatusLabel(registration)}</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold bg-[#e6f4f1] text-tertiary px-2.5 py-1 rounded-sm">

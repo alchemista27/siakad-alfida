@@ -168,6 +168,27 @@ export const STATUS_LABELS: Record<RegistrationStatus, string> = {
   enrolled: "Daftar ulang selesai",
 };
 
+type RegistrationStatusLabelInput = {
+  status: RegistrationStatus;
+  dossierReviewStatus?: DossierReviewStatus;
+  documents?: Array<{ type: DocumentType }>;
+};
+
+export function getRegistrationStatusLabel(registration: RegistrationStatusLabelInput): string {
+  if (registration.status !== "verification") return STATUS_LABELS[registration.status];
+
+  const hasMedicalResult = registration.documents?.some((document) => document.type === "medical_result") === true;
+  if (registration.dossierReviewStatus === "approved") {
+    return hasMedicalResult
+      ? "Hasil kesehatan disetujui — siap memilih jadwal observasi"
+      : "Berkas disetujui — lanjut pemeriksaan kesehatan";
+  }
+  if (registration.dossierReviewStatus === "revision_required") {
+    return hasMedicalResult ? "Revisi hasil kesehatan diminta" : "Revisi berkas diminta";
+  }
+  return hasMedicalResult ? "Hasil kesehatan sedang diverifikasi panitia" : "Berkas sedang diverifikasi panitia";
+}
+
 export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   photo: "Pas foto calon murid",
   school_certificate: "Surat keterangan sekolah asal",
