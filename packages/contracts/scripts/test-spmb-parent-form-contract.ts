@@ -68,8 +68,33 @@ try {
 }
 assert(guardianRequired, "a guardian must be required when residence status is with_guardian");
 assertGuardianRequiredForResidence("with_guardian", { father: parent, mother: parent, guardian: parent });
-assert(isStudentRegistrationComplete(student), "complete student record must be detected");
-assert(isStudentRegistrationComplete({ ...student, nisn: null }), "persisted optional NISN null must remain a complete student record");
-assert(!isStudentRegistrationComplete({ ...student, transportation: null }), "missing required student field must not be complete");
+assert(isStudentRegistrationComplete(student, "sd"), "complete SD student record must be detected");
+assert(isStudentRegistrationComplete({ ...student, nisn: null }, "sd"), "persisted optional NISN null must remain a complete student record");
+
+const persistedNonTkStudent = {
+  ...student,
+  nisn: null,
+  hamlet: null,
+  specialNeeds: null,
+  kipNumber: null,
+  previousSchoolName: null,
+  previousSchoolNpsn: null,
+  graduationDocumentNumber: null,
+  graduationYear: null,
+  tkGroup: null,
+};
+assert(isStudentRegistrationComplete(persistedNonTkStudent, "sd"), "persisted SD optional nulls must not block the parent form");
+
+const persistedPriorSchoolStudent = {
+  ...persistedNonTkStudent,
+  previousSchoolName: "SD Islam Terpadu Iqra",
+  previousSchoolNpsn: "20212345",
+  graduationDocumentNumber: "SKL-2026-001",
+  graduationYear: 2026,
+};
+assert(isStudentRegistrationComplete(persistedPriorSchoolStudent, "smp"), "persisted SMP optional nulls must not block the parent form");
+assert(isStudentRegistrationComplete(persistedPriorSchoolStudent, "sma"), "persisted SMA optional nulls must not block the parent form");
+assert(!isStudentRegistrationComplete({ ...persistedNonTkStudent, tkGroup: null }, "tk"), "TK without an A/B group must remain incomplete");
+assert(!isStudentRegistrationComplete({ ...student, transportation: null }, "sd"), "missing required student field must not be complete");
 
 console.log("SPMB parent-form contract passed");

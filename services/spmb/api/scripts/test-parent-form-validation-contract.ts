@@ -167,6 +167,20 @@ async function run() {
     return input;
   };
   registration.status = "form_filling";
+  (registration as any).studentData = {
+    ...student,
+    birthDate: new Date(student.birthDate),
+    residenceStatus: "with_guardian",
+    nisn: null,
+    hamlet: null,
+    specialNeeds: null,
+    kipNumber: null,
+    previousSchoolName: null,
+    previousSchoolNpsn: null,
+    graduationDocumentNumber: null,
+    graduationYear: null,
+    tkGroup: null,
+  };
   await (service as any).submitParentData(registration.id, registration.parentId, { father: parent, mother: parent, guardian });
   assert(parentUpsertCalls.length === 3, "father, mother, and guardian must be persisted independently");
   assert(parentUpsertCalls.some((input) => (input as any).where.registrationId_type.type === "guardian"), "guardian must use the guardian parent type");

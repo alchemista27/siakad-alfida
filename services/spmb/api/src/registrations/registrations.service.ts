@@ -84,7 +84,10 @@ export class RegistrationsService {
     const { handoffError, ...rest } = registration;
     const sanitized: any = {
       ...rest,
-      studentDataComplete: isStudentRegistrationComplete(registration.studentData),
+      studentDataComplete: isStudentRegistrationComplete(
+        registration.studentData,
+        registration.period?.educationLevel,
+      ),
     };
     if (Array.isArray(registration.documents)) {
       sanitized.documents = registration.documents.map(({ fileUrl, ...doc }: any) => doc);
@@ -365,7 +368,10 @@ export class RegistrationsService {
     const payload = this.parseOrThrow(ParentRegistrationFormSchema, dto);
     const reg = await this.prisma.registration.findUnique({
       where: { id: registrationId },
-      include: { studentData: true },
+      include: {
+        studentData: true,
+        period: { select: { educationLevel: true } },
+      },
     });
     if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan.");
     if (reg.parentId !== userId) {
@@ -374,7 +380,7 @@ export class RegistrationsService {
     if (reg.status !== RegistrationStatus.form_filling || !canTransition(reg.status, "documents_uploaded")) {
       throw new BadRequestException("Data orang tua hanya dapat diisi setelah biodata murid selesai.");
     }
-    if (!isStudentRegistrationComplete(reg.studentData)) {
+    if (!isStudentRegistrationComplete(reg.studentData, reg.period.educationLevel)) {
       throw new BadRequestException("Lengkapi seluruh formulir data murid sebelum mengisi data orang tua.");
     }
     try {

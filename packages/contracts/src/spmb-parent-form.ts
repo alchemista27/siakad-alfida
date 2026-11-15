@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { DapodikStudentFieldsSchema, requiresGuardian, type ResidenceStatus } from "./spmb-dapodik";
+import {
+  DapodikStudentFieldsSchema,
+  assertLevelSpecificStudentFields,
+  requiresGuardian,
+  type EducationLevel,
+  type ResidenceStatus,
+} from "./spmb-dapodik";
 
 export const GenderSchema = z.enum(["male", "female"]);
 
@@ -50,14 +56,33 @@ export function assertGuardianRequiredForResidence(
   }
 }
 
-export function isStudentRegistrationComplete(value: unknown): value is StudentRegistrationForm {
+export function isStudentRegistrationComplete(
+  value: unknown,
+  educationLevel?: EducationLevel | null,
+): value is StudentRegistrationForm {
   if (!value || typeof value !== "object") return false;
   const student = value as Record<string, unknown>;
   const birthDate = student.birthDate;
-  const nisn = student.nisn;
-  return StudentRegistrationFormSchema.safeParse({
+  const parsed = StudentRegistrationFormSchema.safeParse({
     ...student,
     birthDate: birthDate instanceof Date ? birthDate.toISOString().slice(0, 10) : birthDate,
-    nisn: nisn == null ? "" : nisn,
-  }).success;
+    nisn: student.nisn ?? "",
+    hamlet: student.hamlet ?? "",
+    specialNeeds: student.specialNeeds ?? "",
+    kipNumber: student.kipNumber ?? "",
+    previousSchoolName: student.previousSchoolName ?? "",
+    previousSchoolNpsn: student.previousSchoolNpsn ?? "",
+    graduationDocumentNumber: student.graduationDocumentNumber ?? "",
+    graduationYear: student.graduationYear ?? undefined,
+    tkGroup: student.tkGroup ?? undefined,
+  });
+  if (!parsed.success) return false;
+  if (!educationLevel) return true;
+
+  try {
+    assertLevelSpecificStudentFields(educationLevel, parsed.data);
+    return true;
+  } catch {
+    return false;
+  }
 }
