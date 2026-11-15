@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { StudentRegistrationFormSchema } from "@alfida/contracts";
 import { TRANSPORTATION_EXAMPLES } from "@/lib/parent-form-fields";
+import { buildStudentSubmissionPayload } from "@/lib/student-submission-payload";
 import { apiRequest, type ParentRegistration, type SubmitStudentDataResponse } from "@/lib/spmb-registration";
 
 type ResidenceStatus = "with_parents" | "with_guardian" | "boarding" | "rented" | "other";
@@ -98,11 +99,7 @@ export function StudentRegistrationForm({ registration }: { registration: Parent
       setNotice("Jenjang periode belum dikonfigurasi. Hubungi panitia SPMB.");
       return;
     }
-    const parsed = StudentRegistrationFormSchema.safeParse({
-      ...form,
-      siblingsCount: Number(form.siblingsCount),
-      graduationYear: form.graduationYear ? Number(form.graduationYear) : undefined,
-    });
+    const parsed = StudentRegistrationFormSchema.safeParse(buildStudentSubmissionPayload(form, level));
     if (!parsed.success) {
       setNotice(parsed.error.issues[0]?.message || "Data murid tidak valid.");
       return;

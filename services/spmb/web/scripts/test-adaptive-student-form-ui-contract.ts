@@ -10,6 +10,7 @@ async function run() {
     assert(source.includes(label), `student form must render ${label}`);
   }
   assert(source.includes("registration.period.educationLevel"), "student form must branch from configured period level");
+  assert(source.includes("buildStudentSubmissionPayload(form, level)"), "student form must omit TK-only data before shared validation for non-TK levels");
   assert(source.includes("Data Sekolah Asal & Kelulusan"), "student form must render prior-school section for SMP/SMA");
   assert(!source.toLowerCase().includes("calistung"), "student form must not introduce calistung selection fields");
 
