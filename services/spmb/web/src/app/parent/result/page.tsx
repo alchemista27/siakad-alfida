@@ -2,7 +2,7 @@
 
 import { SpmbTopbar } from "@/components/SpmbTopbar";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ParentRegistrationStepper } from "@/components/parent/parent-registration-stepper";
 import {
@@ -14,15 +14,34 @@ import {
 export default function ParentResultPage() {
   const [registration, setRegistration] = useState<ParentRegistration | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-    loadParentRegistration(params?.get("registrationId"))
-      .then(setRegistration)
-      .catch((err) => setError(err instanceof Error ? err.message : "Gagal memuat pengumuman."))
-      .finally(() => setLoading(false));
+  const refreshDecision = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+      const nextRegistration = await loadParentRegistration(params?.get("registrationId"));
+      setRegistration(nextRegistration);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gagal memuat pengumuman.");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void refreshDecision();
+    const intervalId = window.setInterval(() => void refreshDecision(), 15_000);
+    const onWindowFocus = () => void refreshDecision();
+    window.addEventListener("focus", onWindowFocus);
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", onWindowFocus);
+    };
+  }, [refreshDecision]);
 
   if (loading) {
     return <div className="min-h-screen grid place-items-center bg-neutral"><span className="material-symbols-rounded animate-spin text-tertiary text-3xl">progress_activity</span></div>;
@@ -56,6 +75,14 @@ export default function ParentResultPage() {
           <p className="text-sm text-gray-600 mt-1">
             Status Pendaftaran: <strong>{STATUS_LABELS[registration.status]}</strong>
           </p>
+          <button
+            type="button"
+            onClick={() => void refreshDecision()}
+            disabled={refreshing}
+            className="mt-3 px-3 py-1.5 border border-tertiary text-tertiary rounded-sm text-xs font-semibold disabled:opacity-50"
+          >
+            {refreshing ? "Memperbarui..." : "Perbarui Keputusan"}
+          </button>
 
           {(registration.status === "accepted" || registration.status === "enrolled") && (
             <div className="mt-5 border border-[#b9ded7] bg-[#e6f4f1] text-[#0b6355] rounded-md p-5 space-y-3">

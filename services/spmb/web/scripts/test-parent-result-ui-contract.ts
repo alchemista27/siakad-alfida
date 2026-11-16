@@ -17,6 +17,9 @@ assert(existsSync(decisionPanelPath), "missing src/components/admin/decision-pan
 const resultPage = readFileSync(resultPagePath, "utf8");
 assert(resultPage.includes("/api/pdf/acceptance"), "result page must link to /api/pdf/acceptance");
 assert(resultPage.includes("rejectionReason"), "result page must render persisted rejectionReason");
+assert(resultPage.includes("refreshDecision"), "result page must own a refresh path for a newly published decision");
+assert(resultPage.includes("setInterval"), "result page must poll the owner-scoped registration while awaiting a decision");
+assert(resultPage.includes("Perbarui Keputusan"), "result page must offer a manual decision refresh control");
 assert(!resultPage.includes("alert(") && !resultPage.includes("confirm("), "result page must not use native dialogs");
 
 const pdfRoute = readFileSync(pdfRoutePath, "utf8");
