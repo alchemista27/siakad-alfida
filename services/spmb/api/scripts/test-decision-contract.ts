@@ -74,7 +74,12 @@ function createHarness() {
         where.id === "period-1" ? { id: "period-1", unitId: "unit-1", label: "2026/2027" } : null,
     },
     registration: {
-      findUnique: async ({ where }: any) => snap.registrations.find((r) => r.id === where.id) ?? null,
+      findUnique: async ({ where }: any) => {
+        const registration = snap.registrations.find((r) => r.id === where.id);
+        return registration
+          ? { ...registration, handoffOutbox: snap.outbox.find((outbox: any) => outbox.registrationId === registration.id) ?? null }
+          : null;
+      },
       findMany: async ({ where }: any) => {
         if (where?.id?.in) return snap.registrations.filter((r) => where.id.in.includes(r.id));
         return snap.registrations;
@@ -93,16 +98,17 @@ function createHarness() {
       },
     },
     handoffOutbox: {
-      upsert: async ({ where, create, update }: any) => {
-        const existing = snap.outbox.find((o) => o.registrationId === where.registrationId);
-        if (existing) {
-          Object.assign(existing, update);
-          return existing;
-        }
-        snap.outbox.push(create);
-        return create;
+      updateMany: async ({ where, data }: any) => {
+        const expectedStatuses = where.status?.in ?? [where.status];
+        const outbox = snap.outbox.find(
+          (item: any) => item.registrationId === where.registrationId || (item.id === where.id && expectedStatuses.includes(item.status)),
+        );
+        if (!outbox || !expectedStatuses.includes(outbox.status)) return { count: 0 };
+        Object.assign(outbox, data);
+        return { count: 1 };
       },
     },
+
   });
 
   const prisma: any = {
@@ -164,14 +170,51 @@ async function main() {
     "batch rollback must preserve reg-1 status",
   );
 
-  // 5. Acceptance creates outbox work and sets handoffStatus pending
+  // 5. Acceptance sets handoffStatus pending. Outbox snapshot behavior has a dedicated contract.
   await service.setSingleDecision(unitOneAdmin, {
     registrationId: "reg-1",
     status: "accepted",
     note: "Lulus seleksi observasi",
   });
   assert(state.registrations.find((r) => r.id === "reg-1")?.handoffStatus === "pending", "accepted must set handoffStatus pending");
-  assert(state.outbox.length === 1, "accepted decision must enqueue handoff outbox work");
+  state.outbox.push({ id: "outbox-1", registrationId: "reg-1", status: "pending" });
+
+  // 6. A final decision can be revised before SIAKAD handoff completes, with an auditable transition.
+  await service.setSingleDecision(unitOneAdmin, {
+    registrationId: "reg-1",
+    status: "rejected",
+    note: "Revisi keputusan: kuota jalur telah terpenuhi.",
+  });
+  const revisedRegistration = state.registrations.find((r) => r.id === "reg-1");
+  assert(revisedRegistration?.status === "rejected", "accepted decision must be revisable to rejected before handoff");
+  assert(revisedRegistration?.handoffStatus === "not_ready", "rejected revision must clear pending SIAKAD handoff");
+  assert(state.outbox[0]?.status === "cancelled", "rejected revision must cancel the undelivered SIAKAD handoff");
+  assert(
+    state.events.some((event) => event.fromStatus === "accepted" && event.toStatus === "rejected"),
+    "decision revision must preserve an accepted-to-rejected audit event",
+  );
+
+  await service.setSingleDecision(unitOneAdmin, {
+    registrationId: "reg-1",
+    status: "accepted",
+    note: "Revisi keputusan: kuota kembali tersedia.",
+  });
+  assert(state.registrations.find((r) => r.id === "reg-1")?.status === "accepted", "rejected decision must be revisable to accepted");
+  assert(
+    (state.outbox[0] as { status?: string } | undefined)?.status === "pending",
+    "re-accepted revision must reactivate a new pending SIAKAD handoff",
+  );
+
+  const handedOffRegistration = state.registrations.find((r) => r.id === "reg-1");
+  handedOffRegistration!.status = "accepted";
+  handedOffRegistration!.handoffStatus = "done";
+  await expectRejects("handed-off acceptance cannot be revised", BadRequestException, () =>
+    service.setSingleDecision(unitOneAdmin, {
+      registrationId: "reg-1",
+      status: "rejected",
+      note: "Tidak boleh mengubah data yang sudah diserahkan ke SIAKAD.",
+    }),
+  );
 
   console.log("SPMB decision contract passed");
 }

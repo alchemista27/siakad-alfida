@@ -21,7 +21,7 @@ for (const [from, to] of [
   ["pending_payment", "accepted"],
   ["documents_uploaded", "observation_scheduled"],
   ["medical_pending", "verification"],
-  ["accepted", "rejected"],
+  ["enrolled", "accepted"],
 ] as const) {
   try {
     assertTransition(from as never, to as never);
@@ -30,5 +30,8 @@ for (const [from, to] of [
     assert(error instanceof BadRequestException, `expected BadRequest for ${from} → ${to}`);
   }
 }
+
+assertTransition("accepted", "rejected");
+assertTransition("rejected", "accepted");
 
 console.log("SPMB registration workflow contract passed");

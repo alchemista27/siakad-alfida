@@ -19,8 +19,8 @@ export type PreparedLetterheadAssets = {
   foundationLogo: Buffer | null;
 };
 
-export const LETTERHEAD_LEFT = 56;
-export const LETTERHEAD_RIGHT = 539;
+export const LETTERHEAD_LEFT = 72;
+export const LETTERHEAD_RIGHT = 523;
 export const LETTERHEAD_LOGO_SIZE = 64;
 export const LETTERHEAD_TOP = 42;
 

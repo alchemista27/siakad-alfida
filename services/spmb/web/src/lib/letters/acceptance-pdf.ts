@@ -23,8 +23,8 @@ const FONT_DIRECTORY = existsSync(join(process.cwd(), "assets/fonts"))
   : join(process.cwd(), "services/spmb/web/assets/fonts");
 const FONT_REGULAR_PATH = join(FONT_DIRECTORY, "LiberationSerif-Regular.ttf");
 const FONT_BOLD_PATH = join(FONT_DIRECTORY, "LiberationSerif-Bold.ttf");
-const PAGE_LEFT = 56;
-const PAGE_RIGHT = 539;
+const PAGE_LEFT = 72;
+const PAGE_RIGHT = 523;
 const CONTENT_WIDTH = PAGE_RIGHT - PAGE_LEFT;
 
 function formatDate(value: string) {
@@ -41,13 +41,14 @@ function safeText(value: string | null | undefined) {
 
 function drawIdentityRow(document: PDFKit.PDFDocument, label: string, value: string) {
   const rowY = document.y;
-  const labelX = 84;
-  const valueX = 226;
+  const labelX = PAGE_LEFT;
+  const valueX = PAGE_LEFT + 144;
   const valueWidth = PAGE_RIGHT - valueX;
   const valueText = `: ${value}`;
   const valueHeight = document.font(PDF_FONT_REGULAR).fontSize(12).heightOfString(valueText, { width: valueWidth, lineGap: 2 });
-  document.font(PDF_FONT_BOLD).fontSize(12).text(label, labelX, rowY, { width: 132, lineGap: 2 });
+  document.font(PDF_FONT_BOLD).fontSize(12).text(label, labelX, rowY, { width: 134, lineGap: 2 });
   document.font(PDF_FONT_REGULAR).fontSize(12).text(valueText, valueX, rowY, { width: valueWidth, lineGap: 2 });
+  document.x = PAGE_LEFT;
   document.y = rowY + Math.max(valueHeight, 16) + 6;
 }
 

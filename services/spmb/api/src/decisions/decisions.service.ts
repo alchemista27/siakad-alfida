@@ -41,7 +41,22 @@ export class DecisionsService {
   }
 
   private async enqueueOutboxIfAccepted(tx: any, registration: any) {
+    const reactivated = tx.handoffOutbox?.updateMany
+      ? await tx.handoffOutbox.updateMany({
+          where: { registrationId: registration.id, status: "cancelled" },
+          data: {
+            status: "pending",
+            attempts: 0,
+            availableAt: new Date(),
+            leasedAt: null,
+            leaseOwner: null,
+            lastError: null,
+          },
+        })
+      : { count: 0 };
+    if (reactivated.count === 1) return;
     if (!tx.handoffOutbox?.upsert) return;
+
     const idempotencyKey = randomUUID();
     const payload = buildSpmbHandoffPayload(registration, idempotencyKey);
     await tx.handoffOutbox.upsert({
@@ -59,28 +74,63 @@ export class DecisionsService {
     });
   }
 
+  private async cancelPendingHandoffForRejectedRevision(tx: any, registration: any, targetStatus: RegistrationStatus) {
+    if (registration.status !== "accepted" || targetStatus !== "rejected" || !registration.handoffOutbox) return;
+    if (registration.handoffStatus === "done" || registration.handoffOutbox.status === "delivered") {
+      throw new BadRequestException("Keputusan tidak dapat direvisi karena data sudah diserahkan ke SIAKAD.");
+    }
+    if (!tx.handoffOutbox?.updateMany) {
+      throw new BadRequestException("Revisi keputusan tidak tersedia karena status handoff tidak dapat diverifikasi.");
+    }
+
+    const cancelled = await tx.handoffOutbox.updateMany({
+      where: {
+        id: registration.handoffOutbox.id,
+        status: { in: ["pending", "failed"] },
+      },
+      data: {
+        status: "cancelled",
+        leasedAt: null,
+        leaseOwner: null,
+        lastError: "Dibatalkan karena keputusan kelulusan direvisi menjadi tidak lulus.",
+      },
+    });
+    if (cancelled.count !== 1) {
+      throw new BadRequestException("Keputusan tidak dapat direvisi saat handoff SIAKAD sedang diproses.");
+    }
+  }
+
   async setSingleDecision(principal: SpmbPrincipal, dto: SingleDecisionDto & { notes?: string }) {
     return this.prisma.$transaction(async (tx) => {
       const reg = await tx.registration.findUnique({
         where: { id: dto.registrationId },
-        include: { period: true, parent: true, studentData: true, parentData: true },
+        include: { period: true, parent: true, studentData: true, parentData: true, handoffOutbox: true },
       });
       if (!reg) throw new NotFoundException("Pendaftaran tidak ditemukan");
       this.assertDecisionAuthority(reg.period, principal);
 
       const prevStatus = reg.status;
       const targetStatus = dto.status as RegistrationStatus;
+      if (prevStatus !== targetStatus && reg.handoffStatus === "done") {
+        throw new BadRequestException("Keputusan tidak dapat direvisi karena data sudah diserahkan ke SIAKAD.");
+      }
       if (prevStatus !== targetStatus && !canTransition(prevStatus, targetStatus)) {
         throw new BadRequestException("Keputusan hanya dapat ditetapkan setelah observasi selesai.");
       }
       const decisionNote = this.normalizeDecisionNote(targetStatus, dto);
+      await this.cancelPendingHandoffForRejectedRevision(tx, reg, targetStatus);
 
       const updated = await tx.registration.update({
         where: { id: reg.id },
         data: {
           status: targetStatus,
           rejectionReason: targetStatus === "rejected" ? decisionNote : null,
-          handoffStatus: targetStatus === "accepted" && prevStatus !== "accepted" ? "pending" : reg.handoffStatus,
+          handoffStatus:
+            targetStatus === "accepted" && prevStatus !== "accepted"
+              ? "pending"
+              : targetStatus === "rejected" && prevStatus === "accepted"
+                ? "not_ready"
+                : reg.handoffStatus,
         },
       });
 
@@ -124,6 +174,9 @@ export class DecisionsService {
 
       for (const reg of orderedRegistrations) {
         this.assertDecisionAuthority(reg!.period, principal);
+        if (reg!.status !== targetStatus && ["accepted", "rejected"].includes(reg!.status)) {
+          throw new BadRequestException("Revisi keputusan harus dilakukan satu per satu agar riwayat dan handoff SIAKAD tetap aman.");
+        }
         if (reg!.status !== targetStatus && !canTransition(reg!.status, targetStatus)) {
           throw new BadRequestException(`Pendaftar ${reg!.registrationNumber} belum selesai observasi.`);
         }

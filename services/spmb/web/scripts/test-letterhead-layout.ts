@@ -45,7 +45,7 @@ drawInstitutionalLetterhead(
   { ...base, letterheadKind: "foundation" },
   { unitLogo: null, foundationLogo: Buffer.from("foundation") },
 );
-assert.deepEqual(foundation.images, [{ x: 56, y: 42 }], "foundation header must place its logo on the left");
+assert.deepEqual(foundation.images, [{ x: 72, y: 42 }], "foundation header must place its logo on the approved left margin");
 assert.equal(foundation.texts.includes("Yayasan Alfida"), true, "foundation header must display foundation identity");
 assert.equal(foundation.texts.includes("SDIT Iqra"), false, "foundation fallback must not render unit identity");
 assert.equal(getLetterheadIssuerName({ ...base, letterheadKind: "foundation" }), "Yayasan Alfida", "foundation fallback must use foundation name as issuer");
@@ -57,7 +57,7 @@ drawInstitutionalLetterhead(
   { ...base, unitLogoUrl: "https://res.cloudinary.com/example/image/upload/simpeg/unit/unit-1/logo.png", letterheadKind: "unit" },
   { unitLogo: Buffer.from("unit"), foundationLogo: Buffer.from("foundation") },
 );
-assert.deepEqual(unit.images, [{ x: 56, y: 42 }, { x: 475, y: 42 }], "unit header must place unit left and foundation right");
+assert.deepEqual(unit.images, [{ x: 72, y: 42 }, { x: 459, y: 42 }], "unit header must place unit left and foundation right within the approved margins");
 assert.equal(unit.texts.includes("SDIT Iqra"), true, "unit header must display unit identity");
 
 console.log("SPMB institutional letterhead layout contract passed");

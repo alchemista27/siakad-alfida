@@ -88,6 +88,11 @@ async function run() {
     assert.match(rendererSource, /LiberationSerif-Bold\.ttf/, "acceptance PDF must embed Liberation Serif Bold");
     assert.doesNotMatch(rendererSource, /BaseFont\s*\/Helvetica|Times-Roman|Times-Bold/, "acceptance PDF must not use Base-14 Helvetica/Times");
     assert.match(rendererSource, /Perihal: Pemberitahuan Hasil Seleksi SPMB/, "acceptance PDF must render the official subject line");
+    assert.match(rendererSource, /const PAGE_LEFT = 72;/, "acceptance content must use the approved 25 mm left margin");
+    assert.match(rendererSource, /const PAGE_RIGHT = 523;/, "acceptance content must use the approved 25 mm right margin");
+    assert.match(letterheadSource, /export const LETTERHEAD_LEFT = 72;/, "letterhead must align with the approved content margin");
+    assert.match(letterheadSource, /export const LETTERHEAD_RIGHT = 523;/, "letterhead must align with the approved content margin");
+    assert.match(rendererSource, /document\.x = PAGE_LEFT;/, "identity rows must restore the left margin before subsequent content");
     assert.match(rendererSource, /Demikian surat keterangan ini dibuat untuk dipergunakan sebagaimana mestinya\./, "acceptance PDF must render the official closing");
 
     globalThis.fetch = (async () => Response.json({ ...letter, unitLogoUrl: 42 })) as typeof fetch;

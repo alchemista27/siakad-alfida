@@ -29,8 +29,8 @@ export const allowedTransitions: Readonly<Record<SpmbRegistrationStatus, readonl
   verification: ["medical_pending", "observation_scheduled", "documents_uploaded"],
   observation_scheduled: ["observation_done"],
   observation_done: ["accepted", "rejected"],
-  accepted: ["enrolled"],
-  rejected: [],
+  accepted: ["rejected", "enrolled"],
+  rejected: ["accepted"],
   enrolled: [],
 };
 
