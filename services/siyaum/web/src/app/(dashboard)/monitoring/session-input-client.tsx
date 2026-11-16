@@ -6,12 +6,17 @@ import { apiFetch } from "@/lib/api";
 import { NotificationModal } from "@/components/notification-modal";
 import { YmqProgressEvidenceUploader } from "@/components/ymq-progress-evidence-uploader";
 
+type GroupLevel = "pra_tahsin" | "tahsin" | "tahfiz";
+type LearningTrack = "pra_tahsin" | "tahsin" | "ziyadah";
+
 interface Member { id: string; userId: string; user?: { fullName: string; unitName?: string | null }; fullName?: string; unitName?: string | null; }
-interface Group { id: string; name: string; level: "pra_tahsin" | "tahsin" | "tahfiz"; unitName?: string | null; members?: Member[]; _count?: { members: number }; }
-interface CurriculumUnit { id: string; iwrLevel: "iwr_1" | "iwr_2"; topicCode: string; topicTitle: string; pageStart: number; pageEnd: number; }
+interface Group { id: string; name: string; level?: GroupLevel | null; unitName?: string | null; members?: Member[]; _count?: { members: number }; }
+interface CurriculumUnit { id: string; iwrLevel: "iwr_1" | "iwr_2"; topicCode: string; topicTitle: string; pageStart: number | null; pageEnd: number | null; }
 interface SavedProgress { id: string; memberId: string; }
 
 const attendanceOptions = ["hadir", "izin", "sakit", "alpa"] as const;
+const groupLevelLabel = (level: GroupLevel) => level.replaceAll("_", " ");
+const defaultTrack = (level: GroupLevel): LearningTrack => level === "pra_tahsin" ? "pra_tahsin" : level === "tahfiz" ? "ziyadah" : "tahsin";
 
 export function SessionInputClient() {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -21,7 +26,7 @@ export function SessionInputClient() {
   const [sessionDate, setSessionDate] = useState(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState("");
   const [attendance, setAttendance] = useState<Record<string, string>>({});
-  const [progress, setProgress] = useState<Record<string, { track: "pra_tahsin" | "tahsin" | "ziyadah"; iwrCurriculumUnitId: string; surahNumber: string; ayahStart: string; ayahEnd: string; note: string }>>({});
+  const [progress, setProgress] = useState<Record<string, { track: LearningTrack; iwrCurriculumUnitId: string; surahNumber: string; ayahStart: string; ayahEnd: string; note: string }>>({});
   const [savedProgress, setSavedProgress] = useState<SavedProgress[]>([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
   const [loadingRoster, setLoadingRoster] = useState(false);
@@ -34,29 +39,45 @@ export function SessionInputClient() {
   }, []);
 
   useEffect(() => {
-    if (!selectedGroupId) { setSelectedGroup(null); setAttendance({}); setProgress({}); return; }
+    if (!selectedGroupId) {
+      setSelectedGroup(null);
+      setAttendance({});
+      setProgress({});
+      setCurriculum([]);
+      setError(null);
+      return;
+    }
     setLoadingRoster(true);
     setSavedProgress([]);
+    setError(null);
     apiFetch<Group>(`/groups/${selectedGroupId}`)
       .then((group) => {
         setSelectedGroup(group);
+        if (!group.level) {
+          setAttendance({});
+          setProgress({});
+          setCurriculum([]);
+          setError("Level kelompok belum dipetakan. Form sesi tidak dapat dibuka sebelum level kelompok ditetapkan.");
+          return null;
+        }
         const members = group.members || [];
+        const track = defaultTrack(group.level);
         setAttendance(Object.fromEntries(members.map((member) => [member.id, "hadir"])));
-        const track = group.level === "pra_tahsin" ? "pra_tahsin" : group.level === "tahfiz" ? "ziyadah" : "tahsin";
         setProgress(Object.fromEntries(members.map((member) => [member.id, { track, iwrCurriculumUnitId: "", surahNumber: "", ayahStart: "", ayahEnd: "", note: "" }])));
         return apiFetch<CurriculumUnit[]>("/curriculum/iwr");
       })
-      .then(setCurriculum)
-      .catch((reason) => setError(reason.message))
+      .then((units) => { if (units) setCurriculum(units); })
+      .catch((reason) => setError(reason instanceof Error ? reason.message : "Roster kelompok tidak dapat dimuat."))
       .finally(() => setLoadingRoster(false));
   }, [selectedGroupId]);
 
   const members = selectedGroup?.members || [];
+  const selectedGroupLevel = selectedGroup?.level ?? null;
   const iwrUnits = useMemo(() => curriculum.filter((unit) => unit.iwrLevel === "iwr_1" || unit.iwrLevel === "iwr_2"), [curriculum]);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!selectedGroup) return;
+    if (!selectedGroup || !selectedGroupLevel) return;
     setIsSaving(true);
     setError(null);
     try {
@@ -97,11 +118,11 @@ export function SessionInputClient() {
         </select>
       </Card>
 
-      {!selectedGroupId ? <EmptyState title="Pilih kelompok terlebih dahulu" description="Roster aktif dan formulir sesi ditampilkan setelah kelompok dipilih." /> : loadingRoster ? <LoadingState message="Memuat roster aktif…" /> : selectedGroup ? (
+      {!selectedGroupId ? <EmptyState title="Pilih kelompok terlebih dahulu" description="Roster aktif dan formulir sesi ditampilkan setelah kelompok dipilih." /> : loadingRoster ? <LoadingState message="Memuat roster aktif…" /> : error ? <ErrorState message={error} onRetry={() => { setSelectedGroupId(""); setError(null); }} /> : selectedGroup && selectedGroupLevel ? (
         <form onSubmit={submit} className="space-y-5">
           <Card className="shadow-none">
             <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
-              <div><h2 className="font-heading text-xl font-bold">Input sesi {selectedGroup.name}</h2><p className="text-sm text-primary/70">Level: {selectedGroup.level.replaceAll("_", " ")}. Roster aktif: {members.length} peserta.</p></div>
+              <div><h2 className="font-heading text-xl font-bold">Input sesi {selectedGroup.name}</h2><p className="text-sm text-primary/70">Level: {groupLevelLabel(selectedGroupLevel)}. Roster aktif: {members.length} peserta.</p></div>
               <label className="text-sm font-medium">Tanggal sesi<input type="date" required value={sessionDate} onChange={(event) => setSessionDate(event.target.value)} className="mt-1 block rounded-sm border border-border px-3 py-2" /></label>
             </div>
             <label className="mt-4 block text-sm font-medium">Catatan sesi<textarea value={notes} onChange={(event) => setNotes(event.target.value)} className="mt-1 block min-h-20 w-full rounded-sm border border-border px-3 py-2" placeholder="Catatan pembelajaran atau kendala kelompok" /></label>
@@ -112,8 +133,8 @@ export function SessionInputClient() {
             const displayName = member.user?.fullName || member.fullName || "Peserta";
             const saved = savedProgress.find((item) => item.memberId === member.id);
             return <Card key={member.id} className="shadow-none"><div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"><div><h3 className="font-heading text-lg font-bold">{displayName}</h3><p className="text-xs text-primary/65">{member.user?.unitName || member.unitName || "Unit belum tersedia"}</p></div><label className="text-sm font-medium">Kehadiran<select value={attendance[member.id] || "hadir"} onChange={(event) => setAttendance((current) => ({ ...current, [member.id]: event.target.value }))} className="ml-2 rounded-sm border border-border px-2 py-1"><option value="hadir">Hadir</option>{attendanceOptions.slice(1).map((status) => <option key={status} value={status}>{status}</option>)}</select></label></div>
-              {entry && <div className="mt-4 grid gap-3 border-t border-border pt-4 md:grid-cols-2"><label className="text-sm font-medium">Jalur<select value={entry.track} onChange={(event) => setProgress((current) => ({ ...current, [member.id]: { ...entry, track: event.target.value as typeof entry.track, iwrCurriculumUnitId: "", surahNumber: "", ayahStart: "", ayahEnd: "" } }))} className="mt-1 block w-full rounded-sm border border-border px-3 py-2"><option value="pra_tahsin">Pra Tahsin — IWR 1/IWR 2</option>{selectedGroup.level !== "pra_tahsin" && <option value="tahsin">Tahsin — surah dan ayah</option>}{selectedGroup.level !== "pra_tahsin" && <option value="ziyadah">Ziyadah — surah saja</option>}</select></label>
-              {entry.track === "pra_tahsin" ? <label className="text-sm font-medium">Unit IWR<select value={entry.iwrCurriculumUnitId} onChange={(event) => setProgress((current) => ({ ...current, [member.id]: { ...entry, iwrCurriculumUnitId: event.target.value } }))} className="mt-1 block w-full rounded-sm border border-border px-3 py-2"><option value="">Pilih topik IWR 1/IWR 2</option>{iwrUnits.map((unit) => <option value={unit.id} key={unit.id}>{unit.iwrLevel === "iwr_1" ? "IWR 1" : "IWR 2"} · {unit.topicCode} — hlm. {unit.pageStart}-{unit.pageEnd}</option>)}</select></label> : <><label className="text-sm font-medium">Nomor surah<input type="number" min="1" max="114" value={entry.surahNumber} onChange={(event) => setProgress((current) => ({ ...current, [member.id]: { ...entry, surahNumber: event.target.value } }))} className="mt-1 block w-full rounded-sm border border-border px-3 py-2" /></label>{entry.track === "tahsin" && <div className="grid grid-cols-2 gap-3"><label className="text-sm font-medium">Ayat mulai<input type="number" min="1" value={entry.ayahStart} onChange={(event) => setProgress((current) => ({ ...current, [member.id]: { ...entry, ayahStart: event.target.value } }))} className="mt-1 block w-full rounded-sm border border-border px-3 py-2" /></label><label className="text-sm font-medium">Ayat selesai<input type="number" min="1" value={entry.ayahEnd} onChange={(event) => setProgress((current) => ({ ...current, [member.id]: { ...entry, ayahEnd: event.target.value } }))} className="mt-1 block w-full rounded-sm border border-border px-3 py-2" /></label></div>}</>}
+              {entry && <div className="mt-4 grid gap-3 border-t border-border pt-4 md:grid-cols-2"><label className="text-sm font-medium">Jalur<select value={entry.track} onChange={(event) => setProgress((current) => ({ ...current, [member.id]: { ...entry, track: event.target.value as LearningTrack, iwrCurriculumUnitId: "", surahNumber: "", ayahStart: "", ayahEnd: "" } }))} className="mt-1 block w-full rounded-sm border border-border px-3 py-2"><option value="pra_tahsin">Pra Tahsin — IWR 1/IWR 2</option>{selectedGroupLevel !== "pra_tahsin" && <option value="tahsin">Tahsin — surah dan ayah</option>}{selectedGroupLevel !== "pra_tahsin" && <option value="ziyadah">Ziyadah — surah saja</option>}</select></label>
+              {entry.track === "pra_tahsin" ? <label className="text-sm font-medium">Unit IWR<select value={entry.iwrCurriculumUnitId} onChange={(event) => setProgress((current) => ({ ...current, [member.id]: { ...entry, iwrCurriculumUnitId: event.target.value } }))} className="mt-1 block w-full rounded-sm border border-border px-3 py-2"><option value="">Pilih topik IWR 1/IWR 2</option>{iwrUnits.map((unit) => <option value={unit.id} key={unit.id}>{unit.iwrLevel === "iwr_1" ? "IWR 1" : "IWR 2"} · {unit.topicCode} — {unit.pageStart === null ? "tanpa halaman" : `hlm. ${unit.pageStart}-${unit.pageEnd}`}</option>)}</select></label> : <><label className="text-sm font-medium">Nomor surah<input type="number" min="1" max="114" value={entry.surahNumber} onChange={(event) => setProgress((current) => ({ ...current, [member.id]: { ...entry, surahNumber: event.target.value } }))} className="mt-1 block w-full rounded-sm border border-border px-3 py-2" /></label>{entry.track === "tahsin" && <div className="grid grid-cols-2 gap-3"><label className="text-sm font-medium">Ayat mulai<input type="number" min="1" value={entry.ayahStart} onChange={(event) => setProgress((current) => ({ ...current, [member.id]: { ...entry, ayahStart: event.target.value } }))} className="mt-1 block w-full rounded-sm border border-border px-3 py-2" /></label><label className="text-sm font-medium">Ayat selesai<input type="number" min="1" value={entry.ayahEnd} onChange={(event) => setProgress((current) => ({ ...current, [member.id]: { ...entry, ayahEnd: event.target.value } }))} className="mt-1 block w-full rounded-sm border border-border px-3 py-2" /></label></div>}</>}
               <label className="text-sm font-medium md:col-span-2">Catatan progres<textarea value={entry.note} onChange={(event) => setProgress((current) => ({ ...current, [member.id]: { ...entry, note: event.target.value } }))} className="mt-1 block min-h-16 w-full rounded-sm border border-border px-3 py-2" /></label></div>}
               {saved && <div className="mt-4"><YmqProgressEvidenceUploader progressId={saved.id} groupId={selectedGroup.id} sessionId={`${selectedGroup.id}-${sessionDate}`} disabled={isSaving} /></div>}
             </Card>;

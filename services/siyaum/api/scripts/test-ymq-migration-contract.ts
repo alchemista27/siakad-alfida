@@ -28,4 +28,13 @@ for (const variableName of ["AUTH_INTERNAL_API_URL", "SIMPEG_INTERNAL_API_URL", 
   assert.match(envExample, new RegExp(`^${variableName}=`, "m"), `${variableName} must be documented for SIYAUM deployment`);
 }
 
+const nullablePageMigration = join(migrationsRoot, "20261116043000_allow_iwr_units_without_page_range", "migration.sql");
+assert.equal(existsSync(nullablePageMigration), true, "page-less IWR migration must be versioned");
+const nullablePageSql = readFileSync(nullablePageMigration, "utf8");
+assert.match(nullablePageSql, /ALTER COLUMN "page_start" DROP NOT NULL/);
+assert.match(nullablePageSql, /ALTER COLUMN "page_end" DROP NOT NULL/);
+const schema = readFileSync(join(apiRoot, "prisma", "schema.prisma"), "utf8");
+assert.match(schema, /pageStart\s+Int\?/);
+assert.match(schema, /pageEnd\s+Int\?/);
+
 console.log("SIYAUM YMQ migration lifecycle contract passed");

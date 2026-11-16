@@ -90,5 +90,7 @@ assert.equal(validateSequence(1.5).valid, false);
 assert.equal(validateCurriculumUnitInput({ topicCode: "", pageStart: 1, pageEnd: 2 }).valid, false);
 assert.equal(validateCurriculumUnitInput({ topicCode: "IWR1-01", pageStart: 4, pageEnd: 3 }).valid, false);
 assert.equal(validateCurriculumUnitInput({ topicCode: "IWR1-01", pageStart: 1, pageEnd: 3 }).valid, true);
+assert.equal(validateCurriculumUnitInput({ topicCode: "IWR2-25", pageStart: null, pageEnd: null }).valid, true);
+assert.equal(validateCurriculumUnitInput({ topicCode: "IWR2-25", pageStart: 1, pageEnd: null }).valid, false);
 
 console.log("SIYAUM YMQ domain contract passed");

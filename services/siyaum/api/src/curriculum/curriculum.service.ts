@@ -25,8 +25,8 @@ export class CurriculumService {
   async update(id: string, dto: UpdateIwrCurriculumDto) {
     const existing = await this.prisma.ymqIwrCurriculumUnit.findUniqueOrThrow({ where: { id } });
     const topicCode = dto.topicCode ?? existing.topicCode;
-    const pageStart = dto.pageStart ?? existing.pageStart;
-    const pageEnd = dto.pageEnd ?? existing.pageEnd;
+    const pageStart = dto.pageStart === undefined ? existing.pageStart : dto.pageStart;
+    const pageEnd = dto.pageEnd === undefined ? existing.pageEnd : dto.pageEnd;
     this.assertValid(topicCode, pageStart, pageEnd);
     return this.prisma.ymqIwrCurriculumUnit.update({ where: { id }, data: dto });
   }
@@ -35,7 +35,7 @@ export class CurriculumService {
     return this.prisma.ymqIwrCurriculumUnit.update({ where: { id }, data: { isActive: false } });
   }
 
-  private assertValid(topicCode: string, pageStart: number, pageEnd: number) {
+  private assertValid(topicCode: string, pageStart: number | null, pageEnd: number | null) {
     const result = validateCurriculumUnitInput({ topicCode, pageStart, pageEnd });
     if (!result.valid) throw new BadRequestException("reason" in result ? result.reason : "Unit kurikulum tidak valid.");
   }

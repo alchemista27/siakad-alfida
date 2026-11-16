@@ -166,8 +166,8 @@ model YmqIwrCurriculumUnit {
   iwrLevel   IwrLevel @map("iwr_level")
   topicCode  String   @map("topic_code") @db.VarChar(40)
   topicTitle String   @map("topic_title") @db.VarChar(200)
-  pageStart  Int      @map("page_start")
-  pageEnd    Int      @map("page_end")
+  pageStart  Int?     @map("page_start")
+  pageEnd    Int?     @map("page_end")
   isActive   Boolean  @default(true) @map("is_active")
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz

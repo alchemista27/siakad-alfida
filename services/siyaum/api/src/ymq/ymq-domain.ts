@@ -48,9 +48,14 @@ export function validateLearningProgressInput(input: LearningProgressInput): Dom
 
 export function validateCurriculumUnitInput(input: {
   topicCode: string;
-  pageStart: number;
-  pageEnd: number;
+  pageStart: number | null;
+  pageEnd: number | null;
 }): DomainValidationResult {
+  if (input.pageStart === null || input.pageEnd === null) {
+    return input.topicCode.trim().length > 0 && input.pageStart === null && input.pageEnd === null
+      ? valid()
+      : invalid("Rentang halaman IWR harus lengkap atau dikosongkan seluruhnya.");
+  }
   return input.topicCode.trim().length > 0 && Number.isInteger(input.pageStart) && Number.isInteger(input.pageEnd) && input.pageStart >= 1 && input.pageEnd >= input.pageStart
     ? valid()
     : invalid("Kode topik dan rentang halaman IWR tidak valid.");
