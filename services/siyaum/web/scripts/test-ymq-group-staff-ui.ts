@@ -10,9 +10,11 @@ const source = readFileSync(target, "utf8");
 
 assert.match(source, /SIMPEG|employee projection|proyeksi pegawai/i);
 assert.match(source, /\/ymq\/employees/);
-assert.match(source, /\/groups\/\$\{groupId\}\/pembina/);
+assert.doesNotMatch(source, /\/groups\/\$\{groupId\}\/pembina/);
+assert.doesNotMatch(source, /groupsByPembina/);
+assert.doesNotMatch(source, /Tetapkan \/ ganti Pembina/);
 assert.match(source, /\/groups\/\$\{groupId\}\/admins/);
-assert.match(source, /"PUT"/);
+assert.match(source, /"POST"/);
 assert.match(source, /"DELETE"/);
 assert.match(source, /active|aktif/i);
 assert.match(source, /unit/i);

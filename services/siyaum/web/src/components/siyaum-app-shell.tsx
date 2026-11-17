@@ -5,7 +5,7 @@ import { AppShell, type NavGroup } from "@alfida/ui";
 import type { CurrentUser } from "@/lib/current-user";
 import { hasSiyaumRole, roleLabel } from "@/lib/current-user";
 
-type ActivePage = "monitoring" | "groups" | "curriculum" | "executive" | "tilawah";
+type ActivePage = "monitoring" | "groups" | "pembina" | "penguji" | "curriculum" | "executive" | "tilawah";
 
 export function SiyaumAppShell({ user, active, children }: { user: CurrentUser | null; active: ActivePage; children: ReactNode }) {
   const [logoutError, setLogoutError] = useState<string | null>(null);
@@ -32,7 +32,9 @@ export function SiyaumAppShell({ user, active, children }: { user: CurrentUser |
       title: "Pembinaan",
       items: [
         ...(canManageSessions ? [{ label: "Jurnal halaqah", href: "/monitoring", icon: "edit_note", active: active === "monitoring" }] : []),
-        ...(canManageGroups ? [{ label: "Kelompok & penugasan", href: "/groups", icon: "groups", active: active === "groups" }] : []),
+        ...(canManageGroups ? [{ label: "Kelompok & roster", href: "/groups", icon: "groups", active: active === "groups" }] : []),
+        ...(canManageGroups ? [{ label: "Penugasan Pembina", href: "/pembina", icon: "school", active: active === "pembina" }] : []),
+        ...(canManageGroups ? [{ label: "Penugasan Penguji", href: "/penguji", icon: "fact_check", active: active === "penguji" }] : []),
         ...(canManageGroups ? [{ label: "Kurikulum IWR", href: "/curriculum", icon: "menu_book", active: active === "curriculum" }] : []),
         ...(canViewExecutive ? [{ label: "Pandangan eksekutif", href: "/executive", icon: "monitoring", active: active === "executive" }] : []),
       ],

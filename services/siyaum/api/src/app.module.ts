@@ -9,6 +9,7 @@ import { GroupStaffModule } from "./group-staff/group-staff.module";
 import { SessionsModule } from "./sessions/sessions.module";
 import { EvidenceModule } from "./evidence/evidence.module";
 import { YmqRoleManagementModule } from "./ymq-role-management/ymq-role-management.module";
+import { ExaminerAssignmentsModule } from "./examiner-assignments/examiner-assignments.module";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { YmqRoleManagementModule } from "./ymq-role-management/ymq-role-manageme
     SessionsModule,
     EvidenceModule,
     YmqRoleManagementModule,
+    ExaminerAssignmentsModule,
   ],
 })
 export class AppModule {}

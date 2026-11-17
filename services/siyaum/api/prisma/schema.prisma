@@ -54,6 +54,16 @@ enum YmqGroupStaffRole {
   admin_kelompok
 }
 
+enum YmqExaminerTarget {
+  pembina
+  peserta
+}
+
+enum YmqGender {
+  ikhwan
+  akhwat
+}
+
 model User {
   id              String    @id @default(uuid()) @db.Uuid
   fullName        String    @map("full_name") @db.VarChar(200)
@@ -70,6 +80,8 @@ model User {
   groupsAsPembina       YmqGroup[]                @relation("YmqPembina")
   memberships           YmqMember[]
   groupAdminAssignments YmqGroupAdminAssignment[]
+  examinerAssignments         YmqExaminerAssignment[] @relation("YmqExaminer")
+  assignedExaminerAssignments YmqExaminerAssignment[] @relation("YmqExaminerAssignedBy")
   setoranList           YmqSetoran[]              @relation("UserSetoran")
   verifiedSetorans      YmqSetoran[]              @relation("PembinaVerifications")
   targets               YmqTarget[]
@@ -192,6 +204,27 @@ model YmqGroupAdminAssignment {
 
   @@index([userId, revokedAt])
   @@map("ymq_group_admin_assignments")
+}
+
+model YmqExaminerAssignment {
+  id             String             @id @default(uuid()) @db.Uuid
+  examinerUserId String             @map("examiner_user_id") @db.Uuid
+  academicYear   String             @map("academic_year") @db.VarChar(9)
+  target         YmqExaminerTarget
+  gender         YmqGender
+  unitId         String?            @map("unit_id") @db.Uuid
+  unitName       String?            @map("unit_name") @db.VarChar(150)
+  levels         YmqGroupLevel[]   @default([])
+  assignedById   String             @map("assigned_by_id") @db.Uuid
+  assignedAt     DateTime           @default(now()) @map("assigned_at") @db.Timestamptz
+  revokedAt      DateTime?          @map("revoked_at") @db.Timestamptz
+
+  examiner   User @relation("YmqExaminer", fields: [examinerUserId], references: [id], onDelete: Restrict)
+  assignedBy User @relation("YmqExaminerAssignedBy", fields: [assignedById], references: [id], onDelete: Restrict)
+
+  @@index([academicYear, target, gender, unitId, revokedAt])
+  @@index([examinerUserId, revokedAt])
+  @@map("ymq_examiner_assignments")
 }
 
 model YmqLearningSession {
