@@ -32,13 +32,13 @@ export function SiyaumAppShell({ user, active, children }: { user: CurrentUser |
     {
       title: "Pembinaan",
       items: [
+        ...(canViewOverallProgress ? [{ label: "Dashboard Pencapaian", href: "/progress", icon: "bar_chart", active: active === "progress" }] : []),
         ...(canManageSessions ? [{ label: "Jurnal halaqah", href: "/monitoring", icon: "edit_note", active: active === "monitoring" }] : []),
         ...(canManageGroups ? [{ label: "Kelompok & roster", href: "/groups", icon: "groups", active: active === "groups" }] : []),
         ...(canManageGroups ? [{ label: "Penugasan Admin Kelompok", href: "/group-admins", icon: "manage_accounts", active: active === "group-admins" }] : []),
         ...(canManageGroups ? [{ label: "Penugasan Pembina", href: "/pembina", icon: "school", active: active === "pembina" }] : []),
         ...(canManageGroups ? [{ label: "Penugasan Penguji", href: "/penguji", icon: "fact_check", active: active === "penguji" }] : []),
         ...(canManageGroups ? [{ label: "Kurikulum IWR", href: "/curriculum", icon: "menu_book", active: active === "curriculum" }] : []),
-        ...(canViewOverallProgress ? [{ label: "Dashboard Pencapaian", href: "/progress", icon: "bar_chart", active: active === "progress" }] : []),
         ...(canViewExecutive ? [{ label: "Pandangan eksekutif", href: "/executive", icon: "monitoring", active: active === "executive" }] : []),
       ],
     },

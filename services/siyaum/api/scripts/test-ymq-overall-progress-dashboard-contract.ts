@@ -3,6 +3,7 @@ import { DashboardService } from "../src/dashboard/dashboard.service";
 
 const unitA = "11111111-1111-4111-8111-111111111111";
 const unitB = "22222222-2222-4222-8222-222222222222";
+const unitC = "33333333-3333-4333-8333-333333333333";
 const users = [
   { id: "a", userId: "a", fullName: "Ahmad", unitId: unitA, unitName: "Unit A" },
   { id: "b", userId: "b", fullName: "Budi", unitId: unitA, unitName: "Unit A" },
@@ -38,9 +39,16 @@ const prisma = {
   },
 };
 const admin = { id: "admin", roles: [{ app: "siyaum", role: "admin_ymq" }] };
+const simpegUnits = {
+  listActive: async () => [
+    { id: unitB, name: "Unit B" },
+    { id: unitC, name: "Unit C tanpa roster" },
+    { id: unitA, name: "Unit A" },
+  ],
+};
 
 async function main() {
-  const service = new DashboardService(prisma as any);
+  const service = new DashboardService(prisma as any, simpegUnits as any);
   const report = await service.overallProgress({}, admin);
   assert.equal(report.roster.activeParticipants, 5);
   assert.equal(report.roster.unclassifiedParticipantCount, 2);
@@ -53,7 +61,11 @@ async function main() {
   assert.equal(report.hafalan.averageVerifiedPages, 3);
   assert.equal(report.hafalan.rankings[0]?.userId, "c");
   assert.equal(report.hafalan.rankings[0]?.verifiedPages, 10);
-  assert.deepEqual(report.availableUnits.map((unit) => unit.name), ["Unit A", "Unit B"]);
+  assert.deepEqual(report.availableUnits, [
+    { id: unitA, name: "Unit A" },
+    { id: unitB, name: "Unit B" },
+    { id: unitC, name: "Unit C tanpa roster" },
+  ]);
   assert.deepEqual(setoranWhere, { userId: { in: ["a", "b", "c", "d", "e"] }, jenis: "ziyadah", statusVerifikasi: "verified" });
 
   const unitReport = await service.overallProgress({ unitId: unitA }, admin);
@@ -61,6 +73,15 @@ async function main() {
   assert.equal(unitReport.roster.unclassifiedParticipantCount, 0);
   assert.equal(unitReport.hafalan.averageVerifiedPages, 2.5);
   assert.deepEqual(unitReport.unitProgress.map((row) => row.unitName), ["Unit A"]);
+
+  const emptyUnitReport = await service.overallProgress({ unitId: unitC }, admin);
+  assert.equal(emptyUnitReport.roster.activeParticipants, 0);
+  assert.deepEqual(emptyUnitReport.availableUnits.map((unit) => unit.id), [unitA, unitB, unitC]);
+
+  await assert.rejects(
+    () => service.overallProgress({ unitId: "44444444-4444-4444-8444-444444444444" }, admin),
+    /Unit kerja aktif SIMPEG tidak ditemukan/,
+  );
   await assert.rejects(
     () => service.overallProgress({}, { id: "pembina", roles: [{ app: "siyaum", role: "pembina_ymq" }] }),
     /Dashboard pencapaian/,

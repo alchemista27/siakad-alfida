@@ -1,14 +1,18 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 import { Prisma, SetoranType, VerificationStatus } from "../generated/prisma";
 import { PrismaService } from "../prisma/prisma.service";
 import { canManageGroup, canReadExecutiveDashboard, canReadOverallProgressDashboard, hasAnyYmqRole, type YmqPrincipal } from "../ymq/ymq-access.policy";
 import { rankYmqParticipants } from "./dashboard-ranking.policy";
 import { classifyLatestProgress, parseDashboardQuery, type YmqDashboardQuery } from "./dashboard.policy";
 import { classifyOverallProgress, parseOverallProgressQuery, type OverallProgressCategory, type OverallProgressQuery } from "./overall-progress.policy";
+import { SimpegUnitCatalogClient } from "./simpeg-unit-catalog.client";
 
 @Injectable()
 export class DashboardService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly simpegUnitCatalog: SimpegUnitCatalogClient,
+  ) {}
 
   async getMetrics() {
     const [totalGroups, totalMembers, totalSetoran, setoranStats, verifiedCount, pendingCount] = await Promise.all([
@@ -28,20 +32,23 @@ export class DashboardService {
       throw new ForbiddenException("Dashboard pencapaian hanya untuk Admin YMQ, Pengawas, atau Pimpinan.");
     }
     const query = parseOverallProgressQuery(rawQuery);
-    const activeRoster = await this.prisma.ymqMember.findMany({
-      where: { leftAt: null, user: { isActive: true } },
-      select: {
-        userId: true,
-        user: { select: { id: true, fullName: true, unitId: true, unitName: true } },
-      },
-    });
+    const [activeUnitCatalog, activeRoster] = await Promise.all([
+      this.simpegUnitCatalog.listActive(),
+      this.prisma.ymqMember.findMany({
+        where: { leftAt: null, user: { isActive: true } },
+        select: {
+          userId: true,
+          user: { select: { id: true, fullName: true, unitId: true, unitName: true } },
+        },
+      }),
+    ]);
+    const availableUnits = [...activeUnitCatalog].sort((left, right) => left.name.localeCompare(right.name, "id"));
+    const activeUnitIds = new Set(availableUnits.map((unit) => unit.id));
+    if (query.unitId && !activeUnitIds.has(query.unitId)) {
+      throw new BadRequestException("Unit kerja aktif SIMPEG tidak ditemukan.");
+    }
     const activeUsers = new Map<string, typeof activeRoster[number]["user"]>();
     for (const member of activeRoster) activeUsers.set(member.userId, member.user);
-    const availableUnits = [...new Map(
-      [...activeUsers.values()]
-        .filter((user) => Boolean(user.unitId && user.unitName))
-        .map((user) => [user.unitId!, { id: user.unitId!, name: user.unitName! }]),
-    ).values()].sort((left, right) => left.name.localeCompare(right.name, "id"));
     const scopedUsers = [...activeUsers.values()].filter((user) => !query.unitId || user.unitId === query.unitId);
     const scopedUserIds = scopedUsers.map((user) => user.id);
     if (!scopedUserIds.length) return emptyOverallProgressReport(query, availableUnits);

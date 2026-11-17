@@ -34,6 +34,14 @@ assert.match(shell, /const canViewOverallProgress = hasSiyaumRole\(user, "admin_
 assert.match(shell, /Dashboard Pencapaian/);
 assert.match(shell, /href: "\/progress"/);
 assert.match(shell, /const canViewExecutive = hasSiyaumRole\(user, "pengawas", "pimpinan"\)/);
+const dashboardItemIndex = shell.indexOf('label: "Dashboard Pencapaian"');
+const journalItemIndex = shell.indexOf('label: "Jurnal halaqah"');
+assert.ok(dashboardItemIndex >= 0, "Dashboard Pencapaian navigation must exist");
+assert.ok(journalItemIndex >= 0, "Jurnal halaqah navigation must exist");
+assert.ok(
+  dashboardItemIndex < journalItemIndex,
+  "Dashboard Pencapaian must be the first operational sidebar item when it is authorized",
+);
 assert.doesNotMatch(client, /\b(alert|confirm)\(/);
 
 console.log("SIYAUM overall progress dashboard UI contract passed");
