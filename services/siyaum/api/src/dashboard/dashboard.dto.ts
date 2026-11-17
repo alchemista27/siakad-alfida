@@ -1,3 +1,7 @@
+export class YmqOverallProgressQueryDto {
+  unitId?: string;
+}
+
 export class YmqDashboardQueryDto {
   from: string;
   to: string;

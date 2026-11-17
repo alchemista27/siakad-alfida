@@ -62,7 +62,7 @@ export class GroupsService {
             id: true,
             userId: true,
             progressLevel: true,
-            user: { select: { id: true, fullName: true, email: true, unitId: true, unitName: true } },
+            user: { select: { id: true, fullName: true, email: true, unitId: true, unitName: true, isActive: true } },
           },
         },
       },

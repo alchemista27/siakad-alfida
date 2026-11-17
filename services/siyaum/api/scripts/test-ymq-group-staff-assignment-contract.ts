@@ -31,6 +31,9 @@ async function main() {
     user: {
       findUnique: async () => ({ id: ids.employee, isActive: true, sourceUpdatedAt: new Date("2026-10-22T00:00:00.000Z") }),
     },
+    ymqMember: {
+      findFirst: async () => ({ id: "member-assignment" }),
+    },
     ymqGroupAdminAssignment: {
       findFirst: async () => null,
       findFirstOrThrow: async () => ({ groupId: ids.group, userId: ids.employee, revokedAt: null, user: { id: ids.employee } }),
@@ -59,6 +62,31 @@ async function main() {
     assignedById: ids.admin,
   }]);
   assert.deepEqual(successfulRoleAssignments, ["admin_kelompok"]);
+
+  const nonMemberRoleAssignments: string[] = [];
+  const nonMemberService = new GroupStaffService({
+    ymqGroup: { findUnique: async () => ({ id: ids.group }) },
+    user: { findUnique: async () => ({ id: ids.employee, isActive: true, sourceUpdatedAt: new Date("2026-10-22T00:00:00.000Z") }) },
+    ymqMember: { findFirst: async () => null },
+    ymqGroupAdminAssignment: {
+      findFirst: async () => null,
+      findFirstOrThrow: async () => ({ groupId: ids.group, userId: ids.employee, revokedAt: null, user: { id: ids.employee } }),
+    },
+    $transaction: async (callback: (tx: any) => Promise<void>) => callback({
+      ymqGroupAdminAssignment: { findFirst: async () => null, create: async () => undefined },
+    }),
+  } as any, {
+    assign: async (_actorId: string, _targetUserId: string, role: string) => {
+      nonMemberRoleAssignments.push(role);
+      return { changed: true };
+    },
+    revoke: async () => undefined,
+  } as any);
+  await assert.rejects(
+    () => nonMemberService.assignGroupAdmin(ids.group, ids.employee, principal),
+    /anggota roster aktif/i,
+  );
+  assert.deepEqual(nonMemberRoleAssignments, []);
 
   const service = new GroupStaffService(prisma as any, broker as any);
   await assert.rejects(() => service.assignPembina(ids.group, ids.employee, principal));

@@ -60,6 +60,7 @@ const prisma = {
             email: "peserta@example.test",
             unitId: null,
             unitName: null,
+            isActive: true,
           },
         }],
       };
@@ -104,6 +105,7 @@ async function main() {
     select: { id: true, fullName: true, email: true, unitId: true, unitName: true },
   });
   assert.match(JSON.stringify(include.members), /progressLevel/);
+  assert.match(JSON.stringify(include.members), /isActive/);
 
   console.log("YMQ group roster hierarchy contract passed");
 }

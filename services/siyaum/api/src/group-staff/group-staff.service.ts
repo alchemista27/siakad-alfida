@@ -45,7 +45,7 @@ export class GroupStaffService {
 
   async assignGroupAdmin(groupId: string, userId: string, principal: YmqPrincipal) {
     this.requireAdmin(principal);
-    await this.requireGroupAndActiveEmployee(groupId, userId);
+    await this.requireGroupAndActiveRosterMember(groupId, userId);
     const roleGrant = await this.roleBroker.assign(principal.id, userId, "admin_kelompok");
     try {
       await this.prisma.$transaction(async (tx) => {
@@ -81,6 +81,21 @@ export class GroupStaffService {
 
   private requireAdmin(principal: YmqPrincipal) {
     if (!hasYmqRole(principal, "admin_ymq")) throw new ForbiddenException("Hanya admin YMQ yang dapat mengelola staf kelompok.");
+  }
+
+  private async requireGroupAndActiveRosterMember(groupId: string, userId: string) {
+    const [group, employee, membership] = await Promise.all([
+      this.prisma.ymqGroup.findUnique({ where: { id: groupId }, select: { id: true } }),
+      this.prisma.user.findUnique({ where: { id: userId }, select: { id: true, isActive: true, sourceUpdatedAt: true } }),
+      this.prisma.ymqMember.findFirst({ where: { groupId, userId, leftAt: null }, select: { id: true } }),
+    ]);
+    if (!group) throw new NotFoundException("Kelompok YMQ tidak ditemukan.");
+    if (!employee?.isActive || !employee.sourceUpdatedAt) {
+      throw new BadRequestException("Target harus pegawai aktif dari proyeksi SIMPEG.");
+    }
+    if (!membership) {
+      throw new BadRequestException("Admin Kelompok wajib merupakan anggota roster aktif kelompok ini.");
+    }
   }
 
   private async requireGroupAndActiveEmployee(groupId: string, userId: string) {

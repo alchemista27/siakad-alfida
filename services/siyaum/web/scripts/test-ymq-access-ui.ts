@@ -50,6 +50,9 @@ assert.match(shell, /onLogout=\{handleLogout\}/, "SIYAUM must pass its logout ha
 assert.doesNotMatch(shell, /\b(alert|confirm)\(/, "SIYAUM logout feedback must not use native browser dialogs");
 assert.doesNotMatch(shell, /<aside/, "SIYAUM must not retain a bespoke sidebar alongside the shared shell");
 assert.match(executive, /canViewExecutive/);
+assert.match(shell, /const canViewExecutive = hasSiyaumRole\(user, "pengawas", "pimpinan"\)/, "Executive navigation must be limited to Pengawas and Pimpinan");
+assert.doesNotMatch(shell, /const canViewExecutive = hasSiyaumRole\(user, "admin_ymq", "pengawas", "pimpinan"\)/, "Admin YMQ must not see executive navigation");
+assert.match(executive, /const currentUser = await getCurrentUser\(\);[\s\S]*?if \(!hasSiyaumRole\(currentUser, "pengawas", "pimpinan"\)\) return;/, "Direct executive access must stop before report API calls for Admin YMQ");
 assert.ok(!/method:\s*["'](?:POST|PUT|PATCH|DELETE)["']/.test(executive), "Executive dashboard must be read-only");
 assert.ok(!/\balert\s*\(/.test([monitoring, groups, executive].join("\n")), "Operational UI must not use alert()");
 assert.ok(!/\bconfirm\s*\(/.test([monitoring, groups, executive].join("\n")), "Operational UI must not use confirm()");

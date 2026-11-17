@@ -4,6 +4,8 @@ import { resolve } from "node:path";
 
 const shell = readFileSync(resolve(import.meta.dirname, "../src/components/siyaum-app-shell.tsx"), "utf8");
 
+assert.match(shell, /Penugasan Admin Kelompok/);
+assert.match(shell, /href: "\/group-admins"/);
 assert.match(shell, /Penugasan Pembina/);
 assert.match(shell, /href: "\/pembina"/);
 assert.match(shell, /Penugasan Penguji/);

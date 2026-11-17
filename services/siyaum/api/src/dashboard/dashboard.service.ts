@@ -1,9 +1,10 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
-import { Prisma, VerificationStatus } from "../generated/prisma";
+import { Prisma, SetoranType, VerificationStatus } from "../generated/prisma";
 import { PrismaService } from "../prisma/prisma.service";
-import { canManageGroup, canReadExecutiveDashboard, hasAnyYmqRole, type YmqPrincipal } from "../ymq/ymq-access.policy";
+import { canManageGroup, canReadExecutiveDashboard, canReadOverallProgressDashboard, hasAnyYmqRole, type YmqPrincipal } from "../ymq/ymq-access.policy";
 import { rankYmqParticipants } from "./dashboard-ranking.policy";
 import { classifyLatestProgress, parseDashboardQuery, type YmqDashboardQuery } from "./dashboard.policy";
+import { classifyOverallProgress, parseOverallProgressQuery, type OverallProgressCategory, type OverallProgressQuery } from "./overall-progress.policy";
 
 @Injectable()
 export class DashboardService {
@@ -20,6 +21,168 @@ export class DashboardService {
     ]);
     const totalHalaman = setoranStats._sum.jumlahHalaman || 0;
     return { totalGroups, totalMembers, totalSetoran, totalHalaman, totalKhatamEstimasi: Math.floor(totalHalaman / 604), verifiedCount, pendingCount };
+  }
+
+  async overallProgress(rawQuery: Partial<OverallProgressQuery>, principal: YmqPrincipal) {
+    if (!canReadOverallProgressDashboard(principal)) {
+      throw new ForbiddenException("Dashboard pencapaian hanya untuk Admin YMQ, Pengawas, atau Pimpinan.");
+    }
+    const query = parseOverallProgressQuery(rawQuery);
+    const activeRoster = await this.prisma.ymqMember.findMany({
+      where: { leftAt: null, user: { isActive: true } },
+      select: {
+        userId: true,
+        user: { select: { id: true, fullName: true, unitId: true, unitName: true } },
+      },
+    });
+    const activeUsers = new Map<string, typeof activeRoster[number]["user"]>();
+    for (const member of activeRoster) activeUsers.set(member.userId, member.user);
+    const availableUnits = [...new Map(
+      [...activeUsers.values()]
+        .filter((user) => Boolean(user.unitId && user.unitName))
+        .map((user) => [user.unitId!, { id: user.unitId!, name: user.unitName! }]),
+    ).values()].sort((left, right) => left.name.localeCompare(right.name, "id"));
+    const scopedUsers = [...activeUsers.values()].filter((user) => !query.unitId || user.unitId === query.unitId);
+    const scopedUserIds = scopedUsers.map((user) => user.id);
+    if (!scopedUserIds.length) return emptyOverallProgressReport(query, availableUnits);
+
+    const progress = await this.prisma.ymqLearningProgress.findMany({
+      where: { member: { userId: { in: scopedUserIds } } },
+      include: {
+        member: { select: { userId: true } },
+        iwrCurriculumUnit: { select: { iwrLevel: true } },
+        session: { select: { sessionDate: true } },
+      },
+      orderBy: [{ session: { sessionDate: "desc" } }, { createdAt: "desc" }, { id: "desc" }],
+    });
+    const recordsByUser = new Map<string, typeof progress>();
+    for (const record of progress) {
+      const records = recordsByUser.get(record.member.userId) || [];
+      records.push(record);
+      recordsByUser.set(record.member.userId, records);
+    }
+    for (const records of recordsByUser.values()) records.sort(compareProgressDescending);
+
+    const categoryByUser = new Map<string, OverallProgressCategory | null>();
+    const latestActivityByUser = new Map<string, Date | null>();
+    for (const user of scopedUsers) {
+      const latest = recordsByUser.get(user.id)?.[0] ?? null;
+      categoryByUser.set(user.id, classifyOverallProgress(latest ? {
+        track: latest.track,
+        iwrLevel: latest.iwrCurriculumUnit?.iwrLevel ?? null,
+      } : null));
+      latestActivityByUser.set(user.id, latest?.session.sessionDate ?? null);
+    }
+
+    const categoryDefinitions: Array<{ key: OverallProgressCategory; label: string; metricLabel: string }> = [
+      { key: "iwr_1", label: "Pra Tahsin — IWR 1", metricLabel: "Unit IWR tercatat" },
+      { key: "iwr_2", label: "Pra Tahsin — IWR 2", metricLabel: "Unit IWR tercatat" },
+      { key: "tahsin", label: "Tahsin", metricLabel: "Rentang ayat tercatat" },
+    ];
+    const categoryCounts = new Map<OverallProgressCategory, number>(categoryDefinitions.map((item) => [item.key, 0]));
+    for (const category of categoryByUser.values()) if (category) categoryCounts.set(category, (categoryCounts.get(category) || 0) + 1);
+
+    const categoryRankings = categoryDefinitions.map((definition) => ({
+      ...definition,
+      rankings: scopedUsers
+        .filter((user) => categoryByUser.get(user.id) === definition.key)
+        .map((user) => {
+          const records = recordsByUser.get(user.id) || [];
+          const metricValue = definition.key === "tahsin"
+            ? new Set(records.filter((record) => record.track === "tahsin").map((record) => `${record.surahNumber ?? ""}:${record.ayahStart ?? ""}:${record.ayahEnd ?? ""}`)).size
+            : new Set(records.filter((record) => classifyOverallProgress({ track: record.track, iwrLevel: record.iwrCurriculumUnit?.iwrLevel ?? null }) === definition.key).map((record) => record.iwrCurriculumUnitId)).size;
+          return {
+            userId: user.id,
+            fullName: user.fullName,
+            unitName: user.unitName,
+            metricValue,
+            latestActivityDate: latestActivityByUser.get(user.id)?.toISOString() ?? null,
+          };
+        })
+        .sort(compareMetricRanking)
+        .slice(0, 20),
+    }));
+
+    const setoran = await this.prisma.ymqSetoran.groupBy({
+      where: { userId: { in: scopedUserIds }, jenis: SetoranType.ziyadah, statusVerifikasi: VerificationStatus.verified },
+      by: ["userId"],
+      _sum: { jumlahHalaman: true },
+      _max: { date: true },
+    });
+    const hafalanByUser = new Map(setoran.map((row) => [row.userId, {
+      verifiedPages: row._sum.jumlahHalaman || 0,
+      latestVerifiedDate: row._max.date,
+    }]));
+    const totalVerifiedPages = [...hafalanByUser.values()].reduce((total, row) => total + row.verifiedPages, 0);
+    const unitProgress = new Map<string, {
+      unitId: string;
+      unitName: string;
+      activeParticipants: number;
+      iwr1Participants: number;
+      iwr2Participants: number;
+      tahsinParticipants: number;
+      unclassifiedParticipants: number;
+      verifiedPages: number;
+    }>();
+    for (const user of scopedUsers) {
+      if (!user.unitId || !user.unitName) continue;
+      const unit = unitProgress.get(user.unitId) || {
+        unitId: user.unitId,
+        unitName: user.unitName,
+        activeParticipants: 0,
+        iwr1Participants: 0,
+        iwr2Participants: 0,
+        tahsinParticipants: 0,
+        unclassifiedParticipants: 0,
+        verifiedPages: 0,
+      };
+      unit.activeParticipants += 1;
+      const category = categoryByUser.get(user.id);
+      if (category === "iwr_1") unit.iwr1Participants += 1;
+      else if (category === "iwr_2") unit.iwr2Participants += 1;
+      else if (category === "tahsin") unit.tahsinParticipants += 1;
+      else unit.unclassifiedParticipants += 1;
+      unit.verifiedPages += hafalanByUser.get(user.id)?.verifiedPages || 0;
+      unitProgress.set(user.unitId, unit);
+    }
+
+    return {
+      appliedFilters: query,
+      availableUnits,
+      roster: {
+        activeParticipants: scopedUsers.length,
+        unclassifiedParticipantCount: scopedUsers.filter((user) => !categoryByUser.get(user.id)).length,
+      },
+      progressPie: categoryDefinitions.map((definition) => ({
+        key: definition.key,
+        label: definition.label,
+        participants: categoryCounts.get(definition.key) || 0,
+        percentage: percentage(categoryCounts.get(definition.key) || 0, scopedUsers.length),
+      })),
+      categoryRankings,
+      hafalan: {
+        totalVerifiedPages,
+        averageVerifiedPages: round(totalVerifiedPages / scopedUsers.length),
+        rankings: scopedUsers
+          .map((user) => ({
+            userId: user.id,
+            fullName: user.fullName,
+            unitName: user.unitName,
+            verifiedPages: hafalanByUser.get(user.id)?.verifiedPages || 0,
+            latestVerifiedDate: hafalanByUser.get(user.id)?.latestVerifiedDate?.toISOString() ?? null,
+          }))
+          .filter((row) => row.verifiedPages > 0)
+          .sort(compareHafalanRanking)
+          .slice(0, 20),
+      },
+      unitProgress: [...unitProgress.values()]
+        .map((unit) => ({
+          ...unit,
+          averageVerifiedHafalanPages: round(unit.verifiedPages / unit.activeParticipants),
+        }))
+        .map(({ verifiedPages: _verifiedPages, ...unit }) => unit)
+        .sort((left, right) => left.unitName.localeCompare(right.unitName, "id")),
+    };
   }
 
   async general(rawQuery: Partial<YmqDashboardQuery>, principal: YmqPrincipal) {
@@ -187,6 +350,54 @@ export class DashboardService {
     }
     return latest;
   }
+}
+
+function emptyOverallProgressReport(query: OverallProgressQuery, availableUnits: Array<{ id: string; name: string }>) {
+  return {
+    appliedFilters: query,
+    availableUnits,
+    roster: { activeParticipants: 0, unclassifiedParticipantCount: 0 },
+    progressPie: [
+      { key: "iwr_1" as const, label: "Pra Tahsin — IWR 1", participants: 0, percentage: 0 },
+      { key: "iwr_2" as const, label: "Pra Tahsin — IWR 2", participants: 0, percentage: 0 },
+      { key: "tahsin" as const, label: "Tahsin", participants: 0, percentage: 0 },
+    ],
+    categoryRankings: [
+      { key: "iwr_1" as const, label: "Pra Tahsin — IWR 1", metricLabel: "Unit IWR tercatat", rankings: [] },
+      { key: "iwr_2" as const, label: "Pra Tahsin — IWR 2", metricLabel: "Unit IWR tercatat", rankings: [] },
+      { key: "tahsin" as const, label: "Tahsin", metricLabel: "Rentang ayat tercatat", rankings: [] },
+    ],
+    hafalan: { totalVerifiedPages: 0, averageVerifiedPages: 0, rankings: [] },
+    unitProgress: [],
+  };
+}
+
+function compareProgressDescending(left: any, right: any) {
+  const session = right.session.sessionDate.getTime() - left.session.sessionDate.getTime();
+  if (session) return session;
+  const created = right.createdAt.getTime() - left.createdAt.getTime();
+  if (created) return created;
+  return String(right.id).localeCompare(String(left.id), "id");
+}
+
+function compareMetricRanking(left: { metricValue: number; latestActivityDate: string | null; fullName: string; userId: string }, right: typeof left) {
+  if (right.metricValue !== left.metricValue) return right.metricValue - left.metricValue;
+  const activity = (right.latestActivityDate || "").localeCompare(left.latestActivityDate || "");
+  if (activity) return activity;
+  const name = left.fullName.localeCompare(right.fullName, "id");
+  return name || left.userId.localeCompare(right.userId, "id");
+}
+
+function compareHafalanRanking(left: { verifiedPages: number; latestVerifiedDate: string | null; fullName: string; userId: string }, right: typeof left) {
+  if (right.verifiedPages !== left.verifiedPages) return right.verifiedPages - left.verifiedPages;
+  const verified = (right.latestVerifiedDate || "").localeCompare(left.latestVerifiedDate || "");
+  if (verified) return verified;
+  const name = left.fullName.localeCompare(right.fullName, "id");
+  return name || left.userId.localeCompare(right.userId, "id");
+}
+
+function round(value: number) {
+  return Math.round(value * 100) / 100;
 }
 
 function attendanceRates(groups: any[], query: YmqDashboardQuery, weeklyStart: Date) {

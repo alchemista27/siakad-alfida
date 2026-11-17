@@ -40,6 +40,10 @@ export function canManageGroup(principal: YmqPrincipal, group: YmqGroupScope): b
 }
 
 export function canReadExecutiveDashboard(principal: YmqPrincipal): boolean {
+  return hasAnyYmqRole(principal, ["pengawas", "pimpinan"]);
+}
+
+export function canReadOverallProgressDashboard(principal: YmqPrincipal): boolean {
   return hasAnyYmqRole(principal, ["admin_ymq", "pengawas", "pimpinan"]);
 }
 

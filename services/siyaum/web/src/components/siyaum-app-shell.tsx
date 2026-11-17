@@ -5,7 +5,7 @@ import { AppShell, type NavGroup } from "@alfida/ui";
 import type { CurrentUser } from "@/lib/current-user";
 import { hasSiyaumRole, roleLabel } from "@/lib/current-user";
 
-type ActivePage = "monitoring" | "groups" | "pembina" | "penguji" | "curriculum" | "executive" | "tilawah";
+type ActivePage = "monitoring" | "groups" | "group-admins" | "pembina" | "penguji" | "curriculum" | "executive" | "progress" | "tilawah";
 
 export function SiyaumAppShell({ user, active, children }: { user: CurrentUser | null; active: ActivePage; children: ReactNode }) {
   const [logoutError, setLogoutError] = useState<string | null>(null);
@@ -26,16 +26,19 @@ export function SiyaumAppShell({ user, active, children }: { user: CurrentUser |
 
   const canManageGroups = hasSiyaumRole(user, "admin_ymq");
   const canManageSessions = hasSiyaumRole(user, "admin_ymq", "pembina_ymq", "admin_kelompok");
-  const canViewExecutive = hasSiyaumRole(user, "admin_ymq", "pengawas", "pimpinan");
+  const canViewOverallProgress = hasSiyaumRole(user, "admin_ymq", "pengawas", "pimpinan");
+  const canViewExecutive = hasSiyaumRole(user, "pengawas", "pimpinan");
   const sidebarGroups: NavGroup[] = [
     {
       title: "Pembinaan",
       items: [
         ...(canManageSessions ? [{ label: "Jurnal halaqah", href: "/monitoring", icon: "edit_note", active: active === "monitoring" }] : []),
         ...(canManageGroups ? [{ label: "Kelompok & roster", href: "/groups", icon: "groups", active: active === "groups" }] : []),
+        ...(canManageGroups ? [{ label: "Penugasan Admin Kelompok", href: "/group-admins", icon: "manage_accounts", active: active === "group-admins" }] : []),
         ...(canManageGroups ? [{ label: "Penugasan Pembina", href: "/pembina", icon: "school", active: active === "pembina" }] : []),
         ...(canManageGroups ? [{ label: "Penugasan Penguji", href: "/penguji", icon: "fact_check", active: active === "penguji" }] : []),
         ...(canManageGroups ? [{ label: "Kurikulum IWR", href: "/curriculum", icon: "menu_book", active: active === "curriculum" }] : []),
+        ...(canViewOverallProgress ? [{ label: "Dashboard Pencapaian", href: "/progress", icon: "bar_chart", active: active === "progress" }] : []),
         ...(canViewExecutive ? [{ label: "Pandangan eksekutif", href: "/executive", icon: "monitoring", active: active === "executive" }] : []),
       ],
     },

@@ -26,18 +26,20 @@ export function ExecutiveDashboardClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const canViewExecutive = hasSiyaumRole(user, "admin_ymq", "pengawas", "pimpinan");
+  const canViewExecutive = hasSiyaumRole(user, "pengawas", "pimpinan");
   const params = useMemo(() => queryString(filters), [filters]);
   const load = async () => {
     setLoading(true); setError(null);
     try {
-      const [currentUser, overviewData, groupData, rankingData] = await Promise.all([
-        getCurrentUser(),
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+      if (!hasSiyaumRole(currentUser, "pengawas", "pimpinan")) return;
+      const [overviewData, groupData, rankingData] = await Promise.all([
         apiFetch<Overview>(`/dashboard/ymq/executive/overview${params}`),
         apiFetch<FilterGroup[]>(`/dashboard/ymq/executive/groups${params}`),
         apiFetch<ParticipantRanking[]>(`/dashboard/ymq/executive/rankings${params}`),
       ]);
-      setUser(currentUser); setOverview(overviewData); setGroups(groupData); setRankings(rankingData);
+      setOverview(overviewData); setGroups(groupData); setRankings(rankingData);
       setUnits((current) => current.length ? current : Array.from(new Map(groupData.filter((group) => group.unitId && group.unitName).map((group) => [group.unitId!, { id: group.unitId!, name: group.unitName! }])).values()));
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Dashboard eksekutif tidak dapat dimuat."); }
     finally { setLoading(false); }

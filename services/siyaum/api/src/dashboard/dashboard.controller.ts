@@ -1,7 +1,7 @@
 import { Controller, Get, Query, Req, UseGuards } from "@nestjs/common";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
 import { DashboardService } from "./dashboard.service";
-import { YmqDashboardQueryDto } from "./dashboard.dto";
+import { YmqDashboardQueryDto, YmqOverallProgressQueryDto } from "./dashboard.dto";
 import { YmqRoles } from "../ymq/ymq-roles.decorator";
 import { YmqRolesGuard } from "../ymq/ymq-roles.guard";
 
@@ -22,20 +22,26 @@ export class DashboardController {
     return this.dashboardService.general(query, req.user);
   }
 
-  @Get("ymq/executive/overview")
+  @Get("ymq/progress")
   @YmqRoles("admin_ymq", "pengawas", "pimpinan")
+  overallProgress(@Query() query: YmqOverallProgressQueryDto, @Req() req: any) {
+    return this.dashboardService.overallProgress(query, req.user);
+  }
+
+  @Get("ymq/executive/overview")
+  @YmqRoles("pengawas", "pimpinan")
   executiveOverview(@Query() query: YmqDashboardQueryDto, @Req() req: any) {
     return this.dashboardService.executiveOverview(query, req.user);
   }
 
   @Get("ymq/executive/groups")
-  @YmqRoles("admin_ymq", "pengawas", "pimpinan")
+  @YmqRoles("pengawas", "pimpinan")
   executiveGroups(@Query() query: YmqDashboardQueryDto, @Req() req: any) {
     return this.dashboardService.executiveGroups(query, req.user);
   }
 
   @Get("ymq/executive/rankings")
-  @YmqRoles("admin_ymq", "pengawas", "pimpinan")
+  @YmqRoles("pengawas", "pimpinan")
   executiveRankings(@Query() query: YmqDashboardQueryDto, @Req() req: any) {
     return this.dashboardService.executiveRankings(query, req.user);
   }

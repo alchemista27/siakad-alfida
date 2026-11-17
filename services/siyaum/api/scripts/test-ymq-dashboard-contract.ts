@@ -6,6 +6,8 @@ import { rankYmqParticipants } from "../src/dashboard/dashboard-ranking.policy";
 assert.throws(() => parseDashboardQuery({ from: "2026-11-01", to: "2026-10-01" }));
 assert.deepEqual(parseDashboardQuery({ from: "2026-10-01", to: "2026-10-31", unitId: "11111111-1111-4111-8111-111111111111" }).unitId, "11111111-1111-4111-8111-111111111111");
 assert.equal(canReadExecutiveDashboard({ id: "p", roles: [{ app: "siyaum", role: "pimpinan" }] }), true);
+assert.equal(canReadExecutiveDashboard({ id: "p", roles: [{ app: "siyaum", role: "pengawas" }] }), true);
+assert.equal(canReadExecutiveDashboard({ id: "p", roles: [{ app: "siyaum", role: "admin_ymq" }] }), false, "Admin YMQ is not an executive-report role");
 assert.equal(canReadExecutiveDashboard({ id: "p", roles: [{ app: "siyaum", role: "peserta" }] }), false);
 assert.equal(classifyLatestProgress({ track: "pra_tahsin", iwrLevel: "iwr_1" }), "iwr_1");
 assert.equal(classifyLatestProgress({ track: "pra_tahsin", iwrLevel: "iwr_2" }), "iwr_2");
