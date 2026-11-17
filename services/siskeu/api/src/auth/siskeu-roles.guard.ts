@@ -1,8 +1,13 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable, SetMetadata } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { isFoundationLeader } from "@alfida/contracts";
 
 export const SISKEU_FINANCE_ROLES_KEY = "siskeu_finance_roles";
 export const SiskeuFinanceRoles = () => SetMetadata(SISKEU_FINANCE_ROLES_KEY, ["admin_keuangan", "super_admin"]);
+export const SiskeuDashboardRoles = () => SetMetadata(
+  SISKEU_FINANCE_ROLES_KEY,
+  ["admin_keuangan", "super_admin", "foundation_leader"],
+);
 
 type RoleClaim = { role?: unknown; app?: unknown };
 export type SiskeuPrincipal = { id?: string; roles?: unknown[] };
@@ -18,6 +23,11 @@ export function assertSiskeuFinanceRole(principal: SiskeuPrincipal): void {
   if (!allowed) throw new ForbiddenException("Akses SISKEU memerlukan peran admin_keuangan atau super_admin pada scope siskeu.");
 }
 
+export function assertSiskeuRole(principal: SiskeuPrincipal, requiredRoles: readonly string[]): void {
+  if (requiredRoles.includes("foundation_leader") && isFoundationLeader(principal.roles)) return;
+  assertSiskeuFinanceRole(principal);
+}
+
 @Injectable()
 export class SiskeuRolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
@@ -29,7 +39,7 @@ export class SiskeuRolesGuard implements CanActivate {
     ]);
     if (!requiredRoles?.length) return true;
     const user = context.switchToHttp().getRequest<{ user?: SiskeuPrincipal }>().user;
-    assertSiskeuFinanceRole(user || {});
+    assertSiskeuRole(user || {}, requiredRoles);
     return true;
   }
 }

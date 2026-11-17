@@ -51,8 +51,8 @@ assert.deepEqual(
 
 assert.deepEqual(
   visibleCoreApps([{ app: "simpeg", role: "pimpinan" }]),
-  ["simpeg"],
-  "SIMPEG leaders must not automatically gain SIYAUM access",
+  [...coreApps],
+  "Foundation leaders assigned through SIMPEG must see every dashboard-bearing core service",
 );
 
 const globalSuperAdmin: UserRoleScope[] = [{ app: "*", role: "super_admin" }];

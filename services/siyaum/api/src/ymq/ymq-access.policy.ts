@@ -1,3 +1,5 @@
+import { isFoundationLeader } from "@alfida/contracts";
+
 export interface YmqRoleScope {
   app?: string | null;
   role: string;
@@ -20,6 +22,7 @@ export interface YmqReadableGroupScope extends YmqGroupScope {
 
 export function hasYmqRole(principal: YmqPrincipal | undefined, role: string): boolean {
   if (!principal?.roles) return false;
+  if (role === "pimpinan" && isFoundationLeader(principal.roles)) return true;
   return principal.roles.some((assignment) => {
     const app = assignment.app ?? "*";
     if (assignment.role === "super_admin" && (app === "*" || app === "auth" || app === "core")) return true;

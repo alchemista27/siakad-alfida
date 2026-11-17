@@ -16,6 +16,8 @@ assert.equal(simpegLandingTab([{ app: "simpeg", role: "admin_unit", unitId: "uni
 assert.equal(simpegLandingTab([{ app: "simpeg", role: "pegawai" }, { app: "simpeg", role: "admin_kepegawaian" }]), "reports");
 assert.equal(canViewSimpegAttendanceReports([{ app: "simpeg", role: "admin_bidang" }]), false);
 assert.equal(simpegLandingTab([{ app: "simpeg", role: "admin_bidang" }]), "assignments");
+assert.equal(canViewSimpegAttendanceReports([{ app: "simpeg", role: "pimpinan" }]), true, "Foundation leadership must read SIMPEG attendance reporting");
+assert.equal(simpegLandingTab([{ app: "simpeg", role: "pimpinan" }]), "reports", "Foundation leadership must land on the read-only SIMPEG report tab");
 assert.equal(hasSimpegManagementAccess([]), false);
 
 const page = readFileSync(resolve(import.meta.dirname, "../src/app/page.tsx"), "utf8");

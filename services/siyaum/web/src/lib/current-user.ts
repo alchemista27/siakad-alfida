@@ -1,4 +1,5 @@
 import { apiFetch } from "./api";
+import { isFoundationLeader } from "@alfida/contracts";
 
 export type SiyaumRole =
   | "admin_ymq"
@@ -22,6 +23,7 @@ function isGlobalSuperAdmin(app: string | undefined, role: string): boolean {
 }
 
 export function hasSiyaumRole(user: CurrentUser | null | undefined, ...roles: SiyaumRole[]): boolean {
+  if (roles.includes("pimpinan") && isFoundationLeader(user?.roles)) return true;
   return Boolean(user?.roles.some(({ app, role }) =>
     isGlobalSuperAdmin(app, role) || ((app === "siyaum" || app === "*" || !app) && roles.includes(role as SiyaumRole)),
   ));
@@ -29,6 +31,7 @@ export function hasSiyaumRole(user: CurrentUser | null | undefined, ...roles: Si
 
 export function roleLabel(user: CurrentUser | null | undefined): string {
   const role = user?.roles.find(({ app, role }) => isGlobalSuperAdmin(app, role))?.role
+    || (isFoundationLeader(user?.roles) ? "pimpinan" : undefined)
     || user?.roles.find(({ app }) => app === "siyaum" || app === "*")?.role;
   return (role || "peserta").replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }

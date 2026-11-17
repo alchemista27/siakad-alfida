@@ -829,6 +829,9 @@ importers:
 
   services/siakad/web:
     dependencies:
+      '@alfida/contracts':
+        specifier: workspace:*
+        version: link:../../../packages/contracts
       next:
         specifier: ^15.1.4
         version: 15.5.22(@babel/core@7.29.7(supports-color@8.1.1))(@playwright/test@1.62.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -1165,6 +1168,9 @@ importers:
       '@alfida/auth-sdk':
         specifier: workspace:*
         version: link:../../../packages/auth-sdk
+      '@alfida/contracts':
+        specifier: workspace:*
+        version: link:../../../packages/contracts
       '@nestjs/common':
         specifier: ^11.0.1
         version: 11.2.7(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1)

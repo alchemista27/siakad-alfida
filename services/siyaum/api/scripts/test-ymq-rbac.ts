@@ -29,6 +29,8 @@ assert.equal(canManageGroup(principal("root", "super_admin", "auth"), group), tr
 assert.equal(hasYmqRole(principal("root", "super_admin", "auth"), "admin_ymq"), true, "global Super Admin must inherit admin_ymq capability");
 assert.equal(canReadExecutiveDashboard(principal("pengawas", "pengawas")), true);
 assert.equal(canReadExecutiveDashboard(principal("pimpinan", "pimpinan")), true);
+assert.equal(canReadExecutiveDashboard(principal("yayasan-pimpinan", "pimpinan", "simpeg")), true, "Foundation leadership assigned in SIMPEG must read SIYAUM executive reporting");
+assert.equal(hasYmqRole(principal("yayasan-pimpinan", "pimpinan", "simpeg"), "pimpinan"), true, "Foundation leadership must resolve only as SIYAUM read-only pimpinan");
 assert.equal(canReadExecutiveDashboard(principal("admin", "admin_ymq")), false, "Admin YMQ must not receive executive-report access");
 assert.equal(canReadExecutiveDashboard(principal("peserta", "peserta")), false);
 assert.equal(canReadOwnMembership(principal("peserta", "peserta"), "peserta"), true);

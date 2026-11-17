@@ -44,6 +44,7 @@ export function canViewSimpegAttendanceReports(roles: SimpegRole[] | undefined):
     const role = roleName(entry);
     const app = appName(entry);
     if (role === "super_admin" && ["*", "auth", "core", "simpeg"].includes(app)) return true;
+    if (role === "pimpinan" && (app === "*" || app === "simpeg")) return true;
     if (role === "admin_kepegawaian") return app === "*" || app === "simpeg";
     return app === "simpeg" && (role === "admin_unit" || role === "admin_unit_nondik");
   });

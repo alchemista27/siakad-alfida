@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
 import { SiskeuAuthGuard } from "../auth/siskeu-auth.guard";
-import { SiskeuFinanceRoles, SiskeuRolesGuard } from "../auth/siskeu-roles.guard";
+import { SiskeuDashboardRoles, SiskeuFinanceRoles, SiskeuRolesGuard } from "../auth/siskeu-roles.guard";
 import { ProviderWebhookGuard } from "./provider-webhook.guard";
 import { SppInvoiceService } from "./spp-invoice.service";
 
@@ -17,7 +17,7 @@ export class SppInvoiceController {
 
   @Get("dashboard")
   @UseGuards(SiskeuAuthGuard, SiskeuRolesGuard)
-  @SiskeuFinanceRoles()
+  @SiskeuDashboardRoles()
   dashboard(@Query() query: Record<string, unknown>) {
     return this.invoices.getDashboard(query);
   }

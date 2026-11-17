@@ -22,6 +22,8 @@ async function main() {
   assert.match(rootPage, /SiskeuAppShell/, "dashboard must use the SISKEU-specific shell");
   assert.match(invoicePage, /getInvoices\(/, "invoice page must use the shared finance API client");
   assert.match(shell, /Tagihan SPP/, "finance shell must expose the invoice workflow");
+  assert.match(shell, /const isFoundationLeader = user\?\.roles\?\.some/, "SISKEU must resolve the central SIMPEG foundation-leader claim in navigation");
+  assert.match(shell, /!isFoundationLeader \? \[\{ label: "Tagihan SPP"/, "Foundation leadership must not be offered the operational invoice workspace");
   assert.match(api, /\/api\/spp\/invoices/, "browser API client must use the SISKEU invoice endpoint");
   assert.match(middleware, /alfida_session/, "protected SISKEU routes must recognize the central SSO cookie");
   assert.match(middleware, /x-forwarded-host/, "SSO return URLs must preserve the public proxy host");

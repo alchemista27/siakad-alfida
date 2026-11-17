@@ -1,4 +1,4 @@
-export type SiskeuUser = { fullName: string; roles?: Array<{ role?: string }> };
+export type SiskeuUser = { fullName: string; roles?: Array<{ app?: string; role?: string }> };
 export type FinanceSummary = {
   unpaid: { count: number; amount: number };
   paid: { count: number; amount: number };

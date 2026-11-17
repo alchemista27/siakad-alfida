@@ -5,6 +5,7 @@ assert.equal(canAccessSiakad([{ app: "siakad", role: "admin_unit", unitId: "unit
 assert.equal(canAccessSiakad([{ app: "simpeg", role: "admin_unit_nondik", unitId: "unit-nondik" }]), false);
 assert.equal(canAccessSiakad([{ app: "siakad", role: "admin_unit_nondik", unitId: "unit-nondik" }]), false);
 assert.equal(canAccessSiakad([{ app: "auth", role: "super_admin" }]), true);
+assert.equal(canAccessSiakad([{ app: "simpeg", role: "pimpinan" }]), true, "Foundation leadership assigned through SIMPEG must enter the SIAKAD reporting workspace");
 assert.equal(canAccessSiakad([{ app: "simpeg", role: "admin_unit" }]), false);
 assert.equal(canAccessSiakad([]), false);
 

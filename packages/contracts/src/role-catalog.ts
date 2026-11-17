@@ -24,3 +24,18 @@ export const UNIT_SCOPED_ROLE_KEYS = new Set<string>([
 export const DEPARTMENT_SCOPED_ROLE_KEYS = new Set<string>([
   "simakin:admin_bidang",
 ]);
+
+export type FoundationLeadershipRoleScope = {
+  app?: unknown;
+  role?: unknown;
+};
+
+/** Pimpinan Yayasan is centrally assigned through SIMPEG, not a local-service grant. */
+export function isFoundationLeader(roles: readonly FoundationLeadershipRoleScope[] | unknown): boolean {
+  if (!Array.isArray(roles)) return false;
+  return roles.some((scope) => {
+    if (!scope || typeof scope !== "object") return false;
+    const { app, role } = scope as FoundationLeadershipRoleScope;
+    return role === "pimpinan" && (app === "simpeg" || app === "*");
+  });
+}

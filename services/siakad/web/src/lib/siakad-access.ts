@@ -1,3 +1,5 @@
+import { isFoundationLeader } from "@alfida/contracts";
+
 export type SiakadAuthRole = string | {
   app?: string | null;
   role?: string | null;
@@ -9,6 +11,7 @@ const GLOBAL_ADMIN_APPS = new Set(["*", "auth", "core"]);
 
 export function canAccessSiakad(roles: unknown): boolean {
   if (!Array.isArray(roles)) return false;
+  if (isFoundationLeader(roles)) return true;
 
   return roles.some((entry) => {
     const app = typeof entry === "string" ? "*" : entry?.app;

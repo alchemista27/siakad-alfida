@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { hasSiyaumRole, roleLabel } from "../src/lib/current-user";
 
 const root = path.resolve(import.meta.dirname, "..");
 const read = (relativePath: string) => {
@@ -17,6 +18,11 @@ const executive = read("src/app/(dashboard)/executive/executive-dashboard-client
 const shell = read("src/components/siyaum-app-shell.tsx");
 const tilawah = read("src/app/(dashboard)/tilawah/tilawah-client.tsx");
 const currentUser = read("src/lib/current-user.ts");
+const foundationLeader = { id: "foundation-leader", fullName: "Pimpinan Yayasan", roles: [{ app: "simpeg", role: "pimpinan" }] };
+
+assert.equal(hasSiyaumRole(foundationLeader, "pimpinan"), true, "Foundation leadership must see SIYAUM read-only dashboard navigation");
+assert.equal(hasSiyaumRole(foundationLeader, "admin_ymq"), false, "Foundation leadership must not inherit SIYAUM operational roles");
+assert.equal(roleLabel(foundationLeader), "Pimpinan", "Foundation leadership must retain its proper sidebar role label");
 
 assert.match(api, /const API_BASE_URL\s*=\s*["']\/api/);
 assert.match(api, /content-type/i);

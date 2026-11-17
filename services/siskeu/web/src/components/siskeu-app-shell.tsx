@@ -5,12 +5,13 @@ import type { SiskeuUser } from "@/lib/api";
 
 export function SiskeuAppShell({ user, active, children }: { user: SiskeuUser | null; active: "dashboard" | "invoices"; children: React.ReactNode }) {
   const role = user?.roles?.[0]?.role?.replaceAll("_", " ").toUpperCase() || "KEUANGAN";
+  const isFoundationLeader = user?.roles?.some((scope) => scope.app === "simpeg" && scope.role === "pimpinan") || false;
   const sidebarGroups = [
     {
       title: "Keuangan Yayasan",
       items: [
         { label: "Ringkasan Keuangan", href: "/", icon: "account_balance", active: active === "dashboard" },
-        { label: "Tagihan SPP", href: "/invoices", icon: "receipt_long", active: active === "invoices" },
+        ...(!isFoundationLeader ? [{ label: "Tagihan SPP", href: "/invoices", icon: "receipt_long", active: active === "invoices" }] : []),
       ],
     },
     {

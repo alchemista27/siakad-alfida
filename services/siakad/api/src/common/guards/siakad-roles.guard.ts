@@ -6,6 +6,7 @@ import {
   SetMetadata,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { isFoundationLeader } from "@alfida/contracts";
 
 export const SIAKAD_ROLES_KEY = "siakad_roles";
 
@@ -38,7 +39,9 @@ export class SiakadRolesGuard implements CanActivate {
 
     if (!requiredRoles?.length) return true;
 
-    const user = context.switchToHttp().getRequest<{ user?: { roles?: unknown } }>().user;
+    const request = context.switchToHttp().getRequest<{ method?: string; user?: { roles?: unknown } }>();
+    const user = request.user;
+    if (request.method === "GET" && isFoundationLeader(user?.roles)) return true;
     if (!user || !Array.isArray(user.roles) || !user.roles.some((role) => hasSiakadRole(role as RoleClaim, requiredRoles))) {
       throw new ForbiddenException(
         `Akses ditolak: membutuhkan wewenang peran [${requiredRoles.join(", ")}] pada sistem SIAKAD`,

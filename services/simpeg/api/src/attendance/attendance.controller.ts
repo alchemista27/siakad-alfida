@@ -29,7 +29,7 @@ import { AttendanceReportPdfExportService } from "./attendance-report-pdf-export
 import type { Response } from "express";
 
 const HR_ADMIN_ROLES = ["super_admin", "admin_kepegawaian", "admin_bidang", "admin_unit", "admin_unit_nondik"];
-const REPORT_MANAGER_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik"];
+const REPORT_MANAGER_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik", "pimpinan"];
 const HOLIDAY_AND_DUTY_MANAGER_ROLES = ["super_admin", "admin_kepegawaian", "admin_unit", "admin_unit_nondik"];
 const FINGERPRINT_OPERATOR_ROLES = ["super_admin", "admin_kepegawaian"];
 const FINGERPRINT_MAPPING_ROLES = [...FINGERPRINT_OPERATOR_ROLES, "admin_unit", "admin_unit_nondik"];

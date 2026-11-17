@@ -6,6 +6,7 @@ import {
   SetMetadata,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { isFoundationLeader } from '@alfida/contracts';
 
 export const SIMAKIN_ROLES_KEY = 'simakin_roles';
 
@@ -35,6 +36,10 @@ export class SimakinRolesGuard implements CanActivate {
 
     if (!user || !user.roles || !Array.isArray(user.roles)) {
       throw new ForbiddenException('Akses ditolak: pengguna tidak memiliki peran aktif');
+    }
+
+    if (request.method === 'GET' && requiredRoles.includes('pimpinan') && isFoundationLeader(user.roles)) {
+      return true;
     }
 
     // Periksa apakah pengguna memiliki salah satu dari peran yang diizinkan
