@@ -10,9 +10,55 @@ import { YmqGroupProgressTable, type GeneralGroupSummary } from "@/components/ym
 import { YmqParticipantRanking, type ParticipantRanking } from "@/components/ymq-participant-ranking";
 
 interface Unit { id: string; name: string; }
+interface ExecutiveGroupResponse {
+  group: {
+    id: string;
+    name: string;
+    unitId: string | null;
+    unitName: string | null;
+    level: string;
+  };
+  pembina: {
+    id: string;
+    fullName: string;
+    email: string;
+  } | null;
+  activeMembers: number;
+  sessionsHeld: number;
+  attendanceRate: number | null;
+  latestSessionDate: string | null;
+  noData: {
+    noActiveMembers: boolean;
+    noSessions: boolean;
+    noProgress: boolean;
+  };
+}
 interface FilterGroup extends GeneralGroupSummary { unitId?: string | null; pembinaUserId?: string | null; }
-interface Overview { roster: { activeParticipants: number; unclassifiedParticipantCount: number }; attendance: { weeklyRate: number | null; monthlyRate: number | null }; progressPie: Array<{ key: "iwr_1" | "iwr_2" | "quran"; label: "IWR 1" | "IWR 2" | "Qur'an"; participants: number; percentage: number }>; groups: GeneralGroupSummary[]; sessionsHeld?: number; }
+interface ExecutiveOverviewResponse {
+  roster: { activeParticipants: number; unclassifiedParticipantCount: number };
+  attendance: { weeklyRate: number | null; monthlyRate: number | null };
+  progressPie: Array<{ key: "iwr_1" | "iwr_2" | "quran"; label: "IWR 1" | "IWR 2" | "Qur'an"; participants: number; percentage: number }>;
+  groups: ExecutiveGroupResponse[];
+}
+interface Overview extends Omit<ExecutiveOverviewResponse, "groups"> { groups: FilterGroup[]; sessionsHeld?: number; }
 interface RankingsResponse { rankings: ParticipantRanking[]; }
+
+function normalizeExecutiveGroup(source: ExecutiveGroupResponse): FilterGroup {
+  return {
+    id: source.group.id,
+    name: source.group.name,
+    unitId: source.group.unitId,
+    unitName: source.group.unitName,
+    level: source.group.level,
+    pembinaUserId: source.pembina?.id ?? null,
+    pembinaName: source.pembina?.fullName ?? null,
+    activeMembers: source.activeMembers,
+    sessionsHeld: source.sessionsHeld,
+    attendanceRate: source.attendanceRate,
+    latestSessionDate: source.latestSessionDate,
+    noData: source.noData.noActiveMembers || source.noData.noSessions || source.noData.noProgress,
+  };
+}
 
 function isoDate(date: Date) { return date.toISOString().slice(0, 10); }
 function initialPeriod() { const to = new Date(); const from = new Date(to); from.setDate(to.getDate() - 29); return { from: isoDate(from), to: isoDate(to) }; }
@@ -35,13 +81,15 @@ export function ExecutiveDashboardClient() {
       const currentUser = await getCurrentUser();
       setUser(currentUser);
       if (!hasSiyaumRole(currentUser, "pengawas", "pimpinan")) return;
-      const [overviewData, groupData, rankingData] = await Promise.all([
-        apiFetch<Overview>(`/dashboard/ymq/executive/overview${params}`),
-        apiFetch<FilterGroup[]>(`/dashboard/ymq/executive/groups${params}`),
+      const [overviewData, rankingData] = await Promise.all([
+        apiFetch<ExecutiveOverviewResponse>(`/dashboard/ymq/executive/overview${params}`),
         apiFetch<RankingsResponse>(`/dashboard/ymq/executive/rankings${params}`),
       ]);
-      setOverview(overviewData); setGroups(groupData); setRankings(rankingData.rankings);
-      setUnits((current) => current.length ? current : Array.from(new Map(groupData.filter((group) => group.unitId && group.unitName).map((group) => [group.unitId!, { id: group.unitId!, name: group.unitName! }])).values()));
+      const normalizedGroups = overviewData.groups.map(normalizeExecutiveGroup);
+      setOverview({ ...overviewData, groups: normalizedGroups });
+      setGroups(normalizedGroups);
+      setRankings(rankingData.rankings);
+      setUnits((current) => current.length ? current : Array.from(new Map(normalizedGroups.filter((group) => group.unitId && group.unitName).map((group) => [group.unitId!, { id: group.unitId!, name: group.unitName! }])).values()));
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Dashboard eksekutif tidak dapat dimuat."); }
     finally { setLoading(false); }
   };

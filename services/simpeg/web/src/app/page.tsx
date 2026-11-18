@@ -373,10 +373,10 @@ export default function SimpegDashboard() {
           await fetchEmployeeAttendanceData();
         } else {
           setError("Akun belum memiliki peran SIMPEG. Hubungi administrator kepegawaian.");
-          setLoading(false);
         }
       } catch (caught) {
         setError(caught instanceof Error ? caught.message : "Sesi SIMPEG tidak dapat dimuat.");
+      } finally {
         setLoading(false);
       }
     }

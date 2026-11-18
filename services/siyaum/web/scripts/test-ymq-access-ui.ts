@@ -62,6 +62,26 @@ assert.match(executive, /const currentUser = await getCurrentUser\(\);[\s\S]*?if
 assert.match(executive, /interface RankingsResponse[\s\S]*?rankings:\s*ParticipantRanking\[\]/, "Executive client must model the rankings API envelope");
 assert.match(executive, /apiFetch<RankingsResponse>\(`\/dashboard\/ymq\/executive\/rankings\$\{params\}`\)/, "Executive client must request rankings with its response envelope");
 assert.match(executive, /setRankings\(rankingData\.rankings\)/, "Executive client must pass the rankings array, not the response object, to the ranking table");
+assert.match(
+  executive,
+  /interface ExecutiveGroupResponse \{[\s\S]*?group:\s*\{[\s\S]*?id:\s*string;[\s\S]*?name:\s*string;[\s\S]*?level:\s*string;[\s\S]*?\};/,
+  "Executive client must model the nested group payload returned by the API",
+);
+assert.match(
+  executive,
+  /function normalizeExecutiveGroup\(source: ExecutiveGroupResponse\): FilterGroup \{[\s\S]*?id:\s*source\.group\.id,[\s\S]*?name:\s*source\.group\.name,[\s\S]*?level:\s*source\.group\.level,/,
+  "Executive client must flatten API group fields before rendering the table",
+);
+assert.match(
+  executive,
+  /const normalizedGroups = overviewData\.groups\.map\(normalizeExecutiveGroup\);[\s\S]*?setGroups\(normalizedGroups\);/,
+  "Executive filters must use the normalized overview group source",
+);
+assert.doesNotMatch(
+  executive,
+  /apiFetch<FilterGroup\[\]>\(`\/dashboard\/ymq\/executive\/groups\$\{params\}`\)/,
+  "Executive client must not request and mis-type a duplicate groups response",
+);
 assert.ok(!/method:\s*["'](?:POST|PUT|PATCH|DELETE)["']/.test(executive), "Executive dashboard must be read-only");
 assert.ok(!/\balert\s*\(/.test([monitoring, groups, executive].join("\n")), "Operational UI must not use alert()");
 assert.ok(!/\bconfirm\s*\(/.test([monitoring, groups, executive].join("\n")), "Operational UI must not use confirm()");

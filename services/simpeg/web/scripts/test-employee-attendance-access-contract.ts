@@ -41,6 +41,13 @@ assert.match(
 );
 assert.match(page, /canSelectFoundationAttendanceReportScope\(roles\)/, "Foundation leadership scope selection must remain separate from SIMPEG management access");
 assert.match(page, /\/api\/attendance\/report-units/, "Report viewers must load selector choices from the dedicated report-unit API");
+const bootstrap = page.match(/async function bootstrap\(\) \{[\s\S]*?\n    \}\n    void bootstrap\(\);/);
+assert.ok(bootstrap, "SIMPEG page must retain a single bootstrap lifecycle");
+assert.match(
+  bootstrap[0],
+  /finally \{\s*setLoading\(false\);\s*\}/,
+  "Every SIMPEG bootstrap role path, including report-only Pimpinan, must settle the page loading state",
+);
 assert.match(reportDashboard, /canSelectFoundationScope/, "Report dashboard must use a report-specific scope capability");
 assert.doesNotMatch(reportDashboard, /canManageAllUnits/, "Report dashboard must not require operational unit-management access for foundation scope selection");
 
