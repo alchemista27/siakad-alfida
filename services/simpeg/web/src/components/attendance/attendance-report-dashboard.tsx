@@ -59,7 +59,7 @@ export function AttendanceReportDashboard({
   selectedMonth,
   selectedUnitId,
   selectedSource,
-  canManageAllUnits,
+  canSelectFoundationScope,
   loading,
   onMonthChange,
   onUnitChange,
@@ -73,7 +73,7 @@ export function AttendanceReportDashboard({
   selectedMonth: string;
   selectedUnitId: string;
   selectedSource: AttendanceSourceFilter;
-  canManageAllUnits: boolean;
+  canSelectFoundationScope: boolean;
   loading: boolean;
   onMonthChange: (month: string) => void;
   onUnitChange: (unitId: string) => void;
@@ -108,8 +108,8 @@ export function AttendanceReportDashboard({
           <label className="text-xs font-semibold text-primary">
             Cakupan laporan
             <select value={selectedUnitId} onChange={(event) => onUnitChange(event.target.value)} className="mt-1 block w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm font-normal text-primary sm:w-56" aria-label="Cakupan laporan">
-              {canManageAllUnits && <option value="">Keseluruhan Yayasan</option>}
-              {!canManageAllUnits && <option value="">Semua unit yang dikelola</option>}
+              {canSelectFoundationScope && <option value="">Keseluruhan Yayasan</option>}
+              {!canSelectFoundationScope && <option value="">Semua unit yang dikelola</option>}
               {activeUnits.map((unit) => <option key={unit.id} value={unit.id}>{unit.name}</option>)}
             </select>
           </label>

@@ -50,6 +50,16 @@ export function canViewSimpegAttendanceReports(roles: SimpegRole[] | undefined):
   });
 }
 
+export function canSelectFoundationAttendanceReportScope(roles: SimpegRole[] | undefined): boolean {
+  return (roles ?? []).some((entry) => {
+    const role = roleName(entry);
+    const app = appName(entry);
+    if (role === "super_admin" && ["*", "auth", "core", "simpeg"].includes(app)) return true;
+    if (role === "admin_kepegawaian" && (app === "*" || app === "simpeg")) return true;
+    return role === "pimpinan" && (app === "*" || app === "simpeg");
+  });
+}
+
 export function simpegLandingTab(roles: SimpegRole[] | undefined): "reports" | "assignments" | "attendance" {
   if (canViewSimpegAttendanceReports(roles)) return "reports";
   return hasSimpegManagementAccess(roles) ? "assignments" : "attendance";

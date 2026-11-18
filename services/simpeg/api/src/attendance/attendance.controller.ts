@@ -114,6 +114,13 @@ export class AttendanceController {
     return this.attendanceService.getAttendanceDashboardReport(month, unitId, req.user, undefined, source);
   }
 
+  @Get("report-units")
+  @UseGuards(SimpegRolesGuard)
+  @SimpegRoles(...REPORT_MANAGER_ROLES)
+  async getAttendanceReportUnits(@Req() req: any) {
+    return this.attendanceService.getAttendanceReportUnits(req.user);
+  }
+
   @Get("report.pdf")
   @UseGuards(SimpegRolesGuard)
   @SimpegRoles(...REPORT_MANAGER_ROLES)

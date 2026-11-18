@@ -14,6 +14,7 @@ import { GpsAttendanceStatus } from "../generated/prisma";
 import { resolveWorkdayPolicy, toUtcDateKey, utcDate } from "./workday-policy";
 import { jakartaDateKey, jakartaMinutes, hhmmMinutes, overtimeMinutesFor } from "./jakarta-worktime";
 import { AuthStaffCandidateClient } from "../employees/auth-staff-candidate.client";
+import { isFoundationLeader as hasFoundationLeaderRole } from "@alfida/contracts";
 
 type Principal = { roles?: unknown };
 type DatedAssignment = {
@@ -92,6 +93,11 @@ export class AttendanceService {
       return (role === "super_admin" && ["*", "auth", "core", "simpeg"].includes(app || ""))
         || (role === "admin_kepegawaian" && (app === "simpeg" || app === "*"));
     });
+  }
+
+  private isFoundationLeader(principal?: Principal): boolean {
+    if (!Array.isArray(principal?.roles)) return false;
+    return hasFoundationLeaderRole(principal.roles.filter((entry): entry is { app?: string; role?: string } => Boolean(entry) && typeof entry === "object"));
   }
 
   private managedUnitIds(principal?: Principal): string[] {
@@ -346,9 +352,25 @@ export class AttendanceService {
     return active.find((assignment) => assignment.isPrimary) || active[0];
   }
 
+  async getAttendanceReportUnits(principal: Principal) {
+    const isFoundationWide = this.isGlobalHolidayManager(principal) || this.isFoundationLeader(principal);
+    const managedUnitIds = [...new Set(this.managedUnitIds(principal))];
+    if (!isFoundationWide && !managedUnitIds.length) {
+      throw new ForbiddenException("Anda tidak berwenang melihat unit laporan presensi.");
+    }
+    return this.prisma.unit.findMany({
+      where: {
+        isActive: true,
+        ...(isFoundationWide ? {} : { id: { in: managedUnitIds } }),
+      },
+      select: { id: true, name: true, isActive: true },
+      orderBy: { name: "asc" },
+    });
+  }
+
   private attendanceReportUnitIds(principal: Principal, requestedUnitId?: string): string[] | undefined {
     const unitId = requestedUnitId?.trim() || undefined;
-    if (this.isGlobalHolidayManager(principal)) return unitId ? [unitId] : undefined;
+    if (this.isGlobalHolidayManager(principal) || this.isFoundationLeader(principal)) return unitId ? [unitId] : undefined;
 
     const managedUnitIds = [...new Set(this.managedUnitIds(principal))];
     if (!managedUnitIds.length) {

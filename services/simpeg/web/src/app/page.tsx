@@ -19,6 +19,7 @@ import {
   hasSimpegManagementAccess,
   isPegawaiRole,
   canViewSimpegAttendanceReports,
+  canSelectFoundationAttendanceReportScope,
   simpegLandingTab,
   type SimpegRole,
 } from "../lib/simpeg-access";
@@ -109,6 +110,7 @@ export default function SimpegDashboard() {
   const [reportLoading, setReportLoading] = useState(false);
   const [reportDownloading, setReportDownloading] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
+  const [reportUnits, setReportUnits] = useState<OrganizationUnit[]>([]);
   const [units, setUnits] = useState<OrganizationUnit[]>([]);
   const [departments, setDepartments] = useState<OrganizationDepartment[]>([]);
   const [gpsConfigs, setGpsConfigs] = useState<any[]>([]);
@@ -120,6 +122,7 @@ export default function SimpegDashboard() {
   const [canManageAllUnits, setCanManageAllUnits] = useState(false);
   const [canManageYmqAdmins, setCanManageYmqAdmins] = useState(false);
   const [canViewAttendanceReports, setCanViewAttendanceReports] = useState(false);
+  const [canSelectFoundationReportScope, setCanSelectFoundationReportScope] = useState(false);
 
   // Form states
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -228,6 +231,11 @@ export default function SimpegDashboard() {
     } finally {
       setReportLoading(false);
     }
+  };
+
+  const fetchAttendanceReportUnits = async () => {
+    const nextUnits = await readManagementJson<OrganizationUnit[]>("/api/attendance/report-units");
+    setReportUnits(nextUnits);
   };
 
   const downloadAttendanceReportPdf = async () => {
@@ -345,6 +353,7 @@ export default function SimpegDashboard() {
         setCanManageAllUnits(globalSuperAdmin || roles.some((entry: any) => entry?.role === "admin_kepegawaian" && ["*", "simpeg"].includes(entry?.app || "")));
         setCanManageYmqAdmins(globalSuperAdmin);
         setCanViewAttendanceReports(reportViewer);
+        setCanSelectFoundationReportScope(canSelectFoundationAttendanceReportScope(roles));
         setManageableUnitIds(roles.filter((entry: any) => entry?.app === "simpeg" && (entry?.role === "admin_unit" || entry?.role === "admin_unit_nondik") && entry?.unitId).map((entry: any) => entry.unitId));
         setCurrentUser({
           fullName: data.user.fullName || data.user.email || "Pengguna SIMPEG",
@@ -357,7 +366,9 @@ export default function SimpegDashboard() {
         setActiveTab(simpegLandingTab(roles));
 
         if (manager) {
-          await Promise.all(reportViewer ? [fetchData(), fetchAttendanceReport()] : [fetchData()]);
+          await Promise.all(reportViewer ? [fetchData(), fetchAttendanceReport(), fetchAttendanceReportUnits()] : [fetchData()]);
+        } else if (reportViewer) {
+          await Promise.all([fetchAttendanceReport(), fetchAttendanceReportUnits()]);
         } else if (pegawai) {
           await fetchEmployeeAttendanceData();
         } else {
@@ -938,11 +949,11 @@ export default function SimpegDashboard() {
                 <div className="space-y-6">
                   <AttendanceReportDashboard
                     report={attendanceReport}
-                    units={units}
+                    units={reportUnits}
                     selectedMonth={reportMonth}
                     selectedUnitId={reportUnitId}
                     selectedSource={reportSource}
-                    canManageAllUnits={canManageAllUnits}
+                    canSelectFoundationScope={canSelectFoundationReportScope}
                     loading={reportLoading}
                     downloading={reportDownloading}
                     onDownload={() => void downloadAttendanceReportPdf()}
