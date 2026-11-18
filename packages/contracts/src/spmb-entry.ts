@@ -1,10 +1,11 @@
+import { isFoundationLeader } from "./role-catalog";
 import type { UserRoleScope } from "./roles";
 
-export type SpmbEntryId = "parent" | "admin" | "observer";
+export type SpmbEntryId = "parent" | "admin" | "observer" | "executive";
 
 export type SpmbEntry = {
   id: SpmbEntryId;
-  path: "/parent" | "/admin" | "/observer";
+  path: "/parent" | "/admin" | "/observer" | "/executive";
   label: string;
   description: string;
   icon: string;
@@ -34,6 +35,14 @@ const OBSERVER_ENTRY: SpmbEntry = {
   icon: "rate_review",
 };
 
+const EXECUTIVE_ENTRY: SpmbEntry = {
+  id: "executive",
+  path: "/executive",
+  label: "SPMB — Dashboard Pimpinan",
+  description: "Pantau periode, pendaftar, hasil seleksi, dan handoff SIAKAD secara read-only.",
+  icon: "monitoring",
+};
+
 function hasExactSpmbRole(roles: readonly UserRoleScope[], role: string): boolean {
   return roles.some((item) => item.app === "spmb" && item.role === role);
 }
@@ -53,6 +62,7 @@ function isCentralSuperAdmin(roles: readonly UserRoleScope[]): boolean {
 export function getSpmbEntries(roles: readonly UserRoleScope[]): SpmbEntry[] {
   const entries: SpmbEntry[] = [];
 
+  if (isFoundationLeader(roles)) entries.push(EXECUTIVE_ENTRY);
   if (hasExactSpmbRole(roles, "orang_tua")) entries.push(PARENT_ENTRY);
   if (
     isCentralSuperAdmin(roles)

@@ -6,15 +6,19 @@ import {
   SetMetadata,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { isFoundationLeader } from "@alfida/contracts";
 import { matchesSpmbRole } from "../spmb-scope-policy";
 
 export const SPMB_ROLES_KEY = "spmb_roles";
+export const SPMB_FOUNDATION_DASHBOARD_KEY = "spmb_foundation_dashboard";
 
 /**
  * Decorator untuk menentukan daftar peran yang diizinkan mengakses handler / controller pada sistem SPMB.
  * Mendukung multiple roles, contoh: @SpmbRoles('admin_unit', 'tim_spmb')
  */
 export const SpmbRoles = (...roles: string[]) => SetMetadata(SPMB_ROLES_KEY, roles);
+/** Explicitly grants the handler's read-only dashboard to Pimpinan Yayasan. */
+export const SpmbDashboardRoles = () => SetMetadata(SPMB_FOUNDATION_DASHBOARD_KEY, true);
 
 @Injectable()
 export class SpmbRolesGuard implements CanActivate {
@@ -22,6 +26,10 @@ export class SpmbRolesGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<string[]>(SPMB_ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    const allowsFoundationLeader = this.reflector.getAllAndOverride<boolean>(SPMB_FOUNDATION_DASHBOARD_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -36,6 +44,10 @@ export class SpmbRolesGuard implements CanActivate {
 
     if (!user || !user.roles || !Array.isArray(user.roles)) {
       throw new ForbiddenException("Akses ditolak: pengguna tidak memiliki wewenang pada sistem SPMB");
+    }
+
+    if (allowsFoundationLeader && isFoundationLeader(user.roles)) {
+      return true;
     }
 
     const hasAllowedRole = user.roles.some((r: any) => {

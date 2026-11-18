@@ -4,7 +4,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { SingleDecisionDto, BatchDecisionDto } from "./decisions.dto";
 import { RegistrationStatus, Prisma } from "../generated/prisma";
 import { canTransition } from "../common/spmb-workflow";
-import { allowedUnitIds, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
+import { allowedUnitIds, isFoundationLeader, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
 import { buildSpmbHandoffPayload, hashSpmbHandoffPayload } from "../handoff/spmb-handoff-payload";
 
 @Injectable()
@@ -12,7 +12,7 @@ export class DecisionsService {
   constructor(private readonly prisma: PrismaService) {}
 
   private assertReadPeriodAccess(period: { unitId: string }, principal: SpmbPrincipal) {
-    if (isSuperAdmin(principal) || allowedUnitIds(principal, ["admin_unit", "tim_spmb"]).has(period.unitId)) return;
+    if (isSuperAdmin(principal) || isFoundationLeader(principal) || allowedUnitIds(principal, ["admin_unit", "tim_spmb"]).has(period.unitId)) return;
     throw new NotFoundException("Pendaftaran tidak ditemukan");
   }
 

@@ -12,7 +12,7 @@ import {
 import { PeriodsService } from "./periods.service";
 import { CreatePeriodDto, UpdatePeriodDto } from "./periods.dto";
 import { ServiceJwtAuthGuard } from "@alfida/auth-sdk";
-import { SpmbRolesGuard, SpmbRoles } from "../common/guards";
+import { SpmbRolesGuard, SpmbRoles, SpmbDashboardRoles } from "../common/guards";
 
 @Controller("periods")
 export class PeriodsController {
@@ -25,6 +25,7 @@ export class PeriodsController {
 
   @Get()
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbDashboardRoles()
   @SpmbRoles("admin_unit", "tim_spmb", "observer")
   async findAll(@Req() req: any) {
     return this.periodsService.findAll(req.user);
@@ -32,6 +33,7 @@ export class PeriodsController {
 
   @Get(":id")
   @UseGuards(ServiceJwtAuthGuard, SpmbRolesGuard)
+  @SpmbDashboardRoles()
   @SpmbRoles("admin_unit", "tim_spmb", "observer")
   async findOne(@Param("id") id: string, @Req() req: any) {
     return this.periodsService.findOne(id, req.user);

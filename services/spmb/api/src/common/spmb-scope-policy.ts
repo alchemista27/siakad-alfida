@@ -1,4 +1,5 @@
 import { ForbiddenException } from "@nestjs/common";
+import { isFoundationLeader as hasFoundationLeaderRole } from "@alfida/contracts";
 
 export type SpmbRoleClaim = { role: string; app?: string; unitId?: string | null } | string;
 
@@ -26,6 +27,10 @@ export function isSuperAdmin(principal: SpmbPrincipal): boolean {
     const claim = asClaim(role);
     return claim?.role === "super_admin" && (claim.app === "*" || claim.app === "auth" || claim.app === "core");
   });
+}
+
+export function isFoundationLeader(principal: SpmbPrincipal): boolean {
+  return hasFoundationLeaderRole(principal.roles.filter((role): role is Exclude<SpmbRoleClaim, string> => typeof role !== "string"));
 }
 
 export function allowedUnitIds(principal: SpmbPrincipal, roles: readonly string[]): ReadonlySet<string> {

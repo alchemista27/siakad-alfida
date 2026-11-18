@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreatePeriodDto, UpdatePeriodDto } from "./periods.dto";
-import { allowedUnitIds, assertUnitAccess, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
+import { allowedUnitIds, assertUnitAccess, isFoundationLeader, isSuperAdmin, type SpmbPrincipal } from "../common/spmb-scope-policy";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -14,7 +14,7 @@ export class PeriodsService {
     principal: SpmbPrincipal,
     roles: readonly string[] = ["admin_unit", "tim_spmb", "observer"],
   ) {
-    if (isSuperAdmin(principal) || allowedUnitIds(principal, roles).has(period.unitId)) return;
+    if (isSuperAdmin(principal) || isFoundationLeader(principal) || allowedUnitIds(principal, roles).has(period.unitId)) return;
     throw new NotFoundException("Periode pendaftaran tidak ditemukan");
   }
 
@@ -99,7 +99,7 @@ export class PeriodsService {
   }
 
   async findAll(principal: SpmbPrincipal) {
-    const where = isSuperAdmin(principal)
+    const where = isSuperAdmin(principal) || isFoundationLeader(principal)
       ? {}
       : { unitId: { in: [...allowedUnitIds(principal, ["admin_unit", "tim_spmb", "observer"])] } };
 
